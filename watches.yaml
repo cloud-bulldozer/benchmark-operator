@@ -1,0 +1,5 @@
+---
+- version: v1alpha1
+  group: bench.example.com
+  kind: Bench
+  playbook: /opt/ansible/playbook.yml

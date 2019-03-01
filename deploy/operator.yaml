@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: benchmark-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: benchmark-operator
+  template:
+    metadata:
+      labels:
+        name: benchmark-operator
+    spec:
+      serviceAccountName: benchmark-operator
+      containers:
+        - name: benchmark-operator
+          # Replace this with the built image name
+          image: "{{ REPLACE_IMAGE }}"
+          imagePullPolicy: "{{ pull_policy|default('Always') }}"
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "benchmark-operator"

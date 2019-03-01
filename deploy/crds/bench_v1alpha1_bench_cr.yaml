@@ -1,0 +1,7 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: example-bench
+spec:
+  # Add fields here
+  size: 3

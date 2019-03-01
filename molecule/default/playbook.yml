@@ -1,0 +1,4 @@
+---
+- import_playbook: '{{ playbook_dir }}/../../playbook.yml'
+
+- import_playbook: '{{ playbook_dir }}/asserts.yml'
