@@ -2,4 +2,5 @@
   gather_facts: no
   tasks:
   - import_role:
-      name: "bench"
+      name: "uperf-bench"
+    when: uperf.servers > 0  

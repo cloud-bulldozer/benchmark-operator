@@ -5,36 +5,57 @@
       kind: Deployment
       apiVersion: apps/v1
       metadata:
-        name: '{{ meta.name }}-bench'
+        name: '{{ meta.name }}-uperf-server-bench'
         namespace: '{{ meta.namespace }}'
       spec:
         replicas: "{{uperf.servers}}"
         selector:
           matchLabels:
-            app: bench
+            app: bench-server
         template:
           metadata:
             labels:
-              app: bench 
+              app: bench-server
           spec:
             containers:
-            - name: bench 
+            - name: bench-server
               image: "quay.io/jtaleric/uperf:testing"
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
   when: uperf.servers > 0
 
-- name: Get Pod info
+- name: Wait for pods to be running....
   k8s_facts:
     kind: Pod
     api_version: v1
     namespace: default
     label_selectors:
-      - app = bench
+      - app = bench-server
   register: server_pods
+  until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
+  retries: 5
+  delay: 10
+
+- name: Get Running Pod info
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: default
+    label_selectors:
+      - app = bench-server
+  register: pods 
 
 - debug:
-    msg: "{{server_pods.resources}}"
+    msg: "Resources --  {{pods.resources}}"
+
+- name: Generate test
+  template:
+    src: uperf-test.xml.j2 
+    dest: /tmp/uperf-test.xml
+
+- name: Copy over
+  shell: oc cp /tmp/uperf-test.xml item.generateName:/tmp/uperf-test.xml 
+  with_items: "{{ pods.resources }}"
 
 - name: Start Client(s) 
   k8s:
@@ -42,7 +63,7 @@
       kind: Deployment
       apiVersion: apps/v1
       metadata:
-        name: '{{ meta.name }}-bench'
+        name: '{{ meta.name }}-uperf-client-bench'
         namespace: '{{ meta.namespace }}'
       spec:
         replicas: "{{uperf.clients}}"
@@ -58,8 +79,6 @@
             - name: bench 
               image: "quay.io/jtaleric/uperf:testing"
               command: ["/bin/sh"]
-              args: ["-c", "export h={{item.0.status.podIP}}; export proto=tcp; uperf -m /usr/local/share/netperf.xml -i"]
+              args: ["-c", "export h={{item.status.podIP}}; export proto=tcp; while true; do ls la /tmp; cat /tmp/uperf-test.xml; uperf -m /usr/local/share/netperf.xml -i 1; sleep 100; done"]
   when: uperf.clients > 0
-  with_subelements: 
-    - "{{ server_pods.resources }}"
-    - status 
+  with_items: "{{ pods.resources }}"

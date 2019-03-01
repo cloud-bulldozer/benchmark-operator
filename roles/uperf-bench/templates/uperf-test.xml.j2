@@ -1,0 +1,35 @@
+<?xml version=1.0?>
+<profile name={{proto}}-{{test_type}}-{{size}}B-{{nthr}}i>
+<group nthreads={{nthr}}>
+{% if ( 'rr' == test_type ) %}
+      <transaction iterations=1>
+      </transaction>
+      <transaction duration={{runtime}}>"
+        <flowop type=write options=size={{size}}/>
+	<flowop type=read  options=size={{size}}/>
+      <transaction iterations=1>
+        <flowop type=disconnect />
+      </transaction>
+{% endif %}
+{% if ( 'stream' == test_type or 'bidirec' == test_type ) %}
+      <transaction iterations=1>
+      </transaction>
+      <transaction duration={{runtime}}>
+        <flowop type=write options=count=16 size={{size}}/>
+      </transaction>
+      <transaction iterations=1>
+        <flowop type=disconnect />
+      </transaction>
+{% endif %}
+{% if ( 'maerts' == test_type or 'bidirec' == test_type) %}
+      <transaction iterations=1>
+      </transaction>
+      <transaction duration={{runtime}}>
+        <flowop type=read options=count=16 size={{size}}/>
+      </transaction>
+      <transaction iterations=1>
+        <flowop type=disconnect />
+      </transaction>
+{% endif %}
+  </group>
+</profile>

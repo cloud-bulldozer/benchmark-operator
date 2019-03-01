@@ -16,8 +16,8 @@ spec:
       containers:
         - name: benchmark-operator
           # Replace this with the built image name
-          image: "{{ REPLACE_IMAGE }}"
-          imagePullPolicy: "{{ pull_policy|default('Always') }}"
+          image: quay.io/jtaleric/benchmark-operator:testing 
+          imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
               valueFrom:

@@ -1,0 +1,37 @@
+---
+- name: Start Server(s) 
+  k8s:
+    definition:
+      kind: Deployment
+      apiVersion: apps/v1
+      metadata:
+        name: '{{ meta.name }}-fio-server-bench'
+        namespace: '{{ meta.namespace }}'
+      spec:
+        replicas: "{{fio.servers}}"
+        selector:
+          matchLabels:
+            app: bench-server
+        template:
+          metadata:
+            labels:
+              app: bench-server
+          spec:
+            containers:
+            - name: bench-server
+              image: "quay.io/jtaleric/fio:testing"
+              command: ["/bin/sh"]
+              args: ["-c", "fio "]
+  when: fio.servers > 0
+
+- name: Wait for pods to be running....
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: default
+    label_selectors:
+      - app = bench-server
+  register: server_pods
+  until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
+  retries: 5
+  delay: 10
