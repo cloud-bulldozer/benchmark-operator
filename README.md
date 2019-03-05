@@ -16,7 +16,7 @@ a performance baseline of your provider.
 # git clone https://github.com/jtaleric/benchmark-operator
 # cd benchmark-operator
 # export KUBECONFIG=<your_kube_config>
-# oc create namespace benchmark
+# oc new-project benchmark
 # oc project benchmark
 # oc create -f deploy/role.yaml
 # oc create -f deploy/role_binding.yaml
