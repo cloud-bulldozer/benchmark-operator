@@ -5,8 +5,7 @@ metadata:
 spec:
   uperf: 
     # Server size must always be 1 or more
-    servers: 1
-    clients: 1
+    pair: 2
     proto: tcp
     test_type: stream
     nthr: 2

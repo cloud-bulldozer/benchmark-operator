@@ -8,7 +8,7 @@
         name: '{{ meta.name }}-uperf-server-bench'
         namespace: '{{ meta.namespace }}'
       spec:
-        replicas: "{{uperf.servers}}"
+        replicas: "{{uperf.pair}}"
         selector:
           matchLabels:
             app: bench-server
@@ -22,7 +22,7 @@
               image: "quay.io/jtaleric/uperf:testing"
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
-  when: uperf.servers > 0
+  when: uperf.pair > 0
 
 - name: Wait for pods to be running....
   k8s_facts:
@@ -65,10 +65,10 @@
       kind: Deployment
       apiVersion: apps/v1
       metadata:
-        name: '{{ meta.name }}-uperf-client-bench'
+        name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
         namespace: '{{ meta.namespace }}'
       spec:
-        replicas: "{{uperf.clients}}"
+        replicas: "1"
         selector:
           matchLabels:
             app: bench 
@@ -79,6 +79,8 @@
           spec:
             containers:
             - name: bench 
+              ports:
+              - containerPort: 22
               image: "quay.io/jtaleric/uperf:testing"
               command: ["/bin/sh", "-c"]
               args: 
@@ -96,5 +98,5 @@
                 configMap:
                   name: uperf-test
       restartPolicy: Always
-  when: uperf.clients > 0
+  when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
