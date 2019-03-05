@@ -1,33 +1,36 @@
 <?xml version=1.0?>
-<profile name={{proto}}-{{test_type}}-{{size}}B-{{nthr}}i>
-<group nthreads={{nthr}}>
-{% if ( 'rr' == test_type ) %}
-      <transaction iterations=1>
+<profile name="{{uperf.proto}}-{{uperf.test_type}}-{{uperf.size}}B-{{uperf.nthr}}i">
+<group nthreads="{{uperf.nthr}}">
+{% if ( 'rr' == uperf.test_type ) %}
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h protocol={{uperf.proto}}"/>
       </transaction>
-      <transaction duration={{runtime}}>"
-        <flowop type=write options=size={{size}}/>
-	<flowop type=read  options=size={{size}}/>
-      <transaction iterations=1>
+      <transaction duration="{{runtime}}">"
+	      <flowop type=write options="size={{uperf.size}}"/>
+	<flowop type=read  options="size={{uperf.size}}"/>
+      <transaction iterations="1">
         <flowop type=disconnect />
       </transaction>
 {% endif %}
-{% if ( 'stream' == test_type or 'bidirec' == test_type ) %}
-      <transaction iterations=1>
+{% if ( 'stream' == uperf.test_type or 'bidirec' == uperf.test_type ) %}
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h protocol={{uperf.proto}}"/>
       </transaction>
-      <transaction duration={{runtime}}>
-        <flowop type=write options=count=16 size={{size}}/>
+      <transaction duration="{{uperf.runtime}}">
+        <flowop type=write options="count=16 size={{uperf.size}}"/>
       </transaction>
-      <transaction iterations=1>
+      <transaction iterations="1">
         <flowop type=disconnect />
       </transaction>
 {% endif %}
-{% if ( 'maerts' == test_type or 'bidirec' == test_type) %}
-      <transaction iterations=1>
+{% if ( 'maerts' == uperf.test_type or 'bidirec' == uperf.test_type) %}
+      <transaction iterations="1">
+        <flowop type="connect" options="remotehost=$h protocol={{uperf.proto}}"/>
       </transaction>
-      <transaction duration={{runtime}}>
-        <flowop type=read options=count=16 size={{size}}/>
+      <transaction duration="{{uperf.runtime}}">
+        <flowop type=read options="count=16 size={{uperf.size}}"/>
       </transaction>
-      <transaction iterations=1>
+      <transaction iterations="1">
         <flowop type=disconnect />
       </transaction>
 {% endif %}

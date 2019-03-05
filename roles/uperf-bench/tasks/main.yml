@@ -49,13 +49,15 @@
     msg: "Resources --  {{pods.resources}}"
 
 - name: Generate test
-  template:
-    src: uperf-test.xml.j2 
-    dest: /tmp/uperf-test.xml
-
-- name: Copy over
-  shell: oc cp /tmp/uperf-test.xml item.generateName:/tmp/uperf-test.xml 
-  with_items: "{{ pods.resources }}"
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: uperf-test
+        namespace: default 
+      data:
+        uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
 - name: Start Client(s) 
   k8s:
@@ -78,7 +80,21 @@
             containers:
             - name: bench 
               image: "quay.io/jtaleric/uperf:testing"
-              command: ["/bin/sh"]
-              args: ["-c", "export h={{item.status.podIP}}; export proto=tcp; while true; do ls la /tmp; cat /tmp/uperf-test.xml; uperf -m /usr/local/share/netperf.xml -i 1; sleep 100; done"]
+              command: ["/bin/sh", "-c"]
+              args: 
+                - "cat /tmp/uperf-test/uperfXML;
+                   while true; do
+                   export h={{item.status.podIP}};
+                   export proto=tcp;
+                   uperf -m /tmp/uperf-test/uperfXML -i 1;
+                   sleep 100; done"
+              volumeMounts:
+              - name: config-volume 
+                mountPath: "/tmp/uperf-test"
+            volumes:
+              - name: config-volume 
+                configMap:
+                  name: uperf-test
+      restartPolicy: Always
   when: uperf.clients > 0
   with_items: "{{ pods.resources }}"
