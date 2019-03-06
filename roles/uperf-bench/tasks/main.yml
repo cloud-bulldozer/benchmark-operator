@@ -88,7 +88,7 @@
                    while true; do
                    export h={{item.status.podIP}};
                    export proto=tcp;
-                   uperf -m /tmp/uperf-test/uperfXML -i 1;
+                   uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1;
                    sleep 100; done"
               volumeMounts:
               - name: config-volume 
