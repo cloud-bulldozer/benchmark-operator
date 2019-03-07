@@ -5,53 +5,55 @@
     definition: "{{ lookup('file', 'crd.yaml') }}"
   when: couchbase.servers.size > 0
 
-#- name: Create Cluster Role for Service Account
-#  k8s:
-#    definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
-#  when: couchbase.servers.size > 0
-#
-#- name: Create Service Account
-#  k8s:
-#    definition:
-#      apiVersion: v1
-#      kind: ServiceAccount
-#      metadata:
-#        name: couchbase-operator
-#  when: couchbase.servers.size > 0
-#
-#- name: Create ClusterRoleBinding for the Service Account
-#  k8s:
-#    definition:
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      kind: ClusterRoleBinding
-#      metadata:
-#        name: couchbase-operator-rolebinding
-#      roleRef:
-#        apiGroup: rbac.authorization.k8s.io
-#        kind: ClusterRole
-#        name: couchbase-operator
-#      subjects:
-#      - kind: ServiceAccount
-#        name: couchbase-operator
-#  when: couchbase.servers.size > 0
-#
-#- name: Create Cluster Role for the user
-#  k8s:
-#    definition: "{{ lookup('file', 'cluster-role-user.yaml') }}"
-#  when: couchbase.servers.size > 0
-#
-#- name: Create ClusterRoleBinding for the User
-#  k8s:
-#    definition:
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      kind: ClusterRoleBinding
-#      metadata:
-#        name: couchbasecluster-rolebinding
-#      roleRef:
-#        apiGroup: rbac.authorization.k8s.io
-#        kind: ClusterRole
-#        name: couchbasecluster
-#  when: couchbase.servers.size > 0
+- name: Create Cluster Role for Service Account
+  k8s:
+    definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
+  when: couchbase.servers.size > 0
+
+- name: Create Service Account
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: couchbase-operator
+        namespace: '{{ meta.namespace }}'
+  when: couchbase.servers.size > 0
+
+- name: Create ClusterRoleBinding for the Service Account
+  k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: couchbase-operator-rolebinding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: couchbase-operator
+      subjects:
+      - kind: ServiceAccount
+        name: couchbase-operator
+        namespace: '{{ meta.namespace }}'
+  when: couchbase.servers.size > 0
+
+- name: Create Cluster Role for the user
+  k8s:
+    definition: "{{ lookup('file', 'cluster-role-user.yaml') }}"
+  when: couchbase.servers.size > 0
+
+- name: Create ClusterRoleBinding for the User
+  k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: couchbasecluster-rolebinding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: couchbasecluster
+  when: couchbase.servers.size > 0
 
 # Launch Couchbase DB from operator
 # Launch YCSB to run workload against Couchbase DB
