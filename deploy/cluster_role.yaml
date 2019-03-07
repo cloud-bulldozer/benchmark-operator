@@ -32,5 +32,6 @@ rules:
   resources:
   - serviceaccounts
   - namespaces
+  - secrets
   verbs:
   - '*'
