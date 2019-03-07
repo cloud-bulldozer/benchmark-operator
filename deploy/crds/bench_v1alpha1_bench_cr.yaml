@@ -11,3 +11,7 @@ spec:
     nthr: 2
     size: 16384
     runtime: 60
+  couchbase: 
+    # Server size must always be 1 or more
+    servers:
+      size: 3
