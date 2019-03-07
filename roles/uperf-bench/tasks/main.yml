@@ -23,16 +23,7 @@
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
   when: uperf.pair > 0
-  register: servers
 
-- name: Wait for servers to be up
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    name: item.generatedName 
-    namespace: '{{ meta.namespace }}' 
-  with_items: servers.resources
-  
 - name: Wait for pods to be running....
   k8s_facts:
     kind: Pod
@@ -79,35 +70,6 @@
         labels:
           app : bench-client
       spec:
-<<<<<<< HEAD
-        replicas: "1"
-        selector:
-          matchLabels:
-            app: bench-client 
-        template:
-          metadata:
-            labels:
-              app: bench-client
-          spec:
-            containers:
-            - name: bench 
-              ports:
-              - containerPort: 22
-              image: "quay.io/jtaleric/uperf:testing"
-              command: ["/bin/sh", "-c"]
-              args: 
-                - "cat /tmp/uperf-test/uperfXML;
-                   export h={{item.status.podIP}};
-                   export proto=tcp;
-                   uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
-              volumeMounts:
-              - name: config-volume 
-                mountPath: "/tmp/uperf-test"
-            volumes:
-              - name: config-volume 
-                configMap:
-                  name: uperf-test
-=======
        containers:
        - name: bench 
          image: "quay.io/jtaleric/uperf:testing"
@@ -125,7 +87,6 @@
            configMap:
              name: uperf-test
        restartPolicy: OnFailure
->>>>>>> 46a4d2f31f402901f0dd62c796526edea096a6c2
   when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
 
@@ -138,17 +99,3 @@
       - app = bench-client
   register: clients 
 
-<<<<<<< HEAD
-- name: Get logs
-  k8s_log:
-    api_version: v1
-￼   kind: Pod
-￼   name: item.generateName 
-￼   namespace: "{{ meta.namespace }}" 
-￼ register: logs 
-  with_items: "{{ clients.resources }}"
-
-- debug:
-    msg: "Logs --  {{pods.resources}}"
-=======
->>>>>>> 46a4d2f31f402901f0dd62c796526edea096a6c2
