@@ -91,7 +91,16 @@
 
 - name: Create the cb-example-auth Auth Secret
   k8s:
-    definition: "{{ lookup('file', 'secret.yaml') }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cb-example-auth
+        namespace: '{{ meta.namespace }}'
+      type: Opaque
+      data:
+        username: QWRtaW5pc3RyYXRvcg==
+        password: cGFzc3dvcmQ=
   when: couchbase.servers.size > 0
 
 - name: Download Couchbase Operator from operatorhub.io
