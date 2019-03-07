@@ -36,6 +36,9 @@
   retries: 5
   delay: 10
 
+  # TODO (rook) Change how we look for running pods. Right now what we have
+  # is problematic.
+
 - name: Get Running Pod info
   k8s_facts:
     kind: Pod
@@ -44,9 +47,6 @@
     label_selectors:
       - app = bench-server
   register: pods 
-
-- debug:
-    msg: "Resources --  {{pods.resources}}"
 
 - name: Generate uperf test
   k8s:
@@ -90,12 +90,35 @@
   when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
 
-- name: Get Running Pod info
+- name: Waiting for pods to complete....
   k8s_facts:
     kind: Pod
     api_version: v1
     namespace: '{{ meta.namespace }}' 
     label_selectors:
-      - app = bench-client
-  register: clients 
+      - app = bench-client 
+  register: client_pods
+  until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
+  retries: 30
+  delay: 10
 
+- name: Client pod names
+  set_fact:
+    pod_names: |
+        [
+        {% for item in client_pods.resources %}
+          "{{ item['metadata']['name'] }}",
+        {% endfor %}
+        ]
+
+- name: Retrieve results
+  k8s_log:
+    api_version: v1
+    kind: Pod
+    name: "{{ item }}"
+    namespace: "{{ meta.namespace }}" 
+  register: result_log
+  with_items: "{{pod_names}}"
+
+- debug:
+    msg: "Results --  {{result_log}}"
