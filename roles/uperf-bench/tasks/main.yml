@@ -1,5 +1,5 @@
 ---
-- name: Start Server(s) 
+- name: Start Server(s)
   k8s:
     definition:
       kind: Deployment
@@ -11,11 +11,11 @@
         replicas: "{{uperf.pair}}"
         selector:
           matchLabels:
-            app: bench-server
+            app: uperf-bench-server
         template:
           metadata:
             labels:
-              app: bench-server
+              app: uperf-bench-server
           spec:
             containers:
             - name: bench-server
@@ -25,105 +25,103 @@
   when: uperf.pair > 0
   register: servers
 
-- name: Wait for servers to be up
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    name: item.generatedName 
-    namespace: '{{ meta.namespace }}' 
-  with_items: servers.resources
-  
+- debug:
+    msg: "Results --  {{servers}}"
+
 - name: Wait for pods to be running....
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-server
+      - app = uperf-bench-server
   register: server_pods
   until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
   retries: 5
   delay: 10
 
+  # TODO (rook) Change how we look for running pods. Right now what we have
+  # is problematic.
+
 - name: Get Running Pod info
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-server
-  register: pods 
+      - app = uperf-bench-server
+  register: pods
 
-- debug:
-    msg: "Resources --  {{pods.resources}}"
-
-- name: Generate test
+- name: Generate uperf test
   k8s:
     definition:
       apiVersion: v1
       kind: ConfigMap
       metadata:
         name: uperf-test
-        namespace: '{{ meta.namespace }}' 
+        namespace: '{{ meta.namespace }}'
       data:
         uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
-- name: Start Client(s) 
+- name: Start Client(s)
   k8s:
     definition:
-      kind: Deployment
-      apiVersion: apps/v1
+      kind: Pod
+      apiVersion: v1
       metadata:
         name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
         namespace: '{{ meta.namespace }}'
+        labels:
+          app : uperf-bench-client
       spec:
-        replicas: "1"
-        selector:
-          matchLabels:
-            app: bench-client 
-        template:
-          metadata:
-            labels:
-              app: bench-client
-          spec:
-            containers:
-            - name: bench 
-              ports:
-              - containerPort: 22
-              image: "quay.io/jtaleric/uperf:testing"
-              command: ["/bin/sh", "-c"]
-              args: 
-                - "cat /tmp/uperf-test/uperfXML;
-                   export h={{item.status.podIP}};
-                   export proto=tcp;
-                   uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
-              volumeMounts:
-              - name: config-volume 
-                mountPath: "/tmp/uperf-test"
-            volumes:
-              - name: config-volume 
-                configMap:
-                  name: uperf-test
+       containers:
+       - name: bench
+         image: "quay.io/jtaleric/uperf:testing"
+         command: ["/bin/sh", "-c"]
+         args:
+           - "cat /tmp/uperf-test/uperfXML;
+              export h={{item.status.podIP}};
+              uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+         volumeMounts:
+         - name: config-volume
+           mountPath: "/tmp/uperf-test"
+       volumes:
+         - name: config-volume
+           configMap:
+             name: uperf-test
+       restartPolicy: OnFailure
   when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
 
-- name: Get Running Pod info
+- name: Waiting for pods to complete....
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-client
-  register: clients 
+      - app = uperf-bench-client
+  register: client_pods
+  until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
+  retries: 30
+  delay: 10
 
-- name: Get logs
+- name: Client pod names
+  set_fact:
+    pod_names: |
+        [
+        {% for item in client_pods.resources %}
+          "{{ item['metadata']['name'] }}",
+        {% endfor %}
+        ]
+
+- name: Retrieve results
   k8s_log:
     api_version: v1
-￼   kind: Pod
-￼   name: item.generateName 
-￼   namespace: "{{ meta.namespace }}" 
-￼ register: logs 
-  with_items: "{{ clients.resources }}"
+    kind: Pod
+    name: "{{ item }}"
+    namespace: "{{ meta.namespace }}"
+  register: result_log
+  with_items: "{{pod_names}}"
 
 - debug:
-    msg: "Logs --  {{pods.resources}}"
+    msg: "Results --  {{result_log}}"

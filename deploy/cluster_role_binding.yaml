@@ -1,0 +1,13 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: benchmark-operator
+subjects:
+- kind: ServiceAccount
+  name: benchmark-operator
+  #FIXME: This shouldn't be a hard-coded reference to a namespace
+  namespace: benchmark
+roleRef:
+  kind: ClusterRole
+  name: benchmark-operator
+  apiGroup: rbac.authorization.k8s.io

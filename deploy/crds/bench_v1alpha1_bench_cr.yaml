@@ -3,11 +3,30 @@ kind: Bench
 metadata:
   name: example-bench
 spec:
-  uperf: 
-    # Server size must always be 1 or more
+  uperf:
+    # To disable uperf, set pairs to 0
     pair: 1
     proto: tcp
     test_type: stream
     nthr: 2
     size: 16384
-    runtime: 60
+    runtime: 10
+  couchbase: 
+    # To disable couchbase, set servers.size to 0
+    # Typical deployment size is 3
+    servers:
+      size: 0
+    storage:
+      use_persistent_storage: True
+      class_name: "rook-ceph-block"
+      volume_size: 10Gi
+    on_openshift: True
+  fio:
+    # To disable fio, set clients to 0
+    clients: 0
+    jobname: test-write
+    bs: 4k
+    iodepth: 4
+    runtime: 57
+    rw: write
+    filesize: 1
