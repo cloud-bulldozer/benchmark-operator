@@ -15,13 +15,24 @@ rules:
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
+  - roles
+  - rolebindings
   - clusterroles
   - clusterrolebindings
+  verbs:
+  - '*'
+- apiGroups:
+  - operators.coreos.com
+  resources:
+  - catalogsources
+  - operatorgroups
+  - subscriptions
   verbs:
   - '*'
 - apiGroups:
   - ''
   resources:
   - serviceaccounts
+  - namespaces
   verbs:
   - '*'
