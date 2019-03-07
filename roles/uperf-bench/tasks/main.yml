@@ -52,6 +52,8 @@
     namespace: '{{ meta.namespace }}' 
     label_selectors:
       - app = bench-server
+    field_selectors:
+      - status.phase = running
   register: pods 
 
 - debug:
@@ -95,7 +97,6 @@
               args: 
                 - "cat /tmp/uperf-test/uperfXML;
                    export h={{item.status.podIP}};
-                   export proto=tcp;
                    uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
               volumeMounts:
               - name: config-volume 
