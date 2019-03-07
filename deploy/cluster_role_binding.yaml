@@ -1,0 +1,15 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: benchmark-operator
+subjects:
+- kind: ServiceAccount
+  name: benchmark-operator
+  #FIXME: namespace is required, but I can't find a way to set it to 
+  #       the current namespace or use a variable at this stage.
+  namespace: benchmark
+roleRef:
+  kind: ClusterRole
+  name: benchmark-operator
+  apiGroup: rbac.authorization.k8s.io
+

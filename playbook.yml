@@ -10,3 +10,6 @@
   - include_role:
       name: sysbench
     when: sysbench is defined and sysbench.enabled is defined and sysbench.enabled
+  - include_role:
+      name: "couchbase-infra"
+    when: couchbase is defined and couchbase.servers.size > 0

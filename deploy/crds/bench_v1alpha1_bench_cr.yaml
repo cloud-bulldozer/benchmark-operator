@@ -6,7 +6,7 @@ spec:
   # cleanup: true
   uperf:
     # To disable uperf, set pairs to 0
-    pair: 1
+    pair: 0
     proto: tcp
     test_type: stream
     nthr: 2
@@ -30,3 +30,13 @@ spec:
     - name: fileio
       parameters:
         file-test-mode: rndrw
+  couchbase: 
+    # To disable couchbase, set servers.size to 0
+    # Typical deployment size is 3
+    servers:
+      size: 0
+    storage:
+      use_persistent_storage: True
+      class_name: "rook-ceph-block"
+      volume_size: 10Gi
+    on_openshift: True
