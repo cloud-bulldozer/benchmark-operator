@@ -23,12 +23,21 @@
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
   when: uperf.pair > 0
+  register: servers
 
+- name: Wait for servers to be up
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    name: item.generatedName 
+    namespace: '{{ meta.namespace }}' 
+  with_items: servers.resources
+  
 - name: Wait for pods to be running....
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: default
+    namespace: '{{ meta.namespace }}' 
     label_selectors:
       - app = bench-server
   register: server_pods
@@ -40,7 +49,7 @@
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: default
+    namespace: '{{ meta.namespace }}' 
     label_selectors:
       - app = bench-server
   register: pods 
@@ -55,7 +64,7 @@
       kind: ConfigMap
       metadata:
         name: uperf-test
-        namespace: default 
+        namespace: '{{ meta.namespace }}' 
       data:
         uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
@@ -71,11 +80,11 @@
         replicas: "1"
         selector:
           matchLabels:
-            app: bench 
+            app: bench-client 
         template:
           metadata:
             labels:
-              app: bench 
+              app: bench-client
           spec:
             containers:
             - name: bench 
@@ -85,11 +94,9 @@
               command: ["/bin/sh", "-c"]
               args: 
                 - "cat /tmp/uperf-test/uperfXML;
-                   while true; do
                    export h={{item.status.podIP}};
                    export proto=tcp;
-                   uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1;
-                   sleep 100; done"
+                   uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
               volumeMounts:
               - name: config-volume 
                 mountPath: "/tmp/uperf-test"
@@ -97,6 +104,26 @@
               - name: config-volume 
                 configMap:
                   name: uperf-test
-      restartPolicy: Always
   when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
+
+- name: Get Running Pod info
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ meta.namespace }}' 
+    label_selectors:
+      - app = bench-client
+  register: clients 
+
+- name: Get logs
+  k8s_log:
+    api_version: v1
+￼   kind: Pod
+￼   name: item.generateName 
+￼   namespace: "{{ meta.namespace }}" 
+￼ register: logs 
+  with_items: "{{ clients.resources }}"
+
+- debug:
+    msg: "Logs --  {{pods.resources}}"
