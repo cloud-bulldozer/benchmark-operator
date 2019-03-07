@@ -55,5 +55,50 @@
         name: couchbasecluster
   when: couchbase.servers.size > 0
 
+- name: Create Role for the Benchmark User
+  k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: benchmark-operator-for-cb
+        namespace: '{{ meta.namespace }}'
+      rules:
+      - apiGroups:
+        - ""
+        resources:
+        - namespaces
+        verbs:
+        - get
+  when: couchbase.servers.size > 0
+
+- name: Create RoleBinding for the Benchmark User
+  k8s:
+    definition:
+      kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: benchmark-operator-for-cb
+        namespace: '{{ meta.namespace }}'
+      subjects:
+      - kind: ServiceAccount
+        name: benchmark-operator
+      roleRef:
+        kind: Role
+        name: benchmark-operator-for-cb
+        apiGroup: rbac.authorization.k8s.io
+  when: couchbase.servers.size > 0
+
+- name: Download Couchbase Operator from operatorhub.io
+  get_url:
+    url: https://www.operatorhub.io/install/couchbase-operator.v1.1.0.yaml
+    dest: /tmp/cboperator.yaml
+  when: couchbase.servers.size > 0
+
+- name: Deploy Couchbase Operator from operatorhub.io
+  k8s:
+    src: /tmp/cboperator.yaml
+  when: couchbase.servers.size > 0
+
 # Launch Couchbase DB from operator
 # Launch YCSB to run workload against Couchbase DB
