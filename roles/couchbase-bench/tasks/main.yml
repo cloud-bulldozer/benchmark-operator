@@ -89,6 +89,11 @@
         apiGroup: rbac.authorization.k8s.io
   when: couchbase.servers.size > 0
 
+- name: Create the cb-example-auth Auth Secret
+  k8s:
+    definition: "{{ lookup('file', 'secret.yaml') }}"
+  when: couchbase.servers.size > 0
+
 - name: Download Couchbase Operator from operatorhub.io
   get_url:
     url: https://www.operatorhub.io/install/couchbase-operator.v1.1.0.yaml
