@@ -20,6 +20,8 @@ a performance baseline of your provider.
 # oc project benchmark
 # oc create -f deploy/role.yaml
 # oc create -f deploy/role_binding.yaml
+# oc create -f deploy/cluster_role.yaml
+# oc create -f deploy/cluster_role_binding.yaml
 # oc create -f deploy/service_account.yaml
 # oc create -f deploy/crd/bench_v1alpha1_bench_crd.yaml
 # oc create -f deploy/operator.yaml
@@ -33,14 +35,26 @@ kind: Bench
 metadata:
   name: example-bench
 spec:
+  fio:
+    # To disable fio, set num_clients to 0
+    num_clients: 0
+    test_type: randwrite
+    direct: 1
+    sync: 1
+    filesize: 1
+    directory: /tmp/
   uperf: 
-    # Server size must always be 1 or more
-    pairs: 1
+    # To disable uperf, set pairs to 0
+    pair: 1
     proto: tcp
     test_type: stream
     nthr: 2
-    size: 16384 
-    runtime: 60
+    size: 16384
+    runtime: 10
+  couchbase: 
+    # To disable couchbase, set servers.size to 0
+    servers:
+      size: 0
 ```
 
 Deploying the above will result in :
