@@ -1,4 +1,4 @@
 ---
-couchbase: 
-  servers:
-    size: 0
+#couchbase: 
+#  servers:
+#    size: 0

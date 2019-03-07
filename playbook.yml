@@ -3,7 +3,7 @@
   tasks:
   - import_role:
       name: "uperf-bench"
-    when: uperf.pair > 0
+    when: uperf.pair is defined and uperf.pair > 0
   - import_role:
       name: "couchbase-bench"
-    when: couchbase.servers.size > 0
+    when: couchbase.servers.size is defined and couchbase.servers.size > 0
