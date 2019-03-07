@@ -4,3 +4,6 @@
   - import_role:
       name: "uperf-bench"
     when: uperf.pair > 0
+  - import_role:
+      name: "couchbase-bench"
+    when: couchbase.servers.size > 0

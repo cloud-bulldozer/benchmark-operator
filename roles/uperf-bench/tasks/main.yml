@@ -57,7 +57,7 @@
 - debug:
     msg: "Resources --  {{pods.resources}}"
 
-- name: Generate test
+- name: Generate uperf test
   k8s:
     definition:
       apiVersion: v1
@@ -71,12 +71,15 @@
 - name: Start Client(s) 
   k8s:
     definition:
-      kind: Deployment
-      apiVersion: apps/v1
+      kind: Pod 
+      apiVersion: v1
       metadata:
         name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
         namespace: '{{ meta.namespace }}'
+        labels:
+          app : bench-client
       spec:
+<<<<<<< HEAD
         replicas: "1"
         selector:
           matchLabels:
@@ -104,6 +107,25 @@
               - name: config-volume 
                 configMap:
                   name: uperf-test
+=======
+       containers:
+       - name: bench 
+         image: "quay.io/jtaleric/uperf:testing"
+         command: ["/bin/sh", "-c"]
+         args: 
+           - "cat /tmp/uperf-test/uperfXML;
+              export h={{item.status.podIP}};
+              export proto=tcp;
+              uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+         volumeMounts:
+         - name: config-volume 
+           mountPath: "/tmp/uperf-test"
+       volumes:
+         - name: config-volume 
+           configMap:
+             name: uperf-test
+       restartPolicy: OnFailure
+>>>>>>> 46a4d2f31f402901f0dd62c796526edea096a6c2
   when: uperf.pair > 0
   with_items: "{{ pods.resources }}"
 
@@ -116,6 +138,7 @@
       - app = bench-client
   register: clients 
 
+<<<<<<< HEAD
 - name: Get logs
   k8s_log:
     api_version: v1
@@ -127,3 +150,5 @@
 
 - debug:
     msg: "Logs --  {{pods.resources}}"
+=======
+>>>>>>> 46a4d2f31f402901f0dd62c796526edea096a6c2

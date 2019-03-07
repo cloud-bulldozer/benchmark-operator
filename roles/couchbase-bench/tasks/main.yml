@@ -1,5 +1,6 @@
 ---
 # Install Couchbase Operator (Assume rook is already in place? or should we check?)
+<<<<<<< HEAD
 - name: Create CRD for Couchbase Operator
   k8s:
     definition: "{{ lookup('file', 'crd.yaml') }}"
@@ -53,5 +54,7 @@
         name: couchbasecluster
   when: couchbase.servers.size > 0
 
+=======
+>>>>>>> 46a4d2f31f402901f0dd62c796526edea096a6c2
 # Launch Couchbase DB from operator
 # Launch YCSB to run workload against Couchbase DB
