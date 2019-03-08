@@ -1,9 +1,9 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - import_role:
+  - include_role:
       name: "uperf-bench"
-    when: uperf.pair > 0
-  - import_role:
+    when: uperf is defined and uperf.pair > 0
+  - include_role:
       name: "fio-bench"
-    when: fio.clients > 0
+    when: fio is defined and fio.clients > 0
