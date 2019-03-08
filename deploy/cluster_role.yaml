@@ -35,5 +35,13 @@ rules:
   - serviceaccounts
   - namespaces
   - secrets
+  - pods
   verbs:
   - '*'
+- apiGroups:
+  - ''
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
