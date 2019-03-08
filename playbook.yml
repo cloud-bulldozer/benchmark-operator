@@ -4,3 +4,6 @@
   - import_role:
       name: "uperf-bench"
     when: uperf.pair > 0
+  - import_role:
+      name: "fio-bench"
+    when: fio.clients > 0

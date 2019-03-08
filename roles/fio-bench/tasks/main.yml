@@ -8,7 +8,8 @@
         name: fio-test
         namespace: '{{ meta.namespace }}'
       data:
-        uperfXML: "{{ lookup('template', 'job.fio.j2') }}"
+        fiojob: "{{ lookup('template', 'job.fio.j2') }}"
+  when: fio.clients > 0
 
 - name: Start Server(s)
   k8s:
@@ -16,27 +17,25 @@
       kind: Pod
       apiVersion: v1
       metadata:
-        name: '{{ meta.name }}-fio-server-bench'
+        name: '{{ meta.name }}-fio-client-{{item}}-bench'
         namespace: '{{ meta.namespace }}'
         labels:
-          app: bench-server
+          app: fio-bench-server
       spec:
         containers:
         - name: bench-server
           image: "quay.io/jtaleric/fio:testing"
-          command: ["/bin/sh"]
-          args: ["-c", "fio /tmp/fio.job"]
-  when: fio.num_clients > 0
-
-
-- name: Wait for pods to be running....
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: default
-    label_selectors:
-      - app = bench-server
-  register: server_pods
-  until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
-  retries: 5
-  delay: 10
+          command: ["/bin/sh","-c"]
+          args:
+           - "cat /tmp/fio/fiojob;
+              fio /tmp/fio/fiojob"
+          volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/fio"
+        volumes:
+        - name: config-volume
+          configMap:
+            name: fio-test
+        restartPolicy: Never
+  when: fio.clients > 0
+  with_sequence: start=1 count={{fio.clients}}
