@@ -75,7 +75,7 @@
         resources:
         - couchbaseclusters
         verbs:
-        - get
+        - '*'
   when: couchbase.servers.size > 0
 
 - name: Create ClusterRoleBinding for the Benchmark User
@@ -93,20 +93,6 @@
         kind: ClusterRole
         name: benchmark-operator-for-cb
         apiGroup: rbac.authorization.k8s.io
-  when: couchbase.servers.size > 0
-
-- name: Create the cb-example-auth Auth Secret
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: cb-example-auth
-        namespace: '{{ meta.namespace }}'
-      type: Opaque
-      data:
-        username: QWRtaW5pc3RyYXRvcg==
-        password: cGFzc3dvcmQ=
   when: couchbase.servers.size > 0
 
 - name: Download Couchbase Operator from operatorhub.io
@@ -134,9 +120,75 @@
   when: couchbase.servers.size > 0
 
 # Launch Couchbase cluster from operator
-- name: Launch Couchbase Cluster from Operator
+# NOTE: The community docker images don't work with OpenShift
+#       currently, so we need to auth with the RH catalog
+#       and pull the usable image from there
+- name: Create the cb-example-auth Auth Secret
   k8s:
-    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cb-example-auth
+        namespace: my-couchbase-enterprise
+      type: Opaque
+      data:
+        username: QWRtaW5pc3RyYXRvcg==
+        password: cGFzc3dvcmQ=
+  when: couchbase.servers.size > 0
+
+#FIXME: This is an awful and insecure way to do this
+- name: Set rawdockerconfigjson Var
+  set_fact:
+    rawdockerconfigjson: '{"auths": { "{{ rhImageCredentials.registry }}": {"auth": "{{ (rhImageCredentials.username + ":" + rhImageCredentials.password) | b64encode }}" }}}'
+  when: couchbase.servers.size > 0
+
+- name: Create the RH Registry secret
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: rh-catalog
+        namespace: my-couchbase-enterprise
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: "{{ rawdockerconfigjson | to_json | b64encode }}"
+        #.dockerconfigjson: "{{ rawdockerconfigjson | b64encode }}"
+  when: couchbase.servers.size > 0
+
+#TODO: Work possibly needed here for PV security requirements
+#- name: Get the Project UID Range
+#  k8s_facts:
+#    api_version: v1
+#    kind: Project
+#    name: my-couchbase-enterprise
+#    field_selectors:
+#      - metadata.annotations.openshift.io/sa.scc.uid-range
+#    register: uid_range
+#  when: couchbase.servers.size > 0
+
+#TODO: Confirm that we can actually distribute this binary in this way
+- name: Get the cbopctl Binary
+  copy:
+    src: cbopctl
+    dest: /tmp/cbopctl
+    mode: 0750
+  when: couchbase.servers.size > 0
+
+- name: Get the Cluster YAML
+  template:
+    src: couchbase-cluster.yaml.j2
+    dest: /tmp/couchbase-cluster.yaml
+    mode: 0640
+  when: couchbase.servers.size > 0
+
+- name: Launch Couchbase Cluster from Operator
+#  k8s:
+#    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
+  command: ./cbopctl create -f couchbase-cluster.yaml
+  args:
+    chdir: /tmp
   when: couchbase.servers.size > 0
 
 # Launch YCSB to run workload against Couchbase DB
