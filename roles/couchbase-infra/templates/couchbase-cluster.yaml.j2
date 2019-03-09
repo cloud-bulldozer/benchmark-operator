@@ -1,19 +1,13 @@
-# For cluster config details, see
-# https://docs.couchbase.com/operator/1.1/couchbase-cluster-config.html
 apiVersion: couchbase.com/v1
 kind: CouchbaseCluster
 metadata:
   name: cb-benchmark
   namespace: my-couchbase-enterprise
 spec:
-{% if couchbase.on_openshift %}
-  #The upstream image is not compatible with OpenShift
+  #baseImage: registry.hub.docker.com/library/couchbase
+  #version: enterprise-6.0.1
   baseImage: registry.connect.redhat.com/couchbase/server
   version: 5.5.2-2
-{% else %}
-  baseImage: registry.hub.docker.com/library/couchbase
-  version: enterprise-6.0.1
-{% endif %}
   authSecret: cb-example-auth
   exposeAdminConsole: true
   adminConsoleServices:
@@ -41,7 +35,7 @@ spec:
       enableFlush: true
       enableIndexReplica: false
   servers:
-    - size: {{ couchbase.servers.size }}
+    - size: 3
       name: all_services
       services:
         - data
@@ -50,18 +44,3 @@ spec:
         - search
         - eventing
         - analytics
-# See: https://docs.couchbase.com/operator/1.1/persisted-volumes-setup.html
-{% if couchbase.storage.use_persistent_storage %}
-      pod:
-        volumeMounts:
-          default: couchbase
-          data: couchbase
-  volumeClaimTemplates:
-    - metadata:
-        name: couchbase
-      spec:
-        storageClassName: {{ couchbase.storage.class_name }}
-        resources:
-          requests:
-            storage: {{ couchbase.storage.volume_size }}
-{% endif %}
