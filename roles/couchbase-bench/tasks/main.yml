@@ -189,6 +189,8 @@
   command: ./cbopctl create -f couchbase-cluster.yaml
   args:
     chdir: /tmp
+  register: result
+  failed_when: "'already exists' not in result.stdout and 'created' not in result.stdout"
   when: couchbase.servers.size > 0
 
 # Launch YCSB to run workload against Couchbase DB
