@@ -7,3 +7,6 @@
   - import_role:
       name: "couchbase-bench"
     when: couchbase.servers.size is defined and couchbase.servers.size > 0
+  - import_role:
+      name: "fio-bench"
+    when: fio.clients is defined and fio.clients > 0

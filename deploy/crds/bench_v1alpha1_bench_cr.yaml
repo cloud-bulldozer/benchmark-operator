@@ -3,15 +3,7 @@ kind: Bench
 metadata:
   name: example-bench
 spec:
-  fio:
-    # To disable fio, set num_clients to 0
-    num_clients: 0
-    test_type: randwrite
-    direct: 1
-    sync: 1
-    filesize: 1
-    directory: /tmp/
-  uperf: 
+  uperf:
     # To disable uperf, set pairs to 0
     pair: 1
     proto: tcp
@@ -22,4 +14,13 @@ spec:
   couchbase: 
     # To disable couchbase, set servers.size to 0
     servers:
-      size: 3
+      size: 0
+  fio:
+    # To disable fio, set clients to 0
+    clients: 0
+    jobname: test-write
+    bs: 4k
+    iodepth: 4
+    runtime: 57
+    rw: write
+    filesize: 1

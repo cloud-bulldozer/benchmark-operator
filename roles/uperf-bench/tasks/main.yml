@@ -1,5 +1,5 @@
 ---
-- name: Start Server(s) 
+- name: Start Server(s)
   k8s:
     definition:
       kind: Deployment
@@ -11,11 +11,11 @@
         replicas: "{{uperf.pair}}"
         selector:
           matchLabels:
-            app: bench-server
+            app: uperf-bench-server
         template:
           metadata:
             labels:
-              app: bench-server
+              app: uperf-bench-server
           spec:
             containers:
             - name: bench-server
@@ -23,14 +23,18 @@
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
   when: uperf.pair > 0
+  register: servers
+
+- debug:
+    msg: "Results --  {{servers}}"
 
 - name: Wait for pods to be running....
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-server
+      - app = uperf-bench-server
   register: server_pods
   until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
   retries: 5
@@ -43,10 +47,10 @@
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-server
-  register: pods 
+      - app = uperf-bench-server
+  register: pods
 
 - name: Generate uperf test
   k8s:
@@ -55,35 +59,35 @@
       kind: ConfigMap
       metadata:
         name: uperf-test
-        namespace: '{{ meta.namespace }}' 
+        namespace: '{{ meta.namespace }}'
       data:
         uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
-- name: Start Client(s) 
+- name: Start Client(s)
   k8s:
     definition:
-      kind: Pod 
+      kind: Pod
       apiVersion: v1
       metadata:
         name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
         namespace: '{{ meta.namespace }}'
         labels:
-          app : bench-client
+          app : uperf-bench-client
       spec:
        containers:
-       - name: bench 
+       - name: bench
          image: "quay.io/jtaleric/uperf:testing"
          command: ["/bin/sh", "-c"]
-         args: 
+         args:
            - "cat /tmp/uperf-test/uperfXML;
               export h={{item.status.podIP}};
               export proto=tcp;
               uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
          volumeMounts:
-         - name: config-volume 
+         - name: config-volume
            mountPath: "/tmp/uperf-test"
        volumes:
-         - name: config-volume 
+         - name: config-volume
            configMap:
              name: uperf-test
        restartPolicy: OnFailure
@@ -94,9 +98,9 @@
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: '{{ meta.namespace }}' 
+    namespace: '{{ meta.namespace }}'
     label_selectors:
-      - app = bench-client 
+      - app = uperf-bench-client
   register: client_pods
   until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
   retries: 30
@@ -116,7 +120,7 @@
     api_version: v1
     kind: Pod
     name: "{{ item }}"
-    namespace: "{{ meta.namespace }}" 
+    namespace: "{{ meta.namespace }}"
   register: result_log
   with_items: "{{pod_names}}"
 
