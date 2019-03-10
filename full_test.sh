@@ -14,3 +14,5 @@ source tests/test_uperf.sh
 functional_test_uperf
 source tests/test_fio.sh
 functional_test_fio
+source tests/test_sysbench.sh
+functional_test_sysbench
