@@ -1,0 +1,42 @@
+---
+# tasks file for sysbench
+- name: template sysbench script
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: '{{ meta.name }}-sysbench-config'
+        namespace: '{{ meta.namespace }}'
+      data:
+        sysbenchScript: "{{ lookup('template', 'sysbench.sh.j2') }}"
+
+- name: start sysbench job
+  k8s:
+    definition:
+      kind: Job
+      apiVersion: batch/v1
+      metadata:
+        name: '{{ meta.name }}-sysbench'
+        namespace: '{{ meta.namespace }}'
+      spec:
+        template:
+          metadata:
+            labels:
+              app: sysbench
+          spec:
+            containers:
+            - name: sysbench
+              command: ["/bin/sh", "-c"]
+              args: ["/tmp/sysbenchScript"]            
+              image: "docker.io/smalleni/centos-sysbench:latest"
+              volumeMounts:
+              - name: sysbench-volume
+                mountPath: "/tmp/"
+            volumes:
+            - name: sysbench-volume
+              configMap:
+                name: '{{ meta.name }}-sysbench-config'
+                defaultMode: 0777
+            restartPolicy: OnFailure
+  

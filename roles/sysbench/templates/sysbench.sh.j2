@@ -1,0 +1,16 @@
+#!/bin/bash
+{% for test in sysbench.tests %}
+{% if test.name == "cpu" or test.name == "memory" %}
+sysbench --test={{test.name}} {% for opt,value in test.parameters.iteritems() %} --{{opt}}={{value}} {% endfor %} run
+{% elif test.name == "fileio" %}
+{% if 'file-total-size' not in test.parameters %}
+{% set dummy = test['parameters'].__setitem__("file-total-size", "1G") %}
+{% endif %}
+sysbench --test=fileio {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} prepare
+{% if 'file-test-mode' not in test.parameters %}
+{% set dummy = test['parameters'].__setitem__("file-test-mode", "rndrw") %}
+{% endif %}
+sysbench --test=fileio {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} run
+sysbench --test=fileio --file-total-size={{test['parameters']['file-total-size']}} cleanup
+{% endif %}
+{% endfor %}
