@@ -21,3 +21,12 @@ spec:
     runtime: 57
     rw: write
     filesize: 1
+  sysbench:
+    enabled: true
+    tests:
+    - name: cpu
+      parameters:
+        cpu-max-prime: 2000
+    - name: fileio
+      parameters:
+        file-test-mode: rndrw
