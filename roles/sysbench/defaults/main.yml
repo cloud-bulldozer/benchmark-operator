@@ -1,0 +1,7 @@
+---
+sysbench:
+  enabled: true
+  tests:
+  - name: cpu
+    parameters:
+      cpu-max-prime: 2000

@@ -17,3 +17,7 @@ wait_clean
 # Test FIO
 /bin/bash tests/test_fio.sh
 wait_clean
+#
+# Test Sysbench
+/bin/bash tests/test_sysbench.sh
+wait_clean

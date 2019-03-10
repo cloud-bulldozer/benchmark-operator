@@ -7,3 +7,6 @@
   - include_role:
       name: "fio-bench"
     when: fio is defined and fio.clients > 0
+  - include_role:
+      name: sysbench
+    when: sysbench is defined and sysbench.enabled is defined and sysbench.enabled
