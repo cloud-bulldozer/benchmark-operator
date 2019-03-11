@@ -5,6 +5,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: benchmark-operator
+  #FIXME: This shouldn't be a hard-coded reference to a namespace
   namespace: benchmark
 roleRef:
   kind: ClusterRole

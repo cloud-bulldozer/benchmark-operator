@@ -5,6 +5,18 @@
     definition: "{{ lookup('file', 'crd.yaml') }}"
   when: couchbase.servers.size > 0
 
+- name: Reticulating Splines
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        # This is the namespace coded into the operator
+        # from operatorhub.io. Best just to embrace it
+        # rather than fight it.
+        name: my-couchbase-enterprise
+  when: couchbase.servers.size > 0
+
 - name: Create Cluster Role for Service Account
   k8s:
     definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
@@ -17,7 +29,8 @@
       kind: ServiceAccount
       metadata:
         name: couchbase-operator
-        namespace: '{{ meta.namespace }}'
+        #namespace: '{{ meta.namespace }}'
+        namespace: my-couchbase-enterprise
   when: couchbase.servers.size > 0
 
 - name: Create ClusterRoleBinding for the Service Account
@@ -34,7 +47,8 @@
       subjects:
       - kind: ServiceAccount
         name: couchbase-operator
-        namespace: '{{ meta.namespace }}'
+        #namespace: '{{ meta.namespace }}'
+        namespace: my-couchbase-enterprise
   when: couchbase.servers.size > 0
 
 - name: Create Cluster Role for the user
