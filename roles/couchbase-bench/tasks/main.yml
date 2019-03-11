@@ -120,9 +120,6 @@
   when: couchbase.servers.size > 0
 
 # Launch Couchbase cluster from operator
-# NOTE: The community docker images don't work with OpenShift
-#       currently, so we need to auth with the RH catalog
-#       and pull the usable image from there
 - name: Create the cb-example-auth Auth Secret
   k8s:
     definition:
@@ -137,11 +134,14 @@
         password: cGFzc3dvcmQ=
   when: couchbase.servers.size > 0
 
+# NOTE: The community docker images don't work with OpenShift
+#       currently, so we need to auth with the RH catalog
+#       and pull the usable image from there
 #FIXME: This is an awful and insecure way to do this
 - name: Set rawdockerconfigjson Var
   set_fact:
     rawdockerconfigjson: '{"auths": { "{{ rhImageCredentials.registry }}": {"auth": "{{ (rhImageCredentials.username + ":" + rhImageCredentials.password) | b64encode }}" }}}'
-  when: couchbase.servers.size > 0
+  when: couchbase.servers.size > 0 and couchbase.on_openshift
 
 - name: Create the RH Registry secret
   k8s:
@@ -154,8 +154,7 @@
       type: kubernetes.io/dockerconfigjson
       data:
         .dockerconfigjson: "{{ rawdockerconfigjson | to_json | b64encode }}"
-        #.dockerconfigjson: "{{ rawdockerconfigjson | b64encode }}"
-  when: couchbase.servers.size > 0
+  when: couchbase.servers.size > 0 and couchbase.on_openshift
 
 #TODO: Work possibly needed here for PV security requirements
 #- name: Get the Project UID Range
