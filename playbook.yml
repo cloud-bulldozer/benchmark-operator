@@ -1,7 +1,7 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - import_role:
+  - include_role:
       name: "uperf-bench"
     when: uperf.pair is defined and uperf.pair > 0
   - import_role:
