@@ -10,3 +10,6 @@
   - include_role:
       name: "fio-bench"
     when: fio is defined and fio.clients > 0
+  - include_role:
+      name: "ycsb-bench"
+    when: ycsb is defined and ycsb.workers > 0

@@ -32,6 +32,7 @@ rules:
 - apiGroups:
   - ''
   resources:
+  - services
   - serviceaccounts
   - namespaces
   - secrets

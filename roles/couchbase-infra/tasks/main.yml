@@ -75,46 +75,6 @@
         name: couchbasecluster
   when: couchbase.servers.size > 0
 
-#- name: Create ClusterRole for the Benchmark User
-#  k8s:
-#    definition:
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      kind: ClusterRole
-#      metadata:
-#        name: benchmark-operator-for-cb
-#        namespace: '{{ meta.namespace }}'
-#      rules:
-#      - apiGroups:
-#        - ""
-#        resources:
-#        - namespaces
-#        verbs:
-#        - get
-#      - apiGroups:
-#        - couchbase.com
-#        resources:
-#        - couchbaseclusters
-#        verbs:
-#        - '*'
-#  when: couchbase.servers.size > 0
-
-#- name: Create ClusterRoleBinding for the Benchmark User
-#  k8s:
-#    definition:
-#      kind: ClusterRoleBinding
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      metadata:
-#        name: benchmark-operator-for-cb
-#      subjects:
-#      - kind: ServiceAccount
-#        name: benchmark-operator
-#        namespace: '{{ meta.namespace }}'
-#      roleRef:
-#        kind: ClusterRole
-#        name: benchmark-operator-for-cb
-#        apiGroup: rbac.authorization.k8s.io
-#  when: couchbase.servers.size > 0
-
 - name: Download Couchbase Operator from operatorhub.io
   get_url:
     url: "https://www.operatorhub.io/install/couchbase-operator.{{ cb_operator_version }}.yaml"
@@ -203,4 +163,38 @@
   failed_when: "'already exists' not in result.stdout and 'created' not in result.stdout"
   when: couchbase.servers.size > 0
 
-# Launch YCSB to run workload against Couchbase DB
+- name: Wait for Couchbase Cluster to be Up; This may take a while...
+  k8s_facts:
+    kind: CouchbaseCluster
+    api_version: couchbase.com/v1
+    namespace: "{{ couchbase_namespace }}"
+    name: cb-benchmark
+  register: cbc
+  until: cbc | json_query('resources[].status.conditions.Available.status') and cbc | json_query('resources[].status.members.ready[]') | length == couchbase.servers.size
+  #60 retries with 10 second delays should result in a 10 minute wait time
+  retries: 60
+  delay: 10
+  when: couchbase.servers.size > 0
+
+# For use with YCSB, the username must match the bucket name
+# See https://github.com/brianfrankcooper/YCSB/issues/1062#issuecomment-344716601
+- name: Set Password for the Default Bucket
+  uri:
+    url: "http://cb-benchmark.{{ couchbase_namespace }}.svc.cluster.local:8091/settings/web"
+    method: POST
+    # This is the default couchbase admin user/pass
+    user: Administrator
+    password: password
+    body_format: form-urlencoded
+    body:
+      username: default
+      password: "{{ default_bucket_password }}"
+      port: 8091
+
+- name: Set Couchbase Service Hostname
+  set_fact:
+    couchbase_hostname: "cb-benchmark.{{ couchbase_namespace }}.svc.cluster.local"
+
+- name: Globalize Default Bucket Password Variable
+  set_fact:
+    default_bucket_password: "{{ default_bucket_password }}"

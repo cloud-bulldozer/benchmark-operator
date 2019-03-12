@@ -23,6 +23,7 @@
               command: ["/bin/sh"]
               args: ["-c", "uperf -s"]
   when: uperf.pair > 0
+  register: servers
 
 - name: Wait for pods to be running....
   k8s_facts:

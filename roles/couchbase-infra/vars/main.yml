@@ -1,7 +1,9 @@
 ---
 # vars file for bench
-rhImageCredentials:
-  registry: registry.connect.redhat.com
-  username: 1979710|dblack-ocp4
-  email: dblack@redhat.com
-  password: eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiIxNTllNDg1NTdlOWI0ZjNlOGVmN2JiNmYzMjc1ZWRjOSJ9.rIb9DhK_GnmgQsGdIVrpPiBHu13PnrwQIZRshptB4AxUEm40JLz8M4ywn642_bWkNsrBWufzi5VwNv63opM_AnWqUdDYdmlnrgMDZH0veJrazDgGJen2zvjYCAWO4rb595-ZWVBA_Qj9ttQmgIrxw6RAr1uujF6YaI9WVmM1sJqqA5VGRfA6aWndAxW9sl1Qwj64H0Xb0D61y_RZEgJJtsMokdomRib9ES5RIuPJJHnrOdpQJKXpKAjak00BcExnNav3hhJt2kj8oK-pbCh27SgLLiQvxBq8a-Rp6E56Su5B3MGhm0pmWC_A0at-M3zv7tKXQ6ow8slRU7ORb91VR04u74tDUKhfDkE8FfDYzSx7MvZX6c7PMssuQJGV5letI3CohDz8GAWfWIdMYml_oxjdDrUF35LpIPOSZlatWN8aLhMfmqD3-q3n-VmSK3faWUfiddCifpiXnla2ojsLjvH1QykLVudIaUiO-r7OB-6v2fuf-zs4e66WvB9L5NTaNuy9-9A0-G2lifatYdZ5RIhPulfA0po3-tyWNcRl7Z4dxSz2RnBCfATP0LO_83nswmd_ADx86SYPtCW-XotQbHttEEFAyV-BX8gnASA9gyV067BFBVm4kHWMCcNyytIK6WWgry0kT4JJyb3beQxM6YgdQaiV0ZHNDT_DJ5FC3EQ
+
+# Couchbase operator version to be pulled from operatorhub.io
+cb_operator_version: v1.1.0
+# This is the namespace coded into the operator from operatorhub.io
+# Best just to embrace it rather than fight it.
+couchbase_namespace: my-couchbase-enterprise
+default_bucket_password: password
