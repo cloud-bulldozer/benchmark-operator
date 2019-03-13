@@ -1,0 +1,4 @@
+---
+# Install Couchbase Operator (Assume rook is already in place? or should we check?)
+# Launch Couchbase DB from operator
+# Launch YCSB to run workload against Couchbase DB
