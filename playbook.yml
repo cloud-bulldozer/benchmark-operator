@@ -4,7 +4,7 @@
   - include_role:
       name: "uperf-bench"
     when: uperf.pair is defined and uperf.pair > 0
-  - import_role:
+  - include_role:
       name: "couchbase-infra"
     when: couchbase.servers.size is defined and couchbase.servers.size > 0
   - include_role:

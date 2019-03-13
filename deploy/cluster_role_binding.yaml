@@ -5,9 +5,11 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: benchmark-operator
-  #FIXME: This shouldn't be a hard-coded reference to a namespace
+  #FIXME: namespace is required, but I can't find a way to set it to 
+  #       the current namespace or use a variable at this stage.
   namespace: benchmark
 roleRef:
   kind: ClusterRole
   name: benchmark-operator
   apiGroup: rbac.authorization.k8s.io
+

@@ -1,5 +1,19 @@
 ---
+# Doesn't seem possible to include this from within the role's vars/main.yml file
+# This is here until we implement a better solution for the rh-catalog creds.
+- include_vars: rh-catalog-auth.yml
+
 # Install Couchbase Operator (Assume rook is already in place? or should we check?)
+- name: Create ClusterRole for the Benchmark User
+  k8s:
+    definition: "{{ lookup('template', 'cluster-role-benchmark.yaml') }}"
+  when: couchbase.servers.size > 0
+
+- name: Create ClusterRoleBinding for the Benchmark User
+  k8s:
+    definition: "{{ lookup('template', 'cluster-role-binding-benchmark.yaml') }}"
+  when: couchbase.servers.size > 0
+
 - name: Create CRD for Couchbase Operator
   k8s:
     definition: "{{ lookup('file', 'crd.yaml') }}"
@@ -11,13 +25,10 @@
       apiVersion: v1
       kind: Namespace
       metadata:
-        # This is the namespace coded into the operator
-        # from operatorhub.io. Best just to embrace it
-        # rather than fight it.
-        name: my-couchbase-enterprise
+        name: "{{ couchbase_namespace }}"
   when: couchbase.servers.size > 0
 
-- name: Create Cluster Role for Service Account
+- name: Create ClusterRole for Service Account
   k8s:
     definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
   when: couchbase.servers.size > 0
@@ -29,8 +40,7 @@
       kind: ServiceAccount
       metadata:
         name: couchbase-operator
-        #namespace: '{{ meta.namespace }}'
-        namespace: my-couchbase-enterprise
+        namespace: "{{ couchbase_namespace }}"
   when: couchbase.servers.size > 0
 
 - name: Create ClusterRoleBinding for the Service Account
@@ -47,8 +57,7 @@
       subjects:
       - kind: ServiceAccount
         name: couchbase-operator
-        #namespace: '{{ meta.namespace }}'
-        namespace: my-couchbase-enterprise
+        namespace: "{{ couchbase_namespace }}"
   when: couchbase.servers.size > 0
 
 - name: Create Cluster Role for the user
@@ -69,49 +78,49 @@
         name: couchbasecluster
   when: couchbase.servers.size > 0
 
-- name: Create ClusterRole for the Benchmark User
-  k8s:
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRole
-      metadata:
-        name: benchmark-operator-for-cb
-        namespace: '{{ meta.namespace }}'
-      rules:
-      - apiGroups:
-        - ""
-        resources:
-        - namespaces
-        verbs:
-        - get
-      - apiGroups:
-        - couchbase.com
-        resources:
-        - couchbaseclusters
-        verbs:
-        - '*'
-  when: couchbase.servers.size > 0
+#- name: Create ClusterRole for the Benchmark User
+#  k8s:
+#    definition:
+#      apiVersion: rbac.authorization.k8s.io/v1
+#      kind: ClusterRole
+#      metadata:
+#        name: benchmark-operator-for-cb
+#        namespace: '{{ meta.namespace }}'
+#      rules:
+#      - apiGroups:
+#        - ""
+#        resources:
+#        - namespaces
+#        verbs:
+#        - get
+#      - apiGroups:
+#        - couchbase.com
+#        resources:
+#        - couchbaseclusters
+#        verbs:
+#        - '*'
+#  when: couchbase.servers.size > 0
 
-- name: Create ClusterRoleBinding for the Benchmark User
-  k8s:
-    definition:
-      kind: ClusterRoleBinding
-      apiVersion: rbac.authorization.k8s.io/v1
-      metadata:
-        name: benchmark-operator-for-cb
-      subjects:
-      - kind: ServiceAccount
-        name: benchmark-operator
-        namespace: '{{ meta.namespace }}'
-      roleRef:
-        kind: ClusterRole
-        name: benchmark-operator-for-cb
-        apiGroup: rbac.authorization.k8s.io
-  when: couchbase.servers.size > 0
+#- name: Create ClusterRoleBinding for the Benchmark User
+#  k8s:
+#    definition:
+#      kind: ClusterRoleBinding
+#      apiVersion: rbac.authorization.k8s.io/v1
+#      metadata:
+#        name: benchmark-operator-for-cb
+#      subjects:
+#      - kind: ServiceAccount
+#        name: benchmark-operator
+#        namespace: '{{ meta.namespace }}'
+#      roleRef:
+#        kind: ClusterRole
+#        name: benchmark-operator-for-cb
+#        apiGroup: rbac.authorization.k8s.io
+#  when: couchbase.servers.size > 0
 
 - name: Download Couchbase Operator from operatorhub.io
   get_url:
-    url: https://www.operatorhub.io/install/couchbase-operator.v1.1.0.yaml
+    url: "https://www.operatorhub.io/install/couchbase-operator.{{ cb_operator_version }}.yaml"
     dest: /tmp/cboperator.yaml
   when: couchbase.servers.size > 0
 
@@ -124,7 +133,7 @@
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: my-couchbase-enterprise
+    namespace: "{{ couchbase_namespace }}"
     label_selectors:
       - name = couchbase-operator
   register: cb_op_pod
@@ -141,7 +150,7 @@
       kind: Secret
       metadata:
         name: cb-example-auth
-        namespace: my-couchbase-enterprise
+        namespace: "{{ couchbase_namespace }}"
       type: Opaque
       data:
         username: QWRtaW5pc3RyYXRvcg==
@@ -150,7 +159,15 @@
 
 # NOTE: The community docker images don't work with OpenShift
 #       currently, so we need to auth with the RH catalog
-#       and pull the usable image from there
+#       and pull the usable image from there.
+#       Credentials need to be added to the role vars/rh-catalog-auth.yml as:
+#
+#rhImageCredentials:
+#  registry: registry.connect.redhat.com
+#  username: <username>
+#  email: <email>
+#  password: <password>
+#
 #FIXME: This is an awful and insecure way to do this
 - name: Set rawdockerconfigjson Var
   set_fact:
@@ -164,7 +181,7 @@
       kind: Secret
       metadata:
         name: rh-catalog
-        namespace: my-couchbase-enterprise
+        namespace: "{{ couchbase_namespace }}"
       type: kubernetes.io/dockerconfigjson
       data:
         .dockerconfigjson: "{{ rawdockerconfigjson | to_json | b64encode }}"
@@ -175,7 +192,7 @@
 #  k8s_facts:
 #    api_version: v1
 #    kind: Project
-#    name: my-couchbase-enterprise
+#    name: "{{ couchbase_namespace }}"
 #    field_selectors:
 #      - metadata.annotations.openshift.io/sa.scc.uid-range
 #    register: uid_range

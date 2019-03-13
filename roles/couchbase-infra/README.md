@@ -1,4 +1,4 @@
-couchbase-bench
+couchbase-infra
 =========
 
 Requirements
