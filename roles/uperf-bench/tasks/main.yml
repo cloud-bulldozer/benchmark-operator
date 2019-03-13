@@ -105,23 +105,12 @@
   retries: 30
   delay: 10
 
-- name: Client pod names
-  set_fact:
-    pod_names: |
-        [
-        {% for item in client_pods.resources %}
-          "{{ item['metadata']['name'] }}",
-        {% endfor %}
-        ]
-
-- name: Retrieve results
-  k8s_log:
-    api_version: v1
-    kind: Pod
-    name: "{{ item }}"
-    namespace: "{{ meta.namespace }}"
-  register: result_log
-  with_items: "{{pod_names}}"
-
-- debug:
-    msg: "Results --  {{result_log}}"
+# Not used. Waiting on the k8s_log module to land
+#- name: Client pod names
+#  set_fact:
+#    pod_names: |
+#        [
+#        {% for item in client_pods.resources %}
+#          "{{ item['metadata']['name'] }}",
+#        {% endfor %}
+#        ]
