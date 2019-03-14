@@ -43,7 +43,7 @@ spec:
     sync: 1
     filesize: 1
     directory: /tmp/
-  uperf: 
+  uperf:
     # To disable uperf, set pairs to 0
     pairs: 1
     proto: tcp

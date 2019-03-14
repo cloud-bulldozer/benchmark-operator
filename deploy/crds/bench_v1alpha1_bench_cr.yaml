@@ -11,7 +11,7 @@ spec:
     nthr: 2
     size: 16384
     runtime: 10
-  couchbase: 
+  couchbase:
     # To disable couchbase, set servers.size to 0
     # Typical deployment size is 3
     servers:
