@@ -3,7 +3,7 @@
   tasks:
   - include_role:
       name: "uperf-bench"
-    when: uperf.pair is defined and uperf.pair > 0
+    when: uperf is defined and uperf.pair > 0
   - include_role:
       name: "couchbase-infra"
     when: couchbase is defined and couchbase.servers.size > 0

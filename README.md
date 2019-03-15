@@ -27,6 +27,12 @@ a performance baseline of your provider.
 # oc create -f deploy/operator.yaml
 ```
 
+OpenShift prior to v 4.0 and $some k8s deployments may also need the `cluster-admin` ClusterRole in order to run some workloads that are themselves operator-controlled and therefore require special access to the cluster.
+
+```bash
+# oc create -f deploy/cluster_admin_role_binding.yaml
+```
+
 At this point, you can modify `deploy/crd/bench_v1alpha1_bench_cr.yaml
 
 ```yaml
@@ -35,27 +41,42 @@ kind: Bench
 metadata:
   name: example-bench
 spec:
-  fio:
-    # To disable fio, set num_clients to 0
-    num_clients: 0
-    test_type: randwrite
-    direct: 1
-    sync: 1
-    filesize: 1
-    directory: /tmp/
   uperf:
     # To disable uperf, set pairs to 0
-    pairs: 1
+    pair: 0
     proto: tcp
     test_type: stream
     nthr: 2
     size: 16384
     runtime: 10
-  couchbase: 
+  couchbase:
     # To disable couchbase, set servers.size to 0
+    # Typical deployment size is 3
     servers:
       size: 0
+    storage:
+      use_persistent_storage: false
+      class_name: "rook-ceph-block"
+      volume_size: 10Gi
+    on_openshift: True
+    rh_pull_secret: <Insert Pull secret from Red Hat Registry>
+  fio:
+    # To disable fio, set clients to 0
+    clients: 0
+    jobname: test-write
+    bs: 4k
+    iodepth: 4
+    runtime: 57
+    rw: write
+    filesize: 1
 ```
+
+> **Running Couchbase on OpenShift**
+> 
+> The upstream couchbase container images will not run properly on OpenShift. You will need to pull images from the Red Hat Container Catalog. The Red Hat images will automatically be selected via the `roles/couchbase-infra/templates/couchbase-cluster.yaml.j2` template when `spec.couchbase.on_openshift` is set to `true` in the CR file as above.
+> 
+> Pulling these images requires a valid `.dockerconfigjson` secret, which you can get from the Red Hat Container Catalog [registry.redhat.io](registry.redhat.io) after you have authenticated by clicking on *Service Accounts*, then on the appropriate *Account name*, then on the *OpenShift Secret* tab. From there, you can download or view the \<username\>-secret.yaml file. Copy the string from `data..dockerconfigjson` in the secret file and paste it into the `spec.couchbase.rh_pull_secret` field in the CR as above.
+
 
 Deploying the above will result in :
 ```

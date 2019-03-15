@@ -1,7 +1,4 @@
 ---
-# Doesn't seem possible to include this from within the role's vars/main.yml file
-# This is here until we implement a better solution for the rh-catalog creds.
-- include_vars: rh-catalog-auth.yml
 
 # Install Couchbase Operator (Assume rook is already in place? or should we check?)
 - name: Create ClusterRole for the Benchmark User
@@ -157,23 +154,6 @@
         password: cGFzc3dvcmQ=
   when: couchbase.servers.size > 0
 
-# NOTE: The community docker images don't work with OpenShift
-#       currently, so we need to auth with the RH catalog
-#       and pull the usable image from there.
-#       Credentials need to be added to the role vars/rh-catalog-auth.yml as:
-#
-#rhImageCredentials:
-#  registry: registry.connect.redhat.com
-#  username: <username>
-#  email: <email>
-#  password: <password>
-#
-#FIXME: This is an awful and insecure way to do this
-- name: Set rawdockerconfigjson Var
-  set_fact:
-    rawdockerconfigjson: '{"auths": { "{{ rhImageCredentials.registry }}": {"auth": "{{ (rhImageCredentials.username + ":" + rhImageCredentials.password) | b64encode }}" }}}'
-  when: couchbase.servers.size > 0 and couchbase.on_openshift
-
 - name: Create the RH Registry secret
   k8s:
     definition:
@@ -182,9 +162,9 @@
       metadata:
         name: rh-catalog
         namespace: "{{ couchbase_namespace }}"
-      type: kubernetes.io/dockerconfigjson
       data:
-        .dockerconfigjson: "{{ rawdockerconfigjson | to_json | b64encode }}"
+        .dockerconfigjson: "{{ couchbase.rh_pull_secret }}"
+      type: kubernetes.io/dockerconfigjson
   when: couchbase.servers.size > 0 and couchbase.on_openshift
 
 #TODO: Work possibly needed here for PV security requirements

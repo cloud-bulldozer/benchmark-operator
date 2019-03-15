@@ -5,7 +5,7 @@ metadata:
 spec:
   uperf:
     # To disable uperf, set pairs to 0
-    pair: 1
+    pair: 0
     proto: tcp
     test_type: stream
     nthr: 2
@@ -17,10 +17,11 @@ spec:
     servers:
       size: 0
     storage:
-      use_persistent_storage: True
+      use_persistent_storage: false
       class_name: "rook-ceph-block"
       volume_size: 10Gi
     on_openshift: True
+    rh_pull_secret: <Insert Pull secret from Red Hat Registry>
   fio:
     # To disable fio, set clients to 0
     clients: 0
