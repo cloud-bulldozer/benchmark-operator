@@ -1,0 +1,14 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: example-bench
+spec:
+  cleanup: false
+  uperf:
+    # To disable uperf, set pairs to 0
+    pair: 1
+    proto: tcp
+    test_type: stream
+    nthr: 2
+    size: 16384
+    runtime: 10
