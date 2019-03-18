@@ -1,2 +1,3 @@
 ---
 # vars file for bench
+cleanup: true

@@ -1,47 +1,59 @@
 ---
 
-- block:
+- name: Check for current_run
+  stat:
+    path: /tmp/current_run
+  register: state_file
 
-  - name: Wait for old pods to destroy...
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ meta.namespace }}'
-      label_selectors:
-        - app = uperf-bench-server
-    register: old_server_pods
-    until: old_server_pods.resources|length < 1
-    retries: 5
-    delay: 10
+- debug:
+    msg: "State file : {{state_file.stat}}"
+
+- name: Check for status
+  set_fact:
+    contents: "{{ lookup('file', '/tmp/current_run') }}"
+  when: state_file.stat.exists == true
+
+- name: Retrieve previous values
+  set_fact:
+    prev_values: |
+        [
+        {% for item in contents %}
+          "{{ item }}:{{ contents[item] }}",
+        {% endfor %}
+        ]
+    curr_values: |
+        [
+        {% for item in uperf %}
+          "{{ item }}:{{ uperf[item] }}",
+        {% endfor %}
+        ]
+  when: state_file.stat.exists == true
+
+- debug:
+    msg: "Check : {{curr_values}} vs {{prev_values}}"
+  when: state_file.stat.exists == true
+
+- block:
 
   - name: Start Server(s)
     k8s:
       definition:
-        kind: Deployment
-        apiVersion: apps/v1
+        kind: Pod
+        apiVersion: v1
         metadata:
-          name: '{{ meta.name }}-uperf-server-bench'
+          name: '{{ meta.name }}-uperf-server-{{item}}'
           namespace: '{{ meta.namespace }}'
+          labels:
+            app : uperf-bench-server
         spec:
-          replicas: "{{uperf.pair}}"
-          selector:
-            matchLabels:
-              app: uperf-bench-server
-          template:
-            metadata:
-              labels:
-                app: uperf-bench-server
-            spec:
-              containers:
-              - name: bench-server
-                image: "quay.io/jtaleric/uperf:testing"
-                command: ["/bin/sh"]
-                args: ["-c", "uperf -s"]
-    when: old_server_pods.resources|length < 1
+         containers:
+         - name: bench
+           image: "quay.io/jtaleric/uperf:testing"
+           command: ["/bin/sh", "-c"]
+           args: ["uperf -s"]
+         restartPolicy: OnFailure
     register: servers
-
-  - debug:
-      msg: "Results --  {{servers}}"
+    with_sequence: start=0 count={{uperf.pair}}
 
   - name: Wait for pods to be running....
     k8s_facts:
@@ -54,18 +66,6 @@
     until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
     retries: 5
     delay: 10
-
-    # TODO (rook) Change how we look for running pods. Right now what we have
-    # is problematic.
-
-  - name: Get Running Pod info
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ meta.namespace }}'
-      label_selectors:
-        - app = uperf-bench-server
-    register: pods
 
   - name: Generate uperf test
     k8s:
@@ -105,12 +105,12 @@
              configMap:
                name: uperf-test
          restartPolicy: OnFailure
-    when: pods.resources|length > 0
-    with_items: "{{ pods.resources }}"
+    when: server_pods.resources|length > 0
+    with_items: "{{ server_pods.resources }}"
 
   - name: Waiting for pods to complete....
     k8s_facts:
-      kind: Pod
+      kind: pod
       api_version: v1
       namespace: '{{ meta.namespace }}'
       label_selectors:
@@ -120,14 +120,34 @@
     retries: 30
     delay: 10
 
-  when: uperf.pair > 0
+  - name: Pod names - to clean
+    set_fact:
+      clean_pods: |
+          [
+          {% for item in client_pods.resources %}
+            "{{ item['metadata']['name'] }}",
+          {% endfor %}
+          {% for item in server_pods.resources %}
+            "{{ item['metadata']['name'] }}",
+          {% endfor %}
+          ]
 
-# Not used. Waiting on the k8s_log module to land
-#- name: Client pod names
-#  set_fact:
-#    pod_names: |
-#        [
-#        {% for item in client_pods.resources %}
-#          "{{ item['metadata']['name'] }}",
-#        {% endfor %}
-#        ]
+  - debug:
+      msg: "clean pods : {{clean_pods}}"
+
+  - name: Cleanup run
+    k8s:
+      kind: pod
+      api_version: v1
+      namespace: '{{ meta.namespace }}'
+      state: absent
+      name: "{{ item }}"
+    with_items: "{{ clean_pods }}"
+    when: cleanup
+
+  - name : Complete run
+    copy:
+      content: "{{ uperf }}"
+      dest: /tmp/current_run
+
+  when: ( uperf.pair > 0 ) and ( state_file.stat.exists == false  or (curr_values | difference(prev_values))|length > 0 )
