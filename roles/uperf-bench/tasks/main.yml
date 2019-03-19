@@ -1,116 +1,153 @@
 ---
-- name: Start Server(s)
-  k8s:
-    definition:
-      kind: Deployment
-      apiVersion: apps/v1
-      metadata:
-        name: '{{ meta.name }}-uperf-server-bench'
-        namespace: '{{ meta.namespace }}'
-      spec:
-        replicas: "{{uperf.pair}}"
-        selector:
-          matchLabels:
-            app: uperf-bench-server
-        template:
-          metadata:
-            labels:
-              app: uperf-bench-server
-          spec:
-            containers:
-            - name: bench-server
-              image: "quay.io/jtaleric/uperf:testing"
-              command: ["/bin/sh"]
-              args: ["-c", "uperf -s"]
-  when: uperf.pair > 0
-  register: servers
+
+- name: Check for current_run
+  stat:
+    path: /tmp/current_run
+  register: state_file
 
 - debug:
-    msg: "Results --  {{servers}}"
+    msg: "State file : {{state_file.stat}}"
 
-- name: Wait for pods to be running....
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ meta.namespace }}'
-    label_selectors:
-      - app = uperf-bench-server
-  register: server_pods
-  until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
-  retries: 5
-  delay: 10
+- name: Check for status
+  set_fact:
+    contents: "{{ lookup('file', '/tmp/current_run') }}"
+  when: state_file.stat.exists == true
 
-  # TODO (rook) Change how we look for running pods. Right now what we have
-  # is problematic.
+- name: Retrieve previous values
+  set_fact:
+    prev_values: |
+        [
+        {% for item in contents %}
+          "{{ item }}:{{ contents[item] }}",
+        {% endfor %}
+        ]
+    curr_values: |
+        [
+        {% for item in uperf %}
+          "{{ item }}:{{ uperf[item] }}",
+        {% endfor %}
+        ]
+  when: state_file.stat.exists == true
 
-- name: Get Running Pod info
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ meta.namespace }}'
-    label_selectors:
-      - app = uperf-bench-server
-  register: pods
+- debug:
+    msg: "Check : {{curr_values}} vs {{prev_values}}"
+  when: state_file.stat.exists == true
 
-- name: Generate uperf test
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: uperf-test
-        namespace: '{{ meta.namespace }}'
-      data:
-        uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
+- block:
 
-- name: Start Client(s)
-  k8s:
-    definition:
+  - name: Start Server(s)
+    k8s:
+      definition:
+        kind: Pod
+        apiVersion: v1
+        metadata:
+          name: '{{ meta.name }}-uperf-server-{{item}}'
+          namespace: '{{ meta.namespace }}'
+          labels:
+            app : uperf-bench-server
+        spec:
+         containers:
+         - name: bench
+           image: "quay.io/jtaleric/uperf:testing"
+           command: ["/bin/sh", "-c"]
+           args: ["uperf -s"]
+         restartPolicy: OnFailure
+    register: servers
+    with_sequence: start=0 count={{uperf.pair}}
+
+  - name: Wait for pods to be running....
+    k8s_facts:
       kind: Pod
-      apiVersion: v1
-      metadata:
-        name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
-        namespace: '{{ meta.namespace }}'
-        labels:
-          app : uperf-bench-client
-      spec:
-       containers:
-       - name: bench
-         image: "quay.io/jtaleric/uperf:testing"
-         command: ["/bin/sh", "-c"]
-         args:
-           - "cat /tmp/uperf-test/uperfXML;
-              export h={{item.status.podIP}};
-              uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
-         volumeMounts:
-         - name: config-volume
-           mountPath: "/tmp/uperf-test"
-       volumes:
-         - name: config-volume
-           configMap:
-             name: uperf-test
-       restartPolicy: OnFailure
-  when: uperf.pair > 0
-  with_items: "{{ pods.resources }}"
+      api_version: v1
+      namespace: '{{ meta.namespace }}'
+      label_selectors:
+        - app = uperf-bench-server
+    register: server_pods
+    until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
+    retries: 5
+    delay: 10
 
-- name: Waiting for pods to complete....
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ meta.namespace }}'
-    label_selectors:
-      - app = uperf-bench-client
-  register: client_pods
-  until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
-  retries: 30
-  delay: 10
+  - name: Generate uperf test
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: uperf-test
+          namespace: '{{ meta.namespace }}'
+        data:
+          uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
-# Not used. Waiting on the k8s_log module to land
-#- name: Client pod names
-#  set_fact:
-#    pod_names: |
-#        [
-#        {% for item in client_pods.resources %}
-#          "{{ item['metadata']['name'] }}",
-#        {% endfor %}
-#        ]
+  - name: Start Client(s)
+    k8s:
+      definition:
+        kind: Pod
+        apiVersion: v1
+        metadata:
+          name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
+          namespace: '{{ meta.namespace }}'
+          labels:
+            app : uperf-bench-client
+        spec:
+         containers:
+         - name: bench
+           image: "quay.io/jtaleric/uperf:testing"
+           command: ["/bin/sh", "-c"]
+           args:
+             - "cat /tmp/uperf-test/uperfXML;
+                export h={{item.status.podIP}};
+                uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+           volumeMounts:
+           - name: config-volume
+             mountPath: "/tmp/uperf-test"
+         volumes:
+           - name: config-volume
+             configMap:
+               name: uperf-test
+         restartPolicy: OnFailure
+    when: server_pods.resources|length > 0
+    with_items: "{{ server_pods.resources }}"
+
+  - name: Waiting for pods to complete....
+    k8s_facts:
+      kind: pod
+      api_version: v1
+      namespace: '{{ meta.namespace }}'
+      label_selectors:
+        - app = uperf-bench-client
+    register: client_pods
+    until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
+    retries: 30
+    delay: 10
+
+  - name: Pod names - to clean
+    set_fact:
+      clean_pods: |
+          [
+          {% for item in client_pods.resources %}
+            "{{ item['metadata']['name'] }}",
+          {% endfor %}
+          {% for item in server_pods.resources %}
+            "{{ item['metadata']['name'] }}",
+          {% endfor %}
+          ]
+
+  - debug:
+      msg: "clean pods : {{clean_pods}}"
+
+  - name: Cleanup run
+    k8s:
+      kind: pod
+      api_version: v1
+      namespace: '{{ meta.namespace }}'
+      state: absent
+      name: "{{ item }}"
+    with_items: "{{ clean_pods }}"
+    when: cleanup
+
+  - name : Complete run
+    copy:
+      content: "{{ uperf }}"
+      dest: /tmp/current_run
+
+  when: ( uperf.pair > 0 ) and ( state_file.stat.exists == false  or (curr_values | difference(prev_values))|length > 0 )

@@ -3,6 +3,7 @@ kind: Bench
 metadata:
   name: example-bench
 spec:
+  # cleanup: true
   uperf:
     # To disable uperf, set pairs to 0
     pair: 1
