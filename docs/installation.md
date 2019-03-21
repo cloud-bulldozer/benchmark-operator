@@ -54,6 +54,9 @@ in the installation guide.
 # kubectl create -f deploy/service_account.yaml
 # kubectl create -f deploy/crds/bench_v1alpha1_bench_crd.yaml
 # kubectl create -f deploy/operator.yaml
+# kubectl create -f deploy/cluster_admin_role_binding.yaml
+# kubectl create -f deploy/cluster_role.yaml
+# kubectl create -f deploy/cluster_role_binding.yaml
 ```
 
 ### Running workload
@@ -62,6 +65,7 @@ run workloads:
 * [uperf](uperf.md)
 * [fio](fio.md)
 * [sysbench](sysbench.md)
+* [couchbase](couchbase.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 

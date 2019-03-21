@@ -1,34 +1,21 @@
 ---
 
-# Install Couchbase Operator (Assume rook is already in place? or should we check?)
+# Install Couchbase Operator
 - name: Create ClusterRole for the Benchmark User
   k8s:
     definition: "{{ lookup('template', 'cluster-role-benchmark.yaml') }}"
-  when: couchbase.servers.size > 0
 
 - name: Create ClusterRoleBinding for the Benchmark User
   k8s:
     definition: "{{ lookup('template', 'cluster-role-binding-benchmark.yaml') }}"
-  when: couchbase.servers.size > 0
 
 - name: Create CRD for Couchbase Operator
   k8s:
     definition: "{{ lookup('file', 'crd.yaml') }}"
-  when: couchbase.servers.size > 0
-
-- name: Reticulating Splines
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Namespace
-      metadata:
-        name: "{{ couchbase_namespace }}"
-  when: couchbase.servers.size > 0
 
 - name: Create ClusterRole for Service Account
   k8s:
     definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
-  when: couchbase.servers.size > 0
 
 - name: Create Service Account
   k8s:
@@ -37,8 +24,7 @@
       kind: ServiceAccount
       metadata:
         name: couchbase-operator
-        namespace: "{{ couchbase_namespace }}"
-  when: couchbase.servers.size > 0
+        namespace: "{{ meta.namespace }}"
 
 - name: Create ClusterRoleBinding for the Service Account
   k8s:
@@ -54,13 +40,11 @@
       subjects:
       - kind: ServiceAccount
         name: couchbase-operator
-        namespace: "{{ couchbase_namespace }}"
-  when: couchbase.servers.size > 0
+        namespace: "{{ meta.namespace }}"
 
 - name: Create Cluster Role for the user
   k8s:
     definition: "{{ lookup('file', 'cluster-role-user.yaml') }}"
-  when: couchbase.servers.size > 0
 
 - name: Create ClusterRoleBinding for the User
   k8s:
@@ -73,71 +57,33 @@
         apiGroup: rbac.authorization.k8s.io
         kind: ClusterRole
         name: couchbasecluster
-  when: couchbase.servers.size > 0
-
-#- name: Create ClusterRole for the Benchmark User
-#  k8s:
-#    definition:
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      kind: ClusterRole
-#      metadata:
-#        name: benchmark-operator-for-cb
-#        namespace: '{{ meta.namespace }}'
-#      rules:
-#      - apiGroups:
-#        - ""
-#        resources:
-#        - namespaces
-#        verbs:
-#        - get
-#      - apiGroups:
-#        - couchbase.com
-#        resources:
-#        - couchbaseclusters
-#        verbs:
-#        - '*'
-#  when: couchbase.servers.size > 0
-
-#- name: Create ClusterRoleBinding for the Benchmark User
-#  k8s:
-#    definition:
-#      kind: ClusterRoleBinding
-#      apiVersion: rbac.authorization.k8s.io/v1
-#      metadata:
-#        name: benchmark-operator-for-cb
-#      subjects:
-#      - kind: ServiceAccount
-#        name: benchmark-operator
-#        namespace: '{{ meta.namespace }}'
-#      roleRef:
-#        kind: ClusterRole
-#        name: benchmark-operator-for-cb
-#        apiGroup: rbac.authorization.k8s.io
-#  when: couchbase.servers.size > 0
 
 - name: Download Couchbase Operator from operatorhub.io
   get_url:
     url: "https://www.operatorhub.io/install/couchbase-operator.{{ cb_operator_version }}.yaml"
     dest: /tmp/cboperator.yaml
-  when: couchbase.servers.size > 0
+
+- name: Set namespace for Couchbase
+  replace:
+    path: /tmp/cboperator.yaml
+    regexp: '^(.*)my-couchbase-enterprise(.*)$'
+    replace: '\1{{ meta.namespace }}\2'
 
 - name: Deploy Couchbase Operator from operatorhub.io
   k8s:
     src: /tmp/cboperator.yaml
-  when: couchbase.servers.size > 0
 
 - name: Wait for Couchbase Operator to be Running....
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: "{{ couchbase_namespace }}"
+    namespace: "{{ meta.namespace }}"
     label_selectors:
       - name = couchbase-operator
   register: cb_op_pod
   until: "'Running' in (cb_op_pod | json_query('resources[].status.phase'))"
   retries: 10
   delay: 10
-  when: couchbase.servers.size > 0
 
 # Launch Couchbase cluster from operator
 - name: Create the cb-example-auth Auth Secret
@@ -147,25 +93,11 @@
       kind: Secret
       metadata:
         name: cb-example-auth
-        namespace: "{{ couchbase_namespace }}"
+        namespace: "{{ meta.namespace }}"
       type: Opaque
       data:
         username: QWRtaW5pc3RyYXRvcg==
         password: cGFzc3dvcmQ=
-  when: couchbase.servers.size > 0
-
-- name: Create the RH Registry secret
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: rh-catalog
-        namespace: "{{ couchbase_namespace }}"
-      data:
-        .dockerconfigjson: "{{ couchbase.rh_pull_secret }}"
-      type: kubernetes.io/dockerconfigjson
-  when: couchbase.servers.size > 0 and couchbase.on_openshift
 
 #TODO: Work possibly needed here for PV security requirements
 #- name: Get the Project UID Range
@@ -176,7 +108,6 @@
 #    field_selectors:
 #      - metadata.annotations.openshift.io/sa.scc.uid-range
 #    register: uid_range
-#  when: couchbase.servers.size > 0
 
 #TODO: Confirm that we can actually distribute this binary in this way
 - name: Get the cbopctl Binary
@@ -184,14 +115,12 @@
     src: cbopctl
     dest: /tmp/cbopctl
     mode: 0750
-  when: couchbase.servers.size > 0
 
 - name: Get the Cluster YAML
   template:
     src: couchbase-cluster.yaml.j2
     dest: /tmp/couchbase-cluster.yaml
     mode: 0640
-  when: couchbase.servers.size > 0
 
 - name: Launch Couchbase Cluster from Operator
 #  k8s:
@@ -201,6 +130,15 @@
     chdir: /tmp
   register: result
   failed_when: "'already exists' not in result.stdout and 'created' not in result.stdout"
-  when: couchbase.servers.size > 0
 
-# Launch YCSB to run workload against Couchbase DB
+- name: Wait for Couchbase Cluster to be Up; This may take a while...
+  k8s_facts:
+    kind: CouchbaseCluster
+    api_version: couchbase.com/v1
+    namespace: "{{ meta.namespace }}"
+    name: cb-benchmark
+  register: cbc
+  until: cbc | json_query('resources[].status.conditions.Available.status') and cbc | json_query('resources[].status.members.ready[]') | length == couchbase.servers.size
+  #60 retries with 10 second delays should result in a 10 minute wait time
+  retries: 60
+  delay: 10

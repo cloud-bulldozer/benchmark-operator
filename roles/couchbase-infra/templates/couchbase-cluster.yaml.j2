@@ -4,7 +4,7 @@ apiVersion: couchbase.com/v1
 kind: CouchbaseCluster
 metadata:
   name: cb-benchmark
-  namespace: my-couchbase-enterprise
+  namespace: {{ meta.namespace }}
 spec:
 {% if couchbase.on_openshift %}
   #The upstream image is not compatible with OpenShift

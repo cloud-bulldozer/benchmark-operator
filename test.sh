@@ -21,4 +21,8 @@ wait_clean
 # Test Sysbench
 /bin/bash tests/test_sysbench.sh
 wait_clean
+#
+# Test Couchbase
+/bin/bash tests/test_couchbase.sh
+wait_clean
 echo "Smoke test: successful"

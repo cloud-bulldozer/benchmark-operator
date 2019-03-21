@@ -3,6 +3,3 @@
 
 # Couchbase operator version to be pulled from operatorhub.io
 cb_operator_version: v1.1.0
-# This is the namespace coded into the operator from operatorhub.io
-# Best just to embrace it rather than fight it.
-couchbase_namespace: my-couchbase-enterprise
