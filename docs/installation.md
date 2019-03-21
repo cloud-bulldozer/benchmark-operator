@@ -61,6 +61,7 @@ Now that we've deployed our operator, follow workload specific instructions to
 run workloads:
 * [uperf](uperf.md)
 * [fio](fio.md)
+* [sysbench](sysbench.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 
