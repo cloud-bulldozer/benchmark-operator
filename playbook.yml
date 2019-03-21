@@ -57,4 +57,10 @@
       vars:
         fiod: "{{ workload.args }}"
       when: workload.name == "fio_distributed" and workload.args.servers > 0
+
+    - include_role:
+        name: "kafka-infra"
+      vars:
+        kafka: "{{ workload.args }}"
+      when: workload.name == "kafka" and workload.args.servers.size > 2
     when: workload is defined

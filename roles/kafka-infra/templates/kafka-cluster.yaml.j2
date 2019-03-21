@@ -1,0 +1,40 @@
+---
+apiVersion: kafka.strimzi.io/v1alpha1
+kind: Kafka
+metadata:
+  name: kafka-benchmark
+  namespace: "{{ operator_namespace }}"
+spec:
+  kafka:
+    version: {{ kafka_version }}
+    replicas: {{ kafka.servers.size }}
+    listeners:
+      plain: {}
+      tls: {}
+    config:
+      offsets.topic.replication.factor: 3
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+    storage:
+{% if kafka.storage.use_persistent_storage %}
+      type: persistent-claim
+      size: {{ kafka.storage.volume_size }}
+      class: {{ kafka.storage.class_name }}
+      deleteClaim: true
+{% else %}
+      type: ephemeral
+{% endif %}
+  zookeeper:
+    replicas: {{ zookeeper_replicas }}
+    storage:
+{% if kafka.storage.use_persistent_storage %}
+      type: persistent-claim
+      size: {{ kafka.storage.volume_size }}
+      class: {{ kafka.storage.class_name }}
+      deleteClaim: true
+{% else %}
+      type: ephemeral
+{% endif %}
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}

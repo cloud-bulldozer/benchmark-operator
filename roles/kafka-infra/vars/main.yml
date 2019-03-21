@@ -1,0 +1,4 @@
+---
+# vars file for bench
+
+tempdir: /tmp

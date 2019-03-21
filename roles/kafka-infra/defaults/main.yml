@@ -1,0 +1,8 @@
+---
+# defaults file for kafka-infra
+
+strimzi_version: "{{ kafka.strimzi_version | default('0.11.1') }}"
+kafka_version: "{{ kafka.kafka_version | default('2.1.0') }}"
+olm_source: "{{ kafka.olm_source | default('operatorhubio-catalog') }}"
+olm_namespace: "{{ kafka.olm_namespace | default(operator_namespace) }}"
+zookeeper_replicas: "{{ kafka.zookeeper_replicas | default('3') }}"

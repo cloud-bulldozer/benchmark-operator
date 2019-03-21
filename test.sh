@@ -11,6 +11,10 @@ update_operator_image
 #
 # Run functional test for workloads
 #
+# Test Kafka
+/bin/bash tests/test_kafka.sh
+wait_clean
+#
 # Test UPerf
 /bin/bash tests/test_uperf.sh
 wait_clean
@@ -42,5 +46,4 @@ wait_clean
 # Test YCSB w/ Couchbase
 /bin/bash tests/test_ycsb-couchbase.sh
 wait_clean
-#
 echo "Smoke test: successful"

@@ -1,0 +1,9 @@
+---
+- name: Deploy catalog source
+  k8s:
+    definition: "{{ lookup('template', 'catalogsource.yaml.j2') }}"
+
+- name: Deploy operator group
+  k8s:
+    definition: "{{ lookup('template', 'operatorgroup.yaml.j2') }}"
+

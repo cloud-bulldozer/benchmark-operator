@@ -1,0 +1,14 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kafka-benchmark
+  namespace: ripsaw
+spec:
+  cleanup: false
+  workload:
+    name: "kafka"
+    args:
+      servers:
+        size: 3
+      storage:
+        use_persistent_storage: False

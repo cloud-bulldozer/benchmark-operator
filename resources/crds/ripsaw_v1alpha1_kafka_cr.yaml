@@ -1,0 +1,23 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kafka-benchmark
+  namespace: ripsaw
+spec:
+  cleanup: false
+  workload:
+    # To disable kafka set the servers.size to 0
+    # Minimum valid servers.size is 3
+    name: "kafka"
+    args:
+      servers:
+        size: 3
+      # By default we do not test persistent storage
+      # If you set use_persistent_storage: True then you will also need to provide it
+      # a valid class_name and volume_size
+      storage:
+        use_persistent_storage: False
+        # class_name: "rook-ceph-block"
+        # volume_size: 10Gi
+      # Zookeeper defaults to 3 replicas. To change this modify zookeeper_replicas
+      # zookeeper_replicas: 3

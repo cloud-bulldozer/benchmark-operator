@@ -1,0 +1,56 @@
+---
+# Prepares env for operatorhub.io in our namespace
+- name: Include operatorhub-prep role
+  include_role:
+    name: extra-operatorhub-prep
+
+- name: Deploy strimzi operator
+  k8s:
+    definition:
+      apiVersion: operators.coreos.com/v1alpha1
+      kind: Subscription
+      metadata:
+        name: strimzi-kafka-operator
+        namespace: ripsaw
+      spec:
+        channel: stable
+        name: strimzi-kafka-operator
+        source: "{{ olm_source }}"
+        sourceNamespace: "{{ operator_namespace }}"
+
+- name: Wait for strimzi operator to be running...
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: "{{ operator_namespace }}"
+    label_selectors:
+      - name = strimzi-cluster-operator
+  register: strimzi_op_pod
+  until: "'Running' in (strimzi_op_pod | json_query('resources[].status.phase'))"
+  retries: 10
+  delay: 10
+
+- name: Launch kafka cluster from operator
+  k8s:
+    definition: "{{ lookup('template', 'kafka-cluster.yaml.j2') }}"
+
+#TODO Find a good way to verify base kafka deployment is up and ready
+#- name: Wait for kafka cluster to be up; This may take a while...
+#  k8s_facts:
+#    kind: CouchbaseCluster
+#    api_version: couchbase.com/v1
+#    namespace: "{{ meta.namespace }}"
+#    name: cb-benchmark
+#  register: cbc
+#  until: cbc | json_query('resources[].status.conditions.Available.status') and cbc | json_query('resources[].status.members.ready[]') | length == couchbase.servers.size
+#  #30 retries with 10 second delays should result in a 5  minute wait time
+#  retries: 30
+#  delay: 10
+
+
+# NOTE REGARDING CLEANUP
+# Deleting the CR will not delete the operator pod. This is because we use a "subscription" which 
+# then orchestrates other resources, but is itself designed as a lifecycle manager. The subscription
+# itself will be removed, but the pod, deployment, and replicaset will remain and will respawn
+# if you delete them. Explicit cleanup needs to be done by deleting the clusterserviceversion
+# $ oc delete clusterserviceversion strimzi-cluster-operator.<version>

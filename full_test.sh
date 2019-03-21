@@ -16,3 +16,5 @@ source tests/test_fio.sh
 functional_test_fio
 source tests/test_sysbench.sh
 functional_test_sysbench
+source tests/test_kafka.sh
+functional_test_kafka
