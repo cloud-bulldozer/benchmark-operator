@@ -11,7 +11,7 @@ function finish {
 
 trap finish EXIT
 
-function functional_test_uperf {
+function functional_test_fio {
   apply_operator
   kubectl apply -f tests/test_crs/valid_fio.yaml
   sleep 30
@@ -23,4 +23,4 @@ function functional_test_uperf {
   kubectl logs "$fio_pod" | grep "Run status"
 }
 
-functional_test_uperf
+functional_test_fio
