@@ -43,8 +43,6 @@ The workloads could also have their own requirements which would be specified
 in the installation guide.
 
 ### Deploying operator
-Note: Ideally you'd want to clone to your go path
-i.e. $GOPATH/src/github.com/jtaleric
 
 ```bash
 # git clone https://github.com/jtaleric/benchmark-operator

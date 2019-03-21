@@ -3,14 +3,14 @@
 Contributions are always appreciated.
 
 How to:
-* [Submit Pull Request](#Pull-request)
-* [Add new workloads](#Add-workload)
-* [Test changes locally](#Test-workload-locally)
+* [Submit Pull Request](#pull-request)
+* [Add new workloads](#add-workload)
+* [Test changes locally](#testing-your-workload-locally)
 * [CI]
 
 ## Pull request
 
-Inorder to submit a change or a PR, please fork the project and follow instructions:
+In order to submit a change or a PR, please fork the project and follow instructions:
 ```bash
 $ git clone http://github.com/<me>/benchmark-operator
 $ cd benchmark-operator
@@ -31,7 +31,8 @@ $ git rebase -i HEAD~<num_of_commits_to_merge>
    -OR-
 $ git rebase -i <commit_id_of_first_change_commit>
 ```
-In the interactive rebase screen, set the first commit to `pick` and all others to `squash` (or whatever else you may need to do; RTFM).
+
+In the interactive rebase screen, set the first commit to `pick` and all others to `squash` (or whatever else you may need to do).
 
 Push your rebased commits (you may need to force), then issue your PR.
 
@@ -40,8 +41,8 @@ Push your rebased commits (you may need to force), then issue your PR.
 Adding new workloads are always welcome, but before you submit PR:
 please make sure you follow:
 * [best practices](#best-practices-for-new-workloads).
-* [add test to ci](#CI-add-test)
-* [add workload guide](#add-workload-guide)
+* [add test to ci](#ci-add-test)
+* [add workload guide](#additional-guidance-for-adding-a-workload)
 
 ### Ansible roles
 Workloads are defined within Ansible roles. The roles are located under the `roles/` directory. You can create a new role template a few different ways.
@@ -55,8 +56,8 @@ Review the Ansible [role documentation](https://docs.ansible.com/ansible/latest/
 Tasks in the `roles/<role_name>/tasks/main.yml` playbook will be executed when the particular role is triggered in the operator from the Custom Resource (CR).
 
 ### Including new roles in the operator
-New roles should be included in the [playbook](playbook.yml) with
-condition that'd [trigger](#Workload-triggers) the role as follows:
+A new roles should be included in the [playbook](playbook.yml) with
+condition (s) that will [trigger](#Workload-triggers) the role as follows:
 
 Example `playbook.yml`:
 ```yaml
@@ -76,9 +77,8 @@ These should be buildable by our CI system for maintaining a central public imag
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.
-So please append your definitions to [crd](deploy/crds/bench_v1alpha1_bench_crd.yaml).
-The resources are then mentioned in a [CR](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/) that operator will look for based on the CRD passed.
-The operator then triggers roles based on conditions thus [cr](deploy/crds/bench_v1alpha1_bench_cr.yaml) will influence run of [playbook](playbook.yml)
+The operator triggers roles based on the conditions defined in [cr](deploy/crds/bench_v1alpha1_bench_cr.yaml) which will influence which roles the
+[playbook](playbook.yml) executes.
 Other vars may be defined that can modify the workload run conditions.
 
 For the sake of the example CR, please default all workloads to disabled.
@@ -101,8 +101,9 @@ spec:
     when: my-new-role.condition
 ```
 
-### Add workload guide
-* Keep [workload status](README.md#workloads-status) updated
+
+### Additional guidance for adding a workload
+* Please keep the [workload status](README.md#workloads-status) updated
 * To help users understand how the workload can be run, please add a guide similar
 to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
@@ -113,17 +114,19 @@ The following steps are suggested for your workload to be added:
 case of failure or when disabled. This ensures no interference with subsequent workloads.
 * Please mention any additional cleanup required in your workload guide.
 
-## Test workload locally
+## Testing your workload locally
 
 ### The operator container image
-Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file necessitates a new build of the operator container image.
+Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitates a new build of the operator container image.
 The container is built using the [Operator SDK](https://github.com/operator-framework/operator-sdk) and pushed to a public repository.
-The public repository could be quay in which case you'll need to:
+The public repository could be [quay](https://quay.io) in which case you'll need to:
 
 ```bash
 $ operator-sdk build quay.io/<username>/benchmark-operator:testing
 $ docker push quay.io/<username>/benchmark-operator:testing
 ```
+
+`:testing` is simply a tag. You can define different tags to use with your image, like `:latest`
 
 To test with your own operator image, you will need the [operator](deploy/operator.yml) file to point the container image to your testing version.
 Be sure to do this outside of your git tree to avoid mangling the official file that points to our stable image.
@@ -131,27 +134,25 @@ Be sure to do this outside of your git tree to avoid mangling the official file 
 This can be done as follows:
 
 ```bash
-# sed -i 's|          image: *|          image: quay.io/<username>/benchmark-operator:latest # |' deploy/operator.yaml
+$ sed 's/image:.*/image: quay.io\/<username>\/benchmark-operator:testing/' deploy/operator.yaml > /my/testing/operator.yaml
 ```
 
 You can then redeploy operator
 ```bash
 # kubectl delete -f deploy/operator.yaml
-# kubectl apply -f deploy/operator.yaml
+# kubectl apply -f /my/testing/operator.yaml
 ```
 Redefine CRD
 ```bash
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_crd.yaml
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_crd.yaml
+# kubectl apply -f deploy/crds/bench_v1alpha1_bench_crd.yaml
 ```
 Apply a new CR
 ```bash
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_cr.yaml
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_cr.yaml
+# kubectl apply -f deploy/crds/bench_v1alpha1_bench_cr.yaml
 ```
 
 ## CI
-Currently we've a CI that runs against PRs.
+Currently we have a CI that runs against PRs.
 You can learn more about CI at [work_in_progress]
 
 ### CI add test

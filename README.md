@@ -8,7 +8,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | Workload                   | Use                  | Status in Operator |
 | -------------------------- | -------------------- | ------------------ |
 | UPerf                      | Network Performance  | Working            |
-| FIO                        | Storage IO           | Working            |
+| FIO-lite                   | Storage IO           | Working            |
 | YCSB against Couchbase     | Database Performance | WIP                |
 
 ## Installation
