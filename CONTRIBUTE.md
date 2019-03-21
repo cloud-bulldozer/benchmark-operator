@@ -56,8 +56,8 @@ Review the Ansible [role documentation](https://docs.ansible.com/ansible/latest/
 Tasks in the `roles/<role_name>/tasks/main.yml` playbook will be executed when the particular role is triggered in the operator from the Custom Resource (CR).
 
 ### Including new roles in the operator
-A new roles should be included in the [playbook](playbook.yml) with
-condition (s) that will [trigger](#Workload-triggers) the role as follows:
+A new role should be included in the [playbook](playbook.yml) with
+condition(s) that will [trigger](#Workload-triggers) the role as follows:
 
 Example `playbook.yml`:
 ```yaml
@@ -117,7 +117,7 @@ case of failure or when disabled. This ensures no interference with subsequent w
 ## Testing your workload locally
 
 ### The operator container image
-Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitates a new build of the operator container image.
+Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitate a new build of the operator container image.
 The container is built using the [Operator SDK](https://github.com/operator-framework/operator-sdk) and pushed to a public repository.
 The public repository could be [quay](https://quay.io) in which case you'll need to:
 
@@ -156,7 +156,7 @@ Currently we have a CI that runs against PRs.
 You can learn more about CI at [work_in_progress]
 
 ### CI add test
-To ensure that adding new a workload will not break other workloads and it's
+To ensure that adding new a workload will not break other workloads and its
 behavior can be predicted, we've mandated writing tests before PR can be merged.
 
 If a new workload is added, please follow the instructions to add a testcase to
