@@ -6,7 +6,7 @@ How to:
 * [Submit Pull Request](#pull-request)
 * [Add new workloads](#add-workload)
 * [Test changes locally](#testing-your-workload-locally)
-* [CI]
+* [CI](#ci)
 
 ## Pull request
 
