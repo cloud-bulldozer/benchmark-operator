@@ -14,7 +14,7 @@ trap finish EXIT
 function functional_test_uperf {
   apply_operator
   kubectl apply -f tests/test_crs/valid_uperf.yaml
-  check_pods 2
+  check_pods 3
   uperf_client_pod=$(kubectl get pods -l app=uperf-bench-client -o name | cut -d/ -f2)
 
   kubectl wait --for=condition=Initialized "pods/$uperf_client_pod" --timeout=200s

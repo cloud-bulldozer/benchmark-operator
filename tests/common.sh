@@ -41,7 +41,7 @@ function update_operator_image {
 
 function wait_clean {
   for i in {1..30}; do
-    if [ `kubectl get pods | grep bench | wc -l` -ge 2 ]; then
+    if [ `kubectl get pods -n benchmark | wc -l` -ge 2 ]; then
       sleep 5
     else
       break
@@ -51,7 +51,7 @@ function wait_clean {
 
 function check_pods() {
   for i in {1..10}; do
-    if [ `kubectl get pods | grep bench | wc -l` -gt $1 ]; then
+    if [ `kubectl get pods -n benchmark | wc -l` -gt $1 ]; then
       break
     else
       sleep 10
