@@ -47,7 +47,11 @@ example-bench-uperf-server-bench-68779b4986-nz5w8   1/1       Running   0       
 The first pod is our Operator orchestrating the UPerf workload.
 
 To review the results, `kubectl logs <client>`, the top of the output is
-the actual workload that was passed to UPerf (From the values in the custom resource)
+the actual workload that was passed to UPerf (From the values in the custom resource).
+
+Note: If cleanup is not set in the spec file then the client pods will be killed after
+600 seconds from it's completion. The server pods will be cleaned up immediately
+after client job completes
 
 ```
 <?xml version=1.0?>

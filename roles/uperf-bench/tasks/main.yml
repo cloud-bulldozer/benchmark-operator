@@ -81,30 +81,34 @@
   - name: Start Client(s)
     k8s:
       definition:
-        kind: Pod
-        apiVersion: v1
+        kind: Job
+        apiVersion: batch/v1
         metadata:
           name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
           namespace: '{{ meta.namespace }}'
-          labels:
-            app : uperf-bench-client
         spec:
-         containers:
-         - name: bench
-           image: "quay.io/jtaleric/uperf:testing"
-           command: ["/bin/sh", "-c"]
-           args:
-             - "cat /tmp/uperf-test/uperfXML;
-                export h={{item.status.podIP}};
-                uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
-           volumeMounts:
-           - name: config-volume
-             mountPath: "/tmp/uperf-test"
-         volumes:
-           - name: config-volume
-             configMap:
-               name: uperf-test
-         restartPolicy: OnFailure
+          ttlSecondsAfterFinished: 600
+          template:
+            metadata:
+              labels:
+                app: uperf-bench-client
+            spec:
+              containers:
+              - name: bench
+                image: "quay.io/jtaleric/uperf:testing"
+                command: ["/bin/sh", "-c"]
+                args:
+                  - "cat /tmp/uperf-test/uperfXML;
+                     export h={{item.status.podIP}};
+                     uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+                volumeMounts:
+                - name: config-volume
+                  mountPath: "/tmp/uperf-test"
+              volumes:
+                - name: config-volume
+                  configMap:
+                    name: uperf-test
+              restartPolicy: OnFailure
     when: server_pods.resources|length > 0
     with_items: "{{ server_pods.resources }}"
 
@@ -124,9 +128,6 @@
     set_fact:
       clean_pods: |
           [
-          {% for item in client_pods.resources %}
-            "{{ item['metadata']['name'] }}",
-          {% endfor %}
           {% for item in server_pods.resources %}
             "{{ item['metadata']['name'] }}",
           {% endfor %}
