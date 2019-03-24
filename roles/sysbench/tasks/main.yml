@@ -20,6 +20,7 @@
         name: '{{ meta.name }}-sysbench'
         namespace: '{{ meta.namespace }}'
       spec:
+        ttlSecondsAfterFinished: 600
         template:
           metadata:
             labels:
@@ -28,7 +29,7 @@
             containers:
             - name: sysbench
               command: ["/bin/sh", "-c"]
-              args: ["/tmp/sysbenchScript"]            
+              args: ["/tmp/sysbenchScript"]
               image: "docker.io/smalleni/centos-sysbench:latest"
               volumeMounts:
               - name: sysbench-volume
@@ -39,4 +40,3 @@
                 name: '{{ meta.name }}-sysbench-config'
                 defaultMode: 0777
             restartPolicy: OnFailure
-  

@@ -43,8 +43,12 @@ benchmark-operator-6bfccf9dc-cfzvc   1/1     Running             0          7m18
 example-bench-sysbench-9cvff         0/1     ContainerCreating   0          51s
 ```
 
+Note: The pods are set to delete after 600s from the job completion. This can be
+edited by updating `ttlSecondsAfterFinished` in the job spec to 0.
+
 You can look at results by using logs functionality - `kubectl logs <client>`,
 it should look like:
+
 ```bash
 # kubectl logs -f example-bench-sysbench-9cvff
 WARNING: the --test option is deprecated. You can pass a script name or path on the command line without any options.

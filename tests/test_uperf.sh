@@ -16,9 +16,8 @@ function functional_test_uperf {
   kubectl apply -f tests/test_crs/valid_uperf.yaml
   check_pods 2
   uperf_client_pod=$(kubectl get pods -l app=uperf-bench-client -o name | cut -d/ -f2)
-
   kubectl wait --for=condition=Initialized "pods/$uperf_client_pod" --timeout=200s
-  kubectl wait --for=condition=Ready "pods/$uperf_client_pod" --timeout=45s
+  kubectl wait --for=condition=complete -l app=uperf-bench-client jobs --timeout=100s
   #check_log $uperf_client_pod "Success"
   # This is for the operator playbook to finish running
   sleep 30
@@ -26,5 +25,6 @@ function functional_test_uperf {
 
   # ensuring that uperf actually ran and we can access metrics
   kubectl logs "$uperf_client_pod" | grep Success
+  echo "Uperf test: Success"
 }
 functional_test_uperf

@@ -21,3 +21,4 @@ wait_clean
 # Test Sysbench
 /bin/bash tests/test_sysbench.sh
 wait_clean
+echo "Smoke test: successful"
