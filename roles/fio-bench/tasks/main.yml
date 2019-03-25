@@ -28,14 +28,26 @@
           command: ["/bin/sh","-c"]
           args:
            - "cat /tmp/fio/fiojob;
-              fio /tmp/fio/fiojob"
+              fio /tmp/fio/fiojob | tee /tmp/results/fio-result"
           volumeMounts:
+          - name: result-volume
+            mountPath: "/tmp/results"
           - name: config-volume
             mountPath: "/tmp/fio"
         volumes:
+        - name: result-volume
+          persistentVolumeClaim:
+            claimName: bench-results
         - name: config-volume
           configMap:
             name: fio-test
         restartPolicy: Never
   when: fio.clients > 0
   with_sequence: start=1 count={{fio.clients}}
+
+- name: Get Results
+  command: 'cat /tmp/results/fio-result'
+  register: results
+
+- debug:
+    msg: "Results : {{ results }}"

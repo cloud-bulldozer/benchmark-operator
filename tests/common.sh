@@ -13,6 +13,7 @@ function operator_requirements {
   kubectl apply -f deploy/role_binding.yaml
   kubectl apply -f deploy/service_account.yaml
   kubectl apply -f deploy/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl apply -f deploy/result-pvc.yaml
 }
 
 function create_operator {

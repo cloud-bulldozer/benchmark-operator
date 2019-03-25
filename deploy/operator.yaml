@@ -13,6 +13,10 @@ spec:
         name: benchmark-operator
     spec:
       serviceAccountName: benchmark-operator
+      volumes:
+      - name: bench-results
+        persistentVolumeClaim:
+          claimName: bench-results
       containers:
         - name: benchmark-operator
           # Replace this with the built image name
@@ -29,3 +33,6 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "benchmark-operator"
+          volumeMounts:
+            - mountPath: "/tmp/results"
+              name: bench-results
