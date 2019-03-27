@@ -1,0 +1,12 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: example-bench
+spec:
+  cleanup: false
+  couchbase:
+    servers:
+      size: 1
+    storage:
+      use_persistent_storage: False
+    on_openshift: True

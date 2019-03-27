@@ -1,0 +1,144 @@
+---
+
+# Install Couchbase Operator
+- name: Create ClusterRole for the Benchmark User
+  k8s:
+    definition: "{{ lookup('template', 'cluster-role-benchmark.yaml') }}"
+
+- name: Create ClusterRoleBinding for the Benchmark User
+  k8s:
+    definition: "{{ lookup('template', 'cluster-role-binding-benchmark.yaml') }}"
+
+- name: Create CRD for Couchbase Operator
+  k8s:
+    definition: "{{ lookup('file', 'crd.yaml') }}"
+
+- name: Create ClusterRole for Service Account
+  k8s:
+    definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
+
+- name: Create Service Account
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: couchbase-operator
+        namespace: "{{ meta.namespace }}"
+
+- name: Create ClusterRoleBinding for the Service Account
+  k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: couchbase-operator-rolebinding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: couchbase-operator
+      subjects:
+      - kind: ServiceAccount
+        name: couchbase-operator
+        namespace: "{{ meta.namespace }}"
+
+- name: Create Cluster Role for the user
+  k8s:
+    definition: "{{ lookup('file', 'cluster-role-user.yaml') }}"
+
+- name: Create ClusterRoleBinding for the User
+  k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: couchbasecluster-rolebinding
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: couchbasecluster
+
+- name: Download Couchbase Operator from operatorhub.io
+  get_url:
+    url: "https://www.operatorhub.io/install/couchbase-operator.{{ cb_operator_version }}.yaml"
+    dest: /tmp/cboperator.yaml
+
+- name: Set namespace for Couchbase
+  replace:
+    path: /tmp/cboperator.yaml
+    regexp: '^(.*)my-couchbase-enterprise(.*)$'
+    replace: '\1{{ meta.namespace }}\2'
+
+- name: Deploy Couchbase Operator from operatorhub.io
+  k8s:
+    src: /tmp/cboperator.yaml
+
+- name: Wait for Couchbase Operator to be Running....
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: "{{ meta.namespace }}"
+    label_selectors:
+      - name = couchbase-operator
+  register: cb_op_pod
+  until: "'Running' in (cb_op_pod | json_query('resources[].status.phase'))"
+  retries: 10
+  delay: 10
+
+# Launch Couchbase cluster from operator
+- name: Create the cb-example-auth Auth Secret
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cb-example-auth
+        namespace: "{{ meta.namespace }}"
+      type: Opaque
+      data:
+        username: QWRtaW5pc3RyYXRvcg==
+        password: cGFzc3dvcmQ=
+
+#TODO: Work possibly needed here for PV security requirements
+#- name: Get the Project UID Range
+#  k8s_facts:
+#    api_version: v1
+#    kind: Project
+#    name: "{{ couchbase_namespace }}"
+#    field_selectors:
+#      - metadata.annotations.openshift.io/sa.scc.uid-range
+#    register: uid_range
+
+#TODO: Confirm that we can actually distribute this binary in this way
+- name: Get the cbopctl Binary
+  copy:
+    src: cbopctl
+    dest: /tmp/cbopctl
+    mode: 0750
+
+- name: Get the Cluster YAML
+  template:
+    src: couchbase-cluster.yaml.j2
+    dest: /tmp/couchbase-cluster.yaml
+    mode: 0640
+
+- name: Launch Couchbase Cluster from Operator
+#  k8s:
+#    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
+  command: ./cbopctl create -f couchbase-cluster.yaml
+  args:
+    chdir: /tmp
+  register: result
+  failed_when: "'already exists' not in result.stdout and 'created' not in result.stdout"
+
+- name: Wait for Couchbase Cluster to be Up; This may take a while...
+  k8s_facts:
+    kind: CouchbaseCluster
+    api_version: couchbase.com/v1
+    namespace: "{{ meta.namespace }}"
+    name: cb-benchmark
+  register: cbc
+  until: cbc | json_query('resources[].status.conditions.Available.status') and cbc | json_query('resources[].status.members.ready[]') | length == couchbase.servers.size
+  #60 retries with 10 second delays should result in a 10 minute wait time
+  retries: 60
+  delay: 10

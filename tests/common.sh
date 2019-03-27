@@ -12,6 +12,9 @@ function operator_requirements {
   kubectl apply -f deploy/role.yaml
   kubectl apply -f deploy/role_binding.yaml
   kubectl apply -f deploy/service_account.yaml
+  kubectl apply -f deploy/cluster_role.yaml
+  kubectl apply -f deploy/cluster_role_binding.yaml
+  kubectl apply -f deploy/cluster_admin_role_binding.yaml
   kubectl apply -f deploy/crds/bench_v1alpha1_bench_crd.yaml
 }
 
@@ -23,6 +26,9 @@ function create_operator {
 function cleanup_resources {
   echo "Exiting after cleanup of resources"
   kubectl delete -f deploy/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl delete -f deploy/cluster_admin_role_binding.yaml
+  kubectl delete -f deploy/cluster_role_binding.yaml
+  kubectl delete -f deploy/cluster_role.yaml
   kubectl delete -f deploy/service_account.yaml
   kubectl delete -f deploy/role_binding.yaml
   kubectl delete -f deploy/role.yaml
