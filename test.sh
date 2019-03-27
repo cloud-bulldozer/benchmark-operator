@@ -22,7 +22,7 @@ wait_clean
 /bin/bash tests/test_sysbench.sh
 wait_clean
 #
-# Test Couchbase
-/bin/bash tests/test_couchbase.sh
-wait_clean
+# Test Couchbase - (disabled temporarily)
+#/bin/bash tests/test_couchbase.sh
+#wait_clean
 echo "Smoke test: successful"

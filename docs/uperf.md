@@ -5,10 +5,10 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml

@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
 
 function apply_operator {
-  kubectl apply -f deploy/operator.yaml
+  kubectl apply -f resources/operator.yaml
 }
 
 function delete_operator {
-  kubectl delete -f deploy/operator.yaml
+  kubectl delete -f resources/operator.yaml
 }
 
 function operator_requirements {
-  kubectl apply -f deploy/role.yaml
-  kubectl apply -f deploy/role_binding.yaml
-  kubectl apply -f deploy/service_account.yaml
-  kubectl apply -f deploy/cluster_role.yaml
-  kubectl apply -f deploy/cluster_role_binding.yaml
-  kubectl apply -f deploy/cluster_admin_role_binding.yaml
-  kubectl apply -f deploy/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl apply -f deploy
+  kubectl apply -f resources/crds/bench_v1alpha1_bench_crd.yaml
 }
 
 function create_operator {
@@ -25,13 +20,8 @@ function create_operator {
 
 function cleanup_resources {
   echo "Exiting after cleanup of resources"
-  kubectl delete -f deploy/crds/bench_v1alpha1_bench_crd.yaml
-  kubectl delete -f deploy/cluster_admin_role_binding.yaml
-  kubectl delete -f deploy/cluster_role_binding.yaml
-  kubectl delete -f deploy/cluster_role.yaml
-  kubectl delete -f deploy/service_account.yaml
-  kubectl delete -f deploy/role_binding.yaml
-  kubectl delete -f deploy/role.yaml
+  kubectl delete -f resources/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl delete -f deploy
 }
 
 function cleanup_operator_resources {
@@ -42,7 +32,7 @@ function cleanup_operator_resources {
 function update_operator_image {
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator
   docker push quay.io/rht_perf_ci/benchmark-operator
-  sed -i 's|          image: *|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' deploy/operator.yaml
+  sed -i 's|          image: *|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
 }
 
 function wait_clean {

@@ -14,11 +14,11 @@ $ kubectl create -f https://raw.githubusercontent.com/operator-framework/operato
 ## Running the Couchbase infra
 
 Given that you followed instructions to deploy the benchmark operator,
-you can modify the [cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify the [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
 
 Note: Set other roles to 0 to disable them when editing the
-[cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml) file, or create 
-your own custom resource file with only the roles you want defined. An 
+[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file, or create
+your own custom resource file with only the roles you want defined. An
 example to enable only Couchbase:
 
 ```yaml
@@ -40,18 +40,18 @@ spec:
     rh_pull_secret: <your registry.redhat.io pull secret>
 ```
 
-If you set `spec.couchbase.stroage.use_persistent_storage` to `true`, then you will need to provide a valid 
-StorageClass name for `spec.couchbase.storage.class_name` and a valid volume size for `spec.couchbase.storage.volume_size`. 
+If you set `spec.couchbase.stroage.use_persistent_storage` to `true`, then you will need to provide a valid
+StorageClass name for `spec.couchbase.storage.class_name` and a valid volume size for `spec.couchbase.storage.volume_size`.
 Setting up a StorageClass is outside the scope of this documentation.
 
-Note that the upstream couchbase container images will not run on OpenShift as of this build, 
+Note that the upstream couchbase container images will not run on OpenShift as of this build,
 therefore logic is included in the role to pull from [registry.redhat.io](https://registry.redhat.io)
 in the case that `spec.couchbase.on_openshift` is set to `true` in the CR.
 
 You will need to add your Red Hat registry secret to your OpenShift deployment before deploying the
-couchbase infra. To get your Red Hat registry secret, navigate to [registry.redhat.io](https://registry.redhat.io) and 
-login. Then click on the **Service Accounts** button, the on your appropriate account name, then on the 
-**OpenShift Secret** tab. From there, download or view the \<username\>.secret.yaml file, and 
+couchbase infra. To get your Red Hat registry secret, navigate to [registry.redhat.io](https://registry.redhat.io) and
+login. Then click on the **Service Accounts** button, the on your appropriate account name, then on the
+**OpenShift Secret** tab. From there, download or view the \<username\>.secret.yaml file, and
 add the secret to your deployment:
 
 ```bash
@@ -208,7 +208,7 @@ Events:
   Normal  BucketCreated       26s   couchbase-operator-7b489f685c-ds88v  A new bucket `default` was created
 ```
 
-Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly 
+Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
 by running the CR as described here. You will need to separately define a workload in the CR (such as YCSB [work in progress]).
 
 ## Cleanup
