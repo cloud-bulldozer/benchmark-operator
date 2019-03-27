@@ -172,3 +172,26 @@
   #60 retries with 10 second delays should result in a 10 minute wait time
   retries: 60
   delay: 10
+
+# For use with YCSB, the username must match the bucket name
+# See https://github.com/brianfrankcooper/YCSB/issues/1062#issuecomment-344716601
+- name: Set Password for the Default Bucket
+  uri:
+    url: "http://cb-benchmark.{{ meta.namespace }}.svc.cluster.local:8091/settings/web"
+    method: POST
+    # This is the default couchbase admin user/pass
+    user: Administrator
+    password: password
+    body_format: form-urlencoded
+    body:
+      username: default
+      password: "{{ default_bucket_password }}"
+      port: 8091
+
+- name: Set Couchbase Service Hostname
+  set_fact:
+    couchbase_hostname: "cb-benchmark.{{ meta.namespace }}.svc.cluster.local"
+
+- name: Globalize Default Bucket Password Variable
+  set_fact:
+    default_bucket_password: "{{ default_bucket_password }}"

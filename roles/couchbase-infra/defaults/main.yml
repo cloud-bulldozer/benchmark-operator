@@ -4,3 +4,4 @@
 operator_url: "{{ couchbase.operator_url | default('https://www.operatorhub.io/install/preview/couchbase-operator.v1.1.0.yaml') }}"
 pod_baseImage: "{{ couchbase.pod_baseImage | default('registry.connect.redhat.com/couchbase/server') }}"
 pod_version: "{{ couchbase.pod_version | default('5.5.2-2') }}"
+default_bucket_password: password

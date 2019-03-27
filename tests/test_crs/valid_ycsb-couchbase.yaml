@@ -1,0 +1,18 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: example-bench
+spec:
+  cleanup: false
+  couchbase:
+    servers:
+      size: 1
+    storage:
+      use_persistent_storage: False
+  ycsb:
+    # To disable ycsb, set workers to 0
+    # ycsb must be loaded after the infra it depends on
+    workers: 1
+    infra: couchbase
+    driver: couchbase2
+    workload: workloada
