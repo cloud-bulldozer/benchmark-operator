@@ -1,0 +1,34 @@
+---
+
+apiVersion: kubevirt.io/v1alpha3
+kind: "VirtualMachineInstance"
+metadata:
+  name: "{{ meta.name }}-sysbench"
+  namespace: "{{ meta.namespace }}"
+  labels:
+    kubevirt-vm: vm-sysbench
+spec:
+  domain:
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: containerdisk
+      - disk:
+          bus: virtio
+        name: workload
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: "1024M"
+  terminationGracePeriodSeconds: 0
+  volumes:
+  - containerDisk:
+      image: "{{ sysbench.image }}"
+    name: containerdisk
+  - cloudInitNoCloud:
+      userData: |
+        #!/bin/sh
+        echo 'workload'
+    name: workload
