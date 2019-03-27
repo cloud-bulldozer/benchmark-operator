@@ -9,4 +9,3 @@ spec:
       size: 1
     storage:
       use_persistent_storage: False
-    on_openshift: True

@@ -39,7 +39,7 @@ function check_cbc () {
   cbc_status="False"
   until [ $cbc_status == "True" ] ; do
     sleep $sleep_time
-    cbc_status=$(kubectl get cbc -o jsonpath='{.items[*].status.conditions.Balanced.status}')
+    cbc_status=$(kubectl get cbc -o jsonpath='{.items[*].status.conditions.Balanced.status}' || echo False)
     if [ -z $cbc_status ]; then
       cbc_status="False"
     fi
@@ -61,13 +61,15 @@ trap finish EXIT
 function functional_test_couchbase {
   apply_operator
   sleep 15
+  kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml
+  kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "1979710-benchmark-operator-ci-pull-secret"}]}'
   kubectl apply -f tests/test_crs/valid_couchbase.yaml
   cb_operator_pod=$(get_pod 'name=couchbase-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$cb_operator_pod" --timeout=60s
   kubectl wait --for=condition=Ready "pods/$cb_operator_pod" --timeout=300s
   cb_app_pod=$(get_pod 'app=couchbase' 600)
   kubectl wait --for=condition=Initialized "pods/$cb_app_pod" --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$cb_app_pod" --timeout=600s
+  kubectl wait --for=condition=Ready "pods/$cb_app_pod" --timeout=300s
   sleep 15
   check_cbc 300
 }
