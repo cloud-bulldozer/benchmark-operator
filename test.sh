@@ -25,4 +25,8 @@ wait_clean
 # Test Couchbase
 /bin/bash tests/test_couchbase.sh
 wait_clean
+#
+# Test YCSB w/ Couchbase
+/bin/bash tests/test_ycsb-couchbase.sh
+wait_clean
 echo "Smoke test: successful"

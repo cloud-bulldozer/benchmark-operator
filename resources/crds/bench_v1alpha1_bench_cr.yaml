@@ -49,3 +49,10 @@ spec:
     # Example for or k8s:
     #pod_baseImage: registry.hub.docker.com/library/couchbase
     #pod_version: enterprise-6.0.1
+  ycsb:
+    # To disable ycsb, set workers to 0
+    # ycsb must be loaded after the infra it depends on
+    workers: 0
+    infra: couchbase
+    driver: couchbase2
+    workload: workloada

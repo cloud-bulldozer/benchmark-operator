@@ -13,3 +13,6 @@
   - include_role:
       name: "couchbase-infra"
     when: couchbase is defined and couchbase.servers.size > 0
+  - include_role:
+      name: "ycsb-bench"
+    when: ycsb is defined and ycsb.workers > 0
