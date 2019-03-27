@@ -5,10 +5,10 @@
 ## Running Sysbench
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml
@@ -30,7 +30,7 @@ You can find more information at [sysbench documentation](https://github.com/ako
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f deploy/crds/bench_v1alpha1_bench_cr.yaml # if edited the original one
+# kubectl create -f resources/crds/bench_v1alpha1_bench_cr.yaml # if edited the original one
 # kubectl create -f <path_to_file> # if created a new cr file
 ```
 

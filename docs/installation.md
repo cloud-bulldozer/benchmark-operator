@@ -45,18 +45,12 @@ in the installation guide.
 ### Deploying operator
 
 ```bash
-# git clone https://github.com/jtaleric/benchmark-operator
+# git clone https://github.com/cloud-bulldozer/honeybadger
 # cd benchmark-operator
 # export KUBECONFIG=<your_kube_config> # if not already done
-# kubectl create -f deploy/namespace.yaml # if on ocp/okd use oc new-project benchmark
-# kubectl create -f deploy/role.yaml
-# kubectl create -f deploy/role_binding.yaml
-# kubectl create -f deploy/service_account.yaml
-# kubectl create -f deploy/crds/bench_v1alpha1_bench_crd.yaml
-# kubectl create -f deploy/operator.yaml
-# kubectl create -f deploy/cluster_admin_role_binding.yaml
-# kubectl create -f deploy/cluster_role.yaml
-# kubectl create -f deploy/cluster_role_binding.yaml
+# kubectl create -f deploy
+# kubectl create -f resources/crds/bench_v1alpha1_bench_crd.yaml
+# kubectl create -f resources/operator.yaml
 ```
 
 ### Running workload
@@ -73,10 +67,8 @@ If you want to add a new workload please follow these [instructions](../CONTRIBU
 Now that we're running workloads we can cleanup by running following commands
 
 ```bash
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_cr.yaml # if not already done and assuming this was the resource file passed
-# kubectl delete -f deploy/crds/bench_v1alpha1_bench_crd.yaml
-# kubectl delete -f deploy/operator.yaml
-# kubectl delete -f deploy/role.yaml
-# kubectl delete -f deploy/role_binding.yaml
-# kubectl delete -f deploy/service_account.yaml
+# kubectl delete -f resources/crds/bench_v1alpha1_bench_cr.yaml # if not already done and assuming this was the resource file passed
+# kubectl delete -f resources/crds/bench_v1alpha1_bench_crd.yaml
+# kubectl delete -f resources/operator.yaml
+# kubectl delete -f deploy
 ```
