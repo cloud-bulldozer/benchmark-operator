@@ -6,14 +6,9 @@ metadata:
   name: cb-benchmark
   namespace: {{ meta.namespace }}
 spec:
-{% if couchbase.on_openshift %}
   #The upstream image is not compatible with OpenShift
-  baseImage: registry.connect.redhat.com/couchbase/server
-  version: 5.5.2-2
-{% else %}
-  baseImage: registry.hub.docker.com/library/couchbase
-  version: enterprise-6.0.1
-{% endif %}
+  baseImage: {{ pod_baseImage }}
+  version: {{ pod_version }}
   authSecret: cb-example-auth
   exposeAdminConsole: true
   adminConsoleServices:

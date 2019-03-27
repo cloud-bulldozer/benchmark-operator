@@ -1,5 +1,1 @@
 ---
-# vars file for bench
-
-# Couchbase operator version to be pulled from operatorhub.io
-cb_operator_version: v1.1.0

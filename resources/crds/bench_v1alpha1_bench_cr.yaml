@@ -41,4 +41,11 @@ spec:
       use_persistent_storage: True
       class_name: "rook-ceph-block"
       volume_size: 10Gi
-    on_openshift: True
+    # Defaults that can be overridden
+    #operator_url: https://www.operatorhub.io/install/preview/couchbase-operator.v1.1.0.yaml
+    # Example for OpenShift (default):
+    #pod_baseImage: registry.connect.redhat.com/couchbase/server
+    #pod_version: 5.5.2-2
+    # Example for or k8s:
+    #pod_baseImage: registry.hub.docker.com/library/couchbase
+    #pod_version: enterprise-6.0.1
