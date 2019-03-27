@@ -23,6 +23,8 @@ spec:
     filesize: 1
   sysbench:
     enabled: false
+    #kind: vm
+    # If you want to run this as a VM uncomment the above
     tests:
     - name: cpu
       parameters:
@@ -30,7 +32,7 @@ spec:
     - name: fileio
       parameters:
         file-test-mode: rndrw
-  couchbase: 
+  couchbase:
     # To disable couchbase, set servers.size to 0
     # Typical deployment size is 3
     servers:

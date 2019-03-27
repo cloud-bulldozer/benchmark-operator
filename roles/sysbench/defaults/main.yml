@@ -1,5 +1,6 @@
 ---
 sysbench:
+  kind: job
   enabled: true
   tests:
   - name: cpu
