@@ -77,7 +77,7 @@ These should be buildable by our CI system for maintaining a central public imag
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.
-The operator triggers roles based on the conditions defined in [cr](resources/crds/bench_v1alpha1_bench_cr.yaml) which will influence which roles the
+The operator triggers roles based on the conditions defined in [cr](resources/crds/workload_all_cr.yaml) which will influence which roles the
 [playbook](playbook.yml) executes.
 Other vars may be defined that can modify the workload run conditions.
 
@@ -148,7 +148,7 @@ Redefine CRD
 ```
 Apply a new CR
 ```bash
-# kubectl apply -f resources/crds/bench_v1alpha1_bench_cr.yaml
+# kubectl apply -f resources/crds/workload_all_cr.yaml
 ```
 
 ## CI

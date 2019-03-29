@@ -1,0 +1,16 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: couchbase-example-bench
+spec:
+  couchbase:
+    # To disable couchbase, set servers.size to 0
+    # Typical deployment size is 3
+    servers:
+      size: 0
+    storage:
+      use_persistent_storage: True
+      class_name: "rook-ceph-block"
+      volume_size: 10Gi
+    on_openshift: True
+  # Include workload

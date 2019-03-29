@@ -1,0 +1,14 @@
+apiVersion: bench.example.com/v1alpha1
+kind: Bench
+metadata:
+  name: sysbench-example-bench
+spec:
+  sysbench:
+    enabled: true
+    tests:
+    - name: cpu
+      parameters:
+        cpu-max-prime: 2000
+    - name: fileio
+      parameters:
+        file-test-mode: rndrw
