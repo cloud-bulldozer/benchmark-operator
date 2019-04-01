@@ -2,6 +2,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-bench
+  namespace: ripsaw
 spec:
   cleanup: false
   couchbase:

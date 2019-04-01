@@ -26,6 +26,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
+  namespace: ripsaw
 spec:
   couchbase:
     # To disable couchbase, set servers.size to 0
@@ -98,7 +99,7 @@ You can then confirm the state of the couchbase cluster:
 ```
 $ kubectl describe cbc
 Name:         cb-benchmark
-Namespace:    benchmark
+Namespace:    ripsaw
 Labels:       <none>
 Annotations:  <none>
 API Version:  couchbase.com/v1

@@ -24,6 +24,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-bench
+  namespace: ripsaw
 spec:
   couchbase:
     # To disable couchbase, set servers.size to 0

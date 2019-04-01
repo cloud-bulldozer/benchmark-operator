@@ -16,6 +16,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
+  namespace: ripsaw
 spec:
   enabled: true
   tests:

@@ -7,7 +7,7 @@
       kind: ConfigMap
       metadata:
         name: '{{ meta.name }}-sysbench-config'
-        namespace: '{{ meta.namespace }}'
+        namespace: '{{ operator_namespace }}'
       data:
         sysbenchScript: "{{ lookup('template', 'sysbench.sh.j2') }}"
 

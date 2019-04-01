@@ -12,12 +12,12 @@
       apiVersion: batch/v1
       metadata:
         name: '{{ meta.name }}-ycsb-data-load-job'
-        namespace: '{{ meta.namespace }}'
+        namespace: '{{ operator_namespace }}'
       spec:
         template:
           metadata:
             name: '{{ meta.name }}-ycsb-data-load'
-            namespace: '{{ meta.namespace }}'
+            namespace: '{{ operator_namespace }}'
             labels:
              name: 'ycsb-load'
           spec:
@@ -35,7 +35,7 @@
     kind: Job
     api_version: batch/v1
     name: '{{ meta.name }}-ycsb-data-load-job'
-    namespace: "{{ meta.namespace }}"
+    namespace: "{{ operator_namespace }}"
   register: ycsb_load_pod
   until: "ycsb_load_pod | json_query('resources[].status.succeeded')"
   retries: 30
@@ -58,12 +58,12 @@
       apiVersion: batch/v1
       metadata:
         name: '{{ meta.name }}-ycsb-bench-job'
-        namespace: '{{ meta.namespace }}'
+        namespace: '{{ operator_namespace }}'
       spec:
         template:
           metadata:
             name: '{{ meta.name }}-ycsb-bench'
-            namespace: '{{ meta.namespace }}'
+            namespace: '{{ operator_namespace }}'
             labels:
               name: 'ycsb-run'
           spec:
@@ -81,7 +81,7 @@
     kind: Job
     api_version: batch/v1
     name: '{{ meta.name }}-ycsb-bench-job'
-    namespace: "{{ meta.namespace }}"
+    namespace: "{{ operator_namespace }}"
   register: ycsb_bench
   until: "ycsb_bench | json_query('resources[].status.succeeded')"
   retries: 60
@@ -95,4 +95,4 @@
 #      apiVersion: v1
 #      metadata:
 #        name: '{{ meta.name }}-ycsb-bench'
-#        namespace: '{{ meta.namespace }}'
+#        namespace: '{{ operator_namespace }}'

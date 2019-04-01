@@ -4,7 +4,7 @@ apiVersion: kubevirt.io/v1alpha3
 kind: "VirtualMachineInstance"
 metadata:
   name: "{{ meta.name }}-sysbench"
-  namespace: "{{ meta.namespace }}"
+  namespace: "{{ operator_namespace }}"
   labels:
     kubevirt-vm: vm-sysbench
 spec:
