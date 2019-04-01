@@ -24,6 +24,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-bench
+  namespace: ripsaw
 spec:
   couchbase:
     # To disable couchbase, set servers.size to 0
@@ -47,8 +48,8 @@ spec:
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
-# kubectl create -f <path_to_file> # if created a new cr file
+# kubectl apply -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
 Deploying the above would result in first a the Couchbase cluster being stood up, then a temporaroy YCSB pod running to load the database data, and finally a YCSB benchmark pod running the workload.

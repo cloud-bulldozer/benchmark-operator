@@ -21,10 +21,10 @@ function functional_test_uperf {
   #check_log $uperf_client_pod "Success"
   # This is for the operator playbook to finish running
   sleep 30
-  kubectl get pods -l name=benchmark-operator -o name | cut -d/ -f2 | xargs -I{} kubectl exec {} -- cat /tmp/current_run
+  kubectl get pods -l name=benchmark-operator --namespace ripsaw -o name | cut -d/ -f2 | xargs -I{} kubectl exec {} -- cat /tmp/current_run
 
   # ensuring that uperf actually ran and we can access metrics
-  kubectl logs "$uperf_client_pod" | grep Success
+  kubectl logs "$uperf_client_pod" --namespace ripsaw | grep Success
   echo "Uperf test: Success"
 }
 functional_test_uperf

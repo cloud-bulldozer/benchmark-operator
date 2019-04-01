@@ -42,7 +42,7 @@
         apiVersion: v1
         metadata:
           name: '{{ meta.name }}-uperf-server-{{item}}'
-          namespace: '{{ meta.namespace }}'
+          namespace: '{{ operator_namespace }}'
           labels:
             app : uperf-bench-server
         spec:
@@ -59,7 +59,7 @@
     k8s_facts:
       kind: Pod
       api_version: v1
-      namespace: '{{ meta.namespace }}'
+      namespace: '{{ operator_namespace }}'
       label_selectors:
         - app = uperf-bench-server
     register: server_pods
@@ -74,7 +74,7 @@
         kind: ConfigMap
         metadata:
           name: uperf-test
-          namespace: '{{ meta.namespace }}'
+          namespace: '{{ operator_namespace }}'
         data:
           uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
 
@@ -85,7 +85,7 @@
         apiVersion: batch/v1
         metadata:
           name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
-          namespace: '{{ meta.namespace }}'
+          namespace: '{{ operator_namespace }}'
         spec:
           ttlSecondsAfterFinished: 600
           template:
@@ -116,7 +116,7 @@
     k8s_facts:
       kind: pod
       api_version: v1
-      namespace: '{{ meta.namespace }}'
+      namespace: '{{ operator_namespace }}'
       label_selectors:
         - app = uperf-bench-client
     register: client_pods
@@ -140,7 +140,7 @@
     k8s:
       kind: pod
       api_version: v1
-      namespace: '{{ meta.namespace }}'
+      namespace: '{{ operator_namespace }}'
       state: absent
       name: "{{ item }}"
     with_items: "{{ clean_pods }}"
