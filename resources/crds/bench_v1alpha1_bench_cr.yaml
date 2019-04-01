@@ -22,7 +22,7 @@ spec:
     rw: write
     filesize: 1
   sysbench:
-    enabled: true
+    enabled: false
     tests:
     - name: cpu
       parameters:
