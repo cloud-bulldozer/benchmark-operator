@@ -43,14 +43,33 @@ The workloads could also have their own requirements which would be specified
 in the installation guide.
 
 ### Deploying operator
+Note: The benchmark-operator's code-name is ripsaw, so the names have been
+used interchangeably.
+
+First we'll need to clone the operator:
 
 ```bash
 # git clone https://github.com/cloud-bulldozer/ripsaw
 # cd benchmark-operator
 # export KUBECONFIG=<your_kube_config> # if not already done
-# kubectl create -f deploy
-# kubectl create -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
-# kubectl create -f resources/operator.yaml
+```
+
+We try to maintain all resources created/required by ripsaw in the namespace
+ripsaw, so we'll create the namespace and add a context with admin user and
+can be done as follows:
+
+```bash
+# kubectl apply -f resources/namespace.yaml
+# kubectl config set-context ripsaw --namespace=ripsaw --cluster=<your_cluster_name> --user=<your_cluster_admin_user>
+# kubectl config use-context ripsaw
+```
+
+We'll now apply the permissions and operator definitions.
+
+```bash
+# kubectl apply -f deploy
+# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl apply -f resources/operator.yaml
 ```
 
 ### Running workload

@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+function wait_clean {
+  for i in {1..30}; do
+    if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -ge 1 ]; then
+      sleep 5
+    else
+      break
+    fi
+  done
+}
+
 function apply_operator {
   kubectl apply -f resources/operator.yaml
 }
@@ -27,6 +37,7 @@ function cleanup_resources {
 function cleanup_operator_resources {
   delete_operator
   cleanup_resources
+  wait_clean
 }
 
 function update_operator_image {
@@ -35,19 +46,10 @@ function update_operator_image {
   sed -i 's|          image: *|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
 }
 
-function wait_clean {
-  for i in {1..30}; do
-    if [ `kubectl get pods | grep bench | wc -l` -ge 1 ]; then
-      sleep 5
-    else
-      break
-    fi
-  done
-}
 
 function check_pods() {
   for i in {1..10}; do
-    if [ `kubectl get pods | grep bench | wc -l` -gt $1 ]; then
+    if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -gt $1 ]; then
       break
     else
       sleep 10
@@ -57,7 +59,7 @@ function check_pods() {
 
 function check_log(){
   for i in {1..10}; do
-    if kubectl logs -f $1 | grep -q $2 ; then
+    if kubectl logs -f $1 --namespace ripsaw | grep -q $2 ; then
       break;
     else
       sleep 10

@@ -89,6 +89,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
+  namespace: ripsaw
 spec:
   <existing_cr_entries>
   my-new-role:
@@ -107,6 +108,9 @@ spec:
 * To help users understand how the workload can be run, please add a guide similar
 to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
+* Ensure all resources created are within the `ripsaw` namespace, this can be done by setting namespace
+to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
+namespace which is what `meta.namespace` would default to. 
 
 ### Best practices for new workloads
 The following steps are suggested for your workload to be added:

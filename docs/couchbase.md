@@ -8,8 +8,9 @@ The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/ope
 *Note: As of this writing, deploying the OLM from the deployment directory documented in the link above may lead to the Couchbase operator failing to launch. You may need to deploy instead from the `upstream/quickstart/olm.yaml` file as in:*
 
 ```bash
-$ kubectl create -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
+$ kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
 ```
+Note: Sometimes applying OLM fails on first try, so please retry if it happens.
 
 ## Running the Couchbase infra
 
@@ -26,6 +27,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
+  namespace: ripsaw
 spec:
   couchbase:
     # To disable couchbase, set servers.size to 0
@@ -71,7 +73,7 @@ $ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "<secr
 Once you are finished creating/editing the custom resource file, you can run it by:
 
 ```bash
-$ kubectl create -f /path/to/benchmark_v1alpha1_benchmark_cr.yaml
+$ kubectl apply -f /path/to/benchmark_v1alpha1_benchmark_cr.yaml
 ```
 
 Deploying the above will first result in the Couchbase operator running (along with a catalog container).
@@ -98,7 +100,7 @@ You can then confirm the state of the couchbase cluster:
 ```
 $ kubectl describe cbc
 Name:         cb-benchmark
-Namespace:    benchmark
+Namespace:    ripsaw
 Labels:       <none>
 Annotations:  <none>
 API Version:  couchbase.com/v1

@@ -5,6 +5,7 @@ source tests/common.sh
 
 trap cleanup_resources EXIT
 
+wait_clean
 operator_requirements
 update_operator_image
 #

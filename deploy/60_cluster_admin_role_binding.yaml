@@ -5,9 +5,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: benchmark-operator
-  #FIXME: namespace is required, but I can't find a way to set it to 
-  #       the current namespace or use a variable at this stage.
-  namespace: benchmark
+  namespace: ripsaw
 roleRef:
   kind: ClusterRole
   name: cluster-admin

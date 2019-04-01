@@ -8,7 +8,7 @@
   replace:
     path: /tmp/cboperator.yaml
     regexp: '^(.*)my-couchbase-enterprise(.*)$'
-    replace: '\1{{ meta.namespace }}\2'
+    replace: '\1{{ operator_namespace }}\2'
 
 - name: Deploy Couchbase Operator from operatorhub.io
   k8s:
@@ -18,7 +18,7 @@
   k8s_facts:
     kind: Pod
     api_version: v1
-    namespace: "{{ meta.namespace }}"
+    namespace: "{{ operator_namespace }}"
     label_selectors:
       - name = couchbase-operator
   register: cb_op_pod
@@ -34,21 +34,11 @@
       kind: Secret
       metadata:
         name: cb-example-auth
-        namespace: "{{ meta.namespace }}"
+        namespace: "{{ operator_namespace }}"
       type: Opaque
       data:
         username: QWRtaW5pc3RyYXRvcg==
         password: cGFzc3dvcmQ=
-
-#TODO: Work possibly needed here for PV security requirements
-#- name: Get the Project UID Range
-#  k8s_facts:
-#    api_version: v1
-#    kind: Project
-#    name: "{{ couchbase_namespace }}"
-#    field_selectors:
-#      - metadata.annotations.openshift.io/sa.scc.uid-range
-#    register: uid_range
 
 #TODO: Confirm that we can actually distribute this binary in this way
 - name: Get the cbopctl Binary
@@ -71,7 +61,7 @@
       apiVersion: batch/v1
       metadata:
         name: cb-image-load
-        namespace: "{{ meta.namespace }}"
+        namespace: "{{ operator_namespace }}"
       spec:
         template:
           spec:
@@ -86,7 +76,7 @@
   k8s_facts:
     kind: Job
     api_version: batch/v1
-    namespace: "{{ meta.namespace }}"
+    namespace: "{{ operator_namespace }}"
     name: cb-image-load
   register: cb_image_load
   until: "cb_image_load | json_query('resources[].status.succeeded')"
@@ -106,7 +96,7 @@
   k8s_facts:
     kind: CouchbaseCluster
     api_version: couchbase.com/v1
-    namespace: "{{ meta.namespace }}"
+    namespace: "{{ operator_namespace }}"
     name: cb-benchmark
   register: cbc
   until: cbc | json_query('resources[].status.conditions.Available.status') and cbc | json_query('resources[].status.members.ready[]') | length == couchbase.servers.size
@@ -118,7 +108,7 @@
 # See https://github.com/brianfrankcooper/YCSB/issues/1062#issuecomment-344716601
 - name: Set Password for the Default Bucket
   uri:
-    url: "http://cb-benchmark.{{ meta.namespace }}.svc.cluster.local:8091/settings/web"
+    url: "http://cb-benchmark.{{ operator_namespace }}.svc.cluster.local:8091/settings/web"
     method: POST
     # This is the default couchbase admin user/pass
     user: Administrator
@@ -131,7 +121,7 @@
 
 - name: Set Couchbase Service Hostname
   set_fact:
-    couchbase_hostname: "cb-benchmark.{{ meta.namespace }}.svc.cluster.local"
+    couchbase_hostname: "cb-benchmark.{{ operator_namespace }}.svc.cluster.local"
 
 - name: Globalize Default Bucket Password Variable
   set_fact:

@@ -3,6 +3,7 @@ kind: Role
 metadata:
   creationTimestamp: null
   name: benchmark-operator
+  namespace: ripsaw
 rules:
 - apiGroups:
   - ""

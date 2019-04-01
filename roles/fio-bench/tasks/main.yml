@@ -6,7 +6,7 @@
       kind: ConfigMap
       metadata:
         name: fio-test
-        namespace: '{{ meta.namespace }}'
+        namespace: '{{ operator_namespace }}'
       data:
         fiojob: "{{ lookup('template', 'job.fio.j2') }}"
   when: fio.clients > 0
@@ -18,7 +18,7 @@
       apiVersion: batch/v1
       metadata:
         name: '{{ meta.name }}-fio-client-{{item}}-benchmark'
-        namespace: '{{ meta.namespace }}'
+        namespace: '{{ operator_namespace }}'
       spec:
         ttlSecondsAfterFinished: 600
         template:

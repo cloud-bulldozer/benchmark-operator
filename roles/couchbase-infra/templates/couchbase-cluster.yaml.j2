@@ -4,7 +4,7 @@ apiVersion: couchbase.com/v1
 kind: CouchbaseCluster
 metadata:
   name: cb-benchmark
-  namespace: {{ meta.namespace }}
+  namespace: {{ operator_namespace }}
 spec:
   #The upstream image is not compatible with OpenShift
   baseImage: {{ pod_baseImage }}

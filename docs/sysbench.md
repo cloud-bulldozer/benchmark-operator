@@ -16,6 +16,7 @@ apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
+  namespace: ripsaw
 spec:
   enabled: true
   tests:
@@ -30,8 +31,8 @@ You can find more information at [sysbench documentation](https://github.com/ako
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
-# kubectl create -f <path_to_file> # if created a new cr file
+# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
 Deploying the above(running cpu) would result in
