@@ -55,23 +55,6 @@
   when: fio.clients > 0
   with_sequence: start=1 count={{fio.clients}}
 
-- name: Create PVC(s)
-  k8s:
-    definition:
-      kind: PersistentVolumeClaim
-      apiVersion: v1
-      metadata:
-        name: "claim1"
-        namespace: '{{ meta.namespace }}'
-        annotations:
-           volume.beta.kubernetes.io/storage-class: "{{fio.storageclass}}"
-      spec:
-         accessModes:
-           - ReadWriteOnce
-         resources:
-           requests:
-             storage: "{{fio.storagesize}}"
-
 - name: Start Server(s)
   k8s:
     definition:
