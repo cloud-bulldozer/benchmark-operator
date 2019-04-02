@@ -1,7 +1,7 @@
-apiVersion: bench.example.com/v1alpha1
-kind: Bench
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-benchmark
 spec:
   sysbench:
     enabled: true

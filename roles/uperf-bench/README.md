@@ -1,4 +1,4 @@
-uperf-bench
+uperf-benchmark
 =========
 
 Network dataplane workload

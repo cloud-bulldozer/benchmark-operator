@@ -5,10 +5,10 @@
 ## Running YCSB
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify [cr.yaml](../deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../deploy/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
+[cr.yaml](../deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
 your resource file should look like this:
 
 YCSB is a workload that requires a kubernetes self-hosted infrastructure on which to run its tests. The CR structure requires you to define the infra. Current infra systems deployable by the benchmark operator and supported for YCSB testing:
@@ -20,12 +20,12 @@ YCSB is a workload that requires a kubernetes self-hosted infrastructure on whic
 
 
 ```yaml
-apiVersion: bench.example.com/v1alpha1
-kind: Bench
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
 metadata:
   name: example-bench
 spec:
-  couchbase: 
+  couchbase:
     # To disable couchbase, set servers.size to 0
     # Typical deployment size is 3
     servers:
@@ -47,7 +47,7 @@ spec:
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f deploy/crds/bench_v1alpha1_bench_cr.yaml # if edited the original one
+# kubectl create -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
 # kubectl create -f <path_to_file> # if created a new cr file
 ```
 

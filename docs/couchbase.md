@@ -14,18 +14,18 @@ $ kubectl create -f https://raw.githubusercontent.com/operator-framework/operato
 ## Running the Couchbase infra
 
 Given that you followed instructions to deploy the benchmark operator,
-you can modify the [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify the [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
 
 Note: Set other roles to 0 to disable them when editing the
-[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file, or create
+[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file, or create
 your own custom resource file with only the roles you want defined. An
 example to enable only Couchbase:
 
 ```yaml
-apiVersion: bench.example.com/v1alpha1
-kind: Bench
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-benchmark
 spec:
   couchbase:
     # To disable couchbase, set servers.size to 0
@@ -44,7 +44,7 @@ StorageClass name for `spec.couchbase.storage.class_name` and a valid volume siz
 Setting up a StorageClass is outside the scope of this documentation.
 
 > Note that the upstream couchbase container images will not run on OpenShift as of this build,
-> therefore the [default](../roles/couchbase-infra/defaults/main.yml) for the role is to pull images from [registry.redhat.io](https://registry.redhat.io). The image URL and version can be overridden in the [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file.
+> therefore the [default](../roles/couchbase-infra/defaults/main.yml) for the role is to pull images from [registry.redhat.io](https://registry.redhat.io). The image URL and version can be overridden in the [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file.
 
 > In order to pull images from the Red Hat registry, you will need to add a valid Red Hat registry
 > secret to your OpenShift deployment before deploying the couchbase infra. To get your registry
@@ -71,7 +71,7 @@ $ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "<secr
 Once you are finished creating/editing the custom resource file, you can run it by:
 
 ```bash
-$ kubectl create -f /path/to/bench_v1alpha1_bench_cr.yaml
+$ kubectl create -f /path/to/benchmark_v1alpha1_benchmark_cr.yaml
 ```
 
 Deploying the above will first result in the Couchbase operator running (along with a catalog container).
@@ -107,9 +107,9 @@ Metadata:
   Creation Timestamp:  2019-03-21T21:32:45Z
   Generation:          1
   Owner References:
-    API Version:     bench.example.com/v1alpha1
-    Kind:            Bench
-    Name:            example-bench
+    API Version:     benchmark.example.com/v1alpha1
+    Kind:            Benchmark
+    Name:            example-benchmark
     UID:             c87f2ba3-4c20-11e9-8a78-128d7ee91aa6
   Resource Version:  2201864
   Self Link:         /apis/couchbase.com/v1/namespaces/benchmark/couchbaseclusters/cb-benchmark
@@ -204,7 +204,7 @@ Status:
       Name:  cb-benchmark-0001
       Name:  cb-benchmark-0002
   Phase:     Running
-  Reason:    
+  Reason:
   Size:      3
 Events:
   Type    Reason              Age   From                                 Message
