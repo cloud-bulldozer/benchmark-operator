@@ -1,6 +1,6 @@
 [global]
 name=custom
-directory=/mnt/pvc/
+directory={{fio_path}}
 ioengine=sync
 bs=4
 iodepth=32
