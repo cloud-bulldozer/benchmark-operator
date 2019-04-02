@@ -8,11 +8,12 @@ spec:
   workload:
     name: fio
     args:
-      # To disable fio, set clients to 0
-      clients: 1
-      jobname: test-write
-      bs: 4k
-      iodepth: 1
-      runtime: 12
-      rw: write
-      filesize: 1
+     # To disable fio, set clients to 0
+     job: seq
+     clients: 1
+     jobname: seq-test
+     bs: 4k
+     iodepth: 1
+     runtime: 12
+     numjobs: 1
+     filesize: 1
