@@ -12,10 +12,10 @@
   when: ( fio.clients > 0 and fio.job != "custom" )
   register: template_file
 
-- name: Download the custome fio job
-  get_url:
-    url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
-    dest: /etc/fio.job
+#- name: Download the custome fio job
+#  get_url:
+#    url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
+#    dest: /etc/fio.job
 
 - name: Generate Custom fio test
   k8s:
@@ -25,11 +25,11 @@
       metadata:
         name: fio-test-shekhar
         namespace: '{{ meta.namespace }}'
-      #get_url:
-        #url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
+      get_url:
+        url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
         #dest: /etc/fio.job
       data:
-        fiojob: "/etc/fio.job"
+        fiojob: "/root/custom.fio"
   when: ( fio.clients > 0 and fio.job == "custom" )
  
 #- name: temp_file
