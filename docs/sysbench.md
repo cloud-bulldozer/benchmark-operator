@@ -5,17 +5,17 @@
 ## Running Sysbench
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml
-apiVersion: bench.example.com/v1alpha1
-kind: Bench
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-benchmark
 spec:
   enabled: true
   tests:
@@ -30,7 +30,7 @@ You can find more information at [sysbench documentation](https://github.com/ako
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f resources/crds/bench_v1alpha1_bench_cr.yaml # if edited the original one
+# kubectl create -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
 # kubectl create -f <path_to_file> # if created a new cr file
 ```
 
@@ -40,7 +40,7 @@ Deploying the above(running cpu) would result in
 # kubectl get pods
 NAME                                 READY   STATUS              RESTARTS   AGE
 benchmark-operator-6bfccf9dc-cfzvc   1/1     Running             0          7m18s
-example-bench-sysbench-9cvff         0/1     ContainerCreating   0          51s
+example-benchmark-sysbench-9cvff         0/1     ContainerCreating   0          51s
 ```
 
 Note: The pods are set to delete after 600s from the job completion. This can be
@@ -50,7 +50,7 @@ You can look at results by using logs functionality - `kubectl logs <client>`,
 it should look like:
 
 ```bash
-# kubectl logs -f example-bench-sysbench-9cvff
+# kubectl logs -f example-benchmark-sysbench-9cvff
 WARNING: the --test option is deprecated. You can pass a script name or path on the command line without any options.
 sysbench 1.0.9 (using system LuaJIT 2.0.4)
 

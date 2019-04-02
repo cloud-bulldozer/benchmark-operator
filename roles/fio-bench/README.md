@@ -1,4 +1,4 @@
-fio-bench
+fio-benchmark
 =========
 
 i/o workload

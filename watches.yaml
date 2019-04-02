@@ -1,5 +1,5 @@
 ---
 - version: v1alpha1
-  group: bench.example.com
-  kind: Bench
+  group: benchmark.example.com
+  kind: Benchmark
   playbook: /opt/ansible/playbook.yml

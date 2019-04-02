@@ -47,7 +47,7 @@
             app : uperf-bench-server
         spec:
          containers:
-         - name: bench
+         - name: benchmark
            image: "quay.io/jtaleric/uperf:testing"
            command: ["/bin/sh", "-c"]
            args: ["uperf -s"]
@@ -94,7 +94,7 @@
                 app: uperf-bench-client
             spec:
               containers:
-              - name: bench
+              - name: benchmark
                 image: "quay.io/jtaleric/uperf:testing"
                 command: ["/bin/sh", "-c"]
                 args:
