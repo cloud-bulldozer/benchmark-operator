@@ -6,8 +6,8 @@ source tests/common.sh
 function finish {
   echo "Cleaning up couchbase"
   kubectl delete -f tests/test_crs/valid_couchbase.yaml
-  kubectl delete deployment couchbase-operator
   delete_operator
+  kubectl delete deployment couchbase-operator
 }
 
 # Two arguments are 'pod label' and 'timeout in seconds'

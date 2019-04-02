@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+function wait_clean {
+  for i in {1..30}; do
+    if [ `kubectl get pods | grep bench | wc -l` -ge 1 ]; then
+      sleep 5
+    else
+      break
+    fi
+  done
+}
+
 function apply_operator {
   kubectl apply -f resources/operator.yaml
 }
@@ -27,22 +37,13 @@ function cleanup_resources {
 function cleanup_operator_resources {
   delete_operator
   cleanup_resources
+  wait_clean
 }
 
 function update_operator_image {
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator
   docker push quay.io/rht_perf_ci/benchmark-operator
   sed -i 's|          image: *|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
-}
-
-function wait_clean {
-  for i in {1..30}; do
-    if [ `kubectl get pods | grep bench | wc -l` -ge 1 ]; then
-      sleep 5
-    else
-      break
-    fi
-  done
 }
 
 function check_pods() {
