@@ -14,29 +14,13 @@ spec:
     runtime: 10
   fio:
     # To disable fio, set clients to 0
-    clients: 0
-    jobname: test-write
+    job: custom # either of custom, seq_write, seq_read, seq_rw, rand_write, rand_read, rand_rw
+    clients: 1
+    jobname: seq-write
     bs: 4k
     iodepth: 4
-    runtime: 57
-    rw: write
+    runtime: 60
+    numjobs: 2
     filesize: 1
-  sysbench:
-    enabled: false
-    tests:
-    - name: cpu
-      parameters:
-        cpu-max-prime: 2000
-    - name: fileio
-      parameters:
-        file-test-mode: rndrw
-  couchbase: 
-    # To disable couchbase, set servers.size to 0
-    # Typical deployment size is 3
-    servers:
-      size: 0
-    storage:
-      use_persistent_storage: True
-      class_name: "rook-ceph-block"
-      volume_size: 10Gi
-    on_openshift: True
+    storageclass: rook-ceph-block
+    storagesize: 30Gi

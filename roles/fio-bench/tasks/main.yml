@@ -5,41 +5,103 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: fio-test
+        name: fio-test-shekhar
         namespace: '{{ meta.namespace }}'
       data:
-        fiojob: "{{ lookup('template', 'job.fio.j2') }}"
+        fiojob: "{{ lookup('template', 'job.fio.{{fio.job}}') }}"
+  when: ( fio.clients > 0 and fio.job != "custom" )
+  register: template_file
+
+- name: Download the custome fio job
+  get_url:
+    url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
+    dest: /etc/fio.job
+
+- name: Generate Custom fio test
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: fio-test-shekhar
+        namespace: '{{ meta.namespace }}'
+      #get_url:
+        #url: http://perf1.perf.lab.eng.bos.redhat.com/pub/shberry/fio/custom.fio
+        #dest: /etc/fio.job
+      data:
+        fiojob: "/etc/fio.job"
+  when: ( fio.clients > 0 and fio.job == "custom" )
+ 
+#- name: temp_file
+#  debug:
+#    var: "{{ template_file }}"
+
+- name: Create PVC(s)
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "claim{{item}}"
+        namespace: '{{ meta.namespace }}'
+        annotations:
+           volume.beta.kubernetes.io/storage-class: "{{fio.storageclass}}"
+      spec:
+         accessModes:
+           - ReadWriteOnce
+         resources:
+           requests:
+             storage: "{{fio.storagesize}}"
   when: fio.clients > 0
+  with_sequence: start=1 count={{fio.clients}}
+
+- name: Create PVC(s)
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "claim1"
+        namespace: '{{ meta.namespace }}'
+        annotations:
+           volume.beta.kubernetes.io/storage-class: "{{fio.storageclass}}"
+      spec:
+         accessModes:
+           - ReadWriteOnce
+         resources:
+           requests:
+             storage: "{{fio.storagesize}}"
 
 - name: Start Server(s)
   k8s:
     definition:
-      kind: Job
-      apiVersion: batch/v1
+      kind: Pod
+      apiVersion: v1
       metadata:
         name: '{{ meta.name }}-fio-client-{{item}}-bench'
         namespace: '{{ meta.namespace }}'
+        labels:
+          app: fio-bench-server
       spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: fio-bench
-          spec:
-            containers:
-            - name: bench-server
-              image: "quay.io/jtaleric/fio:testing"
-              command: ["/bin/sh", "-c"]
-              args: 
-                - "cat /tmp/fio/fiojob;
-                   fio /tmp/fio/fiojob"
-              volumeMounts:
-              - name: config-volume
-                mountPath: "/tmp/fio"
-            volumes:
-            - name: config-volume
-              configMap:
-                name: fio-test
-            restartPolicy: Never
+        containers:
+        - name: bench-server
+          image: "quay.io/jtaleric/fio:testing"
+          command: ["/bin/sh","-c"]
+          args:
+           - "cat /tmp/fio/fiojob;
+              fio /tmp/fio/fiojob"
+          volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/fio"
+          - name: ceph-volume
+            mountPath: "/mnt/pvc"
+        volumes:
+        - name: config-volume
+          configMap:
+            name: fio-test-shekhar
+        - name: ceph-volume
+          persistentVolumeClaim:
+            claimName: claim{{item}}
+        restartPolicy: Never
   when: fio.clients > 0
   with_sequence: start=1 count={{fio.clients}}
