@@ -11,7 +11,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | FIO-lite                       | Storage IO           | Working            |
 | Sysbench                       | System Performance   | Working            |
 | [Couchbase](docs/couchbase.md) | Infrastructure       | Working            |
-| YCSB                           | Database Performance | WIP                |
+| [YCSB](docs/ycsb.md)           | Database Performance | Working            |
 
 ## Installation
 [Installation](docs/installation.md)

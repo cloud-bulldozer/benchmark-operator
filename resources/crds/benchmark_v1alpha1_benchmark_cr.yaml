@@ -1,0 +1,58 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+spec:
+  # cleanup: true
+  uperf:
+    # To disable uperf, set pairs to 0
+    pair: 0
+    proto: tcp
+    test_type: stream
+    nthr: 2
+    size: 16384
+    runtime: 10
+  fio:
+    # To disable fio, set clients to 0
+    clients: 0
+    jobname: test-write
+    bs: 4k
+    iodepth: 4
+    runtime: 57
+    rw: write
+    filesize: 1
+  sysbench:
+    enabled: false
+    #kind: vm
+    # If you want to run this as a VM uncomment the above
+    tests:
+    - name: cpu
+      parameters:
+        cpu-max-prime: 2000
+    - name: fileio
+      parameters:
+        file-test-mode: rndrw
+  couchbase:
+    # To disable couchbase, set servers.size to 0
+    # Typical deployment size is 3
+    servers:
+      size: 0
+    storage:
+      use_persistent_storage: True
+      class_name: "rook-ceph-block"
+      volume_size: 10Gi
+    # Defaults that can be overridden
+    #operator_url: https://www.operatorhub.io/install/preview/couchbase-operator.v1.1.0.yaml
+    # Example for OpenShift (default):
+    #pod_baseImage: registry.connect.redhat.com/couchbase/server
+    #pod_version: 5.5.2-2
+    # Example for or k8s:
+    #pod_baseImage: registry.hub.docker.com/library/couchbase
+    #pod_version: enterprise-6.0.1
+  ycsb:
+    # To disable ycsb, set workers to 0
+    # ycsb must be loaded after the infra it depends on
+    workers: 0
+    infra: couchbase
+    driver: couchbase2
+    workload: workloada
