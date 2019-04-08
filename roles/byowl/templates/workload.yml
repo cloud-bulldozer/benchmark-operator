@@ -1,0 +1,19 @@
+---
+apiVersion: batch/v1
+kind: "job"
+metadata:
+  name: "{{ meta.name }}-byowl"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+       app: byowl
+    spec:
+      containers:
+      - name: byowl
+        command: ["/bin/sh", "-c"]
+        args: ["{{ byowl.commands }}"]
+        image: "{{ byowl.image }}"
+      restartPolicy: OnFailure
