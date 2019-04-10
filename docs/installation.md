@@ -45,7 +45,7 @@ in the installation guide.
 ### Deploying operator
 
 ```bash
-# git clone https://github.com/cloud-bulldozer/honeybadger
+# git clone https://github.com/cloud-bulldozer/ripsaw
 # cd benchmark-operator
 # export KUBECONFIG=<your_kube_config> # if not already done
 # kubectl create -f deploy
