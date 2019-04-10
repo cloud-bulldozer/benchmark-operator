@@ -1,0 +1,28 @@
+---
+
+apiVersion: batch/v1
+kind: "job"
+metadata:
+  name: "{{ meta.name }}-sysbench"
+  namespace: "{{ meta.namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+       app: sysbench
+    spec:
+      containers:
+      - name: sysbench
+        command: ["/bin/sh", "-c"]
+        args: ["/tmp/sysbenchScript"]
+        image: "quay.io/benchmark-operator/sysbench:latest"
+        volumeMounts:
+        - name: sysbench-volume
+          mountPath: "/tmp/"
+      volumes:
+      - name: sysbench-volume
+        configMap:
+          name: "{{ meta.name }}-sysbench-config"
+          defaultMode: 0777
+      restartPolicy: OnFailure

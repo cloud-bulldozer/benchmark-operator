@@ -6,8 +6,8 @@ source tests/common.sh
 function finish {
   echo "Cleaning up couchbase"
   kubectl delete -f tests/test_crs/valid_couchbase.yaml
-  delete_operator
   kubectl delete deployment couchbase-operator
+  delete_operator
 }
 
 # Two arguments are 'pod label' and 'timeout in seconds'
@@ -63,7 +63,7 @@ function functional_test_couchbase {
   sleep 15
   kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml
   kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "1979710-benchmark-operator-ci-pull-secret"}]}'
-  kubectl apply -f tests/test_crs/valid_couchbase.yaml
+  kubectl apply -f tests/test_crs/valid_ycsb-couchbase.yaml
   cb_operator_pod=$(get_pod 'name=couchbase-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$cb_operator_pod" --timeout=60s
   kubectl wait --for=condition=Ready "pods/$cb_operator_pod" --timeout=300s
@@ -72,6 +72,12 @@ function functional_test_couchbase {
   kubectl wait --for=condition=Ready "pods/$cb_app_pod" --timeout=300s
   sleep 15
   check_cbc 300
+  ycsb_load_pod=$(get_pod 'name=ycsb-load' 120)
+  kubectl wait --for=condition=Initialized "pods/$ycsb_load_pod" --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ycsb_load_pod" --timeout=120s
+  ycsb_run_pod=$(get_pod 'name=ycsb-run' 120)
+  kubectl wait --for=condition=Initialized "pods/$ycsb_run_pod" --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ycsb_run_pod" --timeout=120s
 }
 
 functional_test_couchbase

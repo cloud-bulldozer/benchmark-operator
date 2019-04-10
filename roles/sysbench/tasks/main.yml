@@ -11,32 +11,14 @@
       data:
         sysbenchScript: "{{ lookup('template', 'sysbench.sh.j2') }}"
 
-- name: start sysbench job
+- name: Start sysbench job
   k8s:
-    definition:
-      kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: '{{ meta.name }}-sysbench'
-        namespace: '{{ meta.namespace }}'
-      spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: sysbench
-          spec:
-            containers:
-            - name: sysbench
-              command: ["/bin/sh", "-c"]
-              args: ["/tmp/sysbenchScript"]
-              image: "docker.io/smalleni/centos-sysbench:latest"
-              volumeMounts:
-              - name: sysbench-volume
-                mountPath: "/tmp/"
-            volumes:
-            - name: sysbench-volume
-              configMap:
-                name: '{{ meta.name }}-sysbench-config'
-                defaultMode: 0777
-            restartPolicy: OnFailure
+    state: present
+    definition: "{{ lookup('template', 'workload.yml') | from_yaml }}"
+  when: sysbench.kind is not defined
+
+- name: Start sysbench vm job
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'workload_vm.yml') | from_yaml }}"
+  when:  sysbench.kind is defined and sysbench.kind == "vm"

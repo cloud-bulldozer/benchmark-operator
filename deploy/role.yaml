@@ -40,7 +40,7 @@ rules:
   - get
   - create
 - apiGroups:
-  - bench.example.com
+  - benchmark.example.com
   resources:
   - '*'
   verbs:

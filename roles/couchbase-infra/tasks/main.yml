@@ -1,66 +1,7 @@
 ---
-
-# Install Couchbase Operator
-- name: Create ClusterRole for the Benchmark User
-  k8s:
-    definition: "{{ lookup('template', 'cluster-role-benchmark.yaml') }}"
-
-- name: Create ClusterRoleBinding for the Benchmark User
-  k8s:
-    definition: "{{ lookup('template', 'cluster-role-binding-benchmark.yaml') }}"
-
-- name: Create CRD for Couchbase Operator
-  k8s:
-    definition: "{{ lookup('file', 'crd.yaml') }}"
-
-- name: Create ClusterRole for Service Account
-  k8s:
-    definition: "{{ lookup('file', 'cluster-role-sa.yaml') }}"
-
-- name: Create Service Account
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: ServiceAccount
-      metadata:
-        name: couchbase-operator
-        namespace: "{{ meta.namespace }}"
-
-- name: Create ClusterRoleBinding for the Service Account
-  k8s:
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRoleBinding
-      metadata:
-        name: couchbase-operator-rolebinding
-      roleRef:
-        apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: couchbase-operator
-      subjects:
-      - kind: ServiceAccount
-        name: couchbase-operator
-        namespace: "{{ meta.namespace }}"
-
-- name: Create Cluster Role for the user
-  k8s:
-    definition: "{{ lookup('file', 'cluster-role-user.yaml') }}"
-
-- name: Create ClusterRoleBinding for the User
-  k8s:
-    definition:
-      apiVersion: rbac.authorization.k8s.io/v1
-      kind: ClusterRoleBinding
-      metadata:
-        name: couchbasecluster-rolebinding
-      roleRef:
-        apiGroup: rbac.authorization.k8s.io
-        kind: ClusterRole
-        name: couchbasecluster
-
 - name: Download Couchbase Operator from operatorhub.io
   get_url:
-    url: "https://www.operatorhub.io/install/couchbase-operator.{{ cb_operator_version }}.yaml"
+    url: "{{ operator_url }}"
     dest: /tmp/cboperator.yaml
 
 - name: Set namespace for Couchbase
@@ -122,6 +63,36 @@
     dest: /tmp/couchbase-cluster.yaml
     mode: 0640
 
+# Pre-pull the image to avoid CB operator timeout
+- name: Pre-Pull Couchbase Container Image
+  k8s:
+    definition:
+      kind: Job
+      apiVersion: batch/v1
+      metadata:
+        name: cb-image-load
+        namespace: "{{ meta.namespace }}"
+      spec:
+        template:
+          spec:
+            containers:
+            - name: cb-image-load
+              image: "{{ pod_baseImage }}:{{ pod_version }}"
+              command: ['/bin/true']
+            restartPolicy: Never
+        backoffLimit: 4
+
+- name: Wait for Pre-Pull Job to Succeed
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    namespace: "{{ meta.namespace }}"
+    name: cb-image-load
+  register: cb_image_load
+  until: "cb_image_load | json_query('resources[].status.succeeded')"
+  retries: 60
+  delay: 10
+
 - name: Launch Couchbase Cluster from Operator
 #  k8s:
 #    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
@@ -142,3 +113,26 @@
   #60 retries with 10 second delays should result in a 10 minute wait time
   retries: 60
   delay: 10
+
+# For use with YCSB, the username must match the bucket name
+# See https://github.com/brianfrankcooper/YCSB/issues/1062#issuecomment-344716601
+- name: Set Password for the Default Bucket
+  uri:
+    url: "http://cb-benchmark.{{ meta.namespace }}.svc.cluster.local:8091/settings/web"
+    method: POST
+    # This is the default couchbase admin user/pass
+    user: Administrator
+    password: password
+    body_format: form-urlencoded
+    body:
+      username: default
+      password: "{{ default_bucket_password }}"
+      port: 8091
+
+- name: Set Couchbase Service Hostname
+  set_fact:
+    couchbase_hostname: "cb-benchmark.{{ meta.namespace }}.svc.cluster.local"
+
+- name: Globalize Default Bucket Password Variable
+  set_fact:
+    default_bucket_password: "{{ default_bucket_password }}"

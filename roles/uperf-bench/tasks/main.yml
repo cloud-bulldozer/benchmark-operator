@@ -47,8 +47,8 @@
             app : uperf-bench-server
         spec:
          containers:
-         - name: bench
-           image: "quay.io/jtaleric/uperf:testing"
+         - name: benchmark
+           image: "quay.io/benchmark-operator/uperf:latest"
            command: ["/bin/sh", "-c"]
            args: ["uperf -s"]
          restartPolicy: OnFailure
@@ -94,8 +94,8 @@
                 app: uperf-bench-client
             spec:
               containers:
-              - name: bench
-                image: "quay.io/jtaleric/uperf:testing"
+              - name: benchmark
+                image: "quay.io/benchmark-operator/uperf:latest"
                 command: ["/bin/sh", "-c"]
                 args:
                   - "cat /tmp/uperf-test/uperfXML;

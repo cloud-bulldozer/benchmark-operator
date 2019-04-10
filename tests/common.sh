@@ -20,7 +20,7 @@ function delete_operator {
 
 function operator_requirements {
   kubectl apply -f deploy
-  kubectl apply -f resources/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
 }
 
 function create_operator {
@@ -30,7 +30,7 @@ function create_operator {
 
 function cleanup_resources {
   echo "Exiting after cleanup of resources"
-  kubectl delete -f resources/crds/bench_v1alpha1_bench_crd.yaml
+  kubectl delete -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
   kubectl delete -f deploy
 }
 

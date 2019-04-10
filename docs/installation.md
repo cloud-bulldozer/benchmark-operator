@@ -45,11 +45,11 @@ in the installation guide.
 ### Deploying operator
 
 ```bash
-# git clone https://github.com/cloud-bulldozer/honeybadger
+# git clone https://github.com/cloud-bulldozer/ripsaw
 # cd benchmark-operator
 # export KUBECONFIG=<your_kube_config> # if not already done
 # kubectl create -f deploy
-# kubectl create -f resources/crds/bench_v1alpha1_bench_crd.yaml
+# kubectl create -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
 # kubectl create -f resources/operator.yaml
 ```
 
@@ -60,6 +60,7 @@ run workloads:
 * [fio](fio.md)
 * [sysbench](sysbench.md)
 * [couchbase](couchbase.md)
+* [YCSB](ycsb.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 
@@ -67,8 +68,8 @@ If you want to add a new workload please follow these [instructions](../CONTRIBU
 Now that we're running workloads we can cleanup by running following commands
 
 ```bash
-# kubectl delete -f resources/crds/bench_v1alpha1_bench_cr.yaml # if not already done and assuming this was the resource file passed
-# kubectl delete -f resources/crds/bench_v1alpha1_bench_crd.yaml
+# kubectl delete -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if not already done and assuming this was the resource file passed
+# kubectl delete -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
 # kubectl delete -f resources/operator.yaml
 # kubectl delete -f deploy
 ```

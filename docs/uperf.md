@@ -5,17 +5,17 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml)
+you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/bench_v1alpha1_bench_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml
-apiVersion: bench.example.com/v1alpha1
-kind: Bench
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-benchmark
 spec:
   uperf:
     # Server size must always be 1 or more
@@ -30,7 +30,7 @@ spec:
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl create -f deploy/crds/bench_v1alpha1_bench_cr.yaml # if edited the original one
+# kubectl create -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
 # kubectl create -f <path_to_file> # if created a new cr file
 ```
 
@@ -40,8 +40,8 @@ Deploying the above(assuming pairs is set to 1) would result in
 # kubectl get -o wide pods
 NAME                                                READY     STATUS    RESTARTS   AGE       IP             NODE                                         NOMINATED NODE
 benchmark-operator-6ff5bf5db8-nzvl8                 1/1       Running   0          2m12s     10.129.2.186   ip-10-0-152-138.us-west-2.compute.internal   <none>
-example-bench-uperf-client-bench-7f8fb9bc8-q2xbx    1/1       Running   0          101s      10.129.2.188   ip-10-0-152-138.us-west-2.compute.internal   <none>
-example-bench-uperf-server-bench-68779b4986-nz5w8   1/1       Running   0          117s      10.129.2.187   ip-10-0-152-138.us-west-2.compute.internal   <none>
+example-benchmark-uperf-client-benchmark-7f8fb9bc8-q2xbx    1/1       Running   0          101s      10.129.2.188   ip-10-0-152-138.us-west-2.compute.internal   <none>
+example-benchmark-uperf-server-benchmark-68779b4986-nz5w8   1/1       Running   0          117s      10.129.2.187   ip-10-0-152-138.us-west-2.compute.internal   <none>
 ```
 
 The first pod is our Operator orchestrating the UPerf workload.

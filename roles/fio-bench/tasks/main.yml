@@ -17,20 +17,20 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-fio-client-{{item}}-bench'
+        name: '{{ meta.name }}-fio-client-{{item}}-benchmark'
         namespace: '{{ meta.namespace }}'
       spec:
         ttlSecondsAfterFinished: 600
         template:
           metadata:
             labels:
-              app: fio-bench
+              app: fio-benchmark
           spec:
             containers:
-            - name: bench-server
-              image: "quay.io/jtaleric/fio:testing"
+            - name: benchmark-server
+              image: "quay.io/benchmark-operator/fio:latest"
               command: ["/bin/sh", "-c"]
-              args: 
+              args:
                 - "cat /tmp/fio/fiojob;
                    fio /tmp/fio/fiojob"
               volumeMounts:
