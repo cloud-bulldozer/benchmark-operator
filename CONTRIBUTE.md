@@ -12,8 +12,8 @@ How to:
 
 In order to submit a change or a PR, please fork the project and follow instructions:
 ```bash
-$ git clone http://github.com/<me>/benchmark-operator
-$ cd benchmark-operator
+$ git clone http://github.com/<me>/ripsaw
+$ cd ripsaw
 $ git checkout -b <branch_name>
 $ <make change>
 $ git add <changes>
