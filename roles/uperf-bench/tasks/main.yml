@@ -48,7 +48,7 @@
         spec:
          containers:
          - name: benchmark
-           image: "quay.io/jtaleric/uperf:testing"
+           image: "quay.io/benchmark-operator/uperf:latest"
            command: ["/bin/sh", "-c"]
            args: ["uperf -s"]
          restartPolicy: OnFailure
@@ -95,7 +95,7 @@
             spec:
               containers:
               - name: benchmark
-                image: "quay.io/jtaleric/uperf:testing"
+                image: "quay.io/benchmark-operator/uperf:latest"
                 command: ["/bin/sh", "-c"]
                 args:
                   - "cat /tmp/uperf-test/uperfXML;
