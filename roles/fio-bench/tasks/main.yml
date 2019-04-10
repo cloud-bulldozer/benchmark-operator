@@ -28,7 +28,7 @@
           spec:
             containers:
             - name: benchmark-server
-              image: "quay.io/jtaleric/fio:testing"
+              image: "quay.io/benchmark-operator/fio:latest"
               command: ["/bin/sh", "-c"]
               args:
                 - "cat /tmp/fio/fiojob;
