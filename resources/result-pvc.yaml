@@ -1,0 +1,12 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+   name: result-volume
+spec:
+   accessModes:
+     - ReadWriteMany
+   resources:
+     requests:
+       storage: 1Gi
+

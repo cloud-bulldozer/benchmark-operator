@@ -1,0 +1,24 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  elasticsearch:
+    server: elk-b09-h30-r720xd.rdu.openstack.engineering.redhat.com
+    port: 9200
+    index: test
+  user: rht_perf_ci
+  store_results: true
+  results:
+    path: /opt/result-data/
+  workload:
+    name: uperf
+    args:
+      # To disable uperf, set pairs to 0
+      pair: 1
+      proto: tcp
+      test_type: stream
+      nthr: 2
+      size: 16384
+      runtime: 10

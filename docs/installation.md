@@ -72,6 +72,17 @@ We'll now apply the permissions and operator definitions.
 # kubectl apply -f resources/operator.yaml
 ```
 
+Note: we are currently experimenting with storing results in a pv attached to operator pod
+and some workload pods such as [uperf](uperf.md). This will also enable us to send results
+to a data store like ElasticSearch. If you'd like to try this out please use operator definition
+stored in [operator_store_results](../resources/operator_store_results.yaml) after creating a pvc
+as follows:
+```bash
+# kubectl apply -f resources/result-pvc.yaml
+# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl apply -f resources/operator_store_results.yaml
+```
+
 ### Running workload
 Now that we've deployed our operator, follow workload specific instructions to
 run workloads:

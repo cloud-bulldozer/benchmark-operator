@@ -64,7 +64,7 @@
         - app = uperf-bench-server
     register: server_pods
     until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
-    retries: 5
+    retries: 10
     delay: 10
 
   - name: Generate uperf test
@@ -80,37 +80,13 @@
 
   - name: Start Client(s)
     k8s:
-      definition:
-        kind: Job
-        apiVersion: batch/v1
-        metadata:
-          name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
-          namespace: '{{ operator_namespace }}'
-        spec:
-          ttlSecondsAfterFinished: 600
-          template:
-            metadata:
-              labels:
-                app: uperf-bench-client
-            spec:
-              containers:
-              - name: benchmark
-                image: "quay.io/benchmark-operator/uperf:latest"
-                command: ["/bin/sh", "-c"]
-                args:
-                  - "cat /tmp/uperf-test/uperfXML;
-                     export h={{item.status.podIP}};
-                     uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
-                volumeMounts:
-                - name: config-volume
-                  mountPath: "/tmp/uperf-test"
-              volumes:
-                - name: config-volume
-                  configMap:
-                    name: uperf-test
-              restartPolicy: OnFailure
-    when: server_pods.resources|length > 0
-    with_items: "{{ server_pods.resources }}"
+      definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+    when: server_pods.resources|length > 0 and (store_results is not defined or (store_results is defined and not store_results))
+
+  - name: Start Client(s) - store results
+    k8s:
+      definition: "{{ lookup('template', 'workload_store.yml.j2') | from_yaml }}"
+    when: server_pods.resources|length > 0 and store_results is defined and store_results
 
   - name: Waiting for pods to complete....
     k8s_facts:
@@ -123,6 +99,10 @@
     until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
     retries: 30
     delay: 10
+
+  - include_role:
+      name: result
+    when: store_results is defined and store_results
 
   - name: Pod names - to clean
     set_fact:
