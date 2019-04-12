@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: benchmark-operator
+  namespace: ripsaw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: benchmark-operator
+  template:
+    metadata:
+      labels:
+        name: benchmark-operator
+    spec:
+      volumes:
+      - name: result-data
+        persistentVolumeClaim:
+          claimName: result-volume
+      serviceAccountName: benchmark-operator
+      containers:
+        - name: benchmark-operator
+          # Replace this with the built image name
+          image: quay.io/benchmark-operator/benchmark-operator:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - mountPath: "/opt/result-data/"
+              name: result-data
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "benchmark-operator"

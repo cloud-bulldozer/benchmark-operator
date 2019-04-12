@@ -1,0 +1,36 @@
+{% for item in server_pods.resources %}
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: '{{ meta.name }}-uperf-client-{{item.status.podIP}}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: uperf-bench-client
+    spec:
+      containers:
+      - name: benchmark
+        image: "quay.io/benchmark-operator/uperf:latest"
+        command: ["/bin/sh", "-c"]
+        args:
+          - "cat /tmp/uperf-test/uperfXML;
+             export h={{item.status.podIP}};
+             uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1 | tee {{results.path}}/$(date +%s)-uperf"
+        volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/uperf-test"
+          - name: result-data
+            mountPath: "{{results.path}}"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: uperf-test
+        - name: result-data
+          persistentVolumeClaim:
+            claimName: result-volume
+      restartPolicy: OnFailure
+{% endfor %}

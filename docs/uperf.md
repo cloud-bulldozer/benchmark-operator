@@ -35,6 +35,37 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
+Note: If you'd like to try to experiment with storing results in a pv and have followed
+instructions to deploy operator with attached pvc and would like to send results to ES(elasticsearch).
+you can instead define a custom resource as follows:
+
+```yaml
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  elasticsearch:
+    server: <es_host>
+    port: <es_port>
+    index: <es_index>
+  user: rht_perf_ci # user is a key that points to user triggering ripsaw, useful to search results in ES
+  store_results: true
+  results:
+    path: /opt/result-data/ # has to be what's passed to mountpath for operator pod
+  workload:
+    name: uperf
+    args:
+      # To disable uperf, set pairs to 0
+      pair: 1
+      proto: tcp
+      test_type: stream
+      nthr: 2
+      size: 16384
+      runtime: 10
+```
+
 Deploying the above(assuming pairs is set to 1) would result in
 
 ```bash
