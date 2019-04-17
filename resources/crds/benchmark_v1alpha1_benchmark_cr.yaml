@@ -57,3 +57,10 @@ spec:
     infra: couchbase
     driver: couchbase2
     workload: workloada
+  byowl:
+    image: "quay.io/jtaleric/uperf:testing"
+    clients: 0
+    commands: |
+      echo "Test";
+      echo "Test2"
+

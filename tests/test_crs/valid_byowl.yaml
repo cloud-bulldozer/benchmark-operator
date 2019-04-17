@@ -1,0 +1,9 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: byowl-benchmark
+spec:
+  byowl:
+    image: "quay.io/jtaleric/uperf:testing"
+    clients: 1
+    commands: "echo Test"

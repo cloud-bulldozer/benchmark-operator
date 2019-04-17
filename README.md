@@ -5,13 +5,14 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Workloads status
 
-| Workload                       | Use                  | Status in Operator |
-| ------------------------------ | -------------------- | ------------------ |
-| UPerf                          | Network Performance  | Working            |
-| FIO-lite                       | Storage IO           | Working            |
-| Sysbench                       | System Performance   | Working            |
-| [Couchbase](docs/couchbase.md) | Infrastructure       | Working            |
-| [YCSB](docs/ycsb.md)           | Database Performance | Working            |
+| Workload                       | Use                   | Status in Operator |
+| ------------------------------ | --------------------  | ------------------ |
+| [UPerf](docs/uperf.md)         | Network Performance   | Working            |
+| FIO-lite                       | Storage IO            | Working            |
+| [Sysbench](docs/sysbench.md)   | System Performance    | Working            |
+| [Couchbase](docs/couchbase.md) | Infrastructure        | Working            |
+| [YCSB](docs/ycsb.md)           | Database Performance  | Working            |
+| [Byowl](docs/byowl.md)         | User defined workload | Working            |
 
 ## Installation
 [Installation](docs/installation.md)

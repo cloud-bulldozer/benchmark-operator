@@ -1,0 +1,8 @@
+---
+# tasks file for byowl
+
+- name: Start byowl job
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'workload.yml') | from_yaml }}"
+  when: byowl.kind is not defined
