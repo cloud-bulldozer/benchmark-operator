@@ -80,6 +80,7 @@ run workloads:
 * [sysbench](sysbench.md)
 * [couchbase](couchbase.md)
 * [YCSB](ycsb.md)
+* [Bring your own workload](byowl.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 
