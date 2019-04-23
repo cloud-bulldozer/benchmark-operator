@@ -5,10 +5,12 @@ metadata:
   namespace: ripsaw
 spec:
   workload:
-    name: sysbench
+    name: fio
     args:
-      enabled: true
-      tests:
-      - name: cpu
-        parameters:
-          cpu-max-prime: 200
+      clients: 0
+      jobname: test-write
+      bs: 4k
+      iodepth: 4
+      runtime: 57
+      rw: write
+      filesize: 1

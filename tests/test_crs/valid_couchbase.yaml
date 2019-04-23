@@ -5,8 +5,10 @@ metadata:
   namespace: ripsaw
 spec:
   cleanup: false
-  couchbase:
-    servers:
-      size: 1
-    storage:
-      use_persistent_storage: False
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        size: 1
+      storage:
+        use_persistent_storage: False

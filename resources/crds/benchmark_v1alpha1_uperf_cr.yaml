@@ -4,12 +4,11 @@ metadata:
   name: example-benchmark
   namespace: ripsaw
 spec:
-  cleanup: false
   workload:
+    # cleanup: true
     name: uperf
     args:
-      # To disable uperf, set pairs to 0
-      pair: 1
+      pair: 0
       proto: tcp
       test_type: stream
       nthr: 2
