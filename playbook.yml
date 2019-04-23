@@ -1,21 +1,47 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - include_role:
-      name: "uperf-bench"
-    when: uperf is defined and uperf.pair > 0
-  - include_role:
-      name: "fio-bench"
-    when: fio is defined and fio.clients > 0
-  - include_role:
-      name: sysbench
-    when: sysbench is defined and sysbench.enabled is defined and sysbench.enabled
-  - include_role:
-      name: "couchbase-infra"
-    when: couchbase is defined and couchbase.servers.size > 0
-  - include_role:
-      name: "ycsb-bench"
-    when: ycsb is defined and ycsb.workers > 0
-  - include_role:
-      name: "byowl"
-    when: byowl is defined and byowl.clients > 0
+
+  - name: Build Infrastructure
+    block:
+    - include_role:
+        name: "couchbase-infra"
+      vars:
+        couchbase: "{{ infrastructure.args }}"
+
+      when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
+    when: infrastructure is defined
+
+  - name: Run Workload
+    block:
+
+    - include_role:
+        name: "uperf-bench"
+      vars:
+        uperf: "{{ workload.args }}"
+      when: workload.name == "uperf"  and workload.args.pair > 0
+
+    - include_role:
+        name: "fio-bench"
+      vars:
+        fio: "{{ workload.args }}"
+      when: workload.name == "fio" and workload.args.clients > 0
+
+    - include_role:
+        name: sysbench
+      vars:
+        sysbench : "{{ workload.args }}"
+      when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
+
+    - include_role:
+        name: "ycsb-bench"
+      vars:
+        ycsb: "{{ workload.args }}"
+      when: workload.name == "ycsb" and workload.args.workers > 0
+
+    - include_role:
+        name: "byowl"
+      vars:
+        byowl: "{{ workload.args }}"
+      when: workload.name == "byowl" and workload.args.clients > 0
+    when: workload is defined

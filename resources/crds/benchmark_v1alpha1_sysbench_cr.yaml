@@ -7,8 +7,13 @@ spec:
   workload:
     name: sysbench
     args:
-      enabled: true
+      enabled: false
+      #kind: vm
+      # If you want to run this as a VM uncomment the above
       tests:
       - name: cpu
         parameters:
-          cpu-max-prime: 200
+          cpu-max-prime: 2000
+      - name: fileio
+        parameters:
+          file-test-mode: rndrw
