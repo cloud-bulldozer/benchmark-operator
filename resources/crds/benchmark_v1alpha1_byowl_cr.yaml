@@ -1,11 +1,14 @@
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: byowl-benchmark
+  name: example-benchmark
+  namespace: ripsaw
 spec:
   workload:
     name: byowl
     args:
       image: "quay.io/jtaleric/uperf:testing"
-      clients: 1
-      commands: "echo Test"
+      clients: 0
+      commands: |
+        echo 'Test';
+        echo 'Test2'

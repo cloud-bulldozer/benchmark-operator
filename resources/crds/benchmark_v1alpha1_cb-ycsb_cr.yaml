@@ -1,23 +1,22 @@
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-benchmark
   namespace: ripsaw
 spec:
-  cleanup: false
   infrastructure:
     name: couchbase
     args:
       servers:
-        size: 1
+        size: 0
       storage:
-        use_persistent_storage: False
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
   workload:
     name: ycsb
     args:
-      # To disable ycsb, set workers to 0
-      # ycsb must be loaded after the infra it depends on
-      workers: 1
+      workers: 0
       infra: couchbase
       driver: couchbase2
       workload: workloada

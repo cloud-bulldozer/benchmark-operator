@@ -5,12 +5,14 @@ metadata:
   namespace: ripsaw
 spec:
   cleanup: false
-  fio:
-    # To disable fio, set clients to 0
-    clients: 1
-    jobname: test-write
-    bs: 4k
-    iodepth: 1
-    runtime: 12
-    rw: write
-    filesize: 1
+  workload:
+    name: fio
+    args:
+      # To disable fio, set clients to 0
+      clients: 1
+      jobname: test-write
+      bs: 4k
+      iodepth: 1
+      runtime: 12
+      rw: write
+      filesize: 1
