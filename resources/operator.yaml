@@ -28,5 +28,23 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: ANSIBLE_VERBOSITY
+              value: "4"
             - name: OPERATOR_NAME
               value: "benchmark-operator"
+        - name: redis-master
+          image: k8s.gcr.io/redis:v1
+          env:
+            - name: MASTER
+              value: "true"
+          ports:
+            - containerPort: 6379
+          resources:
+            limits:
+              cpu: "0.1"
+          volumeMounts:
+            - mountPath: /redis-master-data
+              name: data
+      volumes:
+        - name: data
+          emptyDir: {}
