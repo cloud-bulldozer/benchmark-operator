@@ -43,7 +43,7 @@ function cleanup_operator_resources {
 function update_operator_image {
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator
   docker push quay.io/rht_perf_ci/benchmark-operator
-  sed -i 's|          image: *|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
+  sed -i 's|          image: quay.io/benchmark-operator/benchmark-operator:latest*|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
 }
 
 
