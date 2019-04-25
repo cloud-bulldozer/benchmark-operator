@@ -1,0 +1,18 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  cleanup: false
+  workload:
+    name: "fio_distributed"
+    args:
+      # To disable fio, set servers to 0
+      servers: 2
+      jobname: test-write
+      bs: 4k
+      iodepth: 1
+      runtime: 12
+      rw: write
+      filesize: 1

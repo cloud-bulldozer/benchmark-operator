@@ -1,0 +1,16 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: "fio_distributed"
+    args:
+      servers: 1
+      jobname: test
+      bs: 4k
+      iodepth: 4
+      runtime: 10
+      rw: write
+      filesize: 1

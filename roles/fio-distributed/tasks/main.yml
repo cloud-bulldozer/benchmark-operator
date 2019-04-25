@@ -1,0 +1,55 @@
+---
+- name: Generate fio test
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: fio-test
+        namespace: '{{ operator_namespace }}'
+      data:
+        fiojob: "{{ lookup('template', 'job.fio.j2') }}"
+  when: fiod.servers > 0
+
+- name: Start FIO Server(s)
+  k8s:
+    definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
+  when: fiod.servers > 0
+  with_sequence: start=1 count={{fiod.servers}}
+
+- name: Capture pod list
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - app = fio-benchmark
+  register: server_pods
+  until: "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length)"
+  retries: 10
+  delay: 10
+
+- name: Create IP list
+  set_fact:
+    fio_hosts: |
+       {% for item in server_pods.resources %}
+       {{ item['status']['podIP'] }}
+       {% endfor %}
+
+- name: Generate fio test
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: fio-hosts
+        namespace: '{{ operator_namespace }}'
+      data:
+        hosts: |
+          {{ fio_hosts }}
+  when: fiod.servers > 0
+
+- name: Start FIO Client
+  k8s:
+    definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
+  when: fiod.servers > 0
