@@ -77,7 +77,7 @@ function functional_test_couchbase {
   kubectl wait --for=condition=Ready "pods/$ycsb_load_pod" --namespace ripsaw --timeout=120s
   ycsb_run_pod=$(get_pod 'name=ycsb-run' 120)
   kubectl wait --for=condition=Initialized "pods/$ycsb_run_pod" --namespace ripsaw --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$ycsb_run_pod" --namespace ripsaw --timeout=120s
+  kubectl wait --for=condition=complete -l name=ycsb-run jobs --namespace ripsaw --timeout=120s
 }
 
 functional_test_couchbase
