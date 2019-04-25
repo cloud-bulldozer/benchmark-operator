@@ -1,0 +1,36 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: '{{ meta.name }}-fio-client'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fiod-client
+    spec:
+      containers:
+      - name: fio-client
+        image: "quay.io/benchmark-operator/fio:latest"
+        command: ["/bin/sh", "-c"]
+        args:
+          - "cat /tmp/fio/fiojob;
+             cat /tmp/host/hosts;
+             fio --client=/tmp/host/hosts /tmp/fio/fiojob"
+        volumeMounts:
+        - name: fio-volume
+          mountPath: "/tmp/fio"
+        - name: host-volume
+          mountPath: "/tmp/host"
+      volumes:
+      - name: fio-volume
+        configMap:
+          name: "fio-test"
+          defaultMode: 0777
+      - name: host-volume
+        configMap:
+          name: "fio-hosts"
+          defaultMode: 0777
+      restartPolicy: Never

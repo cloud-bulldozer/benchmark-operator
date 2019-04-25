@@ -1,7 +1,6 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-
   - name: Build Infrastructure
     block:
     - include_role:
@@ -44,4 +43,10 @@
       vars:
         byowl: "{{ workload.args }}"
       when: workload.name == "byowl" and workload.args.clients > 0
+
+    - include_role:
+        name: "fio-distributed"
+      vars:
+        fiod: "{{ workload.args }}"
+      when: workload.name == "fio_distributed" and workload.args.servers > 0
     when: workload is defined

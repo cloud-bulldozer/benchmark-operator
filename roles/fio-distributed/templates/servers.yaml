@@ -1,0 +1,22 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: '{{ meta.name }}-fio-server-{{item}}-benchmark'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fio-benchmark
+    spec:
+      containers:
+      - name: fio-server
+        image: "quay.io/benchmark-operator/fio:latest"
+        ports:
+          - containerPort: 8765
+        command: ["/bin/sh", "-c"]
+        args:
+          - "fio --server"
+      restartPolicy: Never
