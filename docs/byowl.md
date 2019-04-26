@@ -11,16 +11,18 @@ Build your CR
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: byowl-benchmark
+  name: example-byowl
+  namespace: ripsaw
 spec:
-  byowl:
-    image: "quay.io/jtaleric/uperf:testing"
-    clients: 1
-    commands: |
-      echo "This is my test workload";
-      echo "This is my test workload again..."
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: |
+        echo "This is my test workload";
+        echo "This is my test workload again..."
 ```
 
 This will launch the uperf container, and simply print the messages
 above into the log of the container.
-

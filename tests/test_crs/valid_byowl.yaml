@@ -1,7 +1,8 @@
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: byowl-benchmark
+  namespace: ripsaw
+  name: test-byowl
 spec:
   workload:
     name: byowl

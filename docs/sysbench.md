@@ -15,17 +15,20 @@ your resource file should look like this:
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: example-sybench
   namespace: ripsaw
 spec:
-  enabled: true
-  tests:
-  - name: cpu
-    parameters:
-      cpu-max-prime: 200
+  workload:
+    name: sysbench
+    args:
+      enabled: true
+      tests:
+        - name: cpu
+          parameters:
+            cpu-max-prime: 200
 ```
 
-Name here refers to testname and can be cpu or fileio or memory etc and the parameters are the parametes for the particular test.
+Name here refers to testname and can be cpu or fileio or memory etc and the parameters are the parameters for the particular test.
 You can find more information at [sysbench documentation](https://github.com/akopytov/sysbench#general-syntax) and online.
 
 Once done creating/editing the resource file, you can run it by:

@@ -15,17 +15,19 @@ your resource file should look like this:
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: example-uperf-bench
   namespace: ripsaw
 spec:
-  uperf:
-    # Server size must always be 1 or more
-    pairs: 1
-    proto: tcp
-    test_type: stream
-    nthr: 2
-    size: 16384
-    runtime: 60
+  workload:
+    name: uperf
+    args:
+      # Server size must always be 1 or more
+      pairs: 1
+      proto: tcp
+      test_type: stream
+      nthr: 2
+      size: 16384
+      runtime: 60
 ```
 
 Once done creating/editing the resource file, you can run it by:

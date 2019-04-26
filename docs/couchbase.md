@@ -26,22 +26,24 @@ example to enable only Couchbase:
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: example-couchbase-infra
   namespace: ripsaw
 spec:
-  couchbase:
+  infrastructure:
+    name: couchbase
     # To disable couchbase, set servers.size to 0
     # Typical deployment size is 3
-    servers:
-      size: 3
-    storage:
-      use_persistent_storage: True
-      class_name: "rook-ceph-block"
-      volume_size: 10Gi
+    args:
+      servers:
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
 ```
 
-If you set `spec.couchbase.stroage.use_persistent_storage` to `true`, then you will need to provide a valid
-StorageClass name for `spec.couchbase.storage.class_name` and a valid volume size for `spec.couchbase.storage.volume_size`.
+If you set `storage.use_persistent_storage` to `true`, then you will need to provide a valid
+StorageClass name for `storage.class_name` and a valid volume size for `storage.volume_size`.
 
 Setting up a StorageClass is outside the scope of this documentation.
 

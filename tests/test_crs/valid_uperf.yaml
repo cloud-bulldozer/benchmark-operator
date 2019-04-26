@@ -1,7 +1,7 @@
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: test-uperf
   namespace: ripsaw
 spec:
   cleanup: false

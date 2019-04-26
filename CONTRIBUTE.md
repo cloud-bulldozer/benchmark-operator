@@ -92,14 +92,15 @@ metadata:
   namespace: ripsaw
 spec:
   <existing_cr_entries>
-  my-new-role:
+  workload:
+    name: my-new-role
     # To disable, set workers to 0
-    workers: 0
-    my_key_1: my_value_1
-    my_key_2: my_value_2
-    my_dict:
-      my_key_3: my_value_3
-    when: my-new-role.condition
+    args:
+      workers: 0
+      my_key_1: my_value_1
+      my_key_2: my_value_2
+      my_dict:
+        my_key_3: my_value_3
 ```
 
 
@@ -110,7 +111,11 @@ to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
 * Ensure all resources created are within the `ripsaw` namespace, this can be done by setting namespace
 to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
-namespace which is what `meta.namespace` would default to. 
+namespace which is what `meta.namespace` would default to.
+* You can pass down args for the workload as a new variable that's named after workload name. Best to checkout
+existing workload implementation such as [uperf](docs/uperf.md).
+* If the workload requires some sort of infrastructure to run, you can add another role that would build infra,
+please check the [yscb](docs/ycsb.md) docs for inspiration.
 
 ### Best practices for new workloads
 The following steps are suggested for your workload to be added:

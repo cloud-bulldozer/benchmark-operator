@@ -23,26 +23,25 @@ YCSB is a workload that requires a kubernetes self-hosted infrastructure on whic
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-bench
+  name: example-ycsb-couchbase
   namespace: ripsaw
 spec:
-  couchbase:
-    # To disable couchbase, set servers.size to 0
-    # Typical deployment size is 3
-    servers:
-      size: 3
-    storage:
-      use_persistent_storage: True
-      class_name: "rook-ceph-block"
-      volume_size: 10Gi
-    on_openshift: True
-  ycsb:
-    # To disable ycsb, set workers to 0
-    # ycsb must be loaded after the infra it depends on
-    workers: 1
-    infra: couchbase
-    driver: couchbase2
-    workload: workloada
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        size: 1
+      storage:
+        use_persistent_storage: False
+  workload:
+    name: ycsb
+    args:
+      # To disable ycsb, set workers to 0
+      # ycsb must be loaded after the infra it depends on
+      workers: 1
+      infra: couchbase
+      driver: couchbase2
+      workload: workloada
 ```
 
 Once done creating/editing the resource file, you can run it by:
