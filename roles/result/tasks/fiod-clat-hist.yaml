@@ -1,0 +1,21 @@
+---
+
+- name: set current job sequence
+  set_fact:
+    fio_jobsequence: "{{ item | string}}"
+
+- name: process the clat hist logs
+  script: "fio-histo-log-pctiles.py --output-csv-file=fio_clat_hist.{{ fio_jobsequence }} fio_clat_hist.{{fio_jobsequence}}.log* "
+  args:
+    chdir: "{{ results.path }}/fiod-{{ uuid }}"
+
+- name: index the processed clat histogram file
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_clat_hist.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_clat_hist.' + fio_jobsequence ).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line

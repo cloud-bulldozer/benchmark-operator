@@ -13,6 +13,12 @@ spec:
       labels:
         name: benchmark-operator
     spec:
+      volumes:
+      - name: result-data
+        persistentVolumeClaim:
+          claimName: result-volume
+      - name: data
+        emptyDir: {}
       serviceAccountName: benchmark-operator
       containers:
         - name: benchmark-operator
@@ -46,9 +52,3 @@ spec:
           volumeMounts:
             - mountPath: /redis-master-data
               name: data
-      volumes:
-        - name: data
-          emptyDir: {}
-        - name: result-data
-          persistentVolumeClaim:
-            claimName: result-volume

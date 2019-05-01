@@ -1,7 +1,7 @@
 ---
 
 - name: Get files
-  shell: find {{results.path}} -maxdepth 1 -printf '%f\n' | grep '^[0-9]'
+  shell: find {{results.path}} -maxdepth 1 -printf '%f\n' | egrep '^[0-9]{10}-*'
   ignore_errors: true
   register: result_files
 

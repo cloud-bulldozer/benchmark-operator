@@ -5,6 +5,14 @@ metadata:
   namespace: ripsaw
 spec:
   cleanup: false
+  elasticsearch:
+    server: <es_server>
+    port: 9200
+    index: fio
+  test_user: rht_perf_ci
+  store_results: true
+  results:
+    path: /opt/result-data
   workload:
     name: "fio_distributed"
     args:
@@ -15,7 +23,7 @@ spec:
       jobname: seq
       bs: 64k
       iodepth: 4
-      runtime: 10
-      ramp_time: 5
+      runtime: 5
+      ramp_time: 2
       filesize: 1
       log_sample_rate: 1000 # provide only if job is seq or rand

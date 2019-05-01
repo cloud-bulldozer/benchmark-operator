@@ -15,5 +15,7 @@ spec:
      bs: 4k
      iodepth: 1
      runtime: 12
+     ramp_time: 5
      numjobs: 1
      filesize: 1
+     log_sample_rate: 1000 # provide only if job is seq or rand

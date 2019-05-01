@@ -1,4 +1,8 @@
 ---
+- include_role:
+    name: pre-result
+    tasks_from: fiod
+  when: store_results is defined and store_results
 
 - name: Provide path for fio - PV
   set_fact:
@@ -20,7 +24,6 @@
         namespace: '{{ operator_namespace }}'
       data:
         fiojob: "{{ lookup('template', 'job.fio.{{fiod.job}}') }}"
-  when: fiod.servers > 0
 
 - name: Create PVC(s)
   k8s:
@@ -39,7 +42,7 @@
            requests:
              storage: "{{fiod.storagesize}}"
   with_sequence: start=1 count={{fiod.servers}}
-  when: fiod.servers > 0 and fiod.storageclass is defined
+  when: fiod.storageclass is defined
 
 - name: Start FIO Server(s)
   k8s:
@@ -59,14 +62,20 @@
   retries: 50
   delay: 10
 
+- name: Create IP list and nodes
+  set_fact:
+    pod_details: "{{ pod_details|default({}) | combine({item.status.podIP: item.spec.nodeName}) }}"
+  with_items: "{{ server_pods.resources }}"
+
+# can perhaps optimize here, by adding to list in above loop
 - name: Create IP list
   set_fact:
     fio_hosts: |
-       {% for item in server_pods.resources %}
-       {{ item['status']['podIP'] }}
+       {% for ip, node in pod_details.iteritems() %}
+       {{ ip }}
        {% endfor %}
 
-- name: Generate fio test
+- name: Generate fio hosts
   k8s:
     definition:
       apiVersion: v1
@@ -82,4 +91,27 @@
 - name: Start FIO Client
   k8s:
     definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
-  when: fiod.servers > 0
+  when: (store_results is not defined or (store_results is defined and not store_results))
+
+- name: Start FIO Client (store results)
+  k8s:
+    definition: "{{ lookup('template', 'client_store.yaml') | from_yaml }}"
+  when: store_results is defined and store_results
+
+- name: Wait for fio jobs to finish running....
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - app = fiod-client
+  register: client_jobs
+  until: "1 == (client_jobs | json_query('resources[].status.succeeded')|length)"
+  retries: 25
+  delay: 15
+  when: store_results is defined and store_results
+
+- include_role:
+    name: result
+    tasks_from: fiod
+  when: store_results is defined and store_results

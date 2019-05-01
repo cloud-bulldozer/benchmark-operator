@@ -1,0 +1,13 @@
+{
+  "uuid": "{{ uuid }}",
+  "user": "{{ user }}",
+  "time_ms": {{  ( ((fio_end_time | int) - ((workload.args.runtime | int + workload.args.ramp_time | int ) * (4 - (fio_jobsequence|int)) * 1000) + (workload.args.ramp_time | int) )    +    ( fio_log_line.split(', ')[0]| int) ) }},
+  "bandwidth": {{ fio_log_line.split(', ')[1]| int }},
+  "data_direction": {{ fio_log_line.split(', ')[2]| int }},
+  "offset": {{ fio_log_line.split(', ')[3]| int }},
+  "job_sequence": "{{ fio_jobsequence }}",
+  "log_file": "bw",
+  "server_ip": "{{ fio_server_ip }}",
+  "nodeName": "{{ pod_details[fio_server_ip] }}",
+  "global_options": {{ fio_output_current_sample["global options"] }}
+}

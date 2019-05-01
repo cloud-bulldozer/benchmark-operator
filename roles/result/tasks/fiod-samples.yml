@@ -1,0 +1,78 @@
+---
+
+
+# read_csv module was introduced in ansible version 2.8, and so can't be used at the time of
+# this PR, as there wasn't a stable tag for ansible-operator that was released with ansible
+# version 2.8.
+# - name: read the clat log file
+#   read_csv:
+#     path: "{{ item.path + '/' + 'fio_clat.1.log' }}"
+#     fieldnames: time_elapsed, value, data_direction, offset
+#     delimiter: ', '
+#   register: clat_log
+#
+# - name: template out the clat log file
+#   template:
+#     src: fio_clat_csv.json.j2
+#     dest: "{{results.path}}/{{workload.name}}-{{ uuid }}-fio-clat-output-{{item.time_elapsed}}.json"
+#   with_items: clat_log.list
+- name: set current job sequence
+  set_fact:
+    fio_jobsequence: "{{ item[0] }}"
+    fio_server_sequence: "{{ item[1] }}"
+    fio_server_ip: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fiohosts').splitlines()[item[1]] }}"
+
+- name: Index log for clat
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_clat.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_clat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line
+
+- name: Index log for bw
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_bw.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_bw.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line
+
+- name: Index log for iops
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_iops.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_iops.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line
+
+- name: Index log for lat
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_lat.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_lat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line
+
+- name: Index log for slat
+  uri:
+    url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-logs/_doc"
+    method: POST
+    status_code: 201
+    body: "{{ lookup('template','fiod_slat.json.j2') }}"
+    body_format: json
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_slat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop_control:
+    loop_var: fio_log_line

@@ -15,6 +15,8 @@ spec:
       bs: 64k
       iodepth: 4
       runtime: 60
+      ramp_time: 5
       filesize: 2
+      log_sample_rate: 1000
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
