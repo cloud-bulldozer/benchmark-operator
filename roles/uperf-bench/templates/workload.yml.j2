@@ -12,6 +12,11 @@ spec:
       labels:
         app: uperf-bench-client
     spec:
+{% if uperf.hostnetwork %}
+      hostNetwork : true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
       containers:
       - name: benchmark
         image: "quay.io/benchmark-operator/uperf:latest"
@@ -19,7 +24,7 @@ spec:
         args:
           - "cat /tmp/uperf-test/uperfXML;
              export h={{item.status.podIP}};
-             uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+             seq {{uperf.rerun}} | xargs -I -- uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"
@@ -28,4 +33,8 @@ spec:
           configMap:
             name: uperf-test
       restartPolicy: OnFailure
+{% if uperf.pin %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ uperf.pin_client }}'
+{% endif %}
 {% endfor %}

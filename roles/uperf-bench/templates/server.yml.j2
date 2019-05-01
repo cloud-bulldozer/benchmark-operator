@@ -1,0 +1,22 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: '{{ meta.name }}-uperf-server-{{item}}'
+  namespace: '{{ operator_namespace }}'
+  labels:
+    app : uperf-bench-server
+spec:
+{% if uperf.hostnetwork %}
+  hostNetwork : true
+{% endif %}
+  containers:
+  - name: benchmark
+    image: "quay.io/benchmark-operator/uperf:latest"
+    command: ["/bin/sh", "-c"]
+    args: ["uperf -s"]
+  restartPolicy: OnFailure
+{% if uperf.pin %}
+  nodeSelector:
+    kubernetes.io/hostname: '{{ uperf.pin_server }}'
+{% endif %}

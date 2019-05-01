@@ -37,21 +37,7 @@
 
   - name: Start Server(s)
     k8s:
-      definition:
-        kind: Pod
-        apiVersion: v1
-        metadata:
-          name: '{{ meta.name }}-uperf-server-{{item}}'
-          namespace: '{{ operator_namespace }}'
-          labels:
-            app : uperf-bench-server
-        spec:
-         containers:
-         - name: benchmark
-           image: "quay.io/benchmark-operator/uperf:latest"
-           command: ["/bin/sh", "-c"]
-           args: ["uperf -s"]
-         restartPolicy: OnFailure
+      definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
     with_sequence: start=0 count={{uperf.pair}}
 

@@ -5,20 +5,25 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
+you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_uperf_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/benchmark_v1alpha1_uperf_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml
 apiVersion: benchmark.example.com/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: uperf-benchmark
   namespace: ripsaw
 spec:
-  uperf:
+  name: uperf
+  args:
+    hostnetwork: false
+    pin: true
+    pin_server: "master-0"
+    pin_client: "master-1"
     # Server size must always be 1 or more
     pairs: 1
     proto: tcp
@@ -27,6 +32,22 @@ spec:
     size: 16384
     runtime: 60
 ```
+
+`hostnetwork` will test the performance of the node the pod will run on.
+
+*Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
+
+```bash
+
+$ oc adm policy add-scc-to-user privileged -z benchmark-operator
+
+```
+
+`pin` will allow the benchmark runner place nodes on specific nodes, using the `hostname` label.
+
+`pin_server` what node to pin the server pod to.
+
+`pin_client` what node to pin the client pod to.
 
 Once done creating/editing the resource file, you can run it by:
 

@@ -8,9 +8,14 @@ spec:
     # cleanup: true
     name: uperf
     args:
+      hostnetwork: false
+      pin: false
+      pin_server: "server_hostname"
+      pin_client: "client_hostname"
+      rerun: 1
       pair: 0
       proto: tcp
       test_type: stream
       nthr: 2
       size: 16384
-      runtime: 10
+      runtime: 60
