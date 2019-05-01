@@ -5,7 +5,7 @@ metadata:
   namespace: ripsaw
 spec:
   elasticsearch:
-    server: elk-b09-h30-r720xd.rdu.openstack.engineering.redhat.com
+    server: <es_server>
     port: 9200
   test_name: uperf_rht_perf_ci
   workload:

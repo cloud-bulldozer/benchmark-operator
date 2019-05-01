@@ -1,5 +1,4 @@
 ---
-
 - set_fact:
     fio_path: /mnt/pvc
   when: fio.storageclass is defined
@@ -7,7 +6,6 @@
 - set_fact:
     fio_path: /tmp
   when: fio.storageclass is not defined
-
 
 - name: Generate fio test
   k8s:
@@ -21,7 +19,6 @@
         fiojob: "{{ lookup('template', 'job.fio.{{fio.job}}') }}"
   when: ( fio.clients > 0 and fio.job != "custom" )
   register: template_file
-
 
 - name: Download the custom fio job
   get_url:
@@ -40,7 +37,6 @@
       data:
         fiojob: "{{ lookup('file', '/tmp/fio.job') }}"
   when: ( fio.clients > 0 and fio.job == "custom" )
-
 
 - name: Create PVC(s)
   k8s:
@@ -61,73 +57,26 @@
   with_sequence: start=1 count={{fio.clients}}
   when: fio.clients > 0 and fio.storageclass is defined
 
-- name: Start Server(s) - with PVC
+- name: Start client(s)
   k8s:
-    definition:
-      kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: '{{ meta.name }}-fio-client-{{item}}-benchmark'
-        namespace: '{{ operator_namespace }}'
-      spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: fio-benchmark
-          spec:
-            containers:
-            - name: bench-server
-              image: "quay.io/cloud-bulldozer/fio:latest"
-              command: ["/bin/sh","-c"]
-              args:
-               - "cat /tmp/fio/fiojob;
-                  fio /tmp/fio/fiojob"
-              volumeMounts:
-              - name: config-volume
-                mountPath: "/tmp/fio"
-              - name: ceph-volume
-                mountPath: "/mnt/pvc"
-            volumes:
-            - name: config-volume
-              configMap:
-                name: fio-test
-            - name: ceph-volume
-              persistentVolumeClaim:
-                claimName: claim{{item}}
-            restartPolicy: Never
-  when: fio.clients > 0 and fio.storageclass is defined
+    definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
+  when: fio.clients > 0
   with_sequence: start=1 count={{fio.clients}}
 
-- name: Start Server(s) - no PVC
-  k8s:
-    definition:
-      kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: '{{ meta.name }}-fio-client-{{item}}-benchmark'
-        namespace: '{{ operator_namespace }}'
-      spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: fio-benchmark
-          spec:
-            containers:
-            - name: bench-server
-              image: "quay.io/cloud-bulldozer/fio:latest"
-              command: ["/bin/sh","-c"]
-              args:
-               - "cat /tmp/fio/fiojob;
-                  fio /tmp/fio/fiojob"
-              volumeMounts:
-              - name: config-volume
-                mountPath: "/tmp/fio"
-            volumes:
-            - name: config-volume
-              configMap:
-                name: fio-test
-            restartPolicy: Never
-  when: fio.clients > 0 and fio.storageclass is not defined
-  with_sequence: start=1 count={{fio.clients}}
+# - name: Wait for fio jobs to finish running....
+#   k8s_facts:
+#     kind: Job
+#     api_version: batch/v1
+#     namespace: '{{ operator_namespace }}'
+#     label_selectors:
+#       - app = fio-benchmark
+#   register: client_jobs
+#   until: "fio.clients == (client_jobs | json_query('resources[].status.succeeded')|length)"
+#   retries: 15
+#   delay: 15
+#   when: store_results is defined and store_results and fio.job != "custom"
+#
+# - include_role:
+#     name: result
+#     tasks_from: fio
+#   when: store_results is defined and store_results and fio.job != "custom"

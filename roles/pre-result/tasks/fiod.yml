@@ -1,0 +1,16 @@
+---
+
+- name: create directory
+  file:
+    path: "{{ results.path }}/fiod-{{ uuid }}"
+    state: directory
+
+- name: touch clat histogram summary files
+  file:
+    path: "{{ results.path }}/fiod-{{ uuid }}/fio_clat_hist.{{ item }}"
+    state: touch
+    mode: 0775
+  with_items:
+    - 1
+    - 2
+    - 3

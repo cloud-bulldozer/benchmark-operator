@@ -9,7 +9,7 @@ create_on_open=1
 time_based=1
 runtime={{fio.runtime}}
 clocksource=clock_gettime
-ramp_time=10
+ramp_time={{fio.ramp_time}}
 
 [randwrite]
 rw=randwrite
@@ -21,10 +21,10 @@ write_hist_log=fio
 numjobs={{fio.numjobs}}
 end_fsync=1
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay=20
+log_avg_msec={{fio.log_sample_rate}}
+log_hist_msec={{fio.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
+stonewall
 
 [read]
 rw=randread
@@ -35,10 +35,10 @@ write_lat_log=fio
 write_hist_log=fio
 numjobs={{fio.numjobs}}
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay={{ fio.runtime * 2 }}
+log_avg_msec={{fio.log_sample_rate}}
+log_hist_msec={{fio.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
+stonewall
 
 [readwrite]
 rw=randrw
@@ -49,7 +49,7 @@ write_lat_log=fio
 write_hist_log=fio
 numjobs={{fio.numjobs}}
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay={{ fio.runtime * 3 }}
+log_avg_msec={{fio.log_sample_rate}}
+log_hist_msec={{fio.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
+stonewall

@@ -1,0 +1,37 @@
+# ---
+#
+# - name: Check that the log files exist
+#   find:
+#     paths: "{{item.path}}"
+#     patterns: "fio"
+#     use_regex: True
+#   register: fio_files_found
+#
+# - block:
+#   - set_fact:
+#       fio_output_current_sample: "{{ lookup('file', item.path + '/' + 'fio-result.json') }}"
+#
+#   - set_fact:
+#       fio_end_time: "{{ fio_output_current_sample.timestamp_ms }}"
+#
+#   - debug:
+#       msg: "Start time for current fio sample was {{ fio_end_time }} for uuid {{ uuid }}"
+#
+#   - name: Index fio result data
+#     uri:
+#       url: "http://{{ elasticsearch.server }}:{{ elasticsearch.port }}/{{ elasticsearch.index }}-result/doc"
+#       method: POST
+#       status_code: 201
+#       body: "{{ lookup('template','fio.json.j2') }}"
+#       body_format: json
+#
+#   - include_tasks: fio-logs.yml
+#     vars:
+#       fio_log_path: "{{ item.path }}"
+#     loop:
+#       - 1
+#       - 2
+#       - 3
+#     loop_control:
+#       loop_var: fio_jobsequence
+#   when: fio_files_found.matched == 19

@@ -9,7 +9,7 @@ create_on_open=1
 time_based=1
 runtime={{fiod.runtime}}
 clocksource=clock_gettime
-ramp_time=10
+ramp_time={{fiod.ramp_time}}
 
 [write]
 rw=write
@@ -20,11 +20,11 @@ write_lat_log=fio
 write_hist_log=fio
 numjobs=1
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay=20
+log_avg_msec={{fiod.log_sample_rate}}
+log_hist_msec={{fiod.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
 end_fsync=1
+stonewall
 
 [read]
 rw=read
@@ -35,11 +35,10 @@ write_lat_log=fio
 write_hist_log=fio
 numjobs=1
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay={{ fiod.runtime * 2 }}
+log_avg_msec={{fiod.log_sample_rate}}
+log_hist_msec={{fiod.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
-
+stonewall
 
 [readwrite]
 rw=rw
@@ -50,7 +49,7 @@ write_lat_log=fio
 write_hist_log=fio
 numjobs=1
 per_job_logs=1
-log_avg_msec=60000
-log_hist_msec=60000
-startdelay={{ fiod.runtime * 3 }}
+log_avg_msec={{fiod.log_sample_rate}}
+log_hist_msec={{fiod.log_sample_rate}}
 filename_format=f.\$jobnum.\$filenum
+stonewall
