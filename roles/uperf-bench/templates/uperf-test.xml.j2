@@ -5,7 +5,7 @@
       <transaction iterations="1">
         <flowop type="connect" options="remotehost=$h protocol={{uperf.proto}}"/>
       </transaction>
-      <transaction duration="{{runtime}}">"
+      <transaction duration="{{uperf.runtime}}">"
 	      <flowop type=write options="size={{uperf.size}}"/>
 	<flowop type=read  options="size={{uperf.size}}"/>
       <transaction iterations="1">

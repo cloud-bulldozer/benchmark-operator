@@ -8,7 +8,10 @@ spec:
   workload:
     name: uperf
     args:
+      hostnetwork: false
+      pin: false
       # To disable uperf, set pairs to 0
+      rerun: 1
       pair: 1
       proto: tcp
       test_type: stream
