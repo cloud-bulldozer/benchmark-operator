@@ -67,11 +67,13 @@
   - name: Start Client(s)
     k8s:
       definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+    with_items: "{{ server_pods.resources }}"
     when: server_pods.resources|length > 0 and (store_results is not defined or (store_results is defined and not store_results))
 
   - name: Start Client(s) - store results
     k8s:
       definition: "{{ lookup('template', 'workload_store.yml.j2') | from_yaml }}"
+    with_items: "{{ server_pods.resources }}"
     when: server_pods.resources|length > 0 and store_results is defined and store_results
 
   - name: Waiting for pods to complete....
