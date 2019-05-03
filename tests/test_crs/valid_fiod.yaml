@@ -8,11 +8,12 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      # To disable fio, set servers to 0
+      pin: false
       servers: 2
-      jobname: test-write
-      bs: 4k
-      iodepth: 1
-      runtime: 12
-      rw: write
+      pin_server: "master-0"
+      job: seq
+      jobname: seq
+      bs: 64k
+      iodepth: 4
+      runtime: 10
       filesize: 1

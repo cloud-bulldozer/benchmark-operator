@@ -21,11 +21,22 @@ spec:
     name: "fio_distributed"
     args:
       servers: 1
-      jobname: test
-      bs: 4k
+      pin: false
+      pin_server: "master-0"
+      job: seq
+      jobname: seq
+      bs: 64k
       iodepth: 4
-      runtime: 10
-      rw: write
-      filesize: 1
+      runtime: 60
+      filesize: 2
+      storageclass: rook-ceph-block
+      storagesize: 5Gi
 ```
 
+To disable the need for PVs, simply comment out the `storageclass` key.
+
+`pin` and `pin_server` will allow the benchmark runner pick what specific node to run FIO on.
+
+Additionally, fio distributed will default to numjobs:1, and this current cannot be overwritten.
+
+(*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
