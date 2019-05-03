@@ -1,4 +1,3 @@
-{% for item in server_pods.resources %}
 ---
 kind: Job
 apiVersion: batch/v1
@@ -42,4 +41,3 @@ spec:
           kubernetes.io/hostname: '{{ uperf.pin_client }}'
 {% endif %}
       restartPolicy: OnFailure
-{% endfor %}
