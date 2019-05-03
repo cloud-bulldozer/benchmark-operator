@@ -18,7 +18,7 @@ spec:
         args:
           - "cat /tmp/fio/fiojob;
              cat /tmp/host/hosts;
-             fio --client=/tmp/host/hosts /tmp/fio/fiojob"
+             cd /tmp && fio --client=/tmp/host/hosts /tmp/fio/fiojob"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"
