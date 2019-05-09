@@ -1,0 +1,31 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: '{{ meta.name }}-iperf3-client-{{item.status.podIP}}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: iperf3-bench-client
+    spec:
+{% if iperf3.hostnetwork is defined %}
+{% if iperf3.hostnetwork %}
+      hostNetwork : true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
+{% endif %}
+      containers:
+      - name: benchmark
+        image: "quay.io/benchmark-operator/iperf3:latest"
+        command: ["/bin/sh", "-c"]
+        args:
+          - "iperf3 -c {{ item.status.podIP }} -p {{ iperf3.port }} --{{ iperf3.transmit_type }} {{ iperf3.transmit_value }} -l {{ iperf3.length_buffer }} -P {{ iperf3.streams }} -w {{ iperf3.window_size }} -M {{ iperf3.mss }} -S {{ iperf3.ip_tos }} -O {{ iperf3.omit_start }} {{ iperf3.extra_options_client }}"
+      restartPolicy: OnFailure
+{% if iperf3.pin_client is defined %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ iperf3.pin_client }}'
+{% endif %}

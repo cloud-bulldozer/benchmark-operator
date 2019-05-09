@@ -1,0 +1,69 @@
+---
+- block:
+
+  - include_role:
+      name: pre-result
+    when: store_results is defined and store_results
+
+  - name: Start Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    with_sequence: start=1 count={{ iperf3.pairs }}
+
+  - name: Wait for pods to be running....
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = iperf3-bench-server
+    register: server_pods
+    until: "iperf3.pairs == (server_pods | json_query('resources[].status.podIP')|length)"
+    retries: 37
+    delay: 10
+
+  - name: Start Client(s)
+    k8s:
+      definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
+    with_items: "{{ server_pods.resources }}"
+    when: server_pods.resources|length > 0 and (store_results is not defined or (store_results is defined and not store_results))
+
+  - name: Start Client(s) - store results
+    k8s:
+      definition: "{{ lookup('template', 'client_store.yml.j2') | from_yaml }}"
+    with_items: "{{ server_pods.resources }}"
+    when: server_pods.resources|length > 0 and store_results is defined and store_results
+
+  - block:
+    - name: Waiting for Jobs to complete....
+      k8s_facts:
+        kind: Job
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - app = iperf3-bench-client
+      register: client_jobs
+      until: "iperf3.pairs == (client_jobs | json_query('resources[].status.succeeded')|length)"
+      retries: iperf3.retries
+      delay: 15
+    when: iperf3.retries is defined
+
+  - block:
+    - name: Waiting for Jobs to complete....
+      k8s_facts:
+        kind: Job
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - app = iperf3-bench-client
+      register: client_jobs
+      until: "iperf3.pairs == (client_jobs | json_query('resources[].status.succeeded')|length)"
+      retries: 10
+      delay: 15
+    when: iperf3.retries is not defined
+
+  # TODO(aakarsh): Add indexing work for iperf too
+  # - include_role:
+  #     name: result
+  #   when: store_results is defined and store_results
+  when: ( iperf3.pairs > 0 )

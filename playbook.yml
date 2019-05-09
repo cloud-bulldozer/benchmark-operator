@@ -21,6 +21,12 @@
       when: workload.name == "uperf"  and workload.args.pair > 0
 
     - include_role:
+        name: "iperf3-bench"
+      vars:
+        iperf3: "{{ workload.args }}"
+      when: workload.name == "iperf3" and workload.args.pairs > 0
+
+    - include_role:
         name: "fio-bench"
       vars:
         fio: "{{ workload.args }}"
