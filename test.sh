@@ -14,6 +14,9 @@ update_operator_image
 # Test UPerf
 /bin/bash tests/test_uperf.sh
 wait_clean
+# Test iperf3
+/bin/bash tests/test_iperf3.sh
+wait_clean
 #
 # Test FIO
 /bin/bash tests/test_fio.sh
