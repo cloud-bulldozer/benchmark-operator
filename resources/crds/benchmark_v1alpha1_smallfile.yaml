@@ -1,0 +1,16 @@
+apiVersion: benchmark.example.com/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: smallfile
+    args:
+      clients: 1
+      operation: create
+      threads: 1
+      file-size: 4
+      files: 100
+      top: /tmp/smallfile/
+      fsync: y

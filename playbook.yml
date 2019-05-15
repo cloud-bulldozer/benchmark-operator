@@ -30,7 +30,7 @@
         name: sysbench
       vars:
         sysbench : "{{ workload.args }}"
-      when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
+      when: workload.name == "sysbench" and workload.args.client > 0 and workload.args.enabled
 
     - include_role:
         name: "ycsb-bench"
@@ -43,6 +43,12 @@
       vars:
         byowl: "{{ workload.args }}"
       when: workload.name == "byowl" and workload.args.clients > 0
+
+    - include_role:
+        name: "smallfile-bench"
+      vars:
+        smallfile: "{{ workload.args }}"
+      when: workload.name == "smallfile" and workload.args.clients > 0
 
     - include_role:
         name: "fio-distributed"

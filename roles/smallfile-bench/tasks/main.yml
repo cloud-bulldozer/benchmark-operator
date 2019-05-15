@@ -1,0 +1,46 @@
+---
+- name: Generate smallfile test input yaml
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: smallfile-test
+        namespace: '{{ operator_namespace }}'
+      data:
+        smallfilejob: "{{ lookup('template', 'smallfilejob.yaml.j2') }}"
+  when: smallfile.clients > 0
+
+- name: Start Run(s)
+  k8s:
+    definition:
+      kind: Job
+      apiVersion: batch/v1
+      metadata:
+        name: '{{ meta.name }}-smallfile-client-{{ item }}-benchmark'
+        namespace: '{{ operator_namespace }}'
+      spec:
+        ttlSecondsAfterFinished: 600
+        template:
+          metadata:
+            labels:
+              app: smallfile-benchmark
+          spec:
+            containers:
+            - name: benchmark-server
+              image: "quay.io/nichawla/smallfile_container:testing"
+              command: ["/bin/sh", "-c"]
+              workingDir: /root/smallfile-master/
+              args:
+                - "chmod 777 -R /tmp/smallfile/; python smallfile_cli.py --yaml-input-file /tmp/smallfile/smallfilejob --output-json /tmp/smallfile/SMALLFILE_RUN_RESULT"
+                # - "cat /tmp/smallfile/smallfilejob"
+              volumeMounts:
+              - name: config-volume
+                mountPath: "/tmp/smallfile"
+            volumes:
+            - name: config-volume
+              configMap:
+                name: smallfile-test
+            restartPolicy: Never
+  when: smallfile.clients > 0
+  with_sequence: start=1 count={{smallfile.clients}}
