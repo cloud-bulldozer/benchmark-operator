@@ -1,0 +1,25 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: couchbase-operator-cr
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumes
+  verbs:
+  - get
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: couchbase-operator-crb
+subjects:
+- kind: ServiceAccount
+  name: couchbase-operator
+  namespace: {{ operator_namespace }}
+roleRef:
+  kind: ClusterRole
+  name: couchbase-operator-cr
+  apiGroup: rbac.authorization.k8s.io
