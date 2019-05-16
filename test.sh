@@ -33,9 +33,11 @@ wait_clean
 /bin/bash tests/test_byowl.sh
 wait_clean
 #
+# Disabled standalone Couchbase test since it is duplicated below
+# with YCSB, which requires the Couchbase infra
 # Test Couchbase
-/bin/bash tests/test_couchbase.sh
-wait_clean
+#/bin/bash tests/test_couchbase.sh
+#wait_clean
 #
 # Test YCSB w/ Couchbase
 /bin/bash tests/test_ycsb-couchbase.sh

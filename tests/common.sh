@@ -41,7 +41,6 @@ function marketplace_cleanup {
 }
 
 function operator_requirements {
-  marketplace_setup
   kubectl apply -f deploy
   kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 }
@@ -55,7 +54,6 @@ function cleanup_resources {
   echo "Exiting after cleanup of resources"
   kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
   kubectl delete -f deploy
-  marketplace_cleanup
 }
 
 function cleanup_operator_resources {

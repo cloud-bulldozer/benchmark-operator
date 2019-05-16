@@ -6,10 +6,10 @@ metadata:
   name: cb-benchmark
   namespace: {{ operator_namespace }}
 spec:
-  #The upstream image is not compatible with OpenShift
-  baseImage: {{ pod_baseImage }}
+  #Note: the upstream image is not compatible with OpenShift
+  baseImage: {{ pod_base_image }}
   version: {{ pod_version }}
-  authSecret: cb-example-auth
+  authSecret: cb-cluster-auth
   exposeAdminConsole: true
   adminConsoleServices:
     - data
@@ -45,9 +45,11 @@ spec:
         - search
         - eventing
         - analytics
+      pod:
+        imagePullSecrets:
+          - name: "{{ pull_secret_name }}" 
 # See: https://docs.couchbase.com/operator/1.1/persisted-volumes-setup.html
 {% if couchbase.storage.use_persistent_storage %}
-      pod:
         volumeMounts:
           default: couchbase
           data: couchbase
