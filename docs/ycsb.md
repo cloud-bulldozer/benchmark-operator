@@ -5,11 +5,10 @@
 ## Running YCSB
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml)
+you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_ycsb-cb_cr.yaml) to your needs.
 
-Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
-your resource file should look like this:
+> NOTE: The above example CR deploys both the Couchbase infra and runs the YCSB benchmark on it.
+
 
 YCSB is a workload that requires a kubernetes self-hosted infrastructure on which to run its tests. The CR structure requires you to define the infra. Current infra systems deployable by the benchmark operator and supported for YCSB testing:
 
@@ -18,37 +17,38 @@ YCSB is a workload that requires a kubernetes self-hosted infrastructure on whic
 | Couchbase      | Working        |
 | MongoDB        | Planned        |
 
+Your resource file may look like this:
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-bench
+  name: ycsb-couchbase-benchmark
   namespace: ripsaw
 spec:
-  couchbase:
-    # To disable couchbase, set servers.size to 0
-    # Typical deployment size is 3
-    servers:
-      size: 3
-    storage:
-      use_persistent_storage: True
-      class_name: "rook-ceph-block"
-      volume_size: 10Gi
-    on_openshift: True
-  ycsb:
-    # To disable ycsb, set workers to 0
-    # ycsb must be loaded after the infra it depends on
-    workers: 1
-    infra: couchbase
-    driver: couchbase2
-    workload: workloada
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        # Typical deployment size is 3
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
+  workload:
+    name: ycsb
+    args:
+      workers: 1
+      infra: couchbase
+      driver: couchbase2
+      workload: workloada
 ```
 
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_ycsb-cb_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 

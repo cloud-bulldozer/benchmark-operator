@@ -1,13 +1,13 @@
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: sysbench-benchmark
   namespace: ripsaw
 spec:
   workload:
     name: sysbench
     args:
-      enabled: false
+      enabled: true
       #kind: vm
       # If you want to run this as a VM uncomment the above
       tests:

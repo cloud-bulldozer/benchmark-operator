@@ -5,32 +5,33 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_uperf_cr.yaml)
+you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/benchmark_v1alpha1_uperf_cr.yaml) file otherwise
+[cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml) file otherwise
 your resource file should look like this:
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: uperf-benchmark
   namespace: ripsaw
 spec:
-  name: uperf
-  args:
-    hostnetwork: false
-    pin: true
-    pin_server: "master-0"
-    pin_client: "master-1"
-    # Server size must always be 1 or more
-    pairs: 1
-    proto: tcp
-    test_type: stream
-    nthr: 2
-    size: 16384
-    runtime: 60
+  workload:
+    name: uperf
+    args:
+      hostnetwork: false
+      pin: true
+      pin_server: "master-0"
+      pin_client: "master-1"
+      # Server size must always be 1 or more
+      pairs: 1
+      proto: tcp
+      test_type: stream
+      nthr: 2
+      size: 16384
+      runtime: 60
 ```
 
 `hostnetwork` will test the performance of the node the pod will run on.
@@ -52,7 +53,7 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f deploy/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
@@ -61,7 +62,7 @@ instructions to deploy operator with attached pvc and would like to send results
 you can instead define a custom resource as follows:
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark

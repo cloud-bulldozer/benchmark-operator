@@ -68,7 +68,7 @@ We'll now apply the permissions and operator definitions.
 
 ```bash
 # kubectl apply -f deploy
-# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 # kubectl apply -f resources/operator.yaml
 ```
 
@@ -79,7 +79,7 @@ stored in [operator_store_results](../resources/operator_store_results.yaml) aft
 as follows:
 ```bash
 # kubectl apply -f resources/result-pvc.yaml
-# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 # kubectl apply -f resources/operator_store_results.yaml
 ```
 
@@ -99,8 +99,8 @@ If you want to add a new workload please follow these [instructions](../CONTRIBU
 Now that we're running workloads we can cleanup by running following commands
 
 ```bash
-# kubectl delete -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if not already done and assuming this was the resource file passed
-# kubectl delete -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl delete -f <your_cr_file>
+# kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 # kubectl delete -f resources/operator.yaml
 # kubectl delete -f deploy
 ```

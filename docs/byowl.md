@@ -8,7 +8,7 @@ container image with a set of commands.
 Build your CR
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
