@@ -6,12 +6,12 @@ FIO spawns a number of threads or processes doing a particular type of I/O actio
 
 ## Running FIO Benchmark
 
-Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../resources/crds/benchmark_v1alpha1_fio_cr.yaml) to run either sequential, random or custom workload. For custom workload one can provide URL of http server where FIO job file is present.
+Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) to run either sequential, random or custom workload. For custom workload one can provide URL of http server where FIO job file is present.
 
-The FIO section in [cr.yaml](../resources/crds/benchmark_v1alpha1_fio_cr.yaml) would look like this.
+The FIO section in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) would look like this.
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
@@ -31,12 +31,12 @@ spec:
     storagesize: 30Gi # Provide if PV is needed
 ```
 
-Note: Please ensure to set 0 for other workloads if editing the [cr.yaml](../resources/crds/benchmark_v1alpha1_fio_cr.yaml) file otherwise desired workload won't be executed. If storage class is defined we can provide persistent volume (PV) to the POD where FIO test will be executed.
+Note: Please ensure to set 0 for other workloads if editing the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) file otherwise desired workload won't be executed. If storage class is defined we can provide persistent volume (PV) to the POD where FIO test will be executed.
 
 Once done creating/editing the resource file, one can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_fio_cr.yaml # if edited the original one
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_fio_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
@@ -50,7 +50,7 @@ example-benchmark-fio-client-1-benchmark   1/1       Running   0          22s
 example-benchmark-fio-client-2-benchmark   1/1       Running   0          22s
 ```
 
-Since we have storageclass and storagesize defined in [cr.yaml](../resources/crds/benchmark_v1alpha1_fio_cr.yaml) file, the corresponding status of persitent volume is seen like this:
+Since we have storageclass and storagesize defined in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) file, the corresponding status of persitent volume is seen like this:
 
 ```bash
 kubectl get pv

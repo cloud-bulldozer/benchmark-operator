@@ -1,4 +1,4 @@
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
@@ -8,7 +8,7 @@ spec:
     name: fio
     args:
       job: seq # either of  seq, rand or custom
-      clients: 0 #specify number of clients on which FIO should run
+      clients: 1 #specify number of clients on which FIO should run
       jobname: seq # either of seq, rand or custom
       get_url:  #If Job is custom, provide URL of job here 
       bs: 4k # provide only if job is seq or rand

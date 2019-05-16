@@ -1,7 +1,7 @@
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: uperf-benchmark
   namespace: ripsaw
 spec:
   workload:
@@ -13,7 +13,7 @@ spec:
       pin_server: "server_hostname"
       pin_client: "client_hostname"
       rerun: 1
-      pair: 0
+      pair: 1
       proto: tcp
       test_type: stream
       nthr: 2

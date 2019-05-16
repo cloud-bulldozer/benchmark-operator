@@ -41,7 +41,7 @@ rules:
   - get
   - create
 - apiGroups:
-  - benchmark.example.com
+  - ripsaw.cloudbulldozer.io
   resources:
   - '*'
   verbs:

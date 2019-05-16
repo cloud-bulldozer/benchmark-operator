@@ -77,7 +77,7 @@ These should be buildable by our CI system for maintaining a central public imag
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.
-The operator triggers roles based on the conditions defined in [cr](resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) which will influence which roles the
+The operator triggers roles based on the conditions defined in a CR ([example](resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)) which will influence which roles the
 [playbook](playbook.yml) executes.
 Other vars may be defined that can modify the workload run conditions.
 
@@ -85,21 +85,20 @@ For the sake of the example CR, please default all workloads to disabled.
 
 Example CR:
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
   namespace: ripsaw
 spec:
-  <existing_cr_entries>
-  my-new-role:
-    # To disable, set workers to 0
-    workers: 0
-    my_key_1: my_value_1
-    my_key_2: my_value_2
-    my_dict:
-      my_key_3: my_value_3
-    when: my-new-role.condition
+  workload: #can be infrastructure too or can be both like in case of ycsb-couchbase
+    name: your_workload_name
+    args:
+      workers: 0
+      my_key_1: my_value_1
+      my_key_2: my_value_2
+      my_dict:
+        my_key_3: my_value_3
 ```
 
 
@@ -148,11 +147,11 @@ You can then redeploy operator
 ```
 Redefine CRD
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_crd.yaml
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 ```
 Apply a new CR
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml
 ```
 
 ## CI

@@ -1,0 +1,16 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: couchbase-infra
+  namespace: ripsaw
+spec:
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        # Typical deployment size is 3
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
