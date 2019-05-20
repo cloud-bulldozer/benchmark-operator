@@ -13,10 +13,6 @@ spec:
       labels:
         name: benchmark-operator
     spec:
-      volumes:
-      - name: result-data
-        persistentVolumeClaim:
-          claimName: result-volume
       serviceAccountName: benchmark-operator
       containers:
         - name: benchmark-operator
@@ -53,3 +49,6 @@ spec:
       volumes:
         - name: data
           emptyDir: {}
+        - name: result-data
+          persistentVolumeClaim:
+            claimName: result-volume
