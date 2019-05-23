@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: uperf-test
+  namespace: '{{ operator_namespace }}'
+data:
+{% for test in uperf.test_types %}
+{% for proto in uperf.protos %}
+{% for size in uperf.sizes %}
+  uperf-{{test}}-{{proto}}-{{size}} : |
+    <?xml version=1.0?>
+    <profile name="ripsaw-test-{{test}}-{{proto}}-{{size}}">
+    <group nthreads="1">
+    {% if ( 'rr' == test ) %}
+          <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+          </transaction>
+          <transaction duration="{{uperf.runtime}}">"
+                  <flowop type=write options="size={{size}}"/>
+            <flowop type=read  options="size={{size}}"/>
+          <transaction iterations="1">
+            <flowop type=disconnect />
+          </transaction>
+    {% endif %}
+    {% if ( 'stream' == test or 'bidirec' == test ) %}
+          <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+          </transaction>
+          <transaction duration="{{uperf.runtime}}">
+            <flowop type=write options="count=16 size={{size}}"/>
+          </transaction>
+          <transaction iterations="1">
+            <flowop type=disconnect />
+          </transaction>
+    {% endif %}
+    {% if ( 'maerts' == test or 'bidirec' == test ) %}
+          <transaction iterations="1">
+            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+          </transaction>
+          <transaction duration="{{uperf.runtime}}">
+            <flowop type=read options="count=16 size={{size}}"/>
+          </transaction>
+          <transaction iterations="1">
+            <flowop type=disconnect />
+          </transaction>
+    {% endif %}
+      </group>
+    </profile>
+{% endfor %}
+{% endfor %}
+{% endfor %}
+

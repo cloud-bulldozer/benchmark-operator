@@ -21,9 +21,13 @@ spec:
         image: "quay.io/benchmark-operator/uperf:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cat /tmp/uperf-test/uperfXML;
-             export h={{item.status.podIP}};
-             seq {{uperf.rerun}} | xargs -I -- uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+          - "export h={{item.status.podIP}};
+             for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
+               echo \"--------- Running $file ----------\";
+               cat /tmp/uperf-test/$file;
+               seq {{uperf.rerun}} | xargs -I -- uperf -v -a -x -m /tmp/uperf-test/$file -i 1;
+               echo \"---------- $file complete ----------\";
+             done"
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"
