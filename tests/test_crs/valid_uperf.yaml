@@ -10,11 +10,17 @@ spec:
     args:
       hostnetwork: false
       pin: false
-      # To disable uperf, set pairs to 0
-      rerun: 1
+      pin_server: "node-0"
+      pin_client: "node-1"
+      rerun: 2
       pair: 1
-      proto: tcp
-      test_type: stream
-      nthr: 2
-      size: 16384
+      test_types:
+        - stream
+        - rr
+      protos:
+        - tcp
+        - udp
+      sizes:
+        - 16384
+        - 512
       runtime: 10

@@ -10,12 +10,14 @@ spec:
     args:
       hostnetwork: false
       pin: false
-      pin_server: "server_hostname"
-      pin_client: "client_hostname"
+      pin_server: "node-0"
+      pin_client: "node-1"
       rerun: 1
       pair: 1
-      proto: tcp
-      test_type: stream
-      nthr: 2
-      size: 16384
-      runtime: 60
+      test_types:
+        - stream
+      protos:
+        - tcp
+      sizes:
+        - 16384
+      runtime: 30

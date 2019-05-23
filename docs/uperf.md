@@ -19,19 +19,22 @@ metadata:
   namespace: ripsaw
 spec:
   workload:
+    # cleanup: true
     name: uperf
     args:
       hostnetwork: false
-      pin: true
-      pin_server: "master-0"
-      pin_client: "master-1"
-      # Server size must always be 1 or more
-      pairs: 1
-      proto: tcp
-      test_type: stream
-      nthr: 2
-      size: 16384
-      runtime: 60
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      rerun: 1
+      pair: 1
+      test_types:
+        - stream
+      protos:
+        - tcp
+      sizes:
+        - 16384
+      runtime: 30
 ```
 
 `hostnetwork` will test the performance of the node the pod will run on.
