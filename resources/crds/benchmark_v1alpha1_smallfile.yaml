@@ -12,5 +12,5 @@ spec:
       threads: 1
       file-size: 4
       files: 100
-      top: /tmp/smallfile/
+      top: /mnt/
       fsync: y

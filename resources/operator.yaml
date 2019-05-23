@@ -17,7 +17,7 @@ spec:
       containers:
         - name: benchmark-operator
           # Replace this with the built image name
-          image: quay.io/nichawla/benchmark_op_nikhil:testing
+          image: "quay.io/nichawla/benchmark_op_nikhil:testing"
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

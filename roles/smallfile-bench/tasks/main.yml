@@ -5,8 +5,8 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: smallfile-test
         namespace: '{{ operator_namespace }}'
+        name: smallfile-test
       data:
         smallfilejob: "{{ lookup('template', 'smallfilejob.yaml.j2') }}"
   when: smallfile.clients > 0
@@ -17,7 +17,7 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-smallfile-client-{{ item }}-benchmark'
+        name: '{{ meta.name }}-smallfile-client--benchmark'
         namespace: '{{ operator_namespace }}'
       spec:
         ttlSecondsAfterFinished: 600
@@ -32,15 +32,19 @@
               command: ["/bin/sh", "-c"]
               workingDir: /root/smallfile-master/
               args:
-                - "chmod 777 -R /tmp/smallfile/; python smallfile_cli.py --yaml-input-file /tmp/smallfile/smallfilejob --output-json /tmp/smallfile/SMALLFILE_RUN_RESULT"
-                # - "cat /tmp/smallfile/smallfilejob"
+                 - "mkdir /mnt/test_smallfile/;cat /mnt/smallfile/smallfilejob ; python smallfile_cli.py --yaml-input-file /mnt/smallfile/smallfilejob --output-json /root/SMALLFILE_RUN_RESULT; ls -R /mnt/"
               volumeMounts:
               - name: config-volume
-                mountPath: "/tmp/smallfile"
+                mountPath: "/mnt/smallfile"
+
+              runAsUser: 1000 #0 means run as root
+              privileged: true
             volumes:
             - name: config-volume
               configMap:
                 name: smallfile-test
+                defaultmode: 0777
             restartPolicy: Never
+            serviceAccountName: benchmark-operator
   when: smallfile.clients > 0
   with_sequence: start=1 count={{smallfile.clients}}
