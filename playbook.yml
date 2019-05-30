@@ -1,58 +1,57 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - name: Build Infrastructure
-    block:
-    - include_role:
-        name: "couchbase-infra"
-      vars:
-        couchbase: "{{ infrastructure.args }}"
+    - name: Build Infrastructure
+      block:
+        - include_role:
+            name: "couchbase-infra"
+          vars:
+            couchbase: "{{ infrastructure.args }}"
 
-      when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
-    when: infrastructure is defined
+          when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
+      when: infrastructure is defined
 
-  - name: Run Workload
-    block:
+    - name: Run Workload
+      block:
+        - include_role:
+            name: "uperf-bench"
+          vars:
+            uperf: "{{ workload.args }}"
+          when: workload.name == "uperf"  and workload.args.pair > 0
 
-    - include_role:
-        name: "uperf-bench"
-      vars:
-        uperf: "{{ workload.args }}"
-      when: workload.name == "uperf"  and workload.args.pair > 0
+        - include_role:
+            name: "fio-bench"
+          vars:
+            fio: "{{ workload.args }}"
+          when: workload.name == "fio" and workload.args.clients > 0
 
-    - include_role:
-        name: "fio-bench"
-      vars:
-        fio: "{{ workload.args }}"
-      when: workload.name == "fio" and workload.args.clients > 0
+        - include_role:
+            name: sysbench
+          vars:
+            sysbench: "{{ workload.args }}"
+          when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
 
-    - include_role:
-        name: sysbench
-      vars:
-        sysbench : "{{ workload.args }}"
-      when: workload.name == "sysbench" and workload.args.client > 0 and workload.args.enabled
+        - include_role:
+            name: "ycsb-bench"
+          vars:
+            ycsb: "{{ workload.args }}"
+          when: workload.name == "ycsb" and workload.args.workers > 0
 
-    - include_role:
-        name: "ycsb-bench"
-      vars:
-        ycsb: "{{ workload.args }}"
-      when: workload.name == "ycsb" and workload.args.workers > 0
+        - include_role:
+            name: "byowl"
+          vars:
+            byowl: "{{ workload.args }}"
+          when: workload.name == "byowl" and workload.args.clients > 0
 
-    - include_role:
-        name: "byowl"
-      vars:
-        byowl: "{{ workload.args }}"
-      when: workload.name == "byowl" and workload.args.clients > 0
+        - include_role:
+            name: "smallfile-bench"
+          vars:
+            smallfile: "{{ workload.args }}"
+          when: workload.name == "smallfile" and workload.args.clients > 0
 
-    - include_role:
-        name: "smallfile-bench"
-      vars:
-        smallfile: "{{ workload.args }}"
-      when: workload.name == "smallfile" and workload.args.clients > 0
-
-    - include_role:
-        name: "fio-distributed"
-      vars:
-        fiod: "{{ workload.args }}"
-      when: workload.name == "fio_distributed" and workload.args.servers > 0
-    when: workload is defined
+        - include_role:
+            name: "fio-distributed"
+          vars:
+            fiod: "{{ workload.args }}"
+          when: workload.name == "fio_distributed" and workload.args.servers > 0
+      when: workload is defined

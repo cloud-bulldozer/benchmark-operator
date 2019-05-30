@@ -5,7 +5,7 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        namespace: '{{ operator_namespace }}'
+        namespace: "{{ operator_namespace }}"
         name: smallfile-test
       data:
         smallfilejob: "{{ lookup('template', 'smallfilejob.yaml.j2') }}"
@@ -17,8 +17,8 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-smallfile-client--benchmark'
-        namespace: '{{ operator_namespace }}'
+        name: "{{ meta.name }}-smallfile-client--benchmark"
+        namespace: "{{ operator_namespace }}"
       spec:
         ttlSecondsAfterFinished: 600
         template:
@@ -27,23 +27,26 @@
               app: smallfile-benchmark
           spec:
             containers:
-            - name: benchmark-server
-              image: "quay.io/nichawla/smallfile_container:testing"
-              command: ["/bin/sh", "-c"]
-              workingDir: /root/smallfile-master/
-              args:
-                 - "mkdir /mnt/test_smallfile/;cat /mnt/smallfile/smallfilejob ; python smallfile_cli.py --yaml-input-file /mnt/smallfile/smallfilejob --output-json /root/SMALLFILE_RUN_RESULT; ls -R /mnt/"
-              volumeMounts:
-              - name: config-volume
-                mountPath: "/mnt/smallfile"
+              - name: benchmark-server
+                image: "quay.io/nichawla/smallfile_container:testing"
+                command: ["/bin/sh", "-c"]
+                workingDir: /root/smallfile-master/
+                args:
+                  - "mkdir /tmp/test_smallfile/;
+                    cat /tmp/smallfilejob ;
+                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob --output-json /root/SMALLFILE_RUN_RESULT;
+                    ls -R /tmp/"
+                volumeMounts:
+                  - name: config-volume
+                    mountPath: "/tmp"
 
-              runAsUser: 1000 #0 means run as root
-              privileged: true
+                runAsUser: 0 #0 means run as root
+                privileged: true
             volumes:
-            - name: config-volume
-              configMap:
-                name: smallfile-test
-                defaultmode: 0777
+              - name: config-volume
+                configMap:
+                  name: smallfile-test
+                  defaultmode: 0777
             restartPolicy: Never
             serviceAccountName: benchmark-operator
   when: smallfile.clients > 0
