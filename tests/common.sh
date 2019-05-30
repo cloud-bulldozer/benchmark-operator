@@ -41,9 +41,10 @@ function cleanup_operator_resources {
 }
 
 function update_operator_image {
-  operator-sdk build quay.io/rht_perf_ci/benchmark-operator
-  docker push quay.io/rht_perf_ci/benchmark-operator
-  sed -i 's|          image: quay.io/benchmark-operator/benchmark-operator:latest*|          image: quay.io/rht_perf_ci/benchmark-operator:latest # |' resources/operator.yaml
+  tag_name="${NODE_NAME:-master}"
+  operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name
+  docker push quay.io/rht_perf_ci/benchmark-operator:$tag_name
+  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:latest*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 
 
