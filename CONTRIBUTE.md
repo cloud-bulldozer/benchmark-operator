@@ -109,7 +109,7 @@ to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
 * Ensure all resources created are within the `ripsaw` namespace, this can be done by setting namespace
 to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
-namespace which is what `meta.namespace` would default to. 
+namespace which is what `meta.namespace` would default to.
 
 ### Best practices for new workloads
 The following steps are suggested for your workload to be added:
@@ -129,7 +129,7 @@ $ operator-sdk build quay.io/<username>/benchmark-operator:testing
 $ docker push quay.io/<username>/benchmark-operator:testing
 ```
 
-`:testing` is simply a tag. You can define different tags to use with your image, like `:latest`
+`:testing` is simply a tag. You can define different tags to use with your image, like `:latest` or `:master`
 
 To test with your own operator image, you will need the [operator](resources/operator.yml) file to point the container image to your testing version.
 Be sure to do this outside of your git tree to avoid mangling the official file that points to our stable image.

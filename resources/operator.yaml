@@ -17,7 +17,7 @@ spec:
       containers:
         - name: benchmark-operator
           # Replace this with the built image name
-          image: quay.io/benchmark-operator/benchmark-operator:latest
+          image: quay.io/benchmark-operator/benchmark-operator:master
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
