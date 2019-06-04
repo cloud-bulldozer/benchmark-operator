@@ -50,7 +50,7 @@ First we'll need to clone the operator:
 
 ```bash
 # git clone https://github.com/cloud-bulldozer/ripsaw
-# cd benchmark-operator
+# cd ripsaw
 # export KUBECONFIG=<your_kube_config> # if not already done
 ```
 
