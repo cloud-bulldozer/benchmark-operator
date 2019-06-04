@@ -1,4 +1,34 @@
 ---
+- set_fact:
+    smallfile_path: /mnt/pvc
+  when: smallfile.storageclass is defined
+
+- set_fact:
+    smallfile_path: /tmp
+  when: smallfile.storageclass is not defined
+
+- debug:
+    var: smallfile_path
+#
+# - name: Create PVC(s)
+#   k8s:
+#     definition:
+#       kind: PersistentVolumeClaim
+#       apiVersion: v1
+#       metadata:
+#         name: "claim{{item}}"
+#         namespace: "{{ operator_namespace }}"
+#         annotations:
+#           volume.beta.kubernetes.io/storage-class: "{{smallfile.storageclass}}"
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+#         resources:
+#           requests:
+#             storage: "{{smallfile.storagesize}}"
+#   with_sequence: start=1 count={{smallfile.clients}}
+#   when: smallfile.clients > 0 and smallfile.storageclass is defined
+
 - name: Generate smallfile test input yaml
   k8s:
     definition:
@@ -8,7 +38,10 @@
         namespace: "{{ operator_namespace }}"
         name: smallfile-test
       data:
-        smallfilejob: "{{ lookup('template', 'smallfilejob.yaml.j2') }}"
+        smallfilejob_create: "{{ lookup('template', 'smallfilejob.create.yaml.j2') }}"
+        smallfilejob_read: "{{ lookup('template', 'smallfilejob.read.yaml.j2') }}"
+        smallfilejob_append: "{{ lookup('template', 'smallfilejob.append.yaml.j2') }}"
+        smallfilejob_delete: "{{ lookup('template', 'smallfilejob.delete.yaml.j2') }}"
   when: smallfile.clients > 0
 
 - name: Start Run(s)
@@ -17,7 +50,7 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: "{{ meta.name }}-smallfile-client--benchmark"
+        name: "{{ meta.name }}-smallfile-client-{{ item[0] }}-benchmark-{{ item[1] }}"
         namespace: "{{ operator_namespace }}"
       spec:
         ttlSecondsAfterFinished: 600
@@ -33,9 +66,9 @@
                 workingDir: /root/smallfile-master/
                 args:
                   - "mkdir /tmp/test_smallfile/;
-                    cat /tmp/smallfilejob ;
-                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob --output-json /root/SMALLFILE_RUN_RESULT;
-                    ls -R /tmp/"
+                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob_{{ item[1] }} --output-json /root/SMALLFILE_RUN_RESULT;
+                    ls -R /tmp/ ;
+                    cat /tmp/smallfilejob_{{ item }}"
                 volumeMounts:
                   - name: config-volume
                     mountPath: "/tmp"
@@ -50,4 +83,6 @@
             restartPolicy: Never
             serviceAccountName: benchmark-operator
   when: smallfile.clients > 0
-  with_sequence: start=1 count={{smallfile.clients}}
+  with_nested:
+    - "{{ smallfile.clients }}"
+    - "{{ smallfile.operation }}"

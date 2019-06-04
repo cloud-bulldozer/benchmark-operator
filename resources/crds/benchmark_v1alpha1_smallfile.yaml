@@ -7,8 +7,8 @@ spec:
   workload:
     name: smallfile
     args:
-      clients: 1
-      operation: create
+      clients: [1]
+      operation: ["create", "read", "append"]
       threads: 1
       file-size: 4
       files: 100
