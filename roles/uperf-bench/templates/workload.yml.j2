@@ -22,12 +22,21 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "export h={{item.status.podIP}};
-             for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
-               echo \"--------- Running $file ----------\";
-               cat /tmp/uperf-test/$file;
-               seq {{uperf.rerun}} | xargs -I -- uperf -v -a -x -m /tmp/uperf-test/$file -i 1;
-               echo \"---------- $file complete ----------\";
-             done"
+             while true; do
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+                 for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
+                   echo \"--------- Running $file ----------\";
+                   cat /tmp/uperf-test/$file;
+                   seq {{uperf.rerun}} | xargs -I -- uperf -v -a -x -m /tmp/uperf-test/$file -i 1;
+                   echo \"---------- $file complete ----------\";
+                 done
+               else
+                 echo \" Waiting for signal to start... \";
+                 continue;
+               fi;
+               break;
+             done;
+             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"
