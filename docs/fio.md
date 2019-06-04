@@ -14,21 +14,23 @@ The FIO section in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) woul
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fio-benchmark
+  namespace: ripsaw
 spec:
-  fio:
-    # To disable fio, set clients to 0
-    job: seq # either of  seq, rand or custom
-    clients: 2 # specify number of clients on which FIO should run
-    jobname: seq # either of seq, rand or custom
-    get_url: # Job is custom, provide URL of job here
-    bs: 64k # provide only if job is seq or rand
-    iodepth: 4 # provide only if job is seq or rand
-    runtime: 60 # provide only if job is seq or rand
-    numjobs: 2 # provide only if job is seq or rand
-    filesize: 2 # File size in GB,  provide only if job is seq or rand
-    storageclass: rook-ceph-block # Provide if PV is needed
-    storagesize: 30Gi # Provide if PV is needed
+  workload:
+    name: fio
+    args:
+      job: seq # either of  seq, rand or custom
+      clients: 1 # specify number of clients on which FIO should run
+      jobname: seq # either of seq, rand or custom
+      get_url: # Job is custom, provide URL of job here
+      bs: 64k # provide only if job is seq or rand
+      iodepth: 4 # provide only if job is seq or rand
+      runtime: 60 # provide only if job is seq or rand
+      numjobs: 2 # provide only if job is seq or rand
+      filesize: 2 # File size in GB,  provide only if job is seq or rand
+      storageclass: rook-ceph-block # Provide if PV is needed
+      storagesize: 30Gi # Provide if PV is needed
 ```
 
 Note: Please ensure to set 0 for other workloads if editing the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) file otherwise desired workload won't be executed. If storage class is defined we can provide persistent volume (PV) to the POD where FIO test will be executed.
