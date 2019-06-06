@@ -78,7 +78,7 @@
           spec:
             containers:
             - name: bench-server
-              image: "quay.io/benchmark-operator/fio:latest"
+              image: "quay.io/cloud-bulldozer/fio:latest"
               command: ["/bin/sh","-c"]
               args:
                - "cat /tmp/fio/fiojob;
@@ -112,11 +112,11 @@
         template:
           metadata:
             labels:
-              app: fio-benchmark   
+              app: fio-benchmark
           spec:
             containers:
             - name: bench-server
-              image: "quay.io/benchmark-operator/fio:latest"
+              image: "quay.io/cloud-bulldozer/fio:latest"
               command: ["/bin/sh","-c"]
               args:
                - "cat /tmp/fio/fiojob;

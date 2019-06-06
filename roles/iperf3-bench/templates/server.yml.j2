@@ -14,7 +14,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: "quay.io/benchmark-operator/iperf3:latest"
+    image: "quay.io/cloud-bulldozer/iperf3:latest"
     command: ["/bin/sh", "-c"]
     args:
       - "iperf3 -s -p {{ iperf3.port }} {{ iperf3.extra_options_server }}"

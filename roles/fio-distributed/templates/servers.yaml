@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: fio-server
-        image: "quay.io/benchmark-operator/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:latest"
         ports:
           - containerPort: 8765
         command: ["/bin/sh", "-c"]
