@@ -4,6 +4,7 @@ Contributions are always appreciated.
 
 How to:
 * [Submit Pull Request](#pull-request)
+* [Container images](#container-images)
 * [Add new workloads](#add-workload)
 * [Test changes locally](#testing-your-workload-locally)
 * [CI](#ci)
@@ -35,6 +36,14 @@ $ git rebase -i <commit_id_of_first_change_commit>
 In the interactive rebase screen, set the first commit to `pick` and all others to `squash` (or whatever else you may need to do).
 
 Push your rebased commits (you may need to force), then issue your PR.
+
+## Container Images
+
+Custom container image definitions are maintained in [magazine](https://github.com/cloud-bulldozer/magazine).
+We use quay for all storing all our custom container images, and if you're adding a new
+workload and not sure of where to add/maintain the container image. We highly recommend, to
+add the Dockerfile to magazine, as we've automation setup for updating images in Quay, when
+a git push happens to magazine.
 
 ## Add workload
 
@@ -69,11 +78,6 @@ Example `playbook.yml`:
       name: "my-new-role"
     when: my-new-role.condition
 ```
-
-### Workload container images
-Images for workload containers must be hosted somewhere remotely accessible. You will likely reference those image URLs in your role.
-Dockerfiles to build workload images should be maintained in the [workloads](workloads/) directory as `<role_name>-Dockerfile`.
-These should be buildable by our CI system for maintaining a central public image repository.
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.

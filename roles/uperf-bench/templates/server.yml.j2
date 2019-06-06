@@ -12,7 +12,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: "quay.io/benchmark-operator/uperf:latest"
+    image: "quay.io/cloud-bulldozer/uperf:latest"
     command: ["/bin/sh", "-c"]
     args: ["uperf -s"]
   restartPolicy: OnFailure

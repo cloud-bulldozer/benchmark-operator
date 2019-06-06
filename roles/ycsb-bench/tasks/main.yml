@@ -23,7 +23,7 @@
           spec:
             containers:
             - name: ycsb
-              image: "quay.io/benchmark-operator/ycsb-server:latest"
+              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
               imagePullPolicy: Always
               command: ["/bin/sh"]
               args: ["-c", "/ycsb/bin/ycsb load {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
@@ -69,7 +69,7 @@
           spec:
             containers:
             - name: ycsb
-              image: "quay.io/benchmark-operator/ycsb-server:latest"
+              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
               imagePullPolicy: Always
               command: ["/bin/sh"]
               args: ["-c", "/ycsb/bin/ycsb run {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
