@@ -1,0 +1,6 @@
+---
+- name: Get files
+  set_fact: uuid={{ (999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N'))) | to_uuid() }}
+
+- debug:
+    msg: " The results of current execution of the workload {{ workload.name }} will be associated with uuid: {{ uuid }}"
