@@ -1,6 +1,7 @@
 - hosts: localhost
   gather_facts: no
   tasks:
+
     - name: Build Infrastructure
       block:
         - include_role:

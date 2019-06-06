@@ -3,7 +3,8 @@
 [Couchbase](https://couchbase.com) is a NoSQL document-oriented database infrastructure
 
 ## Prerequisites
-The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/install/install.md) is required to run the Couchbase operator from [operatorhub.io](https://operatorhub.io). If your distribution of OpenShif/Kubernetes does not include this, you will need to install it first.
+### OLM
+The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/install/install.md) is required to run the Couchbase operator from [operatorhub.io](https://operatorhub.io). If your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
 
 *Note: As of this writing, deploying the OLM from the deployment directory documented in the link above may lead to the Couchbase operator failing to launch. You may need to deploy instead from the `upstream/quickstart/olm.yaml` file as in:*
 
@@ -12,68 +13,125 @@ $ kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator
 ```
 Note: Sometimes applying OLM fails on first try, so please retry if it happens.
 
-## Running the Couchbase infra
+### Marketplace
+In addition to the OLM, the deployment of the Couchbase infra expects to use the [Marketplace operator](https://github.com/operator-framework/operator-marketplace#installing-an-operator-using-marketplace). Again, if your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
 
-Given that you followed instructions to deploy the benchmark operator,
-you can modify the [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
+Example:
+```bash
+$ git clone https://github.com/operator-framework/operator-marketplace.git
+$ kubectl apply -f operator-marketplace/deploy/upstream
+```
 
-Note: Set other roles to 0 to disable them when editing the
-[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file, or create
-your own custom resource file with only the roles you want defined. An
-example to enable only Couchbase:
+## Using the Couchbase Infra
+
+### Customizing your CR
+
+An example to enable only the Couchbase infra (this does _not_ run a workload):
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: couchbase-infra
   namespace: ripsaw
 spec:
-  couchbase:
-    # To disable couchbase, set servers.size to 0
-    # Typical deployment size is 3
-    servers:
-      size: 3
-    storage:
-      use_persistent_storage: True
-      class_name: "rook-ceph-block"
-      volume_size: 10Gi
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
+      deployment:
+        catalogsource_namespace: "marketplace"
+        cb_operator_package: "couchbase-enterprise"
+        pod_base_image: "docker.io/library/couchbase"
+        pod_version: "enterprise-5.5.2"
+        default_bucket_password: "password"
 ```
 
-If you set `spec.couchbase.stroage.use_persistent_storage` to `true`, then you will need to provide a valid
-StorageClass name for `spec.couchbase.storage.class_name` and a valid volume size for `spec.couchbase.storage.volume_size`.
+**Please see the example [CR file](../resources/crds/ripsaw_v1alpha1_cb_cr.yaml) for further examples for different deployment environments.**
 
-Setting up a StorageClass is outside the scope of this documentation.
+### Persistent Storage
+If you set `spec.infrastructure.args.stroage.use_persistent_storage` to `true`, then you will need to provide a valid
+StorageClass name for `spec.infrastructure.args.storage.class_name` and a valid volume size for `spec.infrastructure.args.storage.volume_size`.
 
-> Note that the upstream couchbase container images will not run on OpenShift as of this build,
-> therefore the [default](../roles/couchbase-infra/defaults/main.yml) for the role is to pull images from [registry.redhat.io](https://registry.redhat.io). The image URL and version can be overridden in the [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file.
+*Setting up a StorageClass is outside the scope of this documentation.*
 
-> In order to pull images from the Red Hat registry, you will need to add a valid Red Hat registry
-> secret to your OpenShift deployment before deploying the couchbase infra. To get your registry
-> secret, navigate to [registry.redhat.io](https://registry.redhat.io) and login. Then click on the **Service Accounts**
-> button, then on your appropriate account name, then on the **OpenShift Secret** tab. From there,
-> download or view the \<username\>.secret.yaml file. This secret is likely encoded for the *registry.redhat.io*
-> URL, though the [couchbase images](https://access.redhat.com/containers/?tab=overview#/registry.connect.redhat.com/couchbase/server) are hosted at *registry.connect.redhat.com*.
-> If you use the downloaded OpenShift secret file, you will need to edit the base64-encoded
-> .dockerconfigjson string to change the registry URL (outside the scope of this document).
-> Otherwise, use the *username* and *password* from the **Token Information** tab to create
-> the secret manually:
+### OpenShift Notes
+Upstream couchbase images will not run correctly on OpenShift, so the images will need to be pulled from the Red Hat registry.
 
-```bash
-$ kubectl create secret docker-registry rh-catalog --docker-server=registry.connect.redhat.com \
-  --docker-username=<token_username> --docker-password=<token_password>
+In order to pull images from the Red Hat registry, you will need to add a valid Red Hat registry
+secret to your OpenShift deployment before deploying the couchbase infra. To get your registry
+secret, navigate to [registry.redhat.io](https://registry.redhat.io) and login. Then click on the **Service Accounts**
+button, then on your appropriate account name, then on the **OpenShift Secret** tab. From there,
+download or view the \<username\>.secret.yaml file. Add this secret to your cluster.
+
+```
+oc create -f <username>.secret.yaml
 ```
 
-> The secret should then be added to the default service account:
+> Note that the `metadata.name` value from the secret file will need to be used as the `spec.infrastructure.args.deployment.pull_secret_name` value in the CR.
 
-```bash
-$ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "<secret_name>"}]}'
+Example CR for OpenShift v3:
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: couchbase-infra
+  namespace: ripsaw
+spec:
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
+      deployment:
+        catalogsource_namespace: "marketplace"
+        cb_operator_package: "couchbase-enterprise"
+        pod_base_image: "registry.connect.redhat.com/couchbase/server"
+        pod_version: "5.5.4-1"
+        default_bucket_password: "password"
+        pull_secret_name: "rhsecret"
 ```
 
-Once you are finished creating/editing the custom resource file, you can run it by:
+Example CR for OpenShift v4 (which includes a built-in OLM and Marketplace):
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: couchbase-infra
+  namespace: ripsaw
+spec:
+  infrastructure:
+    name: couchbase
+    args:
+      servers:
+        size: 3
+      storage:
+        use_persistent_storage: True
+        class_name: "rook-ceph-block"
+        volume_size: 10Gi
+      deployment:
+        catalogsource_namespace: "openshift-marketplace"
+        cb_operator_package: "couchbase-enterprise-certified"
+        pod_base_image: "registry.connect.redhat.com/couchbase/server"
+        pod_version: "5.5.4-1"
+        default_bucket_password: "password"
+        pull_secret_name: "rhsecret"
+```
+
+### Starting the Infra
+Once you are finished creating/editing the custom resource file and the Ripsaw benchmark operator is running, you can start the infra with:
 
 ```bash
-$ kubectl apply -f /path/to/benchmark_v1alpha1_benchmark_cr.yaml
+$ kubectl apply -f /path/to/cr.yaml
 ```
 
 Deploying the above will first result in the Couchbase operator running (along with a catalog container).
@@ -109,7 +167,7 @@ Metadata:
   Creation Timestamp:  2019-03-21T21:32:45Z
   Generation:          1
   Owner References:
-    API Version:     benchmark.example.com/v1alpha1
+    API Version:     ripsaw.cloudbulldozer.io/v1alpha1
     Kind:            Benchmark
     Name:            example-benchmark
     UID:             c87f2ba3-4c20-11e9-8a78-128d7ee91aa6
@@ -119,7 +177,7 @@ Metadata:
 Spec:
   Admin Console Services:
     data
-  Auth Secret:  cb-example-auth
+  Auth Secret:  cb-cluster-auth
   Base Image:   registry.connect.redhat.com/couchbase/server
   Buckets:
     Conflict Resolution:  seqno
@@ -220,13 +278,13 @@ Events:
   Normal  BucketCreated       26s   couchbase-operator-7b489f685c-ds88v  A new bucket `default` was created
 ```
 
-Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
-by running the CR as described here. You will need to separately define a workload in the CR (such as YCSB [work in progress]).
+**Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
+by running the CR as described here. You will need to separately define a workload in the CR (such as [YCSB](ycsb.md)).**
 
 ## Cleanup
-Currently, the couchbase-operator deployment does not clean up on it's on when the
+Currently, the couchbase-operator deployment does not fully clean up on it's on when the
 CR is deleted or changed to disable couchbase. You will need to do this manually with:
 
 ```bash
-$ kubectl delete deployment couchbase-operator
+$ kubectl delete csv couchbase-operator.<version>
 ```

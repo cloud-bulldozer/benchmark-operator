@@ -1,0 +1,23 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: uperf-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    # cleanup: true
+    name: uperf
+    args:
+      hostnetwork: false
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      rerun: 1
+      pair: 1
+      test_types:
+        - stream
+      protos:
+        - tcp
+      sizes:
+        - 16384
+      runtime: 30

@@ -1,0 +1,14 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: |
+        echo 'Test';
+        echo 'Test2'

@@ -5,24 +5,33 @@
 ## Running Sysbench
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml)
+you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml)
 
 Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/benchmark_v1alpha1_benchmark_cr.yaml) file otherwise
-your resource file should look like this:
+[cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml) file otherwise
+
+your resource file may look like this:
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: sysbench-benchmark
   namespace: ripsaw
 spec:
-  enabled: true
-  tests:
-  - name: cpu
-    parameters:
-      cpu-max-prime: 200
+  workload:
+    name: sysbench
+    args:
+      enabled: true
+      #kind: vm
+      # If you want to run this as a VM uncomment the above
+      tests:
+      - name: cpu
+        parameters:
+          cpu-max-prime: 2000
+      - name: fileio
+        parameters:
+          file-test-mode: rndrw
 ```
 
 Name here refers to testname and can be cpu or fileio or memory etc and the parameters are the parametes for the particular test.
@@ -31,7 +40,7 @@ You can find more information at [sysbench documentation](https://github.com/ako
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_benchmark_cr.yaml # if edited the original one
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 

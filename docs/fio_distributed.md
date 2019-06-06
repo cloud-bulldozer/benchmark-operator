@@ -11,7 +11,7 @@ workload.
 Build your CR for Distributed FIO
 
 ```yaml
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: fio-benchmark

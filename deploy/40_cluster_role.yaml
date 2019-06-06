@@ -10,5 +10,6 @@ rules:
   - rolebindings
   - clusterroles
   - clusterrolebindings
+  - persistentvolumes
   verbs:
   - '*'

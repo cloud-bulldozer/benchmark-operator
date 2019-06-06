@@ -1,5 +1,15 @@
 ---
 
+- name: Check for running uperf pods...
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - app = uperf-bench-client
+  ignore_errors: true
+  register: pods
+
 - name: Check for current_run
   stat:
     path: /tmp/current_run
@@ -7,6 +17,13 @@
 
 - debug:
     msg: "State file : {{state_file.stat}}"
+
+- name: Reset statefile
+  set_fact:
+    state_file:
+      stat:
+        exists: false
+  when: state_file.stat.exists == true and ( pods is defined and pods|length < 1 )
 
 - name: Check for status
   set_fact:
@@ -53,16 +70,18 @@
     retries: 10
     delay: 10
 
+  - name: Capture operator information
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - name = benchmark-operator
+    register: bo
+
   - name: Generate uperf test
     k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: uperf-test
-          namespace: '{{ operator_namespace }}'
-        data:
-          uperfXML: "{{ lookup('template', 'uperf-test.xml.j2') }}"
+      definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
   - name: Start Client(s)
     k8s:
@@ -75,6 +94,21 @@
       definition: "{{ lookup('template', 'workload_store.yml.j2') | from_yaml }}"
     with_items: "{{ server_pods.resources }}"
     when: server_pods.resources|length > 0 and store_results is defined and store_results
+
+  - name: Check if all clients are up
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = uperf-bench-client
+    register: client_pods
+    until: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
+    retries: 50
+    delay: 10
+
+  - name: Signal workload
+    command: "redis-cli set start true"
 
   - name: Waiting for pods to complete....
     k8s_facts:
@@ -119,4 +153,4 @@
       content: "{{ uperf }}"
       dest: /tmp/current_run
 
-  when: ( uperf.pair > 0 ) and ( state_file.stat.exists == false  or (curr_values | difference(prev_values))|length > 0 )
+  when: ( uperf.pair > 0 ) and (state_file.stat.exists == false  or (curr_values is defined) and (curr_values | difference(prev_values))|length > 0 )

@@ -21,9 +21,22 @@ spec:
         image: "quay.io/benchmark-operator/uperf:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cat /tmp/uperf-test/uperfXML;
-             export h={{item.status.podIP}};
-             seq {{uperf.rerun}} | xargs -I -- uperf -v -x -a -m /tmp/uperf-test/uperfXML -i 1"
+          - "export h={{item.status.podIP}};
+             while true; do
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+                 for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
+                   echo \"--------- Running $file ----------\";
+                   cat /tmp/uperf-test/$file;
+                   seq {{uperf.rerun}} | xargs -I -- uperf -v -a -x -m /tmp/uperf-test/$file -i 1;
+                   echo \"---------- $file complete ----------\";
+                 done
+               else
+                 echo \" Waiting for signal to start... \";
+                 continue;
+               fi;
+               break;
+             done;
+             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"

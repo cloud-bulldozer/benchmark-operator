@@ -1,0 +1,25 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: '{{ meta.name }}-iperf3-server-{{item}}'
+  namespace: '{{ operator_namespace }}'
+  labels:
+    app : iperf3-bench-server
+spec:
+{% if iperf3.hostnetwork is defined %}
+{% if iperf3.hostnetwork %}
+  hostNetwork : true
+{% endif %}
+{% endif %}
+  containers:
+  - name: benchmark
+    image: "quay.io/benchmark-operator/iperf3:latest"
+    command: ["/bin/sh", "-c"]
+    args:
+      - "iperf3 -s -p {{ iperf3.port }} {{ iperf3.extra_options_server }}"
+  restartPolicy: OnFailure
+{% if iperf3.pin_server is defined %}
+  nodeSelector:
+    kubernetes.io/hostname: '{{ iperf3.pin_server }}'
+{% endif %}

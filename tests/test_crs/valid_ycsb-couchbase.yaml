@@ -1,7 +1,7 @@
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-bench
+  name: ycsb-couchbase
   namespace: ripsaw
 spec:
   cleanup: false
@@ -12,6 +12,17 @@ spec:
         size: 1
       storage:
         use_persistent_storage: False
+      #Note: This deployment is setup to work with K8s and OCP 3 w/ upsteam
+      #      OLM and Marketplace. This uses the Red Hat registry to provide
+      #      the couchbase image, so the test system must have the 'rhsecret'
+      #      secret available already. This will _not_ work with OCP 4.
+      deployment:
+        catalogsource_namespace: "marketplace"
+        cb_operator_package: "couchbase-enterprise"
+        pod_base_image: "registry.connect.redhat.com/couchbase/server"
+        pod_version: "5.5.4-1"
+        default_bucket_password: "password"
+        pull_secret_name: "1979710-benchmark-operator-ci-pull-secret"
   workload:
     name: ycsb
     args:

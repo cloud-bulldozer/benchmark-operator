@@ -1,7 +1,7 @@
 {
   "uuid": "{{ item.item | regex_replace('-.*','') | to_uuid }}",
   "user": "{{user}}",
-  "spec": {{  _benchmark_example_com_benchmark.spec | to_nice_json  }},
+  "spec": {{  _ripsaw_cloudbulldozer_io_benchmark.spec | to_nice_json  }},
   "result": "{{ item.content }}",
   "time_start": "{{ item.item | regex_replace('-.*','') }}"
 }

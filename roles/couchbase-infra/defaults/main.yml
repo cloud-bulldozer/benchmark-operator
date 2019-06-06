@@ -1,7 +1,9 @@
 ---
 # defaults file for couchbase-infra
 
-operator_url: "{{ couchbase.operator_url | default('https://www.operatorhub.io/install/preview/couchbase-operator.v1.1.0.yaml') }}"
-pod_baseImage: "{{ couchbase.pod_baseImage | default('registry.connect.redhat.com/couchbase/server') }}"
-pod_version: "{{ couchbase.pod_version | default('5.5.2-2') }}"
-default_bucket_password: password
+catalogsource_namespace: "{{ infrastructure.args.deployment.catalogsource_namespace | default('marketplace') }}"
+cb_operator_package: "{{ infrastructure.args.deployment.cb_operator_package | default('couchbase-enterprise') }}"
+pod_base_image: "{{ infrastructure.args.deployment.pod_base_image | default('docker.io/library/couchbase') }}"
+pod_version: "{{ infrastructure.args.deployment.pod_version | default('enterprise-5.5.2') }}"
+default_bucket_password: "{{ infrastructure.args.deployment.default_bucket_password | default('password') }}"
+pull_secret_name: "{{ infrastructure.args.deployment.pull_secret_name | default('rhsecret') }}"

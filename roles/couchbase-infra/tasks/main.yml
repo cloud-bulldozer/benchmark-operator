@@ -1,57 +1,53 @@
 ---
-- name: Download Couchbase Operator from operatorhub.io
-  get_url:
-    url: "{{ operator_url }}"
-    dest: /tmp/cboperator.yaml
+- name: Get the Couchbase Operator YAML
+  template:
+    src: couchbase-operator.yaml.j2
+    dest: /tmp/couchbase-operator.yaml
+    mode: 0640
 
-- name: Set namespace for Couchbase
-  replace:
-    path: /tmp/cboperator.yaml
-    regexp: '^(.*)my-couchbase-enterprise(.*)$'
-    replace: '\1{{ operator_namespace }}\2'
-
-- name: Deploy Couchbase Operator from operatorhub.io
+- name: Deploy Couchbase Operator
   k8s:
-    src: /tmp/cboperator.yaml
+    src: /tmp/couchbase-operator.yaml
 
 - name: Wait for Couchbase Operator to be Running....
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: "{{ operator_namespace }}"
-    label_selectors:
-      - name = couchbase-operator
-  register: cb_op_pod
-  until: "'Running' in (cb_op_pod | json_query('resources[].status.phase'))"
-  retries: 10
-  delay: 10
+  #FIXME: Some versions of the operator use an "app" label and others use a "name" label.
+  #       I can't find a way to check label_selectors based on an OR of the key, and the 
+  #       field_selectors I might match on are not supported. It's also not supported to
+  #       loop over a block with an until, so that solution won't work. I also can't find
+  #       a way to inject a new label to use into the operator pod as it is being created
+  #       by the subscription. ¯\_(ツ)_/¯
+  #k8s_facts:
+  #  kind: ClusterServiceVersion
+  #  api_version: v1
+  #  namespace: "{{ operator_namespace }}"
+  #  label_selectors:
+  #    - app = couchbase-operator
+  #    - name = couchbase-operator
+  #register: cb_op_pod
+  #until: "'Running' in (cb_op_pod | json_query('resources[].status.phase'))"
+  #retries: 10
+  #delay: 10
+  pause:
+    seconds: 100
 
-# Launch Couchbase cluster from operator
-- name: Create the cb-example-auth Auth Secret
+# For BZ 1678285
+# https://bugzilla.redhat.com/show_bug.cgi?id=1678285
+- name: Apply RBAC for Couchbase Operator
+  k8s:
+    definition: "{{ lookup('template', 'couchbase-operator-rbac.yaml.j2') }}"
+
+- name: Create the Couchbase Auth Secret
   k8s:
     definition:
       apiVersion: v1
       kind: Secret
       metadata:
-        name: cb-example-auth
+        name: cb-cluster-auth
         namespace: "{{ operator_namespace }}"
       type: Opaque
       data:
         username: QWRtaW5pc3RyYXRvcg==
         password: cGFzc3dvcmQ=
-
-#TODO: Confirm that we can actually distribute this binary in this way
-- name: Get the cbopctl Binary
-  copy:
-    src: cbopctl
-    dest: /tmp/cbopctl
-    mode: 0750
-
-- name: Get the Cluster YAML
-  template:
-    src: couchbase-cluster.yaml.j2
-    dest: /tmp/couchbase-cluster.yaml
-    mode: 0640
 
 # Pre-pull the image to avoid CB operator timeout
 - name: Pre-Pull Couchbase Container Image
@@ -66,10 +62,12 @@
         template:
           spec:
             containers:
-            - name: cb-image-load
-              image: "{{ pod_baseImage }}:{{ pod_version }}"
-              command: ['/bin/true']
+              - name: cb-image-load
+                image: "{{ pod_base_image }}:{{ pod_version }}"
+                command: ['/bin/true']
             restartPolicy: Never
+            imagePullSecrets:
+              - name: "{{ pull_secret_name }}"
         backoffLimit: 4
 
 - name: Wait for Pre-Pull Job to Succeed
@@ -83,14 +81,9 @@
   retries: 60
   delay: 10
 
-- name: Launch Couchbase Cluster from Operator
-#  k8s:
-#    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
-  command: ./cbopctl create -f couchbase-cluster.yaml
-  args:
-    chdir: /tmp
-  register: result
-  failed_when: "'already exists' not in result.stdout and 'created' not in result.stdout"
+- name: Launch Couchbase Cluster via Operator
+  k8s:
+    definition: "{{ lookup('template', 'couchbase-cluster.yaml.j2') }}"
 
 - name: Wait for Couchbase Cluster to be Up; This may take a while...
   k8s_facts:
