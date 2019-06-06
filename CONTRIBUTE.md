@@ -3,47 +3,11 @@
 Contributions are always appreciated.
 
 How to:
-* [Submit Pull Request](#pull-request)
-* [Container images](#container-images)
 * [Add new workloads](#add-workload)
+* [Container images](#container-images)
 * [Test changes locally](#testing-your-workload-locally)
+* [Submit Pull Request](#pull-request)
 * [CI](#ci)
-
-## Pull request
-
-In order to submit a change or a PR, please fork the project and follow instructions:
-```bash
-$ git clone http://github.com/<me>/ripsaw
-$ cd ripsaw
-$ git checkout -b <branch_name>
-$ <make change>
-$ git add <changes>
-$ git commit -a
-$ <insert good message>
-$ git push
-```
-
-If there are mutliple commits, please rebase/squash multiple commits
-before creating the PR by following:
-
-```bash
-$ git checkout <my-working-branch>
-$ git rebase -i HEAD~<num_of_commits_to_merge>
-   -OR-
-$ git rebase -i <commit_id_of_first_change_commit>
-```
-
-In the interactive rebase screen, set the first commit to `pick` and all others to `squash` (or whatever else you may need to do).
-
-Push your rebased commits (you may need to force), then issue your PR.
-
-## Container Images
-
-Custom container image definitions are maintained in [magazine](https://github.com/cloud-bulldozer/magazine).
-We use quay for all storing all our custom container images, and if you're adding a new
-workload and not sure of where to add/maintain the container image. We highly recommend, to
-add the Dockerfile to magazine, as we've automation setup for updating images in Quay, when
-a git push happens to magazine.
 
 ## Add workload
 
@@ -81,11 +45,9 @@ Example `playbook.yml`:
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.
-The operator triggers roles based on the conditions defined in a CR ([example](resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)) which will influence which roles the
+The operator triggers roles based on the conditions defined in a CR ([example](examples/workload/uperf.yaml)) which will influence which roles the
 [playbook](playbook.yml) executes.
 Other vars may be defined that can modify the workload run conditions.
-
-For the sake of the example CR, please default all workloads to disabled.
 
 Example CR:
 ```yaml
@@ -98,7 +60,7 @@ spec:
   workload: #can be infrastructure too or can be both like in case of ycsb-couchbase
     name: your_workload_name
     args:
-      workers: 0
+      workers: 1
       my_key_1: my_value_1
       my_key_2: my_value_2
       my_dict:
@@ -121,6 +83,14 @@ The following steps are suggested for your workload to be added:
 case of failure or when disabled. This ensures no interference with subsequent workloads.
 * Please mention any additional cleanup required in your workload guide.
 
+## Container Images
+
+Custom container image definitions are maintained in [magazine](https://github.com/cloud-bulldozer/magazine).
+We use quay for all storing all our custom container images, and if you're adding a new
+workload and not sure of where to add/maintain the container image. We highly recommend, to
+add the Dockerfile to magazine, as we've automation setup for updating images in Quay, when
+a git push happens to magazine.
+
 ## Testing your workload locally
 
 ### The operator container image
@@ -135,28 +105,48 @@ $ docker push quay.io/<username>/benchmark-operator:testing
 
 `:testing` is simply a tag. You can define different tags to use with your image, like `:latest` or `:master`
 
-To test with your own operator image, you will need the [operator](resources/operator.yml) file to point the container image to your testing version.
+To test with your own operator image, you will need the [operator](deploy/operator.yml) file to point the container image to your testing version.
 Be sure to do this outside of your git tree to avoid mangling the official file that points to our stable image.
 
 This can be done as follows:
 
 ```bash
-$ sed 's/image:.*/image: quay.io\/<username>\/benchmark-operator:testing/' resources/operator.yaml > /my/testing/operator.yaml
+$ sed 's/image:.*/image: quay.io\/<username>\/benchmark-operator:testing/' deploy/operator.yaml > /my/testing/operator.yaml
 ```
 
 You can then redeploy operator
 ```bash
-# kubectl delete -f resources/operator.yaml
+# kubectl delete -f deploy/operator.yaml
 # kubectl apply -f /my/testing/operator.yaml
 ```
-Redefine CRD
+
+## Pull request
+
+In order to submit a change or a PR, please fork the project and follow instructions:
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+$ git clone http://github.com/<me>/ripsaw
+$ cd ripsaw
+$ git checkout -b <branch_name>
+$ <make change>
+$ git add <changes>
+$ git commit -a
+$ <insert good message>
+$ git push
 ```
-Apply a new CR
+
+If there are mutliple commits, please rebase/squash multiple commits
+before creating the PR by following:
+
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml
+$ git checkout <my-working-branch>
+$ git rebase -i HEAD~<num_of_commits_to_merge>
+   -OR-
+$ git rebase -i <commit_id_of_first_change_commit>
 ```
+
+In the interactive rebase screen, set the first commit to `pick` and all others to `squash` (or whatever else you may need to do).
+
+Push your rebased commits (you may need to force), then issue your PR.
 
 ## CI
 Currently we have a CI that runs against PRs.
