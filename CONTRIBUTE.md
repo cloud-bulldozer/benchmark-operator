@@ -159,8 +159,8 @@ behavior can be predicted, we've mandated writing tests before PR can be merged.
 If a new workload is added, please follow the instructions to add a testcase to
 [test.sh](test,sh):
 * Add commands needed to setup the workload specific requirements if any
-* Create a tests/test_<workload>.sh that has the functional test
-* Add a valid cr file to [test_crs](tests/test_crs/) directory for your workload
+* Create a CI/test_<workload>.sh that has the functional test
+* Add a valid cr file to [test_crs](CI/test_crs/) directory for your workload
 * Add an invalid cr file to same directory
 * Apply the cr and run a simple functional test to ensure that the expected behavior is asserted
 * Delete the cr and redo for the invalid cr

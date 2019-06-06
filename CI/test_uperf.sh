@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-source tests/common.sh
+source CI/common.sh
 
 function finish {
   echo "Cleaning up Uperf"
-  kubectl delete -f tests/test_crs/valid_uperf.yaml
+  kubectl delete -f CI/test_crs/valid_uperf.yaml
   delete_operator
 }
 
@@ -13,7 +13,7 @@ trap finish EXIT
 
 function functional_test_uperf {
   apply_operator
-  kubectl apply -f tests/test_crs/valid_uperf.yaml
+  kubectl apply -f CI/test_crs/valid_uperf.yaml
   check_pods 2
   uperf_client_pod=$(kubectl get pods -l app=uperf-bench-client -o name | cut -d/ -f2)
   kubectl wait --for=condition=Initialized "pods/$uperf_client_pod" --timeout=200s

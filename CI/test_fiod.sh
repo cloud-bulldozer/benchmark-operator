@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-source tests/common.sh
+source CI/common.sh
 
 function finish {
   echo "Cleaning up Fio"
-  kubectl delete -f tests/test_crs/valid_fiod.yaml
+  kubectl delete -f CI/test_crs/valid_fiod.yaml
   delete_operator
 }
 
@@ -13,7 +13,7 @@ trap finish EXIT
 
 function functional_test_fio {
   apply_operator
-  kubectl apply -f tests/test_crs/valid_fiod.yaml
+  kubectl apply -f CI/test_crs/valid_fiod.yaml
   check_pods 3
   fio_pod=$(kubectl get pods -l app=fiod-client --namespace ripsaw -o name | cut -d/ -f2)
   kubectl wait --for=condition=Initialized "pods/$fio_pod" --namespace ripsaw --timeout=200s

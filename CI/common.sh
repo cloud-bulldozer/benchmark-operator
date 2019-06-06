@@ -11,11 +11,11 @@ function wait_clean {
 }
 
 function apply_operator {
-  kubectl apply -f resources/operator.yaml
+  kubectl apply -f deploy/operator.yaml
 }
 
 function delete_operator {
-  kubectl delete -f resources/operator.yaml
+  kubectl delete -f deploy/operator.yaml
 }
 
 function marketplace_setup {
@@ -41,8 +41,7 @@ function marketplace_cleanup {
 }
 
 function operator_requirements {
-  kubectl apply -f deploy
-  kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+  kubectl apply -f deploy/common.yaml
 }
 
 function create_operator {
@@ -52,8 +51,7 @@ function create_operator {
 
 function cleanup_resources {
   echo "Exiting after cleanup of resources"
-  kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-  kubectl delete -f deploy
+  kubectl delete -f deploy/common.yaml
 }
 
 function cleanup_operator_resources {
@@ -66,7 +64,7 @@ function update_operator_image {
   tag_name="${NODE_NAME:-master}"
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name
   docker push quay.io/rht_perf_ci/benchmark-operator:$tag_name
-  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
+  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" deploy/operator.yaml
 }
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-source tests/common.sh
+source CI/common.sh
 
 trap cleanup_operator_resources EXIT
 
@@ -10,9 +10,9 @@ update_operator_image
 #
 # Test all workloads without recreating operator pods
 #
-source tests/test_uperf.sh
+source CI/test_uperf.sh
 functional_test_uperf
-source tests/test_fio.sh
+source CI/test_fio.sh
 functional_test_fio
-source tests/test_sysbench.sh
+source CI/test_sysbench.sh
 functional_test_sysbench

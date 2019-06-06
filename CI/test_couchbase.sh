@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-source tests/common.sh
+source CI/common.sh
 
 function finish {
   echo "Cleaning up couchbase"
-  kubectl delete -f tests/test_crs/valid_ycsb-couchbase.yaml
+  kubectl delete -f CI/test_crs/valid_couchbase.yaml
   kubectl delete csv --all -n ripsaw
   kubectl delete secret 1979710-benchmark-operator-ci-pull-secret -n ripsaw
   marketplace_cleanup
@@ -60,12 +60,12 @@ trap finish EXIT
 
 
 # Note we don't test persistent storage here
-function functional_test_ycsb_couchbase {
+function functional_test_couchbase {
   apply_operator
   marketplace_setup
   kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
   sleep 15
-  kubectl apply -f tests/test_crs/valid_ycsb-couchbase.yaml
+  kubectl apply -f CI/test_crs/valid_couchbase.yaml
   cb_operator_pod=$(get_pod 'name=couchbase-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$cb_operator_pod" --namespace ripsaw --timeout=60s
   kubectl wait --for=condition=Ready "pods/$cb_operator_pod" --namespace ripsaw --timeout=300s
@@ -74,12 +74,6 @@ function functional_test_ycsb_couchbase {
   kubectl wait --for=condition=Ready "pods/$cb_app_pod" --namespace ripsaw --timeout=300s
   sleep 15
   check_cbc 300
-  ycsb_load_pod=$(get_pod 'name=ycsb-load' 300)
-  kubectl wait --for=condition=Initialized "pods/$ycsb_load_pod" --namespace ripsaw --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$ycsb_load_pod" --namespace ripsaw --timeout=120s
-  ycsb_run_pod=$(get_pod 'name=ycsb-run' 120)
-  kubectl wait --for=condition=Initialized "pods/$ycsb_run_pod" --namespace ripsaw --timeout=60s
-  kubectl wait --for=condition=complete -l name=ycsb-run jobs --namespace ripsaw --timeout=120s
 }
 
-functional_test_ycsb_couchbase
+functional_test_couchbase
