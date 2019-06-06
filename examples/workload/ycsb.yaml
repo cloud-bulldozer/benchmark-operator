@@ -1,0 +1,15 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: ycsb-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: ycsb
+    args:
+      workers: 1
+      #The YCSB workload requires a running infra to test against
+      #See examples/multi/ycsb-couchbase.yaml for a combined example
+      infra: couchbase
+      driver: couchbase2
+      workload: workloada
