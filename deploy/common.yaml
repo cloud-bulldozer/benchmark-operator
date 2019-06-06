@@ -1,0 +1,172 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: benchmark-operator
+  namespace: ripsaw
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: benchmark-operator
+  namespace: ripsaw
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - endpoints
+  - persistentvolumeclaims
+  - events
+  - configmaps
+  - secrets
+  - pods/log
+  verbs:
+  - '*'
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  verbs:
+  - get
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
+  verbs:
+  - '*'
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - get
+  - create
+- apiGroups:
+  - ripsaw.cloudbulldozer.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - batch
+  - extensions
+  resources:
+  - jobs
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: benchmark-operator
+  namespace: ripsaw
+subjects:
+- kind: ServiceAccount
+  name: benchmark-operator
+  namespace: ripsaw
+roleRef:
+  kind: Role
+  name: benchmark-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: benchmark-operator-kube
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  - clusterroles
+  - clusterrolebindings
+  verbs:
+  - '*'
+- apiGroups:
+    - subresources.kubevirt.io
+  resources:
+    - virtualmachineinstances/console
+    - virtualmachineinstances/vnc
+  verbs:
+    - get
+- apiGroups:
+    - kubevirt.io
+  resources:
+    - virtualmachineinstances
+    - virtualmachines
+    - virtualmachineinstancepresets
+    - virtualmachineinstancereplicasets
+  verbs:
+    - get
+    - delete
+    - create
+    - update
+    - patch
+    - list
+    - watch
+    - deletecollection
+- apiGroups: [""]
+  resources:
+    - configmaps
+  resourceNames:
+    - kubevirt-config
+  verbs:
+    - update
+    - get
+    - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: benchmark-operator
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  - clusterroles
+  - clusterrolebindings
+  - persistentvolumes
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: benchmark-operator
+subjects:
+- kind: ServiceAccount
+  name: benchmark-operator
+  namespace: ripsaw
+roleRef:
+  kind: ClusterRole
+  name: benchmark-operator
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: benchmark-operator-cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: benchmark-operator
+  namespace: ripsaw
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+
