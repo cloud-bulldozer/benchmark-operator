@@ -65,10 +65,10 @@
                 command: ["/bin/sh", "-c"]
                 workingDir: /root/smallfile-master/
                 args:
-                  - "mkdir /tmp/test_smallfile/;
-                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob_{{ item[1] }} --output-json /root/SMALLFILE_RUN_RESULT;
+                  - 'mkdir /tmp/test_smallfile/;
+                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob_"{{ item[1] }}" --output-json /root/SMALLFILE_RUN_RESULT;
                     ls -R /tmp/ ;
-                    cat /tmp/smallfilejob_{{ item }}"
+                    cat /tmp/smallfilejob_"{{ item[1] }}"'
                 volumeMounts:
                   - name: config-volume
                     mountPath: "/tmp"
