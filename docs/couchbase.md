@@ -6,12 +6,12 @@
 ### OLM
 The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/install/install.md) is required to run the Couchbase operator from [operatorhub.io](https://operatorhub.io). If your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
 
-*Note: As of this writing, deploying the OLM from the deployment directory documented in the link above may lead to the Couchbase operator failing to launch. You may need to deploy instead from the `upstream/quickstart/olm.yaml` file as in:*
+> Note: As of this writing, deploying the OLM from the deployment directory documented in the link above may lead to the Couchbase operator failing to launch. You may need to deploy instead from the `upstream/quickstart/olm.yaml` file as in:
 
 ```bash
 $ kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
 ```
-Note: Sometimes applying OLM fails on first try, so please retry if it happens.
+> Note: Sometimes applying OLM fails on first try, so please retry if it happens.
 
 ### Marketplace
 In addition to the OLM, the deployment of the Couchbase infra expects to use the [Marketplace operator](https://github.com/operator-framework/operator-marketplace#installing-an-operator-using-marketplace). Again, if your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
@@ -52,7 +52,7 @@ spec:
         default_bucket_password: "password"
 ```
 
-**Please see the example [CR file](../resources/crds/ripsaw_v1alpha1_cb_cr.yaml) for further examples for different deployment environments.**
+**Please see the example [CR file](../examples/infra/couchbase.yaml) for further examples for different deployment environments.**
 
 ### Persistent Storage
 If you set `spec.infrastructure.args.stroage.use_persistent_storage` to `true`, then you will need to provide a valid
@@ -67,10 +67,10 @@ In order to pull images from the Red Hat registry, you will need to add a valid 
 secret to your OpenShift deployment before deploying the couchbase infra. To get your registry
 secret, navigate to [registry.redhat.io](https://registry.redhat.io) and login. Then click on the **Service Accounts**
 button, then on your appropriate account name, then on the **OpenShift Secret** tab. From there,
-download or view the \<username\>.secret.yaml file. Add this secret to your cluster.
+download or view the \<username\>.secret.yaml file. Add this secret to your cluster in the _ripsaw_ namespace.
 
 ```
-oc create -f <username>.secret.yaml
+oc create -f <username>.secret.yaml -n ripsaw
 ```
 
 > Note that the `metadata.name` value from the secret file will need to be used as the `spec.infrastructure.args.deployment.pull_secret_name` value in the CR.
@@ -278,8 +278,8 @@ Events:
   Normal  BucketCreated       26s   couchbase-operator-7b489f685c-ds88v  A new bucket `default` was created
 ```
 
-**Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
-by running the CR as described here. You will need to separately define a workload in the CR (such as [YCSB](ycsb.md)).**
+> Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
+by running the CR as described here. You will need to separately define a workload in the CR (such as [YCSB](ycsb.md)).
 
 ## Cleanup
 Currently, the couchbase-operator deployment does not fully clean up on it's on when the

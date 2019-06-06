@@ -5,7 +5,7 @@
 ## Running YCSB
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_ycsb-cb_cr.yaml) to your needs.
+you can modify the [CR](../examples/multi/ycsb-couchbase.yaml) to your needs.
 
 > NOTE: The above example CR deploys both the Couchbase infra and runs the YCSB benchmark on it.
 
@@ -48,8 +48,7 @@ spec:
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_ycsb-cb_cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
+# kubectl apply -f <path_to_file>
 ```
 
 Deploying the above would result in first a the Couchbase cluster being stood up, then a temporaroy YCSB pod running to load the database data, and finally a YCSB benchmark pod running the workload.

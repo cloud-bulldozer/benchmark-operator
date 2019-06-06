@@ -5,8 +5,7 @@
 ## Running iperf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_iperf3_cr.yaml)
-
+you can modify the [CR](../examples/workload/iperf3.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -35,7 +34,8 @@ spec:
     extra_options_server: ' '
     #retries: 200
 ```
-Optional argument:
+
+**Optional argument:**
 `retries` is an optional argument that can be used if you are running long tests
 and don't want the logic to exit early, this is due to iperf logic using ansible's
 retries to wait for iperf client job to be finish running. Note that the delay is
@@ -95,12 +95,10 @@ Note: You can also store results on a pv, to do so add the following to spec in 
 
 `hostnetwork` will test the performance of the node the pod will run on.
 
-*Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
+> Note: If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
 
 ```bash
-
 $ oc adm policy add-scc-to-user privileged -z benchmark-operator
-
 ```
 
 ```
@@ -112,11 +110,10 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_iperf3_cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
+# kubectl apply -f <path_to_file>
 ```
 
-Deploying the above(assuming pairs is set to 1) would result in
+Deploying the above (assuming pairs is set to 1) would result in
 
 ```bash
 # kubectl get -o wide pods
@@ -133,37 +130,37 @@ and if you notice the IP address in the name is same as the IP of server pod.
 To review the results, `kubectl logs <client>`, it should look something similar:
 
 ```
-[root@smicro-6029p-04 ~]# kubectl logs -f example-benchmark-iperf3-client-172.17.0.9-sd9sb                                                                                                                         
-Connecting to host 172.17.0.9, port 5201                                                                                                                                                                           
-[  4] local 172.17.0.12 port 54638 connected to 172.17.0.9 port 5201                                                                                                                                               
-[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd                                                                                                                                                   
-[  4]   0.00-1.00   sec  1.43 GBytes  12.3 Gbits/sec    0    137 KBytes                                                                                                                                            
-[  4]   1.00-2.00   sec  1.51 GBytes  13.0 Gbits/sec    0    137 KBytes                                                                                                                                            
-[  4]   2.00-3.00   sec  2.30 GBytes  19.8 Gbits/sec    0    137 KBytes                                                                                                                                            
-[  4]   3.00-4.00   sec  1.98 GBytes  17.0 Gbits/sec   20   95.4 KBytes                                                                                                                                            
-[  4]   4.00-5.00   sec  1.51 GBytes  13.0 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]   5.00-6.00   sec  1.70 GBytes  14.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]   6.00-7.00   sec  1.52 GBytes  13.0 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]   7.00-8.00   sec  1.58 GBytes  13.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]   8.00-9.00   sec  1.59 GBytes  13.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]   9.00-10.00  sec  1.73 GBytes  14.9 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  10.00-11.00  sec  1.90 GBytes  16.3 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  11.00-12.00  sec  1.45 GBytes  12.5 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  12.00-13.00  sec  1.90 GBytes  16.4 Gbits/sec    1   95.4 KBytes                                                                                                                                            
-[  4]  13.00-14.00  sec  2.05 GBytes  17.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  14.00-15.00  sec  1.49 GBytes  12.8 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  15.00-16.00  sec  1.99 GBytes  17.1 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  16.00-17.00  sec  1.60 GBytes  13.8 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  17.00-18.00  sec  1.70 GBytes  14.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  18.00-19.00  sec  1.62 GBytes  13.9 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  19.00-20.00  sec  1.64 GBytes  14.1 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  20.00-21.00  sec  1.80 GBytes  15.5 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  21.00-22.00  sec  1.59 GBytes  13.6 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  22.00-23.00  sec  1.47 GBytes  12.7 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  23.00-24.00  sec  2.02 GBytes  17.4 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  24.00-25.00  sec  1.64 GBytes  14.1 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  25.00-26.00  sec  1.56 GBytes  13.4 Gbits/sec    0   95.4 KBytes                                                                                                                                            
-[  4]  26.00-27.00  sec  1.56 GBytes  13.4 Gbits/sec    0   95.4 KBytes                                                                                                                                            
+# kubectl logs example-benchmark-iperf3-client-172.17.0.9-sd9sb                                                                                                                         
+Connecting to host 172.17.0.9, port 5201
+[  4] local 172.17.0.12 port 54638 connected to 172.17.0.9 port 5201
+[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+[  4]   0.00-1.00   sec  1.43 GBytes  12.3 Gbits/sec    0    137 KBytes
+[  4]   1.00-2.00   sec  1.51 GBytes  13.0 Gbits/sec    0    137 KBytes
+[  4]   2.00-3.00   sec  2.30 GBytes  19.8 Gbits/sec    0    137 KBytes
+[  4]   3.00-4.00   sec  1.98 GBytes  17.0 Gbits/sec   20   95.4 KBytes
+[  4]   4.00-5.00   sec  1.51 GBytes  13.0 Gbits/sec    0   95.4 KBytes
+[  4]   5.00-6.00   sec  1.70 GBytes  14.6 Gbits/sec    0   95.4 KBytes
+[  4]   6.00-7.00   sec  1.52 GBytes  13.0 Gbits/sec    0   95.4 KBytes
+[  4]   7.00-8.00   sec  1.58 GBytes  13.6 Gbits/sec    0   95.4 KBytes
+[  4]   8.00-9.00   sec  1.59 GBytes  13.6 Gbits/sec    0   95.4 KBytes
+[  4]   9.00-10.00  sec  1.73 GBytes  14.9 Gbits/sec    0   95.4 KBytes
+[  4]  10.00-11.00  sec  1.90 GBytes  16.3 Gbits/sec    0   95.4 KBytes
+[  4]  11.00-12.00  sec  1.45 GBytes  12.5 Gbits/sec    0   95.4 KBytes
+[  4]  12.00-13.00  sec  1.90 GBytes  16.4 Gbits/sec    1   95.4 KBytes
+[  4]  13.00-14.00  sec  2.05 GBytes  17.6 Gbits/sec    0   95.4 KBytes
+[  4]  14.00-15.00  sec  1.49 GBytes  12.8 Gbits/sec    0   95.4 KBytes
+[  4]  15.00-16.00  sec  1.99 GBytes  17.1 Gbits/sec    0   95.4 KBytes
+[  4]  16.00-17.00  sec  1.60 GBytes  13.8 Gbits/sec    0   95.4 KBytes
+[  4]  17.00-18.00  sec  1.70 GBytes  14.6 Gbits/sec    0   95.4 KBytes
+[  4]  18.00-19.00  sec  1.62 GBytes  13.9 Gbits/sec    0   95.4 KBytes
+[  4]  19.00-20.00  sec  1.64 GBytes  14.1 Gbits/sec    0   95.4 KBytes
+[  4]  20.00-21.00  sec  1.80 GBytes  15.5 Gbits/sec    0   95.4 KBytes
+[  4]  21.00-22.00  sec  1.59 GBytes  13.6 Gbits/sec    0   95.4 KBytes
+[  4]  22.00-23.00  sec  1.47 GBytes  12.7 Gbits/sec    0   95.4 KBytes
+[  4]  23.00-24.00  sec  2.02 GBytes  17.4 Gbits/sec    0   95.4 KBytes
+[  4]  24.00-25.00  sec  1.64 GBytes  14.1 Gbits/sec    0   95.4 KBytes
+[  4]  25.00-26.00  sec  1.56 GBytes  13.4 Gbits/sec    0   95.4 KBytes
+[  4]  26.00-27.00  sec  1.56 GBytes  13.4 Gbits/sec    0   95.4 KBytes
 [  4]  27.00-28.00  sec  1.65 GBytes  14.1 Gbits/sec    0   95.4 KBytes
 [  4]  28.00-29.00  sec  1.53 GBytes  13.2 Gbits/sec    0   95.4 KBytes
 [  4]  29.00-30.00  sec  1.98 GBytes  17.0 Gbits/sec    0   95.4 KBytes

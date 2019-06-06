@@ -5,11 +5,7 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)
-
-Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml) file otherwise
-your resource file should look like this:
+you can modify the [CR](../examples/workload/uperf.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -39,12 +35,10 @@ spec:
 
 `hostnetwork` will test the performance of the node the pod will run on.
 
-*Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
+> Note: If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
 
 ```bash
-
 $ oc adm policy add-scc-to-user privileged -z benchmark-operator
-
 ```
 
 `pin` will allow the benchmark runner place nodes on specific nodes, using the `hostname` label.
@@ -56,11 +50,10 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
+# kubectl apply -f <path_to_file>
 ```
 
-Note: If you'd like to try to experiment with storing results in a pv and have followed
+> Note: If you'd like to try to experiment with storing results in a pv and have followed
 instructions to deploy operator with attached pvc and would like to send results to ES(elasticsearch).
 you can instead define a custom resource as follows:
 
@@ -106,7 +99,7 @@ The first pod is our Operator orchestrating the UPerf workload.
 To review the results, `kubectl logs <client>`, the top of the output is
 the actual workload that was passed to UPerf (From the values in the custom resource).
 
-Note: If cleanup is not set in the spec file then the client pods will be killed after
+> Note: If cleanup is not set in the spec file then the client pods will be killed after
 600 seconds from it's completion. The server pods will be cleaned up immediately
 after client job completes
 

@@ -5,12 +5,9 @@
 ## Running Sysbench
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml)
+you can modify the [CR](../examples/workload/sysbench.yaml)
 
-Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml) file otherwise
-
-your resource file may look like this:
+Your resource file may look like this:
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -40,11 +37,10 @@ You can find more information at [sysbench documentation](https://github.com/ako
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
+# kubectl apply -f <path_to_file>
 ```
 
-Deploying the above(running cpu) would result in
+Deploying the above (running cpu) would result in
 
 ```bash
 # kubectl get pods

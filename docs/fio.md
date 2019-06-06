@@ -6,9 +6,9 @@ FIO spawns a number of threads or processes doing a particular type of I/O actio
 
 ## Running FIO Benchmark
 
-Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) to run either sequential, random or custom workload. For custom workload one can provide URL of http server where FIO job file is present.
+Once the operator has been installed following the instructions, one needs to modify the [CR](../examples/workload/fio.yaml) to run either sequential, random or custom workload. For custom workload, you can provide a URL where FIO job file is present.
 
-The FIO section in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) would look like this.
+An FIO [CR](../examples/workload/fio.yaml) may look like this.
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -33,38 +33,37 @@ spec:
       storagesize: 30Gi # Provide if PV is needed
 ```
 
-Note: Please ensure to set 0 for other workloads if editing the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) file otherwise desired workload won't be executed. If storage class is defined we can provide persistent volume (PV) to the POD where FIO test will be executed.
+> Note: If storage class is defined we can provide persistent volume (PV) to the POD where FIO test will be executed.
 
-Once done creating/editing the resource file, one can run it by:
+Once you are finished creating/editing the resource file, you can run it with:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_fio_cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
+# kubectl apply -f <path_to_cr_file>
 ```
 
-Deploying the above(assuming clients set to 2) would result in
+Deploying the above (assuming clients set to 2) would result in:
 
 ```bash
-kubectl get pods
+# kubectl get pods
 NAME                                       READY     STATUS    RESTARTS   AGE
 benchmark-operator-54bf9f4c44-llzwp        1/1       Running   0          1m
 example-benchmark-fio-client-1-benchmark   1/1       Running   0          22s
 example-benchmark-fio-client-2-benchmark   1/1       Running   0          22s
 ```
 
-Since we have storageclass and storagesize defined in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fio_cr.yaml) file, the corresponding status of persitent volume is seen like this:
+Since we have storageclass and storagesize defined in the [CR](../examples/workload/fio.yaml) file, the corresponding status of the persitent volume is seen like this:
 
 ```bash
-kubectl get pv
+# kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS    CLAIM              STORAGECLASS      REASON    AGE
 pvc-0f20b50d-5c57-11e9-b95c-d4ae528b96c1   30Gi       RWO            Delete           Bound     benchmark/claim1   rook-ceph-block             19s
 pvc-0f9ee947-5c57-11e9-b95c-d4ae528b96c1   30Gi       RWO            Delete           Bound     benchmark/claim2   rook-ceph-block             18s
 ```
 
-To see the output of the run one has to run `kubectl logs <client>`. This is shown below:
+To see the output of the workload, you can run `kubectl logs <client>`, as in:
 
 ```bash
- kubectl logs example-benchmark-fio-client-2-benchmark -f
+# kubectl logs example-benchmark-fio-client-2-benchmark
 [global]
 name=seq
 directory=/mnt/pvc
