@@ -44,6 +44,9 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
+
 Deploying the above(running cpu) would result in
 
 ```bash

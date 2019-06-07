@@ -87,6 +87,7 @@ as follows:
 Now that we've deployed our operator, follow workload specific instructions to
 run workloads:
 * [uperf](uperf.md)
+* [Iperf3](iperf.md)
 * [fio](fio.md)
 * [sysbench](sysbench.md)
 * [couchbase](couchbase.md)
@@ -94,6 +95,9 @@ run workloads:
 * [Bring your own workload](byowl.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
+
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
 
 ### Clean up
 Now that we're running workloads we can cleanup by running following commands

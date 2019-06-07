@@ -1,60 +1,98 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - name: Build Infrastructure
-    block:
-    - include_role:
-        name: "couchbase-infra"
-      vars:
-        couchbase: "{{ infrastructure.args }}"
+    - name: Check for running pods...
+      k8s_facts:
+        kind: Pod
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+      ignore_errors: true
+      register: pods
 
-      when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
-    when: infrastructure is defined
+    - name: Check for current_run
+      stat:
+        path: "{{ '/tmp/' + meta.name }}"
+      register: state_file
 
-  - name: Run Workload
-    block:
-    - include_role:
-        name: "uuid"
+    - debug:
+        msg: "State file : {{state_file.stat}}"
 
-    - include_role:
-        name: "uperf-bench"
-      vars:
-        uperf: "{{ workload.args }}"
-      when: workload.name == "uperf"  and workload.args.pair > 0
+    - name: Check for status
+      set_fact:
+        contents: "{{ lookup('file', '/tmp/' + meta.name) | from_json }}"
+      when: state_file.stat.exists == true
 
-    - include_role:
-        name: "iperf3-bench"
-      vars:
-        iperf3: "{{ workload.args }}"
-      when: workload.name == "iperf3" and workload.args.pairs > 0
+    - name: Reset statefile
+      file:
+        path: "{{ '/tmp/' + meta.name }}"
+        state: absent
+      when: state_file.stat.exists == true and ( pods is defined and pods|length < 2 ) and contents.state == "finished"
 
-    - include_role:
-        name: "fio-bench"
-      vars:
-        fio: "{{ workload.args }}"
-      when: workload.name == "fio" and workload.args.clients > 0
+    - name: React to new state
+      block:
+      - name: Build Infrastructure
+        block:
+        - include_role:
+            name: "couchbase-infra"
+          vars:
+            couchbase: "{{ infrastructure.args }}"
+          when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
+        when: infrastructure is defined
 
-    - include_role:
-        name: sysbench
-      vars:
-        sysbench : "{{ workload.args }}"
-      when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
+      - name: Run Workload
+        block:
+        - include_role:
+            name: "uuid"
 
-    - include_role:
-        name: "ycsb-bench"
-      vars:
-        ycsb: "{{ workload.args }}"
-      when: workload.name == "ycsb" and workload.args.workers > 0
+        - include_role:
+            name: "uperf-bench"
+          vars:
+            uperf: "{{ workload.args }}"
+          when: workload.name == "uperf"  and workload.args.pair > 0
 
-    - include_role:
-        name: "byowl"
-      vars:
-        byowl: "{{ workload.args }}"
-      when: workload.name == "byowl" and workload.args.clients > 0
+        - include_role:
+            name: "iperf3-bench"
+          vars:
+            iperf3: "{{ workload.args }}"
+          when: workload.name == "iperf3" and workload.args.pairs > 0
 
-    - include_role:
-        name: "fio-distributed"
-      vars:
-        fiod: "{{ workload.args }}"
-      when: workload.name == "fio_distributed" and workload.args.servers > 0
-    when: workload is defined
+        - include_role:
+            name: "fio-bench"
+          vars:
+            fio: "{{ workload.args }}"
+          when: workload.name == "fio" and workload.args.clients > 0
+
+        - include_role:
+            name: sysbench
+          vars:
+            sysbench : "{{ workload.args }}"
+          when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
+
+        - include_role:
+            name: "ycsb-bench"
+          vars:
+            ycsb: "{{ workload.args }}"
+          when: workload.name == "ycsb" and workload.args.workers > 0
+
+        - include_role:
+            name: "byowl"
+          vars:
+            byowl: "{{ workload.args }}"
+          when: workload.name == "byowl" and workload.args.clients > 0
+
+        - include_role:
+            name: "fio-distributed"
+          vars:
+            fiod: "{{ workload.args }}"
+          when: workload.name == "fio_distributed" and workload.args.servers > 0
+        when: workload is defined
+
+      - name: setting state to complete
+        set_fact:
+          state: "finished"
+
+      - name : Complete run
+        copy:
+          content: "{{ state | to_json }}"
+          dest: "{{ '/tmp/' + meta.name }}"
+      when: state_file.stat.exists == false

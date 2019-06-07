@@ -24,3 +24,5 @@ spec:
 This will launch the uperf container, and simply print the messages
 above into the log of the container.
 
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun

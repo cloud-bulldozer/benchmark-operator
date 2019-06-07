@@ -35,6 +35,10 @@ spec:
     extra_options_server: ' '
     #retries: 200
 ```
+
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
+
 Optional argument:
 `retries` is an optional argument that can be used if you are running long tests
 and don't want the logic to exit early, this is due to iperf logic using ansible's

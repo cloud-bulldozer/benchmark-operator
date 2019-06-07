@@ -134,6 +134,9 @@ Once you are finished creating/editing the custom resource file and the Ripsaw b
 $ kubectl apply -f /path/to/cr.yaml
 ```
 
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
+
 Deploying the above will first result in the Couchbase operator running (along with a catalog container).
 
 ```bash

@@ -52,4 +52,7 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
+
 Deploying the above would result in first a the Couchbase cluster being stood up, then a temporaroy YCSB pod running to load the database data, and finally a YCSB benchmark pod running the workload.

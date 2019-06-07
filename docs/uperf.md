@@ -37,6 +37,9 @@ spec:
       runtime: 30
 ```
 
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
+
 `hostnetwork` will test the performance of the node the pod will run on.
 
 *Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:

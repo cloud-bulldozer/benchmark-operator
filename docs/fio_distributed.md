@@ -40,3 +40,6 @@ To disable the need for PVs, simply comment out the `storageclass` key.
 Additionally, fio distributed will default to numjobs:1, and this current cannot be overwritten.
 
 (*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
+
+NOTE: Re-applying CR will not rerun the workload, so if you'd like to rerun a CR with same options because the environment
+was updated, please add an empty variable to the CR. This will trigger a rerun
