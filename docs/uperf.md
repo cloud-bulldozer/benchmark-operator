@@ -7,10 +7,6 @@
 Given that you followed instructions to deploy operator,
 you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)
 
-Note: please ensure you set 0 for other workloads if editing the
-[cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml) file otherwise
-your resource file should look like this:
-
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
@@ -19,14 +15,13 @@ metadata:
   namespace: ripsaw
 spec:
   workload:
-    # cleanup: true
     name: uperf
     args:
       hostnetwork: false
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
-      rerun: 1
+      samples: 1
       pair: 1
       test_types:
         - stream
@@ -53,6 +48,25 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 
 `pin_client` what node to pin the client pod to.
 
+`samples` how many times to run the tests. For example
+
+```yaml
+      samples: 3
+      pair: 1
+      test_types:
+        - stream
+      protos:
+        - tcp
+      sizes:
+        - 1024
+        - 16384
+      runtime: 30
+```
+
+Will run `stream` w/ `tcp` and message size `1024` three times and
+`stream` w/ `tcp` and message size `16384` three times. This will help us
+gain confidence in our results.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
@@ -60,9 +74,7 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
-Note: If you'd like to try to experiment with storing results in a pv and have followed
-instructions to deploy operator with attached pvc and would like to send results to ES(elasticsearch).
-you can instead define a custom resource as follows:
+# Storing results into Elasticsearch
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -71,34 +83,46 @@ metadata:
   name: example-benchmark
   namespace: ripsaw
 spec:
+  test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
   elasticsearch:
     server: <es_host>
     port: <es_port>
-    index: <es_index>
-  user: rht_perf_ci # user is a key that points to user triggering ripsaw, useful to search results in ES
-  store_results: true
-  results:
-    path: /opt/result-data/ # has to be what's passed to mountpath for operator pod
   workload:
     name: uperf
     args:
-      # To disable uperf, set pairs to 0
+      hostnetwork: false
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      samples: 1
       pair: 1
-      proto: tcp
-      test_type: stream
-      nthr: 2
-      size: 16384
-      runtime: 10
+      test_types:
+        - stream
+      protos:
+        - tcp
+      sizes:
+        - 16384
+      runtime: 30
 ```
+
+The new fields :
+
+`elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
+
+`elasticsearch.port` port which elasticsearch is listening, typically `9200`.
+
+`user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
+
+By default we will utilize the `uperf-results` index for Elasticsearch.
 
 Deploying the above(assuming pairs is set to 1) would result in
 
 ```bash
 # kubectl get -o wide pods
-NAME                                                READY     STATUS    RESTARTS   AGE       IP             NODE                                         NOMINATED NODE
-benchmark-operator-6ff5bf5db8-nzvl8                 1/1       Running   0          2m12s     10.129.2.186   ip-10-0-152-138.us-west-2.compute.internal   <none>
-example-benchmark-uperf-client-benchmark-7f8fb9bc8-q2xbx    1/1       Running   0          101s      10.129.2.188   ip-10-0-152-138.us-west-2.compute.internal   <none>
-example-benchmark-uperf-server-benchmark-68779b4986-nz5w8   1/1       Running   0          117s      10.129.2.187   ip-10-0-152-138.us-west-2.compute.internal   <none>
+NAME                                                    READY   STATUS      RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
+benchmark-operator-6679867fb7-p2fzb                     2/2     Running     0          6h1m    10.130.0.56    master-2   <none>           <none>
+uperf-benchmark-nohost-uperf-client-10.128.1.29-kbw4b   0/1     Completed   0          3h11m   10.129.1.214   master-1   <none>           <none>
+
 ```
 
 The first pod is our Operator orchestrating the UPerf workload.
@@ -111,61 +135,38 @@ Note: If cleanup is not set in the spec file then the client pods will be killed
 after client job completes
 
 ```
-<?xml version=1.0?>
-<profile name="tcp-stream-16384B-2i">
-<group nthreads="2">
-      <transaction iterations="1">
-        <flowop type="connect" options="remotehost=$h protocol=tcp"/>
-      </transaction>
-      <transaction duration="60">
-        <flowop type=write options="count=16 size=16384"/>
-      </transaction>
-      <transaction iterations="1">
-        <flowop type=disconnect />
-      </transaction>
-  </group>
-</profile>
-Starting 2 threads running profile:tcp-stream-16384b-2i ...   0.00 seconds
-Txn1          0 /   0.00(s) =            0           0op/s
-Txn1          0 /   1.00(s) =            0           2op/s
+... Trimmed output ...
++-------------------------------------------------- UPerf Results --------------------------------------------------+
+Run : 1
+Uperf Setup
 
-Txn2          0 /   0.00(s) =            0           0op/s
-Txn2     1.23GB /   1.02(s) =    10.30Gb/s       78563op/s
-Txn2     2.22GB /   2.03(s) =     9.39Gb/s       71623op/s
-Txn2     3.06GB /   3.09(s) =     8.51Gb/s       64889op/s
-Txn2     4.17GB /   4.09(s) =     8.75Gb/s       66770op/s
-Txn2     4.92GB /   5.20(s) =     8.12Gb/s       61941op/s
-Txn2     5.17GB /   6.21(s) =     7.16Gb/s       54644op/s
-Txn2     5.71GB /   7.21(s) =     6.81Gb/s       51957op/s
-Txn2     6.57GB /   8.21(s) =     6.87Gb/s       52436op/s
-Txn2     7.43GB /   9.22(s) =     6.93Gb/s       52851op/s
-Txn2     8.40GB /  10.22(s) =     7.06Gb/s       53896op/s
-Txn2     9.46GB /  11.22(s) =     7.24Gb/s       55239op/s
+          hostnetwork : False
+          client: 10.129.1.214
+          server: 10.128.1.29
 
-... Trimmed ...
+UPerf results for :
 
-Txn2    54.98GB /  56.48(s) =     8.36Gb/s       63798op/s
-Txn2    55.72GB /  57.48(s) =     8.33Gb/s       63524op/s
-Txn2    56.34GB /  58.49(s) =     8.27Gb/s       63117op/s
-Txn2    57.26GB /  59.70(s) =     8.24Gb/s       62863op/s
+          test_type: stream
+          protocol: tcp
+          message_size: 64
 
-Txn3          0 /   0.00(s) =            0           0op/s
-Txn3          0 /   0.00(s) =            0           0op/s
+UPerf results (bytes/sec):
 
--------------------------------------------------------------------------------
-Total   57.26GB /  61.80(s) =     7.96Gb/s       60722op/s
+          min: 0
+          max: 75938816
+          median: 72580096.0
+          average: 63342843.6066
+          95th: 75016192.0
++-------------------------------------------------------------------------------------------------------------------+
 
-Netstat statistics for this run
--------------------------------------------------------------------------------
-Nic       opkts/s     ipkts/s      obits/s      ibits/s
-eth0        47663        2575     7.98Gb/s     1.37Mb/s
--------------------------------------------------------------------------------
-
-Run Statistics
-Hostname            Time       Data   Throughput   Operations      Errors
--------------------------------------------------------------------------------
-10.129.2.187      61.80s    57.26GB     7.96Gb/s      3752501        0.00
-master            61.80s    57.26GB     7.96Gb/s      3752900        0.00
--------------------------------------------------------------------------------
-Difference(%)     -0.00%      0.01%        0.01%        0.01%       0.00%
 ```
+
+# Dashboard example
+
+Using the Elasticsearch storage describe above, we can build dashboards like the below.
+
+![UPerf Dashboard](https://i.imgur.com/gSVZ9MX.png)
+
+To reuse the dashboard above, use the json [here](https://github.com/cloud-bulldozer/arsenal/tree/master/uperf/grafana)
+
+Additionally, by default we will utilize the `uperf-results` index for Elasticsearch.

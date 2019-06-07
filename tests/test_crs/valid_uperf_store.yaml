@@ -7,11 +7,7 @@ spec:
   elasticsearch:
     server: elk-b09-h30-r720xd.rdu.openstack.engineering.redhat.com
     port: 9200
-    index: test
-  user: rht_perf_ci
-  store_results: true
-  results:
-    path: /opt/result-data/
+  test_name: uperf_rht_perf_ci
   workload:
     name: uperf
     args:
@@ -19,7 +15,7 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
-      rerun: 2
+      samples: 2
       pair: 1
       test_types:
         - stream

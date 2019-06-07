@@ -10,14 +10,14 @@ data:
 {% for size in uperf.sizes %}
   uperf-{{test}}-{{proto}}-{{size}} : |
     <?xml version=1.0?>
-    <profile name="ripsaw-test-{{test}}-{{proto}}-{{size}}">
+    <profile name="{{test}}-{{proto}}-{{size}}">
     <group nthreads="1">
     {% if ( 'rr' == test ) %}
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
-          <transaction duration="{{uperf.runtime}}">"
-                  <flowop type=write options="size={{size}}"/>
+          <transaction duration="{{uperf.runtime}}">
+            <flowop type=write options="size={{size}}"/>
             <flowop type=read  options="size={{size}}"/>
           <transaction iterations="1">
             <flowop type=disconnect />

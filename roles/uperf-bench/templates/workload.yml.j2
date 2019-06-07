@@ -22,16 +22,27 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "export h={{item.status.podIP}};
+{% if elasticsearch is defined %}
+{% if elasticsearch.server is defined %}
+             export es={{elasticsearch.server}};
+             export es_port={{elasticsearch.port}};
+             export uuid={{uuid}};
+{% endif %}
+{% endif %}
+{% if test_user is defined %}
+             export test_user={{test_user}};
+{% endif %}
+             export hostnet={{uperf.hostnetwork}};
+             export ips=$(hostname -I);
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
                  for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
-                   echo \"--------- Running $file ----------\";
                    cat /tmp/uperf-test/$file;
-                   seq {{uperf.rerun}} | xargs -I -- uperf -v -a -x -m /tmp/uperf-test/$file -i 1;
-                   echo \"---------- $file complete ----------\";
-                 done
+                   for i in `seq 1 {{uperf.samples}}`; do
+                     python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/$file -r $i;
+                   done;
+                 done;
                else
-                 echo \" Waiting for signal to start... \";
                  continue;
                fi;
                break;
