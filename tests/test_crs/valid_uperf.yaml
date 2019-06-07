@@ -12,7 +12,7 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
-      rerun: 2
+      samples: 2
       pair: 1
       test_types:
         - stream
