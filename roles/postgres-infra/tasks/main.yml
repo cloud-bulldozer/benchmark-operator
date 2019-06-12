@@ -1,0 +1,105 @@
+---
+# Plays common to the Deploy and Destroy blocks are first
+#- name: My Task
+#    k8s:
+#      src:
+
+
+# Deploy block is run as long as the finalizer has not set teardown=true
+- name: Deploy
+  when: teardown is undefined
+  block:
+
+  - name: Apply RBAC for postgres operator
+    k8s:
+      definition: "{{ lookup('template', 'postgres-operator-rbac.yaml.j2') }}"
+
+  - name: Deploy postgres operator
+    k8s:
+      definition: "{{ lookup('template', 'postgres-operator.yaml.j2') }}"
+
+  - name: Wait for postgres operator to be running....
+    k8s_facts:
+      kind: pod
+      api_version: v1
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - name = postgres-operator
+    register: pg_op_pod
+    until: "'Running' in (pg_op_pod | json_query('resources[].status.phase'))"
+    retries: 10
+    delay: 10
+
+  #TODO -- I'm not sure if this is needed or how the operator even pulls the image
+  # Pre-pull the image to avoid operator timeout
+  #- name: Pre-pull postgresql container image
+  #  k8s:
+  #    definition:
+  #      kind: Job
+  #      apiVersion: batch/v1
+  #      metadata:
+  #        name: pg-image-load
+  #        namespace: "{{ operator_namespace }}"
+  #      spec:
+  #        template:
+  #          spec:
+  #            containers:
+  #              - name: pg-image-load
+  #                image: "{{ pod_base_image }}:{{ pod_version }}"
+  #                command: ['/bin/true']
+  #            restartPolicy: Never
+  #            imagePullSecrets:
+  #              - name: "{{ pull_secret_name }}"
+  #        backoffLimit: 4
+  #
+  #- name: Wait for Pre-Pull Job to Succeed
+  #  k8s_facts:
+  #    kind: Job
+  #    api_version: batch/v1
+  #    namespace: "{{ operator_namespace }}"
+  #    name: cb-image-load
+  #  register: cb_image_load
+  #  until: "cb_image_load | json_query('resources[].status.succeeded')"
+  #  retries: 60
+  #  delay: 10
+  
+  - name: Launch postgres cluster via operator
+    k8s:
+      definition: "{{ lookup('template', 'postgres-cluster.yaml.j2') }}"
+  
+  - name: Wait for postgres cluster to be Up; This may take a while...
+    k8s_facts:
+      kind: postgresql
+      api_version: acid.zalan.do/v1
+      namespace: "{{ operator_namespace }}"
+      name: ripsaw-postgres-cluster
+    register: postgres
+    until: "'Running' in (postgres | json_query('resources[].status.PostgresClusterStatus'))"
+    #60 retries with 10 second delays should result in a 10 minute wait time
+    retries: 60
+    delay: 10
+
+
+# Destroy block is run when the finalizer has set teardown=true
+- name: Destroy
+  when: teardown is defined
+  block:
+
+  - name: Destroy postgres cluster via operator
+    k8s:
+      definition: "{{ lookup('template', 'postgres-cluster.yaml.j2') }}"
+      state: absent
+
+  - name: Destroy postgres operator CSV
+    k8s:
+      api_version: operators.coreos.com/v1alpha1
+      kind: ClusterServiceVersion
+      namespace: "{{ operator_namespace }}"
+      #FIXME: Need to find a way to delete this without out the specific name match
+      name: postgres-operator.v1.2.0
+      state: absent
+
+  - name: Destroy RBAC for postgres operator
+    k8s:
+      definition: "{{ lookup('template', 'postgres-operator-rbac.yaml.j2') }}"
+      state: absent
