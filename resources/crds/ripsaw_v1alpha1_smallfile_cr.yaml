@@ -1,4 +1,4 @@
-apiVersion: benchmark.example.com/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
@@ -7,10 +7,10 @@ spec:
   workload:
     name: smallfile
     args:
-      clients: [1]
+      clients: 1
       operation: ["create", "read", "append"]
       threads: 1
       file-size: 4
       files: 100
-      top: /mnt/
+      top: /tmp/test_smallfile/
       fsync: y

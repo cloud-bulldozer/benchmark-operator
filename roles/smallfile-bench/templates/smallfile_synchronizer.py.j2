@@ -1,0 +1,30 @@
+#! /usr/bin/python
+
+from redis import Redis
+import sys
+import time
+
+redis_host = sys.argv[1]
+r_connect = Redis(host=redis_host)
+
+smallfile_operations_unicode = list({{ smallfile.operation }})
+smallfile_operations = [i for i in smallfile_operations_unicode]
+# smallfile_operations = ["create", "read", "append"]
+
+for operation in smallfile_operations:
+    print operation
+    r_connect.set(operation, "false")
+
+r_connect.set("create", "true")
+
+i = 0
+while i < len(smallfile_operations):
+    print "Status of operation {} is: {}".format(smallfile_operations[i],r_connect.get(smallfile_operations[i]))
+    if  r_connect.get(smallfile_operations[i]) == "false":
+        i +=1
+        try:
+            r_connect.set(smallfile_operations[i], "true")
+        except IndexError:
+            print("Smallfile Operations finished.....")
+            break
+    time.sleep(1)

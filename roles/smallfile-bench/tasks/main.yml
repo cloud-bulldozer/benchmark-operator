@@ -4,7 +4,7 @@
   when: smallfile.storageclass is defined
 
 - set_fact:
-    smallfile_path: /tmp
+    smallfile_path: /tmp/test_smallfile/
   when: smallfile.storageclass is not defined
 
 - debug:
@@ -29,6 +29,15 @@
 #   with_sequence: start=1 count={{smallfile.clients}}
 #   when: smallfile.clients > 0 and smallfile.storageclass is defined
 
+- name: Capture operator information
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: "{{ operator_namespace }}"
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
 - name: Generate smallfile test input yaml
   k8s:
     definition:
@@ -42,47 +51,109 @@
         smallfilejob_read: "{{ lookup('template', 'smallfilejob.read.yaml.j2') }}"
         smallfilejob_append: "{{ lookup('template', 'smallfilejob.append.yaml.j2') }}"
         smallfilejob_delete: "{{ lookup('template', 'smallfilejob.delete.yaml.j2') }}"
+        synchronizer_script: "{{ lookup('template', 'smallfile_synchronizer.py.j2') }}"
   when: smallfile.clients > 0
 
-- name: Start Run(s)
-  k8s:
-    definition:
-      kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: "{{ meta.name }}-smallfile-client-{{ item[0] }}-benchmark-{{ item[1] }}"
+- block:
+    - name: Capture operator information
+      k8s_facts:
+        kind: Pod
+        api_version: v1
         namespace: "{{ operator_namespace }}"
-      spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: smallfile-benchmark
-          spec:
-            containers:
-              - name: benchmark-server
-                image: "quay.io/nichawla/smallfile_container:testing"
-                command: ["/bin/sh", "-c"]
-                workingDir: /root/smallfile-master/
-                args:
-                  - 'mkdir /tmp/test_smallfile/;
-                    python smallfile_cli.py --yaml-input-file /tmp/smallfilejob_"{{ item[1] }}" --output-json /root/SMALLFILE_RUN_RESULT;
-                    ls -R /tmp/ ;
-                    cat /tmp/smallfilejob_"{{ item[1] }}"'
-                volumeMounts:
-                  - name: config-volume
-                    mountPath: "/tmp"
+        label_selectors:
+          - name = benchmark-operator
+      register: bo
 
-                runAsUser: 0 #0 means run as root
-                privileged: true
-            volumes:
-              - name: config-volume
-                configMap:
-                  name: smallfile-test
-                  defaultmode: 0777
-            restartPolicy: Never
-            serviceAccountName: benchmark-operator
-  when: smallfile.clients > 0
-  with_nested:
-    - "{{ smallfile.clients }}"
-    - "{{ smallfile.operation }}"
+    - name: Start smallfile operations synchronizer pod
+      k8s:
+        definition:
+          kind: Job
+          apiVersion: batch/v1
+          metadata:
+            name: "smallfile-job-synchronizer"
+            namespace: "{{ operator_namespace }}"
+          spec:
+            ttlSecondsAfterFinished: 600
+            template:
+              metadata:
+                labels:
+                  app: smallfile-benchmark
+              spec:
+                containers:
+                  - name: benchmark-server
+                    image: "quay.io/nichawla/smallfile_container:testing"
+                    command: ["/bin/sh", "-c"]
+                    workingDir: /tmp/
+                    args:
+                      - "ls /tmp/ ;
+                        python synchronizer_script {{bo.resources[0].status.podIP}}"
+                    volumeMounts:
+                      - name: config-volume
+                        mountPath: "/tmp"
+
+                volumes:
+                  - name: config-volume
+                    configMap:
+                      name: smallfile-test
+                      defaultmode: 0777
+                restartPolicy: Never
+                serviceAccountName: benchmark-operator
+      when: smallfile.clients > 0
+
+    - name: Start Run(s)
+      k8s:
+        definition:
+          kind: Job
+          apiVersion: batch/v1
+          metadata:
+            name: "{{ meta.name }}-smallfile-client-{{ item[0] }}-benchmark-{{ item[1] }}"
+            namespace: "{{ operator_namespace }}"
+          spec:
+            ttlSecondsAfterFinished: 600
+            template:
+              metadata:
+                labels:
+                  app: smallfile-benchmark
+              spec:
+                containers:
+                  - name: benchmark-server
+                    image: "quay.io/nichawla/smallfile_container:testing"
+                    command: ["/bin/sh", "-c"]
+                    workingDir: /root/smallfile-master/
+                    args:
+                      - 'while true; do
+                        echo REDIS_STATUS: $(redis-cli -h {{bo.resources[0].status.podIP}} get {{ item[1] }});
+                        if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get {{ item[1] }}) =~ true ]]; then
+                        mkdir /tmp/test_smallfile/;
+                        echo Redis server IP: {{bo.resources[0].status.podIP}};
+                        python smallfile_cli.py --yaml-input-file /tmp/smallfilejob_"{{ item[1] }}" --output-json /root/SMALLFILE_RUN_RESULT;
+                        ls -R /tmp/
+                        done;
+                        else
+                        echo "Waiting for signal to start..." ;
+                        continue;
+                        fi;
+                        break;
+                        done;
+                        redis-cli -h {{bo.resources[0].status.podIP}} set "{{ item[1] }}" false;
+                        echo FINAL_REDIS_STATUS: $(redis-cli -h {{bo.resources[0].status.podIP}} get {{ item[1] }})'
+                    volumeMounts:
+                      - name: config-volume
+                        mountPath: "/tmp"
+
+                    runAsUser: 0 #0 means run as root
+                    privileged: true
+                volumes:
+                  - name: config-volume
+                    configMap:
+                      name: smallfile-test
+                      defaultmode: 0777
+                restartPolicy: Never
+                serviceAccountName: benchmark-operator
+      when: smallfile.clients > 0
+      with_nested:
+        - "{{ lookup('sequence','start=1 end='+smallfile.clients|string,wantlist=True) }}"
+        - "{{ smallfile.operation }}"
+    #
+    # - name: Signal workload
+    #   command: "redis-cli set create true"
