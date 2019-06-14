@@ -123,6 +123,7 @@
                     args:
                       - 'while true; do
                         echo REDIS_STATUS: $(redis-cli -h {{bo.resources[0].status.podIP}} get {{ item[1] }});
+                        sleep 10;
                         if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get {{ item[1] }}) =~ true ]]; then
                         mkdir /tmp/test_smallfile/;
                         echo Redis server IP: {{bo.resources[0].status.podIP}};
@@ -154,6 +155,5 @@
       with_nested:
         - "{{ lookup('sequence','start=1 end='+smallfile.clients|string,wantlist=True) }}"
         - "{{ smallfile.operation }}"
-    #
     # - name: Signal workload
     #   command: "redis-cli set create true"
