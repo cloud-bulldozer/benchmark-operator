@@ -91,6 +91,7 @@ run workloads:
 * [sysbench](sysbench.md)
 * [YCSB](ycsb.md)
 * [Bring your own workload](byowl.md)
+* [pgbench](pgbench.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 

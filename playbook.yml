@@ -53,4 +53,11 @@
       vars:
         fiod: "{{ workload.args }}"
       when: workload.name == "fio_distributed" and workload.args.servers > 0
+
+    - include_role:
+        name: "pgbench"
+      vars:
+        pgbench: "{{ workload.args }}"
+      when: workload.name == "pgbench" and workload.args.clients > 0
+
     when: workload is defined
