@@ -13,6 +13,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Sysbench](docs/sysbench.md)   | System Performance    | Working            |
 | [YCSB](docs/ycsb.md)           | Database Performance  | Preview            |
 | [Byowl](docs/byowl.md)         | User defined workload | Working            |
+| [Pgbench](docs/pgbench.md)     | Postgres Performance  | Working            |
 
 
 ## Installation

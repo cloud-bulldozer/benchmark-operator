@@ -1,0 +1,37 @@
+---
+- name: Capture benchmark operator information
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
+- name: Init workload start signal to false
+  command: "redis-cli set pgb_start false;"
+
+- name: Init client ready state to empty
+  command: "redis-cli del pgb_client_ready"
+
+- name: Setup pgbench test job(s)
+  k8s:
+    definition: "{{ lookup('template', 'templates/workload.yml.j2') }}"
+  with_indexed_items: "{{ pgbench.databases }}"
+
+- name: Wait for all clients to be ready
+  shell: "redis-cli --raw llen pgb_client_ready"
+  register: client_ready
+  until: "client_ready.stdout|int == pgbench.databases|length"
+  # timeout in minutes times 6 times delay of 10 seconds equals timeout in seconds
+  retries: "{{ pgbench.timeout|int * 6 }}"
+  delay: 10
+
+- name: Signal workloads to start
+  command: "redis-cli set pgb_start true"
+
+#TODO:
+#- database passwords are currently provided in plain text in the CR
+#- converting output for indexing in elastic
+#- add database warmup cycle
+#- other ways to iterate -- number of clients:servers ratio; how to run against potentially hundreds of databases?
