@@ -7,6 +7,7 @@ trap cleanup_resources EXIT
 
 wait_clean
 operator_requirements
+update_operator_image
 #
 # Run functional test for workloads
 #
