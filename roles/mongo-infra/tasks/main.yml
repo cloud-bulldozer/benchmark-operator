@@ -1,0 +1,45 @@
+---
+- name: Deploy
+  block:
+    - name: create service for MongoDB
+      k8s:
+        definition: "{{ lookup('template', 'mongo-service.yaml.j2') }}"
+
+    - name: create statefulset for MongoDB
+      k8s:
+        definition: "{{ lookup('template', 'mongo-sfset.yaml.j2') }}"
+
+    - name: Wait for the pods to be up
+      k8s_facts:
+        kind: Pod
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - role = mongo
+      register: server_pods
+      until: "mongo.servers  == (server_pods | json_query('resources[].status.podIP')|length)"
+      retries: 10
+      delay: 10
+
+    - name: Initialize the replicaset
+      script: initiate_rs.py {{ mongo.servers }}
+  when: teardown is undefined
+
+- name: Cleanup
+  block:
+    - name: delete all pvcs created
+      k8s_facts:
+        kind: PersistentVolumeClaim
+        namespace: "{{ operator_namespace }}"
+        label_selectors:
+          - role=mongo
+      register: mongo_pvcs
+
+    - name: Destroy the pvcs created
+      k8s:
+        kind: PersistentVolumeClaim
+        namespace: "{{ operator_namespace }}"
+        name: "{{ item.metadata.name }}"
+        state: absent
+      with_items: "{{ mongo_pvcs.resources }}"
+  when: teardown is defined

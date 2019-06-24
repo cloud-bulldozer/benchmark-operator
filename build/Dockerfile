@@ -5,6 +5,7 @@ COPY roles/ ${HOME}/roles/
 COPY watches.yaml ${HOME}/watches.yaml
 COPY playbook.yml ${HOME}/playbook.yml
 
+RUN pip install --user pymongo 
 USER root
 RUN yum install -y redis
 USER 1001

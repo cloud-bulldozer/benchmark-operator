@@ -89,9 +89,13 @@ run workloads:
 * [uperf](uperf.md)
 * [fio](fio.md)
 * [sysbench](sysbench.md)
-* [couchbase](couchbase.md)
 * [YCSB](ycsb.md)
 * [Bring your own workload](byowl.md)
+
+Some of the above mentioned need application/infrastructure like ycsb, so you can deploy
+the necessary infrastructure manually, or you can use Ripsaw to do so, we currently support:
+* [MongoDB](mongo.md)
+* [couchbase](couchbase.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 

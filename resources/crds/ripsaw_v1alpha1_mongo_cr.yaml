@@ -1,0 +1,14 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: mongo-infra
+  namespace: ripsaw
+spec:
+  infrastructure:
+    name: mongo
+    args:
+      servers: 3 # has to be > 0
+      #storageclass: # uses the sc with the annotation storageclass.kubernetes.io/is-default-class: "true" if the option is not specified
+      storagesize: 10Gi # default value
+      port: 27017 # default value
+      extra_options: # These are passed as is while starting mongo daemon

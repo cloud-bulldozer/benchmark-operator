@@ -1,0 +1,16 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: mongo-infra
+  namespace: ripsaw
+spec:
+  infrastructure:
+    name: mongo
+    args:
+      servers: 2 # has to be > 0
+      storagesize: 10Gi
+      # storageclass: # uses the sc with the annotation storageclass.kubernetes.io/is-default-class: "true" if the option is not specified
+      # port: 27017 # default value
+      extra_options:
+        - "--smallfiles"
+        - "--noprealloc"

@@ -1,4 +1,5 @@
 test_fiod.sh
+test_mongo.sh
 test_fio.sh
 test_iperf3.sh
 test_sysbench.sh

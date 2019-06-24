@@ -11,9 +11,16 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Iperf3](docs/iperf3.md)       | Network Performance   | Working            |
 | FIO-lite                       | Storage IO            | Working            |
 | [Sysbench](docs/sysbench.md)   | System Performance    | Working            |
-| [Couchbase](docs/couchbase.md) | Infrastructure        | Working            |
 | [YCSB](docs/ycsb.md)           | Database Performance  | Working            |
 | [Byowl](docs/byowl.md)         | User defined workload | Working            |
+
+
+## Infrastructure status
+
+| Workload                       | Use                   | Status in Operator |
+| ------------------------------ | --------------------  | ------------------ |
+| [Couchbase](docs/couchbase.md) | Infrastructure        | Working            |
+| [MongoDB](docs/mongo.md)       | Infrastructure        | Working            |
 
 
 ## Installation

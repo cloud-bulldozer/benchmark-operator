@@ -1,0 +1,56 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+ name: mongo
+ namespace: '{{ operator_namespace }}'
+spec:
+ serviceName: "mongo"
+ replicas: {{ mongo.servers }}
+ template:
+   metadata:
+     labels:
+       role: mongo
+       environment: test
+   spec:
+     terminationGracePeriodSeconds: 10
+     containers:
+       - name: mongo
+         image: mongo
+         command:
+           - mongod
+           - "--replSet"
+           - rs0
+           - "--bind_ip"
+           - 0.0.0.0
+{% if mongo.extra_options is defined %}
+{% for option in mongo.extra_options %}
+           - "{{ option }}"
+{% endfor %}
+{% endif %}
+         ports:
+{% if mongo.port is not defined %}
+           - containerPort: 27017
+{% endif %}
+{% if mongo.port is defined %}
+           - containerPort: {{ mongo.port }}
+{% endif %}
+         volumeMounts:
+           - name: mongo-persistent-storage
+             mountPath: /data/db
+       - name: mongo-sidecar
+         image: cvallance/mongo-k8s-sidecar
+         env:
+           - name: MONGO_SIDECAR_POD_LABELS
+             value: "role=mongo,environment=test"
+ volumeClaimTemplates:
+   - metadata:
+       name: mongo-persistent-storage
+       annotations:
+{% if mongo.storageclass is defined %}
+         volume.beta.kubernetes.io/storage-class: {{ mongo.storageclass }}
+{% endif %}
+     spec:
+       accessModes: [ "ReadWriteOnce" ]
+       resources:
+         requests:
+           storage: {{ mongo.storagesize }}
