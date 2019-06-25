@@ -1,98 +1,127 @@
 ---
-# These flags are appended to the ycsb load and run commands
-- name: Set YCSB Workload Flags for Couchbase
-  set_fact:
-    ycsb_flags: "-p couchbase.host={{ couchbase_hostname }} -p couchbase.bucket=default -p couchbase.password={{ default_bucket_password }}"
-  when: ycsb.infra == "couchbase"
+# Plays common to the Deploy and Destroy blocks are first
+#- name: My Task
+#    k8s:
+#      src:
 
-- name: Load Data Into Database
-  k8s:
-    definition:
+
+# Deploy block is run as long as the finalizer has not set teardown=true
+- name: Deploy
+  when: teardown is undefined
+  block:
+
+  # These flags are appended to the ycsb load and run commands
+  - name: Set YCSB Workload Flags for Couchbase
+    set_fact:
+      ycsb_flags: "-p couchbase.host={{ couchbase_hostname }} -p couchbase.bucket=default -p couchbase.password={{ default_bucket_password }}"
+    when: ycsb.infra == "couchbase"
+
+  - name: Load Data Into Database
+    k8s:
+      definition:
+        kind: Job
+        apiVersion: batch/v1
+        metadata:
+          name: '{{ meta.name }}-ycsb-data-load-job'
+          namespace: '{{ operator_namespace }}'
+        spec:
+          template:
+            metadata:
+              name: '{{ meta.name }}-ycsb-data-load'
+              namespace: '{{ operator_namespace }}'
+              labels:
+               name: 'ycsb-load'
+            spec:
+              containers:
+              - name: ycsb
+                image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+                imagePullPolicy: Always
+                command: ["/bin/sh"]
+                args: ["-c", "/ycsb/bin/ycsb load {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
+              restartPolicy: Never
+          backoffLimit: 4
+
+  - name: Wait for Load Job to Succeed...
+    k8s_facts:
       kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: '{{ meta.name }}-ycsb-data-load-job'
-        namespace: '{{ operator_namespace }}'
-      spec:
-        template:
-          metadata:
-            name: '{{ meta.name }}-ycsb-data-load'
-            namespace: '{{ operator_namespace }}'
-            labels:
-             name: 'ycsb-load'
-          spec:
-            containers:
-            - name: ycsb
-              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
-              imagePullPolicy: Always
-              command: ["/bin/sh"]
-              args: ["-c", "/ycsb/bin/ycsb load {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
-            restartPolicy: Never
-        backoffLimit: 4
+      api_version: batch/v1
+      name: '{{ meta.name }}-ycsb-data-load-job'
+      namespace: "{{ operator_namespace }}"
+    register: ycsb_load_pod
+    until: "ycsb_load_pod | json_query('resources[].status.succeeded')"
+    retries: 30
+    delay: 10
 
-- name: Wait for Load Job to Succeed...
-  k8s_facts:
-    kind: Job
-    api_version: batch/v1
-    name: '{{ meta.name }}-ycsb-data-load-job'
-    namespace: "{{ operator_namespace }}"
-  register: ycsb_load_pod
-  until: "ycsb_load_pod | json_query('resources[].status.succeeded')"
-  retries: 30
-  delay: 10
+  - name: Run YCSB Workload
+    k8s:
+      definition:
+        kind: Job
+        apiVersion: batch/v1
+        metadata:
+          name: '{{ meta.name }}-ycsb-bench-job'
+          namespace: '{{ operator_namespace }}'
+        spec:
+          template:
+            metadata:
+              name: '{{ meta.name }}-ycsb-bench'
+              namespace: '{{ operator_namespace }}'
+              labels:
+                name: 'ycsb-run'
+            spec:
+              containers:
+              - name: ycsb
+                image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+                imagePullPolicy: Always
+                command: ["/bin/sh"]
+                args: ["-c", "/ycsb/bin/ycsb run {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
+              restartPolicy: Never
+          backoffLimit: 4
 
-#- name: Clean up Data Load Pod
-#  k8s:
-#    state: absent
-#    definition:
-#      kind: Pod
-#      apiVersion: v1
-#      metadata:
-#        name: '{{ meta.name }}-ycsb-data-load'
-#        namespace: '{{ meta.namespace }}'
-
-- name: Run YCSB Workload
-  k8s:
-    definition:
+  - name: Wait for YCSB Workload Job to Succeed...
+    k8s_facts:
       kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: '{{ meta.name }}-ycsb-bench-job'
-        namespace: '{{ operator_namespace }}'
-      spec:
-        template:
-          metadata:
-            name: '{{ meta.name }}-ycsb-bench'
-            namespace: '{{ operator_namespace }}'
-            labels:
-              name: 'ycsb-run'
-          spec:
-            containers:
-            - name: ycsb
-              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
-              imagePullPolicy: Always
-              command: ["/bin/sh"]
-              args: ["-c", "/ycsb/bin/ycsb run {{ ycsb.driver }} -s -P /ycsb/workloads/{{ ycsb.workload }} {{ ycsb_flags }}"]
-            restartPolicy: Never
-        backoffLimit: 4
+      api_version: batch/v1
+      name: '{{ meta.name }}-ycsb-bench-job'
+      namespace: "{{ operator_namespace }}"
+    register: ycsb_bench
+    until: "ycsb_bench | json_query('resources[].status.succeeded')"
+    retries: 60
+    delay: 10
 
-- name: Wait for YCSB Workload Job to Succeed...
-  k8s_facts:
-    kind: Job
-    api_version: batch/v1
-    name: '{{ meta.name }}-ycsb-bench-job'
-    namespace: "{{ operator_namespace }}"
-  register: ycsb_bench
-  until: "ycsb_bench | json_query('resources[].status.succeeded')"
-  retries: 60
-  delay: 10
 
-#- name: Clean up Workload Pod
-#  k8s:
-#    state: absent
-#    definition:
-#      kind: Pod
-#      apiVersion: v1
-#      metadata:
-#        name: '{{ meta.name }}-ycsb-bench'
-#        namespace: '{{ operator_namespace }}'
+# Destroy block is run when the finalizer has set teardown=true
+- name: Destroy
+  when: teardown is defined
+  block:
+
+  - name: Get YCSB workload pod
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - job-name = ycsb-couchbase-ycsb-bench-job
+    register: workload_pod
+
+  - name: Destroy YCSB workload pod
+    k8s:
+      kind: Pod
+      namespace: '{{ operator_namespace }}'
+      name: "{{ item }}"
+      state: absent
+    with_items: "{{ workload_pod }}"
+
+  - name: Get YCSB data load pod
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - job-name = ycsb-couchbase-ycsb-data-load-job
+    register: data_pod
+
+  - name: Destroy YCSB data load pod
+    k8s:
+      kind: Pod
+      namespace: '{{ operator_namespace }}'
+      name: "{{ item }}"
+      state: absent
+    with_items: "{{ data_pod }}"

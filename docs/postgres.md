@@ -87,10 +87,3 @@ ripsaw-postgres-cluster-0             1/1       Running   0          9m58s
 **Note that the postgres role is only an infrastructure role, and no workloads will be triggered directly
 by running the CR as described here. You will need to separately define a workload in the CR (such as [pgbench](TODO)).**
 
-## Cleanup
-Currently, the postgres-operator deployment does not fully clean up on it's on when the
-CR is deleted or changed to disable postgres. You will need to do this manually with:
-
-```bash
-$ kubectl delete csv postgres-operator.<version>
-```

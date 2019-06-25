@@ -1,4 +1,9 @@
 ---
+- name: Check for finalizer set via CR
+  set_fact:
+    teardown: true
+  when: postgres.teardown is defined
+
 # Plays common to the Deploy and Destroy blocks are first
 #- name: My Task
 #    k8s:
@@ -89,17 +94,99 @@
     k8s:
       definition: "{{ lookup('template', 'postgres-cluster.yaml.j2') }}"
       state: absent
+  
+  - name: Wait for postgres cluster pods to be destroyed...
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ operator_namespace }}"
+    ignore_errors: yes
+    register: pods
+    until: '"postgres" not in pods'
+    retries: 30
+    delay: 10
+
+  - name: Get postgres cluster services
+    k8s_facts:
+      kind: Service
+      namespace: "{{ operator_namespace }}"
+    register: services
+
+  - name: Destroy postgres cluster services
+    k8s:
+      kind: Service
+      namespace: "{{ operator_namespace }}"
+      name: "{{ item.metadata.name }}"
+      state: absent
+    with_items: "{{ services.resources }}"
+    when: '"postgres" in item.metadata.name'
+
+  - name: Get postgres cluster endpoints
+    k8s_facts:
+      kind: Endpoint
+      namespace: "{{ operator_namespace }}"
+    register: endpoints
+
+  - name: Destroy postgres cluster endpoints
+    k8s:
+      kind: Endpoint
+      namespace: "{{ operator_namespace }}"
+      name: "{{ item.metadata.name }}"
+      state: absent
+    with_items: "{{ endpoints.resources }}"
+    when: '"postgres" in item.metadata.name'
+
+  - name: Get postgres cluster poddisruptionbudgets
+    k8s_facts:
+      api_version: policy/v1beta1
+      kind: PodDisruptionBudget
+      namespace: "{{ operator_namespace }}"
+    register: pdbs
+
+  - name: Destroy postgres cluster poddisruptionbudget
+    k8s:
+      api_version: policy/v1beta1
+      kind: PodDisruptionBudget
+      namespace: "{{ operator_namespace }}"
+      name: "{{ item.metadata.name }}"
+      state: absent
+    with_items: "{{ pdbs.resources }}"
+    when: '"postgres" in item.metadata.name'
+
+  - name: Get postgres operator CSV
+    k8s_facts:
+      api_version: operators.coreos.com/v1alpha1
+      kind: ClusterServiceVersion
+      namespace: "{{ operator_namespace }}"
+    register: csvs
 
   - name: Destroy postgres operator CSV
     k8s:
       api_version: operators.coreos.com/v1alpha1
       kind: ClusterServiceVersion
       namespace: "{{ operator_namespace }}"
-      #FIXME: Need to find a way to delete this without out the specific name match
-      name: postgres-operator.v1.2.0
+      name: "{{ item.metadata.name }}"
       state: absent
+    with_items: "{{ csvs.resources }}"
+    when: '"postgres" in item.metadata.name'
 
   - name: Destroy RBAC for postgres operator
     k8s:
       definition: "{{ lookup('template', 'postgres-operator-rbac.yaml.j2') }}"
       state: absent
+
+  - name: Get postgres operator and cluster secrets
+    k8s_facts:
+      api_version: v1
+      kind: Secret
+      namespace: "{{ operator_namespace }}"
+    register: secrets
+
+  - name: Destroy postgres operator and cluster secrets
+    k8s:
+      api_version: v1
+      kind: Secret
+      namespace: "{{ operator_namespace }}"
+      name: "{{ item.metadata.name }}"
+      state: absent
+    with_items: "{{ secrets.resources }}"
+    when: '"postgres" in item.metadata.name'

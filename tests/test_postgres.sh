@@ -62,12 +62,17 @@ trap finish EXIT
 # Note we don't test persistent storage here
 function functional_test_postgres {
   apply_operator
-  sleep 15
+  ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
+  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace ripsaw --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace ripsaw --timeout=300s
+  # first teardown any previous resources from this test
+  kubectl apply -f tests/test_crs/teardown_postgres.yaml
+  # deploy the test CR
   kubectl apply -f tests/test_crs/valid_postgres.yaml
   pg_operator_pod=$(get_pod 'name=postgres-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$pg_operator_pod" --namespace ripsaw --timeout=60s
   kubectl wait --for=condition=Ready "pods/$pg_operator_pod" --namespace ripsaw --timeout=300s
-  pg_app_pod=$(get_pod 'spilo-role=master' 600)
+  pg_app_pod=$(get_pod 'spilo-role=master' 1200)
   kubectl wait --for=condition=Initialized "pods/$pg_app_pod" --namespace ripsaw --timeout=60s
   kubectl wait --for=condition=Ready "pods/$pg_app_pod" --namespace ripsaw --timeout=300s
   check_postgresql 300

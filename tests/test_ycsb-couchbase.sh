@@ -6,7 +6,6 @@ source tests/common.sh
 function finish {
   echo "Cleaning up couchbase"
   kubectl delete -f tests/test_crs/valid_ycsb-couchbase.yaml
-  kubectl delete csv --all -n ripsaw
   kubectl delete secret 1979710-benchmark-operator-ci-pull-secret -n ripsaw
   marketplace_cleanup
   delete_operator
@@ -63,7 +62,8 @@ trap finish EXIT
 function functional_test_ycsb_couchbase {
   apply_operator
   marketplace_setup
-  kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
+  #kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
+  kubectl apply -f /home/dblack/1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
   sleep 15
   kubectl apply -f tests/test_crs/valid_ycsb-couchbase.yaml
   cb_operator_pod=$(get_pod 'name=couchbase-operator' 300)

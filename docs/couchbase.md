@@ -280,11 +280,3 @@ Events:
 
 **Note that the Couchbase role is only an infrastructure role, and no workloads will be triggered directly
 by running the CR as described here. You will need to separately define a workload in the CR (such as [YCSB](ycsb.md)).**
-
-## Cleanup
-Currently, the couchbase-operator deployment does not fully clean up on it's on when the
-CR is deleted or changed to disable couchbase. You will need to do this manually with:
-
-```bash
-$ kubectl delete csv couchbase-operator.<version>
-```
