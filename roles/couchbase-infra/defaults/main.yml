@@ -1,7 +1,8 @@
 ---
 # defaults file for couchbase-infra
 
-catalogsource_namespace: "{{ infrastructure.args.deployment.catalogsource_namespace | default('marketplace') }}"
+olm_catalog: "{{ infrastructure.args.deployment.olm_catalog | default('operatorhubio-catalog') }}"
+olm_namespace: "{{ infrastructure.args.deployment.olm_namespace | default('olm') }}"
 cb_operator_package: "{{ infrastructure.args.deployment.cb_operator_package | default('couchbase-enterprise') }}"
 pod_base_image: "{{ infrastructure.args.deployment.pod_base_image | default('docker.io/library/couchbase') }}"
 pod_version: "{{ infrastructure.args.deployment.pod_version | default('enterprise-5.5.2') }}"

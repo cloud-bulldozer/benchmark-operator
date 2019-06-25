@@ -12,7 +12,7 @@ spec:
         size: 1
       storage:
         # persistent storage volume is required
-        class_name: "rook-ceph-block"
+        class_name: "standard"
         volume_size: 1G
       deployment:
         # These are deployment defaults from roles/postgres-infra/defaults

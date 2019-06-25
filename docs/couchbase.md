@@ -4,22 +4,11 @@
 
 ## Prerequisites
 ### OLM
-The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/install/install.md) is required to run the Couchbase operator from [operatorhub.io](https://operatorhub.io). If your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
-
-*Note: As of this writing, deploying the OLM from the deployment directory documented in the link above may lead to the Couchbase operator failing to launch. You may need to deploy instead from the `upstream/quickstart/olm.yaml` file as in:*
+The [Operator Lifecycle Manager (OLM)](https://github.com/operator-framework/operator-lifecycle-manager/blob/master/Documentation/install/install.md) is required to run the Zalando PostgreSQL operator from [operatorhub.io](https://operatorhub.io). If your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
 
 ```bash
+$ kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/crds.yaml
 $ kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-lifecycle-manager/master/deploy/upstream/quickstart/olm.yaml
-```
-Note: Sometimes applying OLM fails on first try, so please retry if it happens.
-
-### Marketplace
-In addition to the OLM, the deployment of the Couchbase infra expects to use the [Marketplace operator](https://github.com/operator-framework/operator-marketplace#installing-an-operator-using-marketplace). Again, if your distribution of OpenShift/Kubernetes does not include this, you will need to install it first.
-
-Example:
-```bash
-$ git clone https://github.com/operator-framework/operator-marketplace.git
-$ kubectl apply -f operator-marketplace/deploy/upstream
 ```
 
 ## Using the Couchbase Infra

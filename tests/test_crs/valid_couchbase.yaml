@@ -17,7 +17,8 @@ spec:
       #      the couchbase image, so the test system must have the 'rhsecret'
       #      secret available already. This will _not_ work with OCP 4.
       deployment:
-        catalogsource_namespace: "marketplace"
+        olm_catalog: "operatorhubio-catalog"
+        olm_namespace: "olm"
         cb_operator_package: "couchbase-enterprise"
         pod_base_image: "registry.connect.redhat.com/couchbase/server"
         pod_version: "5.5.4-1"

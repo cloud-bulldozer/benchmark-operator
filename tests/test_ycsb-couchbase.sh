@@ -7,7 +7,6 @@ function finish {
   echo "Cleaning up couchbase"
   kubectl delete -f tests/test_crs/valid_ycsb-couchbase.yaml
   kubectl delete secret 1979710-benchmark-operator-ci-pull-secret -n ripsaw
-  marketplace_cleanup
   delete_operator
 }
 
@@ -60,11 +59,11 @@ trap finish EXIT
 
 # Note we don't test persistent storage here
 function functional_test_ycsb_couchbase {
+  kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
   apply_operator
-  marketplace_setup
-  #kubectl apply -f /root/.1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
-  kubectl apply -f /home/dblack/1979710-benchmark-operator-ci-pull-secret.yaml -n ripsaw
-  sleep 15
+  ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
+  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace ripsaw --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace ripsaw --timeout=300s
   kubectl apply -f tests/test_crs/valid_ycsb-couchbase.yaml
   cb_operator_pod=$(get_pod 'name=couchbase-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$cb_operator_pod" --namespace ripsaw --timeout=60s

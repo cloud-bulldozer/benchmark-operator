@@ -7,14 +7,16 @@ spec:
   targetNamespaces:
   - {{ operator_namespace }}
 ---
-apiVersion: operators.coreos.com/v1
-kind: CatalogSourceConfig
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
 metadata:
-  name: ripsaw-catalog
-  namespace: {{ catalogsource_namespace }}
+  name: operatorhubio-catalog
+  namespace: {{ olm_namespace }}
 spec:
-  targetNamespace: ripsaw
-  packages: {{ cb_operator_package }}
+  displayName: Community Operators
+  image: quay.io/operator-framework/upstream-community-operators:latest
+  publisher: OperatorHub.io
+  sourceType: grpc
 ---
 apiVersion: operators.coreos.com/v1alpha1
 kind: Subscription
@@ -24,5 +26,5 @@ metadata:
 spec:
   channel: preview
   name: {{ cb_operator_package }}
-  source: ripsaw-catalog
-  sourceNamespace: {{ operator_namespace }}
+  source: {{ olm_catalog }}
+  sourceNamespace: {{ olm_namespace }}

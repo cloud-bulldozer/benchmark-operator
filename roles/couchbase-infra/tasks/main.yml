@@ -14,34 +14,41 @@
     k8s:
       definition: "{{ lookup('template', 'couchbase-operator.yaml.j2') }}"
 
-  - name: Get couchbase operator CSV
+  # Can't get the 'until' below to behave
+  - name: Take a break
+    pause: 
+      seconds: 10
+
+  - name: Get pods list
     k8s_facts:
-      api_version: operators.coreos.com/v1alpha1
-      kind: ClusterServiceVersion
+      kind: Pod
       namespace: "{{ operator_namespace }}"
-    register: csvs
+    register: pods
+    #until: '"couchbase-operator" in (pods | json_query("resources[].metadata.name"))'
     retries: 10
     delay: 5
 
+  #- debug:
+  #    msg: "PODS DEBUG: {{ pods | json_query('resources[].metadata.name') }}"
+
+  - name: Get couchbase operator pod
+    set_fact:
+      cb_op_pod: "{{ item.metadata.name }}"
+    with_items: "{{ pods.resources }}"
+    when: '"couchbase-operator" in item.metadata.name'
+
+  #- debug:
+  #    msg: "CB_OP_POD DEBUG: {{ cb_op_pod }}"
+
   - name: Wait for Couchbase Operator to be Running....
-    #FIXME: Some versions of the operator use an "app" label and others use a "name" label.
-    #       I can't find a way to check label_selectors based on an OR of the key, and the 
-    #       field_selectors I might match on are not supported. It's also not supported to
-    #       loop over a block with an until, so that solution won't work. I also can't find
-    #       a way to inject a new label to use into the operator pod as it is being created
-    #       by the subscription. ¯\_(ツ)_/¯
-    #k8s_facts:
-    #  api_version: operators.coreos.com/v1alpha1
-    #  kind: ClusterServiceVersion
-    #  namespace: "{{ operator_namespace }}"
-    #  name: "{{ item.metadata.name }}"
-    #register: cb_op_pod
-    #until: "'Running' in (cb_op_pod | json_query('resources[].status.phase'))"
-    #with_items: "{{ csvs.resources }}"
-    #retries: 10
-    #delay: 10
-    pause:
-      seconds: 100
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ operator_namespace }}"
+      name: "{{ cb_op_pod }}"
+    register: cb_op_status
+    until: "'Running' in (cb_op_status | json_query('resources[].status.phase'))"
+    retries: 10
+    delay: 10
 
   # For BZ 1678285
   # https://bugzilla.redhat.com/show_bug.cgi?id=1678285

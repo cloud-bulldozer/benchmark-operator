@@ -19,14 +19,16 @@ spec:
         # that can be overridden here.
         #
         ## For Generic K8s w/ Upstream OLM and Marketplace Defaults
-        #catalogsource_namespace: "marketplace"
+        #olm_catalog: "operatorhubio-catalog"
+        #olm_namespace: "olm"
         #cb_operator_package: "couchbase-enterprise"
         #pod_base_image: "docker.io/library/couchbase"
         #pod_version: "enterprise-5.5.2"
         #default_bucket_password: "password"
         #
         ## For OpenShift v3 w/ Upstream OLM and Marketplace Defaults
-        #catalogsource_namespace: "marketplace"
+        #olm_catalog: "operatorhubio-catalog"
+        #olm_namespace: "olm"
         #cb_operator_package: "couchbase-enterprise"
         #pod_base_image: "registry.connect.redhat.com/couchbase/server"
         #pod_version: "5.5.4-1"
@@ -34,7 +36,8 @@ spec:
         #pull_secret_name: "rhsecret"
         #
         ## For OpenShift v4 w/ Built-In OLM and Marketplace
-        #catalogsource_namespace: "openshift-marketplace"
+        #olm_catalog: "operatorhubio-catalog"
+        #olm_namespace: "openshift-operator-lifecycle-manager"
         #cb_operator_package: "couchbase-enterprise-certified"
         #pod_base_image: "registry.connect.redhat.com/couchbase/server"
         #pod_version: "5.5.4-1"

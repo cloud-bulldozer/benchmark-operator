@@ -31,9 +31,9 @@ spec:
         # Typical deployment size is 3
         size: 1
       storage:
-        use_persistent_storage: True
-        class_name: "rook-ceph-block"
-        volume_size: 1Gi # A volume_size is required whether or not use_persistent_storage is True
+        # persistent storage volume is required
+        class_name: "standard"
+        volume_size: 1G
       deployment:
         # These are deployment defaults from roles/postgres-infra/defaults
         # that can be overridden here.
@@ -43,11 +43,15 @@ spec:
         #olm_catalog: operatorhubio-catalog
         #olm_namespace: olm
         #
+        ## For OpenShift v3 w/ Upstream OLM
+        #postgres_operator_package: TODO
+        #olm_catalog: TODO
+        #olm_namespace: TODO
+        #
         ## For OpenShift v4 w/ Built-In OLM
         #postgres_operator_package: "postgres-operator"
         #olm_catalog: operatorhubio-catalog
         #olm_namespace: openshift-operator-lifecycle-manager
-
 ```
 
 **Please see the example [CR file](../resources/crds/ripsaw_v1alpha1_postgres_cr.yaml) for further examples for different deployment environments.**
