@@ -8,6 +8,7 @@ spec:
     # cleanup: true
     name: uperf
     args:
+      serviceip: false
       hostnetwork: false
       pin: false
       pin_server: "node-0"

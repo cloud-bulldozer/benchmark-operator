@@ -9,6 +9,7 @@ spec:
     name: uperf
     args:
       hostnetwork: false
+      serviceip: false
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"

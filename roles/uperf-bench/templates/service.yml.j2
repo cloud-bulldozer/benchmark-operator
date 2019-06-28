@@ -1,0 +1,24 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: uperf-service-{{item}}
+  namespace: '{{ operator_namespace }}'
+spec:
+  selector:
+    app: uperf-bench-server-{{item}}
+  ports:
+  - name: uperf
+    port: 20000
+    targetPort: 20000
+    protocol: TCP
+{% for num in range(20001,20011,1) %}
+  - name: uperf-control-tcp-{{num}}
+    port: {{num}}
+    targetPort: {{num}}
+    protocol: TCP
+  - name: uperf-control-udp-{{num}}
+    port: {{num}}
+    targetPort: {{num}}
+    protocol: UDP
+{% endfor %}

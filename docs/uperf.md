@@ -17,6 +17,7 @@ spec:
   workload:
     name: uperf
     args:
+      serviceip: false
       hostnetwork: false
       pin: false
       pin_server: "node-0"
@@ -31,6 +32,8 @@ spec:
         - 16384
       runtime: 30
 ```
+
+`serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
 
 `hostnetwork` will test the performance of the node the pod will run on.
 

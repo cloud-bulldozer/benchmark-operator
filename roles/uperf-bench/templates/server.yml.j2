@@ -2,21 +2,28 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: '{{ meta.name }}-uperf-server-{{item}}'
+  name: 'uperf-server-{{item}}'
   namespace: '{{ operator_namespace }}'
   labels:
-    app : uperf-bench-server
+    app : uperf-bench-server-{{item}}
+    type : uperf-bench-server
 spec:
-{% if uperf.hostnetwork %}
+{% if uperf.hostnetwork is sameas true %}
   hostNetwork : true
 {% endif %}
   containers:
   - name: benchmark
     image: "quay.io/cloud-bulldozer/uperf:latest"
-    command: ["/bin/sh", "-c"]
-    args: ["uperf -s"]
+    command: ["/bin/sh","-c"]
+    args: ["uperf -s -v -P 20000"]
   restartPolicy: OnFailure
-{% if uperf.pin %}
+{% if uperf.pin is sameas true %}
   nodeSelector:
     kubernetes.io/hostname: '{{ uperf.pin_server }}'
+{% endif %}
+{% if uperf.serviceip is sameas true %}
+  securityContext:
+    sysctls:
+    - name: net.ipv4.ip_local_port_range
+      value: 20000 20011
 {% endif %}
