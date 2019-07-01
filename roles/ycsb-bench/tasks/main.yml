@@ -7,7 +7,7 @@
 
 # Deploy block is run as long as the finalizer has not set teardown=true
 - name: Deploy
-  when: teardown is undefined
+  when: teardown is not sameas true
   block:
 
   # These flags are appended to the ycsb load and run commands
@@ -91,7 +91,8 @@
 
 # Destroy block is run when the finalizer has set teardown=true
 - name: Destroy
-  when: teardown is defined
+  when: teardown is sameas true
+  ignore_errors: true
   block:
 
   - name: Get YCSB workload pod

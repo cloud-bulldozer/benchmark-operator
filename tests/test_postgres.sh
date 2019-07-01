@@ -65,8 +65,6 @@ function functional_test_postgres {
   ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace ripsaw --timeout=60s
   kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace ripsaw --timeout=300s
-  # first teardown any previous resources from this test
-  kubectl apply -f tests/test_crs/teardown_postgres.yaml
   # deploy the test CR
   kubectl apply -f tests/test_crs/valid_postgres.yaml
   pg_operator_pod=$(get_pod 'name=postgres-operator' 300)

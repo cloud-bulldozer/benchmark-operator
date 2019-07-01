@@ -1,3 +1,4 @@
+test_postgres.sh
 test_fiod.sh
 test_fio.sh
 test_iperf3.sh

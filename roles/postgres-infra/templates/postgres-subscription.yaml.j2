@@ -1,0 +1,10 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: zalando-postgres-operator
+  namespace: {{ operator_namespace }}
+spec:
+  channel: stable
+  name: {{ postgres_operator_package }}
+  source: operatorhubio-catalog
+  sourceNamespace: {{ operator_namespace }}

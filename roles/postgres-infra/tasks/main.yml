@@ -1,27 +1,23 @@
 ---
-- name: Check for finalizer set via CR
-  set_fact:
-    teardown: true
-  when: postgres.teardown is defined
-
 # Plays common to the Deploy and Destroy blocks are first
-#- name: My Task
-#    k8s:
-#      src:
 
 
 # Deploy block is run as long as the finalizer has not set teardown=true
 - name: Deploy
-  when: teardown is undefined
+  when: teardown is not sameas true
   block:
 
   - name: Apply RBAC for postgres operator
     k8s:
       definition: "{{ lookup('template', 'postgres-operator-rbac.yaml.j2') }}"
 
-  - name: Deploy postgres operator
+  - name: Prepare operator catalog source
+    include_role:
+      name: extra-operatorhub-prep
+
+  - name: Deploy postgres operator subscription
     k8s:
-      definition: "{{ lookup('template', 'postgres-operator.yaml.j2') }}"
+      definition: "{{ lookup('template', 'postgres-subscription.yaml.j2') }}"
 
   - name: Wait for postgres operator to be running....
     k8s_facts:
@@ -80,14 +76,15 @@
       name: ripsaw-postgres-cluster
     register: postgres
     until: "'Running' in (postgres | json_query('resources[].status.PostgresClusterStatus'))"
-    #60 retries with 10 second delays should result in a 10 minute wait time
-    retries: 60
+    #30 retries with 10 second delays should result in a 5 minute wait time
+    retries: 30
     delay: 10
 
 
 # Destroy block is run when the finalizer has set teardown=true
 - name: Destroy
-  when: teardown is defined
+  when: teardown is sameas true
+  ignore_errors: true
   block:
 
   - name: Destroy postgres cluster via operator
