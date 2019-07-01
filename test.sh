@@ -1,46 +1,41 @@
 #!/usr/bin/env bash
-set -xeo pipefail
+set -x
 
 source tests/common.sh
 
-trap cleanup_resources EXIT
-
-wait_clean
-operator_requirements
+cleanup_operator_resources
 update_operator_image
-#
-# Run functional test for workloads
-#
-# Test UPerf
-/bin/bash tests/test_uperf.sh
-wait_clean
-# Test iperf3
-/bin/bash tests/test_iperf3.sh
-wait_clean
-#
-# Test FIO
-/bin/bash tests/test_fio.sh
-wait_clean
-# Test FIOD
-/bin/bash tests/test_fiod.sh
-wait_clean
-#
-# Test Sysbench
-/bin/bash tests/test_sysbench.sh
-wait_clean
-#
-# Test BYOWL
-/bin/bash tests/test_byowl.sh
-wait_clean
-#
-# Disabled standalone Couchbase test since it is duplicated below
-# with YCSB, which requires the Couchbase infra
-# Test Couchbase
-#/bin/bash tests/test_couchbase.sh
-#wait_clean
-#
-# Test YCSB w/ Couchbase
-/bin/bash tests/test_ycsb-couchbase.sh
-wait_clean
-#
-echo "Smoke test: successful"
+
+failed=()
+success=()
+test_list=tests/test_list
+
+pass=0
+
+# Iterate over the tests listed in test_list. For quickest testing of an individual workload have 
+# its test listed first in $test_list
+for ci_test in `cat $test_list`
+do
+  # Re-deploy operator requirements before each test
+  operator_requirements
+
+  # Test ci
+  if /bin/bash tests/$ci_test 
+  then
+    success=("${success[@]}" $ci_test)
+    echo "$ci_test: Successful"
+  else
+    failed=("${failed[@]}" $ci_test)
+    pass=1
+    echo "$ci_test: Failed"
+  fi
+  
+  # Ensure that all operator resources have been cleaned up after each test
+  cleanup_operator_resources
+done
+
+echo "CI tests that passed: "${success[@]}
+echo "CI tests that failed: "${failed[@]}
+echo "Smoke test: Complete"
+
+exit $pass

@@ -71,7 +71,7 @@ function update_operator_image {
 
 
 function check_pods() {
-  for i in {1..10}; do
+  for i in {1..15}; do
     if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -gt $1 ]; then
       break
     else
