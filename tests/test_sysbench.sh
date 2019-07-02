@@ -12,10 +12,10 @@ function finish {
 trap finish EXIT
 
 function functional_test_sysbench {
+  #figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
-  check_pods 1
-  sysbench_pod=$(kubectl get pods -l app=sysbench --namespace ripsaw -o name | cut -d/ -f2)
+  sysbench_pod=$(get_pod 'app=sysbench' 300)
   kubectl wait --for=condition=Initialized "pods/$sysbench_pod" --namespace ripsaw --timeout=200s
   # Higher timeout as it takes longer
   kubectl wait --for=condition=complete -l app=sysbench --namespace ripsaw jobs

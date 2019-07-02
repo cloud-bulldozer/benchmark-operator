@@ -12,10 +12,11 @@ function finish {
 trap finish EXIT
 
 function functional_test_uperf {
+  #figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_uperf.yaml
-  check_pods 2
-  uperf_client_pod=$(kubectl -n ripsaw get pods -l app=uperf-bench-client -o name | cut -d/ -f2)
+  pod_count 'type=uperf-bench-server' 1 300
+  uperf_client_pod=$(get_pod 'app=uperf-bench-client' 300)
   kubectl -n ripsaw wait --for=condition=Initialized "pods/$uperf_client_pod" --timeout=200s
   kubectl -n ripsaw wait --for=condition=complete -l app=uperf-bench-client jobs --timeout=300s
   #check_log $uperf_client_pod "Success"
