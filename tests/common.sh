@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 function wait_clean {
+  kubectl delete --all pods --namespace ripsaw
   for i in {1..30}; do
     if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -ge 1 ]; then
       sleep 5
@@ -10,8 +11,54 @@ function wait_clean {
   done
 }
 
+# Two arguments are 'pod label' and 'timeout in seconds'
+function get_pod () {
+  counter=0
+  sleep_time=5
+  counter_max=$(( $2 / sleep_time ))
+  pod_name="False"
+  until [ $pod_name != "False" ] ; do
+    sleep $sleep_time
+    pod_name=$(kubectl get pods -l $1 --namespace ripsaw -o name | cut -d/ -f2)
+    if [ -z $pod_name ]; then
+      pod_name="False"
+    fi
+    counter=$(( counter+1 ))
+    if [ $counter -eq $counter_max ]; then
+      return 1
+    fi
+  done
+  echo $pod_name
+  return 0
+}
+
+# Three arguments are 'pod label', 'expected count', and 'timeout in seconds'
+function pod_count () {
+  counter=0
+  sleep_time=5
+  counter_max=$(( $3 / sleep_time ))
+  pod_count=0
+  export $1
+  until [ $pod_count == $2 ] ; do
+    sleep $sleep_time
+    pod_count=$(kubectl get pods -n ripsaw -l $1 -o name | wc -l)
+    if [ -z $pod_count ]; then
+      pod_count=0
+    fi
+    counter=$(( counter+1 ))
+    if [ $counter -eq $counter_max ]; then
+      return 1
+    fi
+  done
+  echo $pod_count
+  return 0
+}
+
 function apply_operator {
   kubectl apply -f resources/operator.yaml
+  ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
+  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace ripsaw --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace ripsaw --timeout=300s
 }
 
 function delete_operator {
@@ -67,17 +114,6 @@ function update_operator_image {
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name
   docker push quay.io/rht_perf_ci/benchmark-operator:$tag_name
   sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
-}
-
-
-function check_pods() {
-  for i in {1..15}; do
-    if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -gt $1 ]; then
-      break
-    else
-      sleep 10
-    fi
-  done
 }
 
 function check_log(){
