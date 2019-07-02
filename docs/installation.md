@@ -89,7 +89,6 @@ run workloads:
 * [uperf](uperf.md)
 * [fio](fio.md)
 * [sysbench](sysbench.md)
-* [couchbase](couchbase.md)
 * [YCSB](ycsb.md)
 * [Bring your own workload](byowl.md)
 

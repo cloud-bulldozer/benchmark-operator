@@ -1,15 +1,6 @@
 - hosts: localhost
   gather_facts: no
   tasks:
-  - name: Build Infrastructure
-    block:
-    - include_role:
-        name: "couchbase-infra"
-      vars:
-        couchbase: "{{ infrastructure.args }}"
-
-      when: infrastructure.name == "couchbase" and infrastructure.args.servers.size > 0
-    when: infrastructure is defined
 
   - name: Run Workload
     block:
@@ -44,7 +35,12 @@
         name: "ycsb-bench"
       vars:
         ycsb: "{{ workload.args }}"
-      when: workload.name == "ycsb" and workload.args.workers > 0
+        ycsb_load: "{{ workload.args.loaded | default(false) }}"
+      loop:
+        - '{{ workload.args.workloads }}'
+      loop_control:
+        loop_var: ycsb_workload
+      when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
     - include_role:
         name: "byowl"

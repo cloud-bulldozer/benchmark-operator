@@ -1,5 +1,0 @@
-ycsb-bench
-=========
-
-YCSB workload
-
