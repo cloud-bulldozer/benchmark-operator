@@ -16,11 +16,14 @@ spec:
         image: "quay.io/cloud-bulldozer/fio:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cd {{results.path}}/fiod-{{ uuid }};
-             cat /tmp/fio/fiojob | tee {{results.path}}/fiod-{{ uuid }}/fiojob;
-             sort /tmp/host/hosts | tee {{results.path}}/fiod-{{ uuid }}/fiohosts;
-             fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/fio-result.json;
-             sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/fio-result.json"
+          - "for sample in $(seq 1 {{fiod.samples}}; then
+               mkdir -p {{results.path}}/fiod-{{ uuid }}/sample-$sample
+               cd {{results.path}}/fiod-{{ uuid }}/sample-$sample;
+               cat /tmp/fio/fiojob | tee {{results.path}}/fiod-{{ uuid }}/sample-$sample/fiojob;
+               sort /tmp/host/hosts | tee {{results.path}}/fiod-{{ uuid }}/sample-$sample/fiohosts;
+               fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/sample-$sample/fio-result.json;
+               sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/sample-$sample/fio-result.json;
+             done"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

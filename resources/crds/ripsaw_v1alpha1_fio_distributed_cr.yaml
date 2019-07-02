@@ -7,6 +7,7 @@ spec:
   workload:
     name: "fio_distributed"
     args:
+      samples: 1
       servers: 1
       pin: false
       pin_server: "master-0"
