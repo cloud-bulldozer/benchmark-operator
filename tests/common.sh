@@ -52,7 +52,7 @@ function create_operator {
 
 function cleanup_resources {
   echo "Exiting after cleanup of resources"
-  kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+  kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml --wait=false
   kubectl delete -f deploy
 }
 
