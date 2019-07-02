@@ -12,7 +12,7 @@ test_list=tests/test_list
 
 pass=0
 
-# Iterate over the tests listed in test_list. For quickest testing of an individual workload have 
+# Iterate over the tests listed in test_list. For quickest testing of an individual workload have
 # its test listed first in $test_list
 for ci_test in `cat $test_list`
 do
@@ -20,7 +20,7 @@ do
   operator_requirements
 
   # Test ci
-  if /bin/bash tests/$ci_test 
+  if /bin/bash tests/$ci_test
   then
     success=("${success[@]}" $ci_test)
     echo "$ci_test: Successful"
@@ -29,7 +29,7 @@ do
     pass=1
     echo "$ci_test: Failed"
   fi
-  
+
   # Ensure that all operator resources have been cleaned up after each test
   cleanup_operator_resources
 done
