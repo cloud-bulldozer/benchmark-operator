@@ -1,6 +1,6 @@
 {
   "uuid": "{{ uuid }}",
-  "user": "{{ user }}",
+  "user": "{{ test_user }}",
   "time_ms": {{ ( ((fio_end_time | int) - ((workload.args.runtime | int + workload.args.ramp_time | int ) * (4 - (fio_jobsequence|int)) * 1000) + (workload.args.ramp_time | int) )    +    ( fio_log_line.split(', ')[0]| int) )  }},
   "latency": {{ fio_log_line.split(', ')[1]| int }},
   "data_direction": {{ fio_log_line.split(', ')[2]| int }},
@@ -9,5 +9,6 @@
   "log_file": "clat",
   "server_ip": "{{ fio_server_ip }}",
   "nodeName": "{{ pod_details[fio_server_ip] }}",
+  "sample": {{ fiod_sample| int }},
   "global_options": {{ fio_output_current_sample["global options"] }}
 }

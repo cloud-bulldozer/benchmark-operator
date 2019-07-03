@@ -2,12 +2,12 @@
 
 - name: create directory
   file:
-    path: "{{ results.path }}/fiod-{{ uuid }}"
+    path: "{{ results.path }}/fiod-{{ uuid }}/{{fiod_sample}}"
     state: directory
 
 - name: touch clat histogram summary files
   file:
-    path: "{{ results.path }}/fiod-{{ uuid }}/fio_clat_hist.{{ item }}"
+    path: "{{ results.path }}/fiod-{{ uuid }}/{{fiod_sample}}/fio_clat_hist.{{ item }}"
     state: touch
     mode: 0775
   with_items:

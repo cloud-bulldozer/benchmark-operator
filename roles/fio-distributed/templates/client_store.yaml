@@ -2,25 +2,25 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-client'
+  name: '{{ meta.name }}-fio-client-{{fiod_sample}}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fiod-client
+        app: fiod-client-{{fiod_sample}}
     spec:
       containers:
       - name: fio-client
         image: "quay.io/cloud-bulldozer/fio:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cd {{results.path}}/fiod-{{ uuid }};
-             cat /tmp/fio/fiojob | tee {{results.path}}/fiod-{{ uuid }}/fiojob;
-             sort /tmp/host/hosts | tee {{results.path}}/fiod-{{ uuid }}/fiohosts;
-             fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/fio-result.json;
-             sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/fio-result.json"
+          - "mkdir -p {{results.path}}/fiod-{{ uuid }}/{{fiod_sample}}; cd {{results.path}}/fiod-{{ uuid }}/{{fiod_sample}};
+             cat /tmp/fio/fiojob | tee fiojob;
+             sort /tmp/host/hosts | tee fiohosts;
+             fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/{{fiod_sample}}/fio-result.json;
+             sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/{{fiod_sample}}/fio-result.json"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

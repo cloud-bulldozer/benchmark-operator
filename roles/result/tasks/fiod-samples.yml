@@ -20,7 +20,7 @@
   set_fact:
     fio_jobsequence: "{{ item[0] }}"
     fio_server_sequence: "{{ item[1] }}"
-    fio_server_ip: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fiohosts').splitlines()[item[1]] }}"
+    fio_server_ip: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fiohosts').splitlines()[item[1]] }}"
 
 - name: Index log for clat
   uri:
@@ -29,7 +29,7 @@
     status_code: 201
     body: "{{ lookup('template','fiod_clat.json.j2') }}"
     body_format: json
-  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_clat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio_clat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
   loop_control:
     loop_var: fio_log_line
 
@@ -40,7 +40,7 @@
     status_code: 201
     body: "{{ lookup('template','fiod_bw.json.j2') }}"
     body_format: json
-  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_bw.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio_bw.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
   loop_control:
     loop_var: fio_log_line
 
@@ -51,7 +51,7 @@
     status_code: 201
     body: "{{ lookup('template','fiod_iops.json.j2') }}"
     body_format: json
-  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_iops.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio_iops.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
   loop_control:
     loop_var: fio_log_line
 
@@ -62,7 +62,7 @@
     status_code: 201
     body: "{{ lookup('template','fiod_lat.json.j2') }}"
     body_format: json
-  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_lat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio_lat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
   loop_control:
     loop_var: fio_log_line
 
@@ -73,6 +73,6 @@
     status_code: 201
     body: "{{ lookup('template','fiod_slat.json.j2') }}"
     body_format: json
-  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio_slat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
+  loop: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio_slat.' + fio_jobsequence + '.log.' + fio_server_ip).splitlines() }}"
   loop_control:
     loop_var: fio_log_line

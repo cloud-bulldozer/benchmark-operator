@@ -50,6 +50,9 @@
 
     - include_role:
         name: "fio-distributed"
+      loop: "{{ range(0, (workload.args.samples | int)) | list | flatten(1)}}"
+      loop_control:
+        loop_var: fiod_sample
       vars:
         fiod: "{{ workload.args }}"
       when: workload.name == "fio_distributed" and workload.args.servers > 0

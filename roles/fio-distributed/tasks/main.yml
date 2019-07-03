@@ -31,7 +31,7 @@
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "claim-{{item}}"
+        name: "claim-{{item}}-{{fiod_sample}}"
         namespace: '{{ operator_namespace }}'
         annotations:
            volume.beta.kubernetes.io/storage-class: "{{fiod.storageclass}}"
@@ -56,7 +56,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - app = fio-benchmark
+      - app = fio-benchmark-{{fiod_sample}}
   register: server_pods
   until: "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length)"
   retries: 50
@@ -104,12 +104,19 @@
     api_version: batch/v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - app = fiod-client
+      - app = fiod-client-{{fiod_sample}}
   register: client_jobs
   until: "1 == (client_jobs | json_query('resources[].status.succeeded')|length)"
   retries: 25
   delay: 15
-  when: store_results is defined and store_results
+
+- name: Destroy the server pods created
+  k8s:
+    kind: Pod
+    namespace: "{{ operator_namespace }}"
+    name: "{{ item.metadata.name }}"
+    state: absent
+  with_items: "{{ server_pods.resources }}"
 
 - include_role:
     name: result
