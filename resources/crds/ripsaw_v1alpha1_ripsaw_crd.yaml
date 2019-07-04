@@ -18,3 +18,11 @@ spec:
   - name: v1alpha1
     served: true
     storage: true
+  additionalPrinterColumns:
+  - name: Type
+    type: string
+    description: The type of test to perform
+    JSONPath: .spec.workload.name
+  - name: Age
+    type: date
+    JSONPath: .metadata.creationTimestamp
