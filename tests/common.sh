@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+function check_full_trigger {
+python - <<END
+import os
+with open('tests/full_test_file_trigger', 'r') as file:
+    a = file.read()
+a = filter(None,a.split('\n'))
+with open('tests/git_diff', 'r') as file:
+    b = file.read()
+b = filter(None,b.split('\n'))
+print(any((x in a for x in b)))
+END
+}
+
+function populate_test_list {
+  if 'roles/uperf-bench' in $1; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+  if 'roles/fio-distributed' in $1; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+  if 'roles/fio-bench' in $1; then echo "test_fio.sh" >> tests/iterate_tests; fi
+  if 'roles/iperf3-bench' in $1; then echo "test_iperf.sh" >> tests/iterate_tests; fi
+  if 'roles/byowl' in $1; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+  if 'roles/sysbench' in $1; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+}
+
 function wait_clean {
   kubectl delete --all pods --namespace ripsaw
   for i in {1..30}; do
