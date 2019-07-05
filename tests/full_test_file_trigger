@@ -1,0 +1,8 @@
+build/
+deploy/
+group_vars/
+resources/
+tests/
+playbook.yml
+test.sh
+watches.yaml
