@@ -17,7 +17,7 @@
     fio_path: /tmp
   when: fiod.storageclass is not defined
 
-- name: Generate fio test
+- name: Generate fio tests
   k8s:
     definition:
       apiVersion: v1
@@ -26,7 +26,7 @@
         name: fio-test
         namespace: '{{ operator_namespace }}'
       data:
-        fiojob: "{{ lookup('template', 'job.fio.{{fiod.job}}') }}"
+        fiojob: "{{ lookup('template', 'job.fio.{{ fiod.job }}') }}"
 
 - name: Create PVC(s)
   k8s:
@@ -34,24 +34,26 @@
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "claim-{{item}}"
+        #name: "fio-claim-{{ lookup('pipe','date +%s')| to_uuid }}"
+        name: "fio-claim-{{ item }}"
         namespace: '{{ operator_namespace }}'
         annotations:
-           volume.beta.kubernetes.io/storage-class: "{{fiod.storageclass}}"
+           volume.beta.kubernetes.io/storage-class: "{{ fiod.storageclass }}"
       spec:
          accessModes:
            - ReadWriteOnce
          resources:
            requests:
-             storage: "{{fiod.storagesize}}"
-  with_sequence: start=1 count={{fiod.servers}}
+             storage: "{{ fiod.storagesize }}"
+  with_sequence: start=1 count={{ fiod.servers }}
+  register: pvcs
   when: fiod.storageclass is defined
 
 - name: Start FIO Server(s)
   k8s:
     definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
   when: fiod.servers > 0
-  with_sequence: start=1 count={{fiod.servers}}
+  with_indexed_items: "{{ pvcs.results }}"
 
 - name: Capture pod list
   k8s_facts:
@@ -59,7 +61,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - app = fio-benchmark
+      - type = fio-bench-server
   register: server_pods
   until: "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length)"
   retries: 50
@@ -112,7 +114,6 @@
   until: "1 == (client_jobs | json_query('resources[].status.succeeded')|length)"
   retries: 25
   delay: 15
-  when: store_results is defined and store_results
 
 - include_role:
     name: result

@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-client'
+  name: 'fio-client'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
@@ -16,11 +16,23 @@ spec:
         image: "quay.io/cloud-bulldozer/fio:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cat /tmp/fio/fiojob;
+          - "echo 'FIO jobfile:';
+             echo '';
+             cat /tmp/fio/fiojob;
+             echo '';
+             echo 'FIO hostfile:';
+             echo '';
              cat /tmp/host/hosts;
-             for i in `seq 1 {{fiod.samples}}`; do
-               cd /tmp && fio --client=/tmp/host/hosts /tmp/fio/fiojob;
-             done;"
+             {% for numjobs in fiod.numjobs %}
+             echo '';
+             echo 'Begin test for numjobs: {{ numjobs }}';
+             echo '';
+             for i in `seq 1 {{ fiod.samples|int }}`; do
+               echo \"Begin test sample $i of {{ fiod.samples }}...\";
+               echo '';
+               cd /tmp && (set -x; fio --eta=never --client=/tmp/host/hosts --numjobs={{ numjobs}} /tmp/fio/fiojob);
+             done;
+             {% endfor %}"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

@@ -1,37 +1,33 @@
 ---
-kind: Job
-apiVersion: batch/v1
+kind: Pod
+apiVersion: v1
 metadata:
-  name: '{{ meta.name }}-fio-server-{{item}}-benchmark'
+  name: 'fio-server-{{ item.0|int + 1 }}'
   namespace: '{{ operator_namespace }}'
+  labels:
+    app: fio-bench-server-{{ item.0|int + 1 }}
+    type: fio-bench-server
 spec:
-  ttlSecondsAfterFinished: 600
-  template:
-    metadata:
-      labels:
-        app: fio-benchmark
-    spec:
-      containers:
-      - name: fio-server
-        image: "quay.io/cloud-bulldozer/fio:latest"
-        ports:
-          - containerPort: 8765
-        command: ["/bin/sh", "-c"]
-        args:
-          - "fio --server"
+  containers:
+  - name: fio-server
+    image: "quay.io/cloud-bulldozer/fio:latest"
+    ports:
+      - containerPort: 8765
+    command: ["/bin/sh", "-c"]
+    args: ["fio --server"]
 {% if fiod.storageclass is defined %}
-        volumeMounts:
-        - name: ceph-volume
-          mountPath: "/mnt/pvc"
+    volumeMounts:
+    - name: persistent-volume
+      mountPath: "/mnt/pvc"
 {% endif %}
-      restartPolicy: Never
+  restartPolicy: Never
 {% if fiod.pin %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ fiod.pin_server }}'
+  nodeSelector:
+    kubernetes.io/hostname: '{{ fiod.pin_server }}'
 {% endif %}
 {% if fiod.storageclass is defined %}
-      volumes:
-      - name: ceph-volume
-        persistentVolumeClaim:
-          claimName: claim-{{item}}
+  volumes:
+  - name: persistent-volume
+    persistentVolumeClaim:
+      claimName: "{{ item.1.result.metadata.name }}"
 {% endif %}

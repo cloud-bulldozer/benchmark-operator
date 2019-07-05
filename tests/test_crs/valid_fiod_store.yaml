@@ -26,5 +26,8 @@ spec:
       iodepth: 4
       runtime: 5
       ramp_time: 2
-      filesize: 1
+      filesize: 1g
       log_sample_rate: 1000 # provide only if job is seq or rand
+      numjobs:
+        - 1
+        - 2
