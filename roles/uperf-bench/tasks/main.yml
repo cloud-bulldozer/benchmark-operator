@@ -124,21 +124,6 @@
   - name: Signal workload
     command: "redis-cli set start true"
 
-  - name: Check if all clients are up
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = uperf-bench-client
-    register: client_pods
-    until: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
-    retries: 50
-    delay: 10
-
-  - name: Signal workload
-    command: "redis-cli set start true"
-
   - name: Waiting for pods to complete....
     k8s_facts:
       kind: pod
