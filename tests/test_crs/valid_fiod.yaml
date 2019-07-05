@@ -9,13 +9,14 @@ spec:
     name: "fio_distributed"
     args:
       pin: false
+      samples: 2
       servers: 2
       pin_server: "master-0"
       job: seq
       jobname: seq
       bs: 64k
       iodepth: 4
-      runtime: 10
-      ramp_time: 5
+      runtime: 3
+      ramp_time: 1
       filesize: 1
       log_sample_rate: 1000 # provide only if job is seq or rand

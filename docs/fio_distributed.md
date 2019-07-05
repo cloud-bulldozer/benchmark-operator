@@ -20,6 +20,7 @@ spec:
     name: "fio_distributed"
     args:
       servers: 1
+      samples: 1 # number of times to run the fio test
       pin: false
       pin_server: "master-0"
       job: seq

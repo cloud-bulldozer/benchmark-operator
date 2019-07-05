@@ -1,8 +1,8 @@
 {
   "uuid": "{{ uuid }}",
-  "user": "{{ user }}",
+  "user": "{{ test_user }}",
   "time_ms": {{ ( ((fio_end_time | int) - ((workload.args.runtime | int + workload.args.ramp_time | int ) * (4 - (fio_jobsequence|int)) * 1000) + (workload.args.ramp_time | int) )    +    ( fio_log_line.split(', ')[0]| int) )  }},
-  "samples": {{ fio_log_line.split(', ')[1]| int }},
+  "samples_histogram": {{ fio_log_line.split(', ')[1]| int }},
   "min": {{ fio_log_line.split(', ')[2]| int }},
   "median": {{ fio_log_line.split(', ')[3]| int }},
   "p95": {{ fio_log_line.split(', ')[4]| int }},
@@ -10,5 +10,6 @@
   "max": {{ fio_log_line.split(', ')[6]| int }},
   "job_sequence": "{{ fio_jobsequence }}",
   "log_file": "clat-hist",
+  "sample": {{ fiod_sample| int }},
   "global_options": {{ fio_output_current_sample["global options"] | to_nice_json }}
 }
