@@ -56,9 +56,14 @@ spec:
                 name: postgres-config
 EOF
   postgres_pod=$(get_pod 'app=postgres' 300)
-  sleep 10
   # get the postgres pod IP
-  postgres_ip=$(kubectl get pod -n ripsaw $postgres_pod --template={{.status.podIP}})
+  postgres_ip=0
+  counter=0
+  until [[ $postgres_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ||  $counter -eq 10 ]]; do
+    let counter+=1
+    postgres_ip=$(kubectl get pod -n ripsaw $postgres_pod --template={{.status.podIP}})
+    sleep 2
+  done
   # deploy the test CR with the postgres pod IP
   sed s/host:/host:\ ${postgres_ip}/ tests/test_crs/valid_pgbench.yaml | kubectl apply -f -
   pgbench_pod=$(get_pod 'app=pgbench-client' 300)
