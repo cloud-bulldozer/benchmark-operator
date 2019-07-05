@@ -18,7 +18,7 @@ function functional_test_byowl {
   byowl_pod=$(get_pod 'app=byowl' 300)
   kubectl -n ripsaw wait --for=condition=Initialized "pods/$byowl_pod" --timeout=200s
   kubectl -n ripsaw  wait --for=condition=complete -l app=byowl jobs
-  kubectl logs "$byowl_pod" | grep "Test"
+  kubectl -n ripsaw logs "$byowl_pod" | grep "Test"
   echo "BYOWL test: Success"
 }
 
