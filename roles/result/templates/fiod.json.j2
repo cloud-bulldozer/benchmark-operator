@@ -1,11 +1,12 @@
 {
   "uuid": "{{ uuid }}",
-  "user": "{{ user }}",
+  "user": "{{ test_user }}",
   "spec": {{  _ripsaw_cloudbulldozer_io_benchmark.spec | to_nice_json  }},
-  "hosts": {{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fiohosts').splitlines() | to_nice_json }},
+  "hosts": {{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fiohosts').splitlines() | to_nice_json }},
   "global_options": {{ fio_output_current_sample["global options"] | to_nice_json }},
   "timestamp": {{ fio_end_time | int }},
   "fio-version": "{{ fio_output_current_sample["fio version"] }}",
   "nodeName": "{{ pod_details[fio_output_current_sample["client_stats"][item]["hostname"]] }}",
+  "sample": {{ fiod_sample| int }},
   "fio": {{ fio_output_current_sample["client_stats"][item] | to_nice_json }}
 }

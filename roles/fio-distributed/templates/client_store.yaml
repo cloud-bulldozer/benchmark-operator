@@ -16,11 +16,13 @@ spec:
         image: "quay.io/cloud-bulldozer/fio:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cd {{results.path}}/fiod-{{ uuid }};
-             cat /tmp/fio/fiojob | tee {{results.path}}/fiod-{{ uuid }}/fiojob;
-             sort /tmp/host/hosts | tee {{results.path}}/fiod-{{ uuid }}/fiohosts;
-             fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/fio-result.json;
-             sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/fio-result.json"
+          - "for i in `seq 1 {{fiod.samples}}`; do
+               cd {{results.path}}/fiod-{{ uuid }}/$i;
+               cat /tmp/fio/fiojob | tee {{results.path}}/fiod-{{ uuid }}/$i/fiojob;
+               sort /tmp/host/hosts | tee {{results.path}}/fiod-{{ uuid }}/$i/fiohosts;
+               fio --client=/tmp/host/hosts /tmp/fio/fiojob --output-format=json --output={{results.path}}/fiod-{{ uuid }}/$i/fio-result.json;
+               sed -i '/{/,$!d' {{results.path}}/fiod-{{ uuid }}/$i/fio-result.json;
+             done;"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

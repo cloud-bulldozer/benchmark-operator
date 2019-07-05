@@ -2,6 +2,9 @@
 - include_role:
     name: pre-result
     tasks_from: fiod
+  loop: "{{ range(1, (workload.args.samples | int + 1)) | list | flatten(1)}}"
+  loop_control:
+    loop_var: fiod_sample
   when: store_results is defined and store_results
 
 - name: Provide path for fio - PV
@@ -114,4 +117,7 @@
 - include_role:
     name: result
     tasks_from: fiod
+  loop: "{{ range(1, (workload.args.samples | int + 1)) | list | flatten(1)}}"
+  loop_control:
+    loop_var: fiod_sample
   when: store_results is defined and store_results

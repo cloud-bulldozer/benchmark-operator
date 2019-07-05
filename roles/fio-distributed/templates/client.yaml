@@ -18,7 +18,9 @@ spec:
         args:
           - "cat /tmp/fio/fiojob;
              cat /tmp/host/hosts;
-             cd /tmp && fio --client=/tmp/host/hosts /tmp/fio/fiojob"
+             for i in `seq 1 {{fiod.samples}}`; do
+               cd /tmp && fio --client=/tmp/host/hosts /tmp/fio/fiojob;
+             done;"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

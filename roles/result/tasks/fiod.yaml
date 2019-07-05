@@ -2,14 +2,14 @@
 
 - name: find samples
   find:
-    paths: "{{results.path}}/fiod-{{ uuid }}"
+    paths: "{{results.path}}/fiod-{{uuid}}/{{fiod_sample}}"
     patterns: "fio"
     use_regex: True
   register: fiod_files_found
 
 - block:
   - set_fact:
-      fio_output_current_sample: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + 'fio-result.json') }}"
+      fio_output_current_sample: "{{ lookup('file', results.path + '/fiod-' + uuid + '/' + fiod_sample | string + '/' + 'fio-result.json') }}"
 
   - set_fact:
       fio_end_time: "{{ ((fio_output_current_sample.timestamp | int) * 1000) }}"
