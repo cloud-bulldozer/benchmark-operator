@@ -1,4 +1,8 @@
 ---
+- name: setting ycsb_workload var
+  set_fact:
+    ycsb_workload: "{{ item }}"
+
 - name: Load Data Into Database
   k8s:
     definition:

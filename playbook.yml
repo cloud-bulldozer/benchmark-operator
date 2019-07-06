@@ -30,10 +30,7 @@
       vars:
         ycsb: "{{ workload.args }}"
         ycsb_load: "{{ workload.args.loaded | default(false) }}"
-      loop:
-        - '{{ workload.args.workloads }}'
-      loop_control:
-        loop_var: ycsb_workload
+      with_items: '{{ workload.args.workloads }}'
       when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
     - include_role:

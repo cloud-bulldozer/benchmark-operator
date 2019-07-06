@@ -4,8 +4,6 @@
 
 ## Running YCSB
 
-#### YCSB is currently in preview state i.e. it's not fully tested
-
 Given that you followed instructions to deploy operator,
 you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_ycsb_cr.yaml) to your needs.
 
@@ -16,7 +14,7 @@ Your resource file may look like this:
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: ycsb-couchbase-benchmark
+  name: ycsb-mongo-benchmark
   namespace: ripsaw
 spec:
   workload:
@@ -27,11 +25,8 @@ spec:
       workloads:
         - workloada
         - workloadb
-        - workloadc
-        - workloadf
-        - workloadd #workloade
-      options_load: '-p mongodb.url="mongodb://mongo/ycsb?' #passed as is to ycsb when loading database
-      options_run: '-p mongodb.url="mongodb://mongo/ycsb? -threads 10 -target 100' # passed as is to ycsb when running workloads
+      options_load: '-p mongodb.url="mongodb://mongo/ycsb?"' #passed as is to ycsb when loading database
+      options_run: '-p mongodb.url="mongodb://mongo/ycsb?" -threads 10 -target 100'
 ```
 
 The following options in args are required:

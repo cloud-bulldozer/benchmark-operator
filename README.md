@@ -11,7 +11,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Iperf3](docs/iperf3.md)       | Network Performance   | Working            |
 | [fio](docs/fio_distributed.md) | Storage IO            | Working            |
 | [Sysbench](docs/sysbench.md)   | System Performance    | Working            |
-| [YCSB](docs/ycsb.md)           | Database Performance  | Preview            |
+| [YCSB](docs/ycsb.md)           | Database Performance  | Working            |
 | [Byowl](docs/byowl.md)         | User defined workload | Working            |
 | [Pgbench](docs/pgbench.md)     | Postgres Performance  | Working            |
 

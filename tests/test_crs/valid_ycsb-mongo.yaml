@@ -1,0 +1,15 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: ycsb-mongo-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: ycsb
+    args:
+      infra: mongodb
+      driver: mongodb
+      workloads:
+        - workloada
+      options_load: '-p mongodb.url="mongodb://mongo-0.mongo/ycsb?"' #passed as is to ycsb when loading database
+      options_run: '-p mongodb.url="mongodb://mongo-0.mongo/ycsb?" -threads 10 -target 100'
