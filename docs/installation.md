@@ -87,7 +87,7 @@ as follows:
 Now that we've deployed our operator, follow workload specific instructions to
 run workloads:
 * [uperf](uperf.md)
-* [fio](fio.md)
+* [fio](fio_distributed.md)
 * [sysbench](sysbench.md)
 * [YCSB](ycsb.md)
 * [Bring your own workload](byowl.md)
