@@ -16,7 +16,6 @@ END
 function populate_test_list {
   if 'roles/uperf-bench' in $1; then echo "test_uperf.sh" >> tests/iterate_tests; fi
   if 'roles/fio-distributed' in $1; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-  if 'roles/fio-bench' in $1; then echo "test_fio.sh" >> tests/iterate_tests; fi
   if 'roles/iperf3-bench' in $1; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
   if 'roles/byowl' in $1; then echo "test_byowl.sh" >> tests/iterate_tests; fi
   if 'roles/sysbench' in $1; then echo "test_sysbench.sh" >> tests/iterate_tests; fi

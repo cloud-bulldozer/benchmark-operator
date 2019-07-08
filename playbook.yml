@@ -20,12 +20,6 @@
       when: workload.name == "iperf3" and workload.args.pairs > 0
 
     - include_role:
-        name: "fio-bench"
-      vars:
-        fio: "{{ workload.args }}"
-      when: workload.name == "fio" and workload.args.clients > 0
-
-    - include_role:
         name: sysbench
       vars:
         sysbench : "{{ workload.args }}"
