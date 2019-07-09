@@ -41,7 +41,7 @@ spec:
                done;
              fi"
       restartPolicy: OnFailure
-{% if item.1.pin_node is defined and item.1.pin_node|length and item.1.pin_node is not sameas "" %}
+{% if item.1.pin_node is defined and item.1.pin_node %}
       nodeSelector:
         kubernetes.io/hostname: '{{ item.1.pin_node }}'
 {% endif %}
