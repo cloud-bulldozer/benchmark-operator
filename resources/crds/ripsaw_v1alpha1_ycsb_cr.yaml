@@ -9,6 +9,9 @@ spec:
     args:
       infra: mongodb
       driver: mongodb
+      recordcount: 100
+      operationcount: 100
+      requestdistribution: zipfian
       workloads:
         - workloada
         - workloadb

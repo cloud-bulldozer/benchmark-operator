@@ -22,6 +22,8 @@ spec:
     args:
       infra: mongodb
       driver: mongodb
+      recordcount: 100
+      operationcount: 100
       workloads:
         - workloada
         - workloadb
@@ -34,6 +36,10 @@ The following options in args are required:
 `infra` is the database against which you're running mongodb
 
 `driver` is the driver used to interact with database, you can choose from [YCSB Github](https://github.com/brianfrankcooper/YCSB)
+
+`recordcount` number of records to be inserted into the database (insertcount defaults to recordcount).
+
+`operationcount` number of operations to run against the database
 
 `workload` is a list of workloads to run, you can read about the workloads at [YCSB workloads](https://github.com/brianfrankcooper/YCSB/wiki/Core-Workloads)
 Note: We currently support running either workloade or workloadd( and not in the same list) as the last workload in the list.

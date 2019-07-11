@@ -1,27 +1,27 @@
 ---
 - name: setting ycsb_workload var
   set_fact:
-    ycsb_workload: "{{ item }}"
+    ycsb_workload: "workloada"
 
 - name: Generate workloads
   k8s:
     definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
-- name: Run YCSB Workload
+- name: Load Data Into Database
   k8s:
     definition:
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-ycsb-bench-job-{{ ycsb_workload }}'
+        name: '{{ meta.name }}-ycsb-data-load-job-{{ ycsb_workload }}'
         namespace: '{{ operator_namespace }}'
       spec:
         template:
           metadata:
-            name: '{{ meta.name }}-ycsb-bench'
+            name: '{{ meta.name }}-ycsb-data-load'
             namespace: '{{ operator_namespace }}'
             labels:
-              name: 'ycsb-run'
+             name: 'ycsb-load'
           spec:
             containers:
             - name: ycsb
@@ -43,24 +43,24 @@
                 value: "{{uuid}}"
               imagePullPolicy: Always
               command: ["/bin/sh"]
-              args: ["-c", "/opt/snafu/ycsb-wrapper/ycsb-wrapper.py -r 1 -d {{ ycsb.driver }} -w {{ ycsb_workload }} -x \"{{ ycsb.options_load }}\""]
+              args: ["-c", "/opt/snafu/ycsb-wrapper/ycsb-wrapper.py -r 1 -l -d {{ ycsb.driver }} -w {{ ycsb_workload }} -x \"{{ ycsb.options_load }}\""]
               volumeMounts:
                 - name: config-volume
                   mountPath: "/tmp/ycsb"
             restartPolicy: Never
             volumes:
-              - name: config-volume
-                configMap:
-                  name: ycsb-test
+            - name: config-volume
+              configMap:
+                name: ycsb-test
         backoffLimit: 4
 
-- name: Wait for YCSB Workload Job to Succeed...
+- name: Wait for Load Job to Succeed...
   k8s_facts:
     kind: Job
     api_version: batch/v1
-    name: '{{ meta.name }}-ycsb-bench-job-{{ ycsb_workload }}'
+    name: '{{ meta.name }}-ycsb-data-load-job-{{ ycsb_workload }}'
     namespace: "{{ operator_namespace }}"
-  register: ycsb_bench
-  until: "ycsb_bench | json_query('resources[].status.succeeded')"
+  register: ycsb_load_pod
+  until: "ycsb_load_pod | json_query('resources[].status.succeeded')"
   retries: 1000
   delay: 20

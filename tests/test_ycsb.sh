@@ -51,18 +51,10 @@ spec:
      containers:
        - name: mongo
          image: mongo
-         command:
-           - mongod
-           - "--smallfiles"
-           - "--bind_ip"
-           - 0.0.0.0
+         command: ["/bin/sh"]
+         args:  ["-c", "mkdir -p /tmp/data/db; mongod --smallfiles --bind_ip 0.0.0.0 --dbpath /tmp/data/db"]
          ports:
            - containerPort: 27017
-       - name: mongo-sidecar
-         image: cvallance/mongo-k8s-sidecar
-         env:
-           - name: MONGO_SIDECAR_POD_LABELS
-             value: "role=mongo,environment=test"
 EOF
   kubectl apply -f tests/test_crs/valid_ycsb-mongo.yaml
   ycsb_load_pod=$(get_pod 'name=ycsb-load' 300)

@@ -9,6 +9,9 @@ spec:
     args:
       infra: mongodb
       driver: mongodb
+      recordcount: 100
+      operationcount: 100
+      requestdistribution: zipfian
       workloads:
         - workloada
       options_load: '-p mongodb.url="mongodb://mongo-0.mongo/ycsb?"' #passed as is to ycsb when loading database
