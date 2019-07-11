@@ -4,6 +4,10 @@ metadata:
   name: pgbench-benchmark
   namespace: my-ripsaw
 spec:
+  #elasticsearch:
+  #  server: my.elasticsearch.server
+  #  port: 9200
+  #test_user: milton
   workload:
     name: "pgbench"
     args:

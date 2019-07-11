@@ -10,12 +10,13 @@ spec:
       timeout: 5
       clients:
         - 1
+        - 2
       threads: 1
       transactions: 10
       cmd_flags: ''
       init_cmd_flags: ''
       scaling_factor: 1
-      samples: 1
+      samples: 2
       databases:
         - host:
           user: ci
