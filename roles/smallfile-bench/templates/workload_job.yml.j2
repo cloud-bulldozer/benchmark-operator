@@ -1,0 +1,52 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: "{{ meta.name }}-smallfile-client-{{ item }}-benchmark"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: smallfile-benchmark
+    spec:
+      containers:
+        - name: benchmark-server
+          image: "quay.io/nichawla/smallfile_container:testing"
+          command: ["/bin/sh", "-c"]
+          workingDir: /root/smallfile-master/
+          args:
+            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
+              export TMPDIR=/tmp
+              arr=$(python <<< "print(' '.join({{smallfile.operation}}))");
+              rm -rf {{smallfile_path}}/RESULTS ;
+              mkdir -p {{smallfile_path}}/RESULTS;
+              mkdir -p {{smallfile_path}}/smallfile_test_data;
+              for i in ${arr[@]};do echo $i;
+              echo RUnning_OPERATION_$i;
+              cat /tmp/smallfile/smallfilejob;
+              python smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
+              sleep 5;
+              done;
+              rm -rf {{ smallfile_path }}/smallfile_test_data;
+              echo RUN STATUS DONE
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/tmp/smallfile"
+{% if smallfile.storageclass is defined %}
+            - name: ceph-volume
+              mountPath: "{{ smallfile_path }}"
+{% endif %}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: smallfile-test
+            defaultmode: 0777
+{% if smallfile.storageclass is defined %}
+        - name: ceph-volume
+          persistentVolumeClaim:
+            claimName: "claim{{item}}"
+{% endif %}
+      restartPolicy: Never
+      serviceAccountName: benchmark-operator

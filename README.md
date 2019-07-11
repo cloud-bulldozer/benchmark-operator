@@ -5,15 +5,16 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Workloads status
 
-| Workload                       | Use                   | Status in Operator |
-| ------------------------------ | --------------------  | ------------------ |
-| [UPerf](docs/uperf.md)         | Network Performance   | Working            |
-| [Iperf3](docs/iperf3.md)       | Network Performance   | Working            |
-| [fio](docs/fio_distributed.md) | Storage IO            | Working            |
-| [Sysbench](docs/sysbench.md)   | System Performance    | Working            |
-| [YCSB](docs/ycsb.md)           | Database Performance  | Working            |
-| [Byowl](docs/byowl.md)         | User defined workload | Working            |
-| [Pgbench](docs/pgbench.md)     | Postgres Performance  | Working            |
+| Workload                       | Use                    | Status in Operator |
+| ------------------------------ | ---------------------- | ------------------ |
+| [UPerf](docs/uperf.md)         | Network Performance    | Working            |
+| [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |
+| [fio](docs/fio_distributed.md) | Storage IO             | Working            |
+| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |
+| [Byowl](docs/byowl.md)         | User defined workload  | Working            |
+| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |
+| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |
 
 
 ## Installation

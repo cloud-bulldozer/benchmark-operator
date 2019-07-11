@@ -1,0 +1,14 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: ripsaw
+spec:
+  workload:
+    name: smallfile
+    args:
+      clients: 1
+      operation: ["create", "read", "append", "delete"]
+      threads: 5
+      file_size: 64
+      files: 100
