@@ -1,3 +1,4 @@
+test_smallfile.sh
 test_pgbench.sh
 test_fiod.sh
 test_iperf3.sh

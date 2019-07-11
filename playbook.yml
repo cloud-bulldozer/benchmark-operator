@@ -51,4 +51,11 @@
         pgbench: "{{ workload.args }}"
       when: workload.name == "pgbench" and workload.args.clients > 0
 
+    - include_role:
+        name: "smallfile-bench"
+      vars:
+        smallfile: "{{ workload.args }}"
+      when: workload.name == "smallfile" and workload.args.clients > 0
+
+
     when: workload is defined
