@@ -26,10 +26,15 @@
       when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
 
     - include_role:
+        name: "load-ycsb"
+      vars:
+        ycsb: "{{ workload.args }}"
+      when: workload.name == "ycsb" and workload.args.workloads | length > 0
+
+    - include_role:
         name: "ycsb-bench"
       vars:
         ycsb: "{{ workload.args }}"
-        ycsb_load: "{{ workload.args.loaded | default(false) }}"
       with_items: '{{ workload.args.workloads }}'
       when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
