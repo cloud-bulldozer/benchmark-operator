@@ -14,12 +14,14 @@ END
 }
 
 function populate_test_list {
-  if 'roles/uperf-bench' in $1; then echo "test_uperf.sh" >> tests/iterate_tests; fi
-  if 'roles/fio-distributed' in $1; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-  if 'roles/iperf3-bench' in $1; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
-  if 'roles/byowl' in $1; then echo "test_byowl.sh" >> tests/iterate_tests; fi
-  if 'roles/sysbench' in $1; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
-  if 'roles/pgbench' in $1; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+  touch tests/iterate_tests
+  if [[ $(echo ${1} | grep 'roles/uperf-bench') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/fio-distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/iperf3-bench') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/byowl') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/ycsb-bench') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
 }
 
 function wait_clean {
