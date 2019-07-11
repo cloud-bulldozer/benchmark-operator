@@ -19,7 +19,7 @@ check_all_tests=$(check_full_trigger)
 if [[ "$check_all_tests" != "True" ]]
 then
   echo "checking which tests need to be run"
-  populate_test_list "${git_diff_files}"
+  populate_test_list ${git_diff_files}
 else
   echo "running all the tests"
   `cp tests/test_list tests/iterate_tests`
