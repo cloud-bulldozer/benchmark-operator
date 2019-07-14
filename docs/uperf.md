@@ -12,7 +12,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: uperf-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload:
     name: uperf
@@ -84,7 +84,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
   elasticsearch:

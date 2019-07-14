@@ -12,6 +12,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
+  namespace: my-ripsaw
 spec:
   byowl:
     image: "quay.io/jtaleric/uperf:testing"
@@ -23,4 +24,3 @@ spec:
 
 This will launch the uperf container, and simply print the messages
 above into the log of the container.
-

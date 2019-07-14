@@ -93,7 +93,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload: #can be infrastructure too or can be both like in case of ycsb-couchbase
     name: your_workload_name
@@ -105,13 +105,14 @@ spec:
         my_key_3: my_value_3
 ```
 
+Note: The Benchmark has to be created in the namespace `my-ripsaw`
 
 ### Additional guidance for adding a workload
 * Please keep the [workload status](README.md#workloads-status) updated
 * To help users understand how the workload can be run, please add a guide similar
 to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
-* Ensure all resources created are within the `ripsaw` namespace, this can be done by setting namespace
+* Ensure all resources created are within the `my-ripsaw` namespace, this can be done by setting namespace
 to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
 namespace which is what `meta.namespace` would default to.
 

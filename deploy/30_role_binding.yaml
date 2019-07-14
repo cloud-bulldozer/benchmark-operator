@@ -2,11 +2,11 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: benchmark-operator
-  namespace: ripsaw
+  namespace: my-ripsaw
 subjects:
 - kind: ServiceAccount
   name: benchmark-operator
-  namespace: ripsaw
+  namespace: my-ripsaw
 roleRef:
   kind: Role
   name: benchmark-operator

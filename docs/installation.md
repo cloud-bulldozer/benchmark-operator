@@ -46,6 +46,9 @@ in the installation guide.
 Note: The benchmark-operator's code-name is ripsaw, so the names have been
 used interchangeably.
 
+Note: If you're on a vanilla k8s distribution, then you can also deploy Ripsaw through
+      operatorhub.io, please check [ripsaw in operatorhub](https://operatorhub.io/operator/ripsaw) for more details.
+
 First we'll need to clone the operator:
 
 ```bash
@@ -54,15 +57,21 @@ First we'll need to clone the operator:
 # export KUBECONFIG=<your_kube_config> # if not already done
 ```
 
-We try to maintain all resources created/required by ripsaw in the namespace
-ripsaw, so we'll create the namespace and add a context with admin user and
-can be done as follows:
+We try to maintain all resources created/required by ripsaw in the namespace `my-ripsaw`,
+as this would be the namespace, ripsaw would be installed into if deployed through operatorhub.io.
+
+Note: But in case you've a specific usecase where you want the resources to be in a different namespace, you'll just need to edit the namespace in deploy/
+as well as the operator definition.
+
+But for sake of the documentation, let's proceed with the namespace `my-ripsaw`
+
+so we'll create the namespace as follows
 
 ```bash
 # kubectl apply -f resources/namespace.yaml
-# kubectl config set-context ripsaw --namespace=ripsaw --cluster=<your_cluster_name> --user=<your_cluster_admin_user>
-# kubectl config use-context ripsaw
 ```
+
+or if you're used to `oc` it'd be `oc new-project my-ripsaw` and `oc project my-ripsaw`
 
 We'll now apply the permissions and operator definitions.
 

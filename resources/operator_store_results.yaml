@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: benchmark-operator
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   replicas: 1
   selector:

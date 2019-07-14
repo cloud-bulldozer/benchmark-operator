@@ -17,11 +17,11 @@ function functional_test_iperf {
   kubectl apply -f tests/test_crs/valid_iperf3.yaml
   pod_count 'app=iperf3-bench-server' 1 300
   iperf_client_pod=$(get_pod 'app=iperf3-bench-client' 300)
-  kubectl -n ripsaw wait --for=condition=Initialized "pods/$iperf_client_pod" --timeout=200s
-  kubectl -n ripsaw wait --for=condition=complete -l app=iperf3-bench-client jobs --timeout=100s
+  kubectl -n my-ripsaw wait --for=condition=Initialized "pods/$iperf_client_pod" --timeout=200s
+  kubectl -n my-ripsaw wait --for=condition=complete -l app=iperf3-bench-client jobs --timeout=100s
   sleep 5
   # ensuring that iperf actually ran and we can access metrics
-  kubectl logs "$iperf_client_pod" --namespace ripsaw | grep "iperf Done."
+  kubectl logs "$iperf_client_pod" --namespace my-ripsaw | grep "iperf Done."
   echo "iperf test: Success"
 }
 

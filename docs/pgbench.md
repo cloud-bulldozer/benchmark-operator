@@ -16,7 +16,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: pgbench-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload:
     name: "pgbench"
@@ -50,18 +50,18 @@ spec:
       #test_sequential: False
 
       ## List of databases to test
-      # Note: 'databases' below is a list structures to identify multiple 
+      # Note: 'databases' below is a list structures to identify multiple
       #       databases against which benchmarks tests will be run
       databases:
         - host:  # hostname or IP
-          user: 
+          user:
           # FIXME: Get passwords other than by plain text here
-          password: 
-          db_name: 
+          password:
+          db_name:
           # port will default to 5432 if left blank or undefined
           port:  
           # pin_node is an optional kubernetes hostname to which the pgbench pod will be pinned
-          pin_node: 
+          pin_node:
 ```
 
 Once done creating/editing the resource file, you can run it by:

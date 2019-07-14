@@ -5,9 +5,9 @@ source tests/common.sh
 
 function finish {
   echo "Cleaning up ycsb"
-  kubectl delete -n ripsaw benchmark/ycsb-mongo-benchmark
-  kubectl delete -n ripsaw statefulset/mongo
-  kubectl delete -n ripsaw service/mongo
+  kubectl delete -n my-ripsaw benchmark/ycsb-mongo-benchmark
+  kubectl delete -n my-ripsaw statefulset/mongo
+  kubectl delete -n my-ripsaw service/mongo
   delete_operator
 }
 
@@ -21,7 +21,7 @@ apiVersion: v1
 kind: Service
 metadata:
  name: mongo
- namespace: ripsaw
+ namespace: my-ripsaw
  labels:
    name: mongo
 spec:
@@ -37,7 +37,7 @@ apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
  name: mongo
- namespace: ripsaw
+ namespace: my-ripsaw
 spec:
  serviceName: "mongo"
  replicas: 1
@@ -66,9 +66,9 @@ spec:
 EOF
   kubectl apply -f tests/test_crs/valid_ycsb-mongo.yaml
   ycsb_load_pod=$(get_pod 'name=ycsb-load' 300)
-  kubectl wait --for=condition=Initialized "pods/$ycsb_load_pod" -n ripsaw --timeout=60s
-  kubectl wait --for=condition=Complete jobs -l 'name=ycsb-load' -n ripsaw --timeout=300s
-  kubectl logs -n ripsaw $ycsb_load_pod | grep 'Starting test'
+  kubectl wait --for=condition=Initialized "pods/$ycsb_load_pod" -n my-ripsaw --timeout=60s
+  kubectl wait --for=condition=Complete jobs -l 'name=ycsb-load' -n my-ripsaw --timeout=300s
+  kubectl logs -n my-ripsaw $ycsb_load_pod | grep 'Starting test'
   echo "ycsb test: Success"
 }
 

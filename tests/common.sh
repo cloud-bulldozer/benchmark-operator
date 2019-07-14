@@ -25,11 +25,11 @@ function populate_test_list {
 }
 
 function wait_clean {
-  kubectl delete --all jobs --namespace ripsaw
-  kubectl delete --all deployments --namespace ripsaw
-  kubectl delete --all pods --namespace ripsaw
+  kubectl delete --all jobs --namespace my-ripsaw
+  kubectl delete --all deployments --namespace my-ripsaw
+  kubectl delete --all pods --namespace my-ripsaw
   for i in {1..30}; do
-    if [ `kubectl get pods --namespace ripsaw | grep bench | wc -l` -ge 1 ]; then
+    if [ `kubectl get pods --namespace my-ripsaw | grep bench | wc -l` -ge 1 ]; then
       sleep 5
     else
       break
@@ -45,7 +45,7 @@ function get_pod () {
   pod_name="False"
   until [ $pod_name != "False" ] ; do
     sleep $sleep_time
-    pod_name=$(kubectl get pods -l $1 --namespace ripsaw -o name | cut -d/ -f2)
+    pod_name=$(kubectl get pods -l $1 --namespace my-ripsaw -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
     fi
@@ -67,7 +67,7 @@ function pod_count () {
   export $1
   until [ $pod_count == $2 ] ; do
     sleep $sleep_time
-    pod_count=$(kubectl get pods -n ripsaw -l $1 -o name | wc -l)
+    pod_count=$(kubectl get pods -n my-ripsaw -l $1 -o name | wc -l)
     if [ -z $pod_count ]; then
       pod_count=0
     fi
@@ -83,8 +83,8 @@ function pod_count () {
 function apply_operator {
   kubectl apply -f resources/operator.yaml
   ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
-  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace ripsaw --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace ripsaw --timeout=300s
+  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=300s
 }
 
 function delete_operator {
@@ -144,7 +144,7 @@ function update_operator_image {
 
 function check_log(){
   for i in {1..10}; do
-    if kubectl logs -f $1 --namespace ripsaw | grep -q $2 ; then
+    if kubectl logs -f $1 --namespace my-ripsaw | grep -q $2 ; then
       break;
     else
       sleep 10

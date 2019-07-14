@@ -17,7 +17,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: sysbench-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload:
     name: sysbench
