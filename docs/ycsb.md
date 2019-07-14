@@ -15,7 +15,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: ycsb-mongo-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload:
     name: ycsb

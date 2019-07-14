@@ -16,12 +16,12 @@ function functional_test_sysbench {
   apply_operator
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
   sysbench_pod=$(get_pod 'app=sysbench' 300)
-  kubectl wait --for=condition=Initialized "pods/$sysbench_pod" --namespace ripsaw --timeout=200s
+  kubectl wait --for=condition=Initialized "pods/$sysbench_pod" --namespace my-ripsaw --timeout=200s
   # Higher timeout as it takes longer
-  kubectl wait --for=condition=complete -l app=sysbench --namespace ripsaw jobs
+  kubectl wait --for=condition=complete -l app=sysbench --namespace my-ripsaw jobs
   # sleep isn't needed as the sysbench is kind: job so once it's complete we can access logs
   # ensuring the run has actually happened
-  kubectl logs "$sysbench_pod" --namespace ripsaw | grep "execution time"
+  kubectl logs "$sysbench_pod" --namespace my-ripsaw | grep "execution time"
   echo "Sysbench test: Success"
 }
 

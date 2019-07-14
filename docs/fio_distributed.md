@@ -14,7 +14,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: fio-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   workload:
     name: "fio_distributed"
@@ -95,7 +95,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   elasticsearch:
     server: <es_host>

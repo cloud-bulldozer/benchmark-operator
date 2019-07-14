@@ -5,9 +5,9 @@ source tests/common.sh
 
 function finish {
   echo "Cleaning up pgbench"
-  kubectl delete -n ripsaw benchmark/pgbench-benchmark
-  kubectl delete -n ripsaw deployment/postgres
-  kubectl delete -n ripsaw configmap/postgres-config
+  kubectl delete -n my-ripsaw benchmark/pgbench-benchmark
+  kubectl delete -n my-ripsaw deployment/postgres
+  kubectl delete -n my-ripsaw configmap/postgres-config
   delete_operator
 }
 
@@ -23,7 +23,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: ripsaw
+  namespace: my-ripsaw
   labels:
     app: postgres
 data:
@@ -37,7 +37,7 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: ripsaw
+  namespace: my-ripsaw
 spec:
   replicas: 1
   template:
@@ -61,16 +61,16 @@ EOF
   counter=0
   until [[ $postgres_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ||  $counter -eq 10 ]]; do
     let counter+=1
-    postgres_ip=$(kubectl get pod -n ripsaw $postgres_pod --template={{.status.podIP}})
+    postgres_ip=$(kubectl get pod -n my-ripsaw $postgres_pod --template={{.status.podIP}})
     sleep 2
   done
   # deploy the test CR with the postgres pod IP
   sed s/host:/host:\ ${postgres_ip}/ tests/test_crs/valid_pgbench.yaml | kubectl apply -f -
   pgbench_pod=$(get_pod 'app=pgbench-client' 300)
-  kubectl wait --for=condition=Initialized "pods/$pgbench_pod" -n ripsaw --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$pgbench_pod" -n ripsaw --timeout=60s
-  kubectl wait --for=condition=Complete jobs -l 'app=pgbench-client' -n ripsaw --timeout=300s
-  kubectl logs -n ripsaw $pgbench_pod | grep 'tps ='
+  kubectl wait --for=condition=Initialized "pods/$pgbench_pod" -n my-ripsaw --timeout=60s
+  kubectl wait --for=condition=Ready "pods/$pgbench_pod" -n my-ripsaw --timeout=60s
+  kubectl wait --for=condition=Complete jobs -l 'app=pgbench-client' -n my-ripsaw --timeout=300s
+  kubectl logs -n my-ripsaw $pgbench_pod | grep 'tps ='
   echo "pgbench test: Success"
 }
 

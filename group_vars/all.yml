@@ -1,2 +1,2 @@
 ---
-operator_namespace: ripsaw
+operator_namespace: '{{ meta.namespace }}'
