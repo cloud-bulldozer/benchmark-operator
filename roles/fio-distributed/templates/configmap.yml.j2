@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fio-test
+  namespace: '{{ operator_namespace }}'
+data:
+{% for job in fiod.jobs %}
+{% for bs in fiod.bs %}
+{% for numjob in fiod.numjobs %}
+  fiojob-{{job}}-{{bs}}-{{numjob}}: |
+    [global]
+    directory={{fio_path}}
+    ioengine=libaio
+    bs={{bs}}
+    iodepth={{fiod.iodepth}}
+    direct=1
+    create_on_open=1
+    time_based=1
+    runtime={{fiod.runtime}}
+    clocksource=clock_gettime
+    ramp_time={{fiod.ramp_time}}
+
+    [{{job}}]
+    rw={{job}}
+    size={{fiod.filesize}}g
+    write_bw_log=fio
+    write_iops_log=fio
+    write_lat_log=fio
+    write_hist_log=fio
+    numjobs={{numjob}}
+{% if 'w' in job %}
+    end_fsync=1
+{% endif %}
+    per_job_logs=1
+    log_avg_msec={{fiod.log_sample_rate}}
+    log_hist_msec={{fiod.log_sample_rate}}
+    filename_format=f.\$jobnum.\$filenum
+{% endfor %}
+{% endfor %}
+{% endfor %}

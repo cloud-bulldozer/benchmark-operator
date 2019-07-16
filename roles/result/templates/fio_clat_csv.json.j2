@@ -1,8 +1,0 @@
-{
-  "uuid": "{{ uuid }}",
-  "user": "{{ user }}",
-  "time_ms": {{ (fio_start_time | int) + (item.time_elapsed | int)  }},
-  "latency": {{ item.value }},
-  "data_direction": {{ item.data_direction }},
-  "offset": {{ item.offset }}
-}
