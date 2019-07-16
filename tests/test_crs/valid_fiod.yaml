@@ -12,11 +12,15 @@ spec:
       samples: 2
       servers: 2
       pin_server: "master-0"
-      job: seq
-      jobname: seq
-      bs: 64k
+      jobs:
+        - read
+        - write
+      bs:
+        - 64k
+      numjobs:
+        - 1
       iodepth: 4
       runtime: 3
       ramp_time: 1
       filesize: 1
-      log_sample_rate: 1000 # provide only if job is seq or rand
+      log_sample_rate: 1000

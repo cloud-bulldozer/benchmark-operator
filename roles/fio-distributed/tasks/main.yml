@@ -1,12 +1,4 @@
 ---
-- include_role:
-    name: pre-result
-    tasks_from: fiod
-  loop: "{{ range(1, (workload.args.samples | int + 1)) | list | flatten(1)}}"
-  loop_control:
-    loop_var: fiod_sample
-  when: store_results is defined and store_results
-
 - name: Provide path for fio - PV
   set_fact:
     fio_path: /mnt/pvc
@@ -19,14 +11,7 @@
 
 - name: Generate fio test
   k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: fio-test
-        namespace: '{{ operator_namespace }}'
-      data:
-        fiojob: "{{ lookup('template', 'job.fio.{{fiod.job}}') }}"
+    definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
 - name: Create PVC(s)
   k8s:
@@ -89,35 +74,7 @@
       data:
         hosts: |
           {{ fio_hosts }}
-  when: fiod.servers > 0
 
 - name: Start FIO Client
   k8s:
     definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
-  when: (store_results is not defined or (store_results is defined and not store_results))
-
-- name: Start FIO Client (store results)
-  k8s:
-    definition: "{{ lookup('template', 'client_store.yaml') | from_yaml }}"
-  when: store_results is defined and store_results
-
-- name: Wait for fio jobs to finish running....
-  k8s_facts:
-    kind: Job
-    api_version: batch/v1
-    namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - app = fiod-client
-  register: client_jobs
-  until: "1 == (client_jobs | json_query('resources[].status.succeeded')|length)"
-  retries: 25
-  delay: 15
-  when: store_results is defined and store_results
-
-- include_role:
-    name: result
-    tasks_from: fiod
-  loop: "{{ range(1, (workload.args.samples | int + 1)) | list | flatten(1)}}"
-  loop_control:
-    loop_var: fiod_sample
-  when: store_results is defined and store_results

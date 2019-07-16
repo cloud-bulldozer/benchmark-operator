@@ -1,6 +1,0 @@
-{
-  "uuid": "{{ uuid }}",
-  "user": "{{ user }}",
-  "spec": {{  _ripsaw_cloudbulldozer_io_benchmark.spec | to_nice_json  }},
-  "fio": {{ lookup('file', item.path + '/' + 'fio-result.json') }}
-}

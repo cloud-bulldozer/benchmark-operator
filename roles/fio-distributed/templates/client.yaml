@@ -16,10 +16,24 @@ spec:
         image: "quay.io/cloud-bulldozer/fio:latest"
         command: ["/bin/sh", "-c"]
         args:
-          - "cat /tmp/fio/fiojob;
-             cat /tmp/host/hosts;
-             for i in `seq 1 {{fiod.samples}}`; do
-               cd /tmp && fio --client=/tmp/host/hosts /tmp/fio/fiojob;
+          - "cat /tmp/host/hosts;
+             export uuid={{uuid}};
+{% if elasticsearch is defined %}
+{% if elasticsearch.server is defined %}
+             export es={{elasticsearch.server}};
+             export es_port={{elasticsearch.port}};
+             export es_index={{elasticsearch.index}}
+{% endif %}
+{% endif %}
+{% if test_user is defined %}
+             export test_user={{test_user}};
+{% endif %}
+             for file in $(ls /tmp/fio/ | egrep ^fiojob); do
+               cat /tmp/fio/$file;
+               for i in `seq 1 {{fiod.samples}}`; do
+                 mkdir -p /tmp/fiod-{{ uuid }}/$file/$i;
+                 python /opt/snafu/fio-wrapper/fio-wrapper.py /tmp/host/hosts /tmp/fio/$file -s $i -d /tmp/fiod-{{ uuid }}/$file/$i;
+               done;
              done;"
         volumeMounts:
         - name: fio-volume
