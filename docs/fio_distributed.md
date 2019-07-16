@@ -19,19 +19,26 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      servers: 1
-      samples: 1 # number of times to run the fio test
       pin: false
+      samples: 2
+      servers: 2
       pin_server: "master-0"
-      job: seq
-      jobname: seq
-      bs: 64k
+      jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
+        - read
+        - write
+      bs:
+        - 64k
+      numjobs:
+        - 1
       iodepth: 4
-      runtime: 60
-      filesize: 2
+      runtime: 3
+      ramp_time: 1
+      filesize: 1
+      log_sample_rate: 1000
       storageclass: rook-ceph-block
       storagesize: 5Gi
 ```
+Ripsaw will run the jobs sequentially.
 
 To disable the need for PVs, simply comment out the `storageclass` key.
 
@@ -42,10 +49,6 @@ Additionally, fio distributed will default to numjobs:1, and this current cannot
 (*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
 
 ## Indexing in elasticsearch and visualization through Grafana ( Experimental )
-
-If you'd like to try to experiment with storing results in a pv and have followed
-instructions to deploy operator with attached pvc, then you can send results to ES(elasticsearch).
-We also have a customized grafana dashboard that you can use to visualize.
 
 ### Setup of Elasticsearch and Grafana
 
@@ -102,21 +105,24 @@ spec:
     port: <es_port>
     index: <es_index>
   test_user: rht_perf_ci # test_user is just a key that points to user triggering ripsaw, useful to search results in ES
-  store_results: true
-  results:
-    path: /opt/result-data/ # has to be what's passed to mountpath for operator pod
   workload:
     name: "fio_distributed"
     args:
       pin: false
+      samples: 2
       servers: 2
       pin_server: "master-0"
-      job: seq
-      jobname: seq
-      bs: 64k
+      jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
+        - read
+        - write
+      bs:
+        - 64k
+      numjobs:
+        - 1
       iodepth: 4
-      runtime: 5
-      ramp_time: 2
+      runtime: 3
+      ramp_time: 1
       filesize: 1
+      log_sample_rate: 1000
       log_sample_rate: 1000 # provide only if job is seq or rand
 ```
