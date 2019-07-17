@@ -65,7 +65,7 @@
           spec:
             containers:
               - name: publisher-container
-                image: "quay.io/nichawla/smallfile_container:testing"
+                image: "quay.io/cloud-bulldozer/smallfile:master"
                 tty: true
                 command: ["/bin/sh", "-c"]
                 workingDir: /root/smallfile-master/
