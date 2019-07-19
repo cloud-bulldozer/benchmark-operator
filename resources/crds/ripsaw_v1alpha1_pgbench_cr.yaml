@@ -40,6 +40,10 @@ spec:
       # Tests of multiple databases will be done in parallel unless
       # test_sequential is set to True
       #test_sequential: False
+      # num_databases_pattern takes a pattern definition, one of:
+      # 'add1' (1,2,3,...), 'add2' (2,4,6,...), 'log2' (1,2,4,8,...), or 'all'
+      # The default if left blank or undefined is 'all'
+      num_databases_pattern: 'all'
 
       ## List of databases to test
       # Note: 'databases' below is a list structures to identify multiple
