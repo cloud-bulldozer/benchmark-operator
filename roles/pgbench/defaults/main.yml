@@ -1,3 +1,4 @@
 ---
 
 db_port: 5432
+num_databases_pattern: "{{ pgbench.num_databases_pattern|default('all') }}"

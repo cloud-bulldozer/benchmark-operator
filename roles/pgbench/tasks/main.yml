@@ -8,27 +8,14 @@
       - name = benchmark-operator
   register: bo
 
-- name: Init workload start signal to false
-  command: "redis-cli set pgb_start false;"
+- name: Generate list of database counts
+  include_tasks: generate_num_databases.yml
 
-- name: Init client ready state to empty
-  command: "redis-cli del pgb_client_ready"
-
-- name: Setup pgbench test job(s)
-  k8s:
-    definition: "{{ lookup('template', 'templates/workload.yml.j2') }}"
-  with_indexed_items: "{{ pgbench.databases }}"
-
-- name: Wait for all clients to be ready
-  shell: "redis-cli --raw llen pgb_client_ready"
-  register: client_ready
-  until: "client_ready.stdout|int == pgbench.databases|length"
-  # timeout in minutes times 6 times delay of 10 seconds equals timeout in seconds
-  retries: "{{ pgbench.timeout|int * 6 }}"
-  delay: 10
-
-- name: Signal workloads to start
-  command: "redis-cli set pgb_start true"
+- name: Begin pgbench workloads
+  include_tasks: run_workload.yml
+  with_items: "{{ num_databases }}"
+  loop_control:
+    loop_var: dbnum
 
 #TODO:
 #- database passwords are currently provided in plain text in the CR
