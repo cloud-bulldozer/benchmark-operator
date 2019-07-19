@@ -57,5 +57,10 @@
         smallfile: "{{ workload.args }}"
       when: workload.name == "smallfile" and workload.args.clients > 0
 
+    - include_role:
+        name: "fs-drift"
+      vars:
+        fs_drift: "{{ workload.args }}"
+      when: workload.name == "fs-drift" and workload.args.clients > 0
 
     when: workload is defined

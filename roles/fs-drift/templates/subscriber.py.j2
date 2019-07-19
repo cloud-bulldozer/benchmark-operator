@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+import time
+import traceback
+import sys
+import redis
+
+redis_host = sys.argv[1]
+
+try:
+    r = redis.StrictRedis(host=redis_host, port=6379)
+
+    p = r.pubsub()
+    p.subscribe('fs-drift')
+    STATE = True
+
+    while STATE:
+        print("Waiting For all fs-drift Pods to get ready ...")
+        message = p.get_message()
+        if message:
+            command = message['data']
+            if command == b'run':
+                STATE = False
+
+        time.sleep(1)
+
+    print("Executing fs-drift ...")
+
+except Exception as e:
+    print("******Exception Occured*******")
+    print(str(e))
+    print(traceback.format_exc())

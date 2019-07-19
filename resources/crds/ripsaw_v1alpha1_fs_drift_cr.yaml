@@ -1,0 +1,27 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  workload:
+    name: fs-drift
+    args:
+      # increase samples to 3 to get % deviation in results
+      samples: 1
+      # 1 pod
+      clients: 1
+      # 5 fs-drift threads per pod
+      threads: 5
+      # files no bigger than maximum file size in KB
+      max_file_size_kb: 64
+      # no more than 1000 files total in each pod if RWO (e.g. RBD)
+      # no more than 1000 files per cluster if RWX (e.g. Cephfs)
+      max_files: 100
+      # in CI, use the default storageclass (local storage)
+      # if you are on a real system, you can use Ceph or whatever
+      # by filling in storage class
+      #storageclass: rook-ceph-block
+      storageclass: local-storage
+      # 5 threads x 100 files/thread x 64 KB/file ~= 300 MB << 1 GiB
+      storagesize: 1Gi

@@ -1,0 +1,79 @@
+---
+- set_fact:
+    fs_drift_path: /mnt/pvc
+
+- name: Create PVC
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "fs-drift-claim"
+        namespace: "{{ operator_namespace }}"
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{fs_drift.storagesize}}"
+
+- name: Generate fs-drift test input yaml
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: "{{ operator_namespace }}"
+        name: fs-drift-test
+      data:
+        params: "{{ lookup('template', 'other_parameters.yaml.j2') }}"
+        subscriber: "{{ lookup('template', 'subscriber.py.j2') }}"
+        publisher: "{{ lookup('template', 'publisher.py.j2') }}"
+
+- name: Capture operator information
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: "{{ operator_namespace }}"
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
+- name: Run PUBLISHER Pod
+  k8s:
+    definition:
+      kind: Job
+      apiVersion: batch/v1
+      metadata:
+        name: "{{ meta.name }}-fs-drift-publisher"
+        namespace: "{{ operator_namespace }}"
+      spec:
+        ttlSecondsAfterFinished: 600
+        template:
+          metadata:
+            labels:
+              app: fs-drift-publisher
+          spec:
+            containers:
+              - name: publisher-container
+                image: "{{ ripsaw_image }}"
+                tty: true
+                command: ["/bin/sh", "-c"]
+                workingDir: /root/fs-drift-master/
+                args:
+                  - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.clients}}
+                volumeMounts:
+                  - name: config-volume
+                    mountPath: "/tmp"
+            volumes:
+              - name: config-volume
+                configMap:
+                  name: fs-drift-test
+                  defaultmode: 0777
+            restartPolicy: Never
+
+- name: get params
+  k8s:
+    definition: "{{ lookup('template', 'workload_job.yml.j2') }}"

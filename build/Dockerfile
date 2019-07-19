@@ -6,5 +6,7 @@ COPY watches.yaml ${HOME}/watches.yaml
 COPY playbook.yml ${HOME}/playbook.yml
 
 USER root
-RUN yum install -y redis
+RUN yum install -y redis python-redis
+# for fs-drift
+RUN yum install -y numpy
 USER 1001

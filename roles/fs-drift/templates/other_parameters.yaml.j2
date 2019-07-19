@@ -1,0 +1,25 @@
+
+{% if fs_drift.threads is defined %}
+threads: {{ fs_drift.threads }}
+{% endif %}
+
+{% if fs_drift.max_file_size_kb is defined %}
+max-file-size-kb: {{ fs_drift.max_file_size_kb }}
+{% endif %}
+
+{% if fs_drift.max_files is defined %}
+max-files: {{ fs_drift.max_files }}
+{% endif %}
+
+{% if fs_drift.max_files_per_dir is defined %}
+max-files-per-dir: {{fs_drift.max_files_per_dir}}
+{% endif %}
+
+{% if fs_drift.dirs_per_level is defined %}
+dirs-per-level: {{fs_drift.dirs_per_level}}
+{% endif %}
+
+{% if fs_drift.max_record_size_kb is defined %}
+max-record-size-kb: {{fs_drift.max_record_size_kb}}
+{% endif %}
+
