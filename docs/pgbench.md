@@ -44,10 +44,10 @@ spec:
 
       ## Ripsaw-specific options
       samples: 1
-      # TODO: test_sequential not yet implemented; all tests are currently pseudo-parallel
-      # Tests of multiple databases will be done in parallel unless
-      # test_sequential is set to True
-      #test_sequential: False
+      # num_databases_pattern takes a pattern definition, one of:
+      # 'add1' (1,2,3,...), 'add2' (2,4,6,...), 'log2' (1,2,4,8,...), or 'all'
+      # The default if left blank or undefined is 'all'
+      num_databases_pattern: 'all'
 
       ## List of databases to test
       # Note: 'databases' below is a list structures to identify multiple
@@ -63,6 +63,16 @@ spec:
           # pin_node is an optional kubernetes hostname to which the pgbench pod will be pinned
           pin_node:
 ```
+
+The `num_databases_pattern` feature allows you to ramp up the size of the test against the list of databases.
+
+The default of `all` will simply set a single list value equal to the total number of entries in the `databases` list, and so it will perform one outer-loop run against all listed databases simulaneously.
+
+The `add1` and `add2` values will create lists of total number of databases under test. For `add1`, the outer loop will test against 1 database, then 2 databases, then 3, then 4, and so on. For `add2` it will do the same with only even numbers, testing 2 databases, then 4, then 6, and so on.
+
+The `log2` value will increment through a set of values on a log2 scale up to the total number of databases in the list, thus testing 1 database, then 2, then 4, then 8, and so on.
+
+Note that the `add2` and `log2` values may not end up testing 100% of the databases listed, since `add2` will always end on an even number and `log2` will always end on the highest integer on the log2 curve up to the total number of databases (i.e., if you provide 100 databases in the list, the last `log2` test will be against 64 databases since the next log2 value would be 128)
 
 Once done creating/editing the resource file, you can run it by:
 
@@ -130,6 +140,7 @@ spec:
       cmd_flags: ''
       init_cmd_flags: ''
       samples: 3
+      num_databases_pattern: 'all'
       databases:
         - host: my.postgres.host
           user: myuser

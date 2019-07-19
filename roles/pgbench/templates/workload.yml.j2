@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-pgbench-client-{{ item.0|int + 1 }}'
+  name: '{{ meta.name }}-pgbench-{{ dbnum }}-dbs-client-{{ item.0|int + 1 }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600

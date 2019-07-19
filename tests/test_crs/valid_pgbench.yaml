@@ -17,6 +17,7 @@ spec:
       init_cmd_flags: ''
       scaling_factor: 1
       samples: 2
+      num_databases_pattern: 'all'
       databases:
         - host:
           user: ci
