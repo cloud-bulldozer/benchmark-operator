@@ -9,9 +9,37 @@
     fio_path: /tmp
   when: fiod.storageclass is not defined
 
+- name: Custom fio job
+  block:
+
+  - name: Download custom fio job
+    get_url:
+      url: "{{ fiod.job_url }}"
+      validate_certs: "{{ fiod.job_validate_certs }}"
+      dest: /tmp/fio.job
+
+  - name: Generate fio test from custom job
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: fio-test
+          namespace: '{{ operator_namespace }}'
+        data:
+          fiojob: "{{ lookup('file', '/tmp/fio.job') }}"
+
+  - name: Delete fio job file
+    file:
+      path: /tmp/fio.job
+      state: absent
+
+  when: fiod.job_url is defined
+
 - name: Generate fio test
   k8s:
     definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+  when: fiod.job_url is not defined
 
 - name: Create PVC(s)
   k8s:

@@ -48,6 +48,29 @@ Additionally, fio distributed will default to numjobs:1, and this current cannot
 
 (*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
 
+It's also possible to fetch a custom FIO job from a URL.
+
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: fio-benchmark
+  namespace: my-ripsaw
+spec:
+  workload:
+    name: "fio_distributed"
+    args:
+      servers: 1
+      samples: 1 # number of times to run the fio test
+      pin: false
+      pin_server: "master-0"
+      storageclass: rook-ceph-block
+      storagesize: 5Gi
+      job_url: https://example.com/job.fio
+      job_validate_certs: true
+```
+
+
 ## Indexing in elasticsearch and visualization through Grafana ( Experimental )
 
 ### Setup of Elasticsearch and Grafana
