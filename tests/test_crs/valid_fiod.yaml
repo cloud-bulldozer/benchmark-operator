@@ -8,10 +8,8 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      pin: false
       samples: 2
       servers: 2
-      pin_server: "master-0"
       jobs:
         - read
         - write
