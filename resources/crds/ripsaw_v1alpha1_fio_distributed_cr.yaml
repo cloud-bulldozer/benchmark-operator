@@ -13,8 +13,7 @@ spec:
     args:
       samples: 1
       servers: 1
-      pin: false
-      pin_server: "master-0"
+      pin_server: ''
       jobs:
         - read
         - write
