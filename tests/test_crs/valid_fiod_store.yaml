@@ -27,5 +27,5 @@ spec:
       iodepth: 4
       runtime: 3
       ramp_time: 1
-      filesize: 1
+      filesize: 1g
       log_sample_rate: 1000
