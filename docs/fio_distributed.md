@@ -19,10 +19,9 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      samples: 1
-      servers: 1
-      pin: false
-      pin_server: "master-0"
+      samples: 2
+      servers: 2
+      pin_server: ''
       jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
         - read
         - write
@@ -61,7 +60,7 @@ Ripsaw will run the provided `jobs` sequentially.
 
 To disable the need for PVs, simply comment out or exclude the `storageclass` key.
 
-`pin` and `pin_server` will allow the benchmark runner pick what specific node to run FIO on.
+Setting `pin_server` will allow the benchmark runner to pick what specific node to run all FIO server pods on.
 
 (*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
 
@@ -117,10 +116,9 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      samples: 1
-      servers: 1
-      pin: false
-      pin_server: "master-0"
+      samples: 2
+      servers: 2
+      pin_server: ''
       jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
         - read
         - write
