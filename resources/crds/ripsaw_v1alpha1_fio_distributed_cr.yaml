@@ -11,13 +11,17 @@ spec:
       servers: 1
       pin: false
       pin_server: "master-0"
-      job: seq
-      jobname: seq
-      bs: 64k
+      jobs:
+        - read
+        - write
+      bs:
+        - 64k
+      numjobs:
+        - 1
       iodepth: 4
       runtime: 60
       ramp_time: 5
-      filesize: 2
+      filesize: 2g
       log_sample_rate: 1000
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
