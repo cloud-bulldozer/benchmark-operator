@@ -14,20 +14,23 @@ spec:
       containers:
       - name: fio-client
         image: "quay.io/cloud-bulldozer/fio:latest"
+        imagePullPolicy: Always
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+{% if es_server %}
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
         command: ["/bin/sh", "-c"]
         args:
           - "cat /tmp/host/hosts;
-             export uuid={{uuid}};
-{% if elasticsearch is defined %}
-{% if elasticsearch.server is defined %}
-             export es={{elasticsearch.server}};
-             export es_port={{elasticsearch.port}};
-             export es_index={{elasticsearch.index}}
-{% endif %}
-{% endif %}
-{% if test_user is defined %}
-             export test_user={{test_user}};
-{% endif %}
              for file in $(ls /tmp/fio/ | egrep ^fiojob); do
                cat /tmp/fio/$file;
                for i in `seq 1 {{fiod.samples}}`; do

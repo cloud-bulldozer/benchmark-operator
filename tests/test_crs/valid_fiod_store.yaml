@@ -1,14 +1,13 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fio-benchmark
   namespace: my-ripsaw
 spec:
   cleanup: false
   elasticsearch:
     server: <es_server>
     port: 9200
-    index: fio
   test_user: rht_perf_ci
   workload:
     name: "fio_distributed"
@@ -21,11 +20,30 @@ spec:
         - read
         - write
       bs:
-        - 64k
+        - 64Ki
       numjobs:
         - 1
       iodepth: 4
       runtime: 3
       ramp_time: 1
-      filesize: 1g
+      filesize: 1Gi
       log_sample_rate: 1000
+#######################################
+#  EXPERT AREA - MODIFY WITH CAUTION  #
+#######################################
+#  global_overrides:
+#    - "key=value"
+  job_params:
+    - jobname_match: "w"
+      params:
+        - "fsync_on_close=1"
+        - "create_on_open=1"
+    - jobname_match: "rw"
+      params:
+        - "rwmixread=50"
+    - jobname_match: "readwrite"
+      params:
+        - "rwmixread=50"
+#    - jobname_match: "<search_string>"
+#      params:
+#        - "key=value"
