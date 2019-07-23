@@ -21,7 +21,7 @@ function functional_test_fio {
   kubectl wait --for=condition=complete -l app=fiod-client jobs --namespace my-ripsaw --timeout=500s
   sleep 30
   # ensuring the run has actually happened
-  kubectl logs "$fio_pod" --namespace my-ripsaw | grep "succesfully finished executing for jobname"
+  kubectl logs "$fio_pod" --namespace my-ripsaw | grep "successfully finished executing for jobname"
   echo "Fio distributed test: Success"
 }
 
