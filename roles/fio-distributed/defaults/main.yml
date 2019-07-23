@@ -1,0 +1,6 @@
+---
+es: "{{ elasticsearch|default([]) }}"
+es_server: "{{ es.server|default('') }}"
+es_port: "{{ es.port|default(9200) }}"
+es_index: "ripsaw-fio"
+test_user: "ripsaw"
