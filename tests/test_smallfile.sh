@@ -18,8 +18,8 @@ function functional_test_smallfile {
   sleep 15
   smallfile_pod=$(kubectl get pods -l app=smallfile-benchmark --namespace my-ripsaw -o name | cut -d/ -f2 | grep client)
   echo smallfile_pod $smallfile_pod
-  kubectl wait --for=condition=Initialized "pods/$smallfile_pod" --namespace my-ripsaw --timeout=200s
-  kubectl wait --for=condition=complete -l app=smallfile-benchmark jobs --namespace my-ripsaw --timeout=100s
+  wait_for "kubectl wait --for=condition=Initialized pods/$smallfile_pod --namespace my-ripsaw --timeout=200s" "200s" $smallfile_pod
+  wait_for "kubectl wait --for=condition=complete -l app=smallfile-benchmark jobs --namespace my-ripsaw --timeout=100s" "100s" $smallfile_pod
   sleep 30
   # ensuring the run has actually happened
   kubectl logs "$smallfile_pod" --namespace my-ripsaw | grep "RUN STATUS"
