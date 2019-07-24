@@ -17,8 +17,8 @@ function functional_test_uperf {
   kubectl apply -f tests/test_crs/valid_uperf.yaml
   pod_count 'type=uperf-bench-server' 1 300
   uperf_client_pod=$(get_pod 'app=uperf-bench-client' 300)
-  kubectl -n my-ripsaw wait --for=condition=Initialized "pods/$uperf_client_pod" --timeout=200s
-  kubectl -n my-ripsaw wait --for=condition=complete -l app=uperf-bench-client jobs --timeout=500s
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$uperf_client_pod --timeout=200s" "200s" $uperf_client_pod
+  wait_for "kubectl -n my-ripsaw wait --for=condition=complete -l app=uperf-bench-client jobs --timeout=500s" "500s" $uperf_client_pod
   #check_log $uperf_client_pod "Success"
   # This is for the operator playbook to finish running
   sleep 30

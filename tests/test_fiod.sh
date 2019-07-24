@@ -17,8 +17,8 @@ function functional_test_fio {
   kubectl apply -f tests/test_crs/valid_fiod.yaml
   pod_count 'app=fio-benchmark' 2 300
   fio_pod=$(get_pod 'app=fiod-client' 300)
-  kubectl wait --for=condition=Initialized "pods/$fio_pod" --namespace my-ripsaw --timeout=200s
-  kubectl wait --for=condition=complete -l app=fiod-client jobs --namespace my-ripsaw --timeout=500s
+  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod --namespace my-ripsaw --timeout=200s" "200s" $fio_pod
+  wait_for "kubectl wait --for=condition=complete -l app=fiod-client jobs --namespace my-ripsaw --timeout=500s" "500s" $fio_pod
   sleep 30
   # ensuring the run has actually happened
   kubectl logs "$fio_pod" --namespace my-ripsaw | grep "successfully finished executing for jobname"

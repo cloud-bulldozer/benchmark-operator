@@ -151,3 +151,26 @@ function check_log(){
     fi
   done
 }
+
+# Takes 2 or more arguments: 'command to run', 'time to wait until true' 
+# Any additional arguments will be passed to kubectl -n my-ripsaw logs to provide logging if a timeout occurs
+function wait_for() {
+  if ! timeout -k $2 $2 $1
+  then
+      echo "Timeout exceeded for: "$1
+
+      #Always provide the benchmark-operator logs
+      echo "Benchmark-operator logs:"
+      kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
+
+      counter=3
+      until [ $counter -gt $# ]
+      do
+        echo "Logs from "${@:$counter}
+        kubectl -n my-ripsaw logs --tail=40 ${@:$counter}
+        counter=$(( counter+1 ))
+      done
+      return 1
+  fi
+  return 0
+}
