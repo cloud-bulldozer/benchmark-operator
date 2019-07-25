@@ -19,6 +19,4 @@
 
 #TODO:
 #- database passwords are currently provided in plain text in the CR
-#- converting output for indexing in elastic
 #- add database warmup cycle
-#- other ways to iterate -- number of clients:servers ratio; how to run against potentially hundreds of databases?

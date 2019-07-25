@@ -1,4 +1,11 @@
 ---
-
 db_port: 5432
 num_databases_pattern: "{{ pgbench.num_databases_pattern|default('all') }}"
+run_time: "{{ pgbench.run_time|default('') }}"
+cmd_flags: "{{ pgbench.cmd_flags|default('') }}"
+init_cmd_flags: "{{ pgbench.init_cmd_flags|default('') }}"
+es: "{{ elasticsearch|default([]) }}"
+es_server: "{{ es.server|default('') }}"
+es_port: "{{ es.port|default(9200) }}"
+es_index_prefix: "ripsaw-pgbench"
+test_user: "ripsaw"
