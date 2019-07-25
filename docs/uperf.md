@@ -30,6 +30,8 @@ spec:
         - tcp
       sizes:
         - 16384
+      nthrs:
+        - 1
       runtime: 30
 ```
 
@@ -63,6 +65,8 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
       sizes:
         - 1024
         - 16384
+      nthrs:
+        - 1
       runtime: 30
 ```
 
@@ -105,6 +109,8 @@ spec:
         - tcp
       sizes:
         - 16384
+      nthrs:
+        - 1
       runtime: 30
 ```
 
