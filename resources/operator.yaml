@@ -32,6 +32,9 @@ spec:
               value: "4"
             - name: OPERATOR_NAME
               value: "benchmark-operator"
+            - name: WORKER_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+              value: "20"
+
         - name: redis-master
           image: k8s.gcr.io/redis:v1
           env:
