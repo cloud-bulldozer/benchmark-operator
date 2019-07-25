@@ -14,28 +14,32 @@ spec:
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/pgbench:latest"
+        env:
+          - name: PGPASSWORD
+            value: '{{ item.1.password }}'
+          - name: uuid
+            value: '{{ uuid }}'
+          - name: pgbench_auth
+            value: >-
+                   -h {{ item.1.host }}
+                   -p {% if item.1.port is defined and item.1.port|int > 0 %} {{ item.1.port }} {% else %} {{ db_port }} {% endif %}
+                   -U {{ item.1.user }}
+          - name: test_user
+            value: '{{ test_user }}'
+          - name: clustername
+            value: '{{ clustername }}'
+{% if es_server %}
+          - name: es
+            value: '{{ es_server }}'
+          - name: es_port
+            value: '{{ es_port }}'
+          - name: es_index_prefix
+            value: '{{ es_index_prefix }}'
+{% endif %}
         command: ["/bin/sh", "-c"]
         args:
-          - "export PGPASSWORD='{{ item.1.password }}';
-             export pgb_vers=$(pgbench --version);
-             export uuid={{ uuid }};
-             export clustername= {{ clustername }};
-             export pgbench_auth='-h {{ item.1.host }} -p {% if item.1.port is defined and item.1.port|int > 0 %} {{ item.1.port }} {% else %} {{ db_port }} {% endif %} -U {{ item.1.user }}';
-{% if elasticsearch is defined %}
-{% if elasticsearch.server is defined %}
-             export es={{ elasticsearch.server }};
-             export es_port={{ elasticsearch.port }};
-{% endif %}
-{% endif %}
-{% if test_user is defined %}
-             export test_user={{ test_user }};
-{% endif %}
-{% if pgbench.run_time is defined and pgbench.run_time|int > 0 %}
-             export duration={{ pgbench.run_time }};
-
-{% endif %}
-             echo 'Init Database {{ item.1.host }}/{{ item.1.db_name }}';
-             pgbench $pgbench_auth -i -s {{ pgbench.scaling_factor }} {{ pgbench.init_cmd_flags }} {{ item.1.db_name }};
+          - "echo 'Init Database {{ item.1.host }}/{{ item.1.db_name }}';
+             pgbench $pgbench_auth -i -s {{ pgbench.scaling_factor }} {{ init_cmd_flags }} {{ item.1.db_name }};
              if [ $? -eq 0 ]; then
                echo 'Waiting for start signal...';
                redis-cli -h {{ bo.resources[0].status.podIP }} lpush pgb_client_ready {{ item.0|int }};
@@ -48,7 +52,7 @@ spec:
                    echo 'Running PGBench with {{ clients }} clients on database {{ item.1.host }}/{{ item.1.db_name }}';
                    for i in `seq 1 {{ pgbench.samples|int }}`; do
                      echo \"Begin test sample $i of {{ pgbench.samples }}...\";
-                     export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ pgbench.threads }} {% if pgbench.transactions is defined and pgbench.transactions|int > 0 %} -t {{ pgbench.transactions }} {% elif pgbench.run_time is defined and pgbench.run_time|int > 0 %} -T {{ pgbench.run_time }} {% endif %} -s {{ pgbench.scaling_factor }} {{ pgbench.cmd_flags }} {{ item.1.db_name }}\";
+                     export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ pgbench.threads }} {% if pgbench.transactions is defined and pgbench.transactions|int > 0 %} -t {{ pgbench.transactions }} {% elif run_time|int > 0 %} -T {{ run_time }} {% endif %} -s {{ pgbench.scaling_factor }} {{ cmd_flags }} {{ item.1.db_name }}\";
                      python /opt/snafu/pgbench-wrapper/pgbench-wrapper.py -r $i;
                    done;
                  {% endfor %}
