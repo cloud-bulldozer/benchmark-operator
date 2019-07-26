@@ -23,6 +23,10 @@ spec:
     type: string
     description: The type of test to perform
     JSONPath: .spec.workload.name
+  - name: State
+    type: string
+    description: The state of the benchmark
+    JSONPath: .status.state
   - name: Age
     type: date
     JSONPath: .metadata.creationTimestamp
