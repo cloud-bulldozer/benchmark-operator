@@ -33,10 +33,8 @@ spec:
           - "cat /tmp/host/hosts;
              for file in $(ls /tmp/fio/ | egrep ^fiojob); do
                cat /tmp/fio/$file;
-               for i in `seq 1 {{fiod.samples}}`; do
-                 mkdir -p /tmp/fiod-{{ uuid }}/$file/$i;
-                 python /opt/snafu/fio-wrapper/fio-wrapper.py /tmp/host/hosts /tmp/fio/$file -s $i -d /tmp/fiod-{{ uuid }}/$file/$i;
-               done;
+               mkdir -p /tmp/fiod-{{ uuid }}/$file;
+               python /opt/snafu/fio-wrapper/fio-wrapper.py /tmp/host/hosts /tmp/fio/$file -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/$file;
              done;"
         volumeMounts:
         - name: fio-volume
