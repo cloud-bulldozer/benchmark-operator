@@ -14,6 +14,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_ycsb {
+  figlet $(basename $0)
   apply_operator
   # stand up mongo deployment
 cat << EOF | kubectl apply -f -
