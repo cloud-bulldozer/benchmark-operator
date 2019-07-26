@@ -12,6 +12,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_smallfile {
+  figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_smallfile.yaml
   sleep 15

@@ -12,7 +12,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_fio {
-  #figlet $(basename $0)
+  figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_fiod.yaml
   pod_count 'app=fio-benchmark' 2 300

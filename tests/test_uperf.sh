@@ -12,7 +12,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_uperf {
-  #figlet $(basename $0)
+  figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_uperf.yaml
   pod_count 'type=uperf-bench-server' 1 300

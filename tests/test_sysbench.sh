@@ -12,7 +12,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_sysbench {
-  #figlet $(basename $0)
+  figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
   sysbench_pod=$(get_pod 'app=sysbench' 300)

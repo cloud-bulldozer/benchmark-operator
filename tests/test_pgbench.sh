@@ -15,7 +15,7 @@ trap finish EXIT
 
 # Note we don't test persistent storage here
 function functional_test_pgbench {
-  #figlet $(basename $0)
+  figlet $(basename $0)
   apply_operator
   # stand up postgres deployment
 cat << EOF | kubectl apply -f -
