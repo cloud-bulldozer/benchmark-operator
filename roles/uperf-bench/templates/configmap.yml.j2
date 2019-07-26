@@ -8,10 +8,11 @@ data:
 {% for test in uperf.test_types %}
 {% for proto in uperf.protos %}
 {% for size in uperf.sizes %}
-  uperf-{{test}}-{{proto}}-{{size}} : |
+{% for nthr in uperf.nthrs %}
+  uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} : |
     <?xml version=1.0?>
-    <profile name="{{test}}-{{proto}}-{{size}}">
-    <group nthreads="1">
+    <profile name="{{test}}-{{proto}}-{{size}}-{{nthr}}">
+    <group nthreads="{{nthr}}">
     {% if ( 'rr' == test ) %}
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
@@ -47,6 +48,7 @@ data:
     {% endif %}
       </group>
     </profile>
+{% endfor %}
 {% endfor %}
 {% endfor %}
 {% endfor %}

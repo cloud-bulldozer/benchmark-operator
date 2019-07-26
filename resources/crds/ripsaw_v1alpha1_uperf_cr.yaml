@@ -21,4 +21,6 @@ spec:
         - tcp
       sizes:
         - 16384
+      nthrs:
+        - 1
       runtime: 30

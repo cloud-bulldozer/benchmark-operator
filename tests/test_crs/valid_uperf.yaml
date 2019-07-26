@@ -24,4 +24,7 @@ spec:
       sizes:
         - 16384
         - 512
+      nthrs:
+        - 1
+        - 8
       runtime: 10
