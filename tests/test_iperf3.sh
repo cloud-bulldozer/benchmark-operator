@@ -12,7 +12,7 @@ function finish {
 trap finish EXIT
 
 function functional_test_iperf {
-  #figlet $(basename $0)
+  figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_iperf3.yaml
   pod_count 'app=iperf3-bench-server' 1 300
