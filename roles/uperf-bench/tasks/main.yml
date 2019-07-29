@@ -1,62 +1,38 @@
 ---
 
-- name: Check for running uperf pods...
+- name: Get current state
   k8s_facts:
-    kind: Pod
-    api_version: v1
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
     namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - app = uperf-bench-client
-  ignore_errors: true
-  register: pods
+  register: resource_state
 
-- name: Check for current_run
-  stat:
-    path: /tmp/current_run
-  register: state_file
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Starting
+      complete: false
+  when: resource_state.resources[0].status is not defined
 
-- debug:
-    msg: "State file : {{state_file.stat}}"
-
-- name: Reset statefile
-  set_fact:
-    state_file:
-      stat:
-        exists: false
-  when: state_file.stat.exists == true and ( pods is defined and pods|length < 1 )
-
-- name: Check for status
-  set_fact:
-    contents: "{{ lookup('file', '/tmp/current_run') }}"
-  when: state_file.stat.exists == true
-
-- name: Retrieve previous values
-  set_fact:
-    prev_values: |
-        [
-        {% for item in contents %}
-          "{{ item }}:{{ contents[item] }}",
-        {% endfor %}
-        ]
-    curr_values: |
-        [
-        {% for item in uperf %}
-          "{{ item }}:{{ uperf[item] }}",
-        {% endfor %}
-        ]
-  when: state_file.stat.exists == true
-
-- debug:
-    msg: "Check : {{curr_values}} vs {{prev_values}}"
-  when: state_file.stat.exists == true
-
-- name: Create service for server pods
-  k8s:
-    definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
-  with_sequence: start=0 count={{uperf.pair}}
-  when: uperf.serviceip
+- name: Get current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
 
 - block:
+
+  - name: Create service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+    with_sequence: start=0 count={{uperf.pair}}
+    when: uperf.serviceip
 
   - name: Start Server(s)
     k8s:
@@ -73,7 +49,7 @@
         - type = uperf-bench-server
     register: server_pods
     until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
-    retries: 10
+    retries: 100
     delay: 10
 
   - name: Capture ServiceIP
@@ -118,11 +94,20 @@
         - app = uperf-bench-client
     register: client_pods
     until: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
-    retries: 50
+    retries: 300
     delay: 10
 
   - name: Signal workload
     command: "redis-cli set start true"
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Running
+        complete: false
 
   - name: Waiting for pods to complete....
     k8s_facts:
@@ -133,7 +118,7 @@
         - app = uperf-bench-client
     register: client_pods
     until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
-    retries: 30
+    retries: 300
     delay: 10
 
   - name: Pod names - to clean
@@ -145,9 +130,6 @@
           {% endfor %}
           ]
 
-  - debug:
-      msg: "clean pods : {{clean_pods}}"
-
   - name: Cleanup run
     k8s:
       kind: pod
@@ -158,9 +140,13 @@
     with_items: "{{ clean_pods }}"
     when: cleanup
 
-  - name : Complete run
-    copy:
-      content: "{{ uperf }}"
-      dest: /tmp/current_run
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
 
-  when: ( uperf.pair > 0 ) and (state_file.stat.exists == false  or (curr_values is defined) and (curr_values | difference(prev_values))|length > 0 )
+  when: ( uperf.pair > 0 ) and (resource_state.resources[0].status.complete|bool == false )
