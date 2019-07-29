@@ -3,3 +3,4 @@
   group: ripsaw.cloudbulldozer.io
   kind: Benchmark
   playbook: /opt/ansible/playbook.yml
+  manageStatus: false
