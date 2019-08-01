@@ -5,6 +5,46 @@
 - name: Init client ready state to empty
   command: "redis-cli del pgb_client_ready"
 
+- name: Calculate timeouts
+  include_tasks: calculate_timeouts.yml
+
+- name: Pre-pull pgbench container image
+  k8s:
+    definition:
+      kind: Job
+      apiVersion: batch/v1
+      metadata:
+        name: pgb-image-load-{{ item.0 }}
+        namespace: "{{ operator_namespace }}"
+        labels:
+          app: pgb-image-load
+      spec:
+        template:
+          spec:
+            containers:
+              - name: pgb-image-load-{{ item.0 }}
+                image: "{{ pgb_base_image }}:{{ pgb_version }}"
+                command: ['/bin/true']
+            restartPolicy: Never
+        backoffLimit: 4
+  retries: 6
+  delay: 10
+  with_indexed_items: "{{ pgbench.databases }}"
+
+- name: Wait for pre-pull jobs to succeed
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    namespace: "{{ operator_namespace }}"
+    name: pgb-image-load-{{ item.0 }}
+    #label_selectors:
+    #  - app = pgb-image-load
+  register: pgb_image_load
+  until: "pgb_image_load | json_query('resources[].status.succeeded')"
+  retries: 300
+  delay: 2
+  with_indexed_items: "{{ pgbench.databases }}"
+
 - name: Setup pgbench test job(s)
   k8s:
     definition: "{{ lookup('template', 'templates/workload.yml.j2') }}"
@@ -15,8 +55,7 @@
   shell: "redis-cli --raw llen pgb_client_ready"
   register: client_ready
   until: client_ready.stdout|int == dbnum|int
-  # timeout in minutes times 6 times delay of 10 seconds equals timeout in seconds
-  retries: "{{ pgbench.timeout|int * 6 }}"
+  retries: "{{ (load_timeout|int / 10)|int }}"
   delay: 10
 
 - name: Signal workloads to start
@@ -31,5 +70,5 @@
       - app = pgbench-client
   register: pgbench_pods
   until: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase'))"
-  retries: "{{ pgbench.timeout|int * 6 }}"
+  retries: "{{ (run_timeout|int / 10)|int }}"
   delay: 10
