@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: benchmark
-        image: "quay.io/cloud-bulldozer/pgbench:latest"
+        image: "{{ pgb_base_image }}:{{ pgb_version }}"
         env:
           - name: PGPASSWORD
             value: '{{ item.1.password }}'
