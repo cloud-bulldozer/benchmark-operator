@@ -2,8 +2,35 @@
   gather_facts: no
   tasks:
 
+  - name: Get current state
+    k8s_facts:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: '{{ meta.name }}'
+      namespace: '{{ operator_namespace }}'
+    register: cr_state
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Starting
+        complete: false
+    when: cr_state.resources[0].status is not defined
+
+  - name: Get current state - Recheck
+    k8s_facts:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: '{{ meta.name }}'
+      namespace: '{{ operator_namespace }}'
+    register: cr_state
+
   - name: Run Workload
     block:
+
     - include_role:
         name: "uuid"
 
@@ -38,6 +65,16 @@
       with_items: '{{ workload.args.workloads }}'
       when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
+    - k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: "Complete"
+          complete: true
+      when: workload.name == "ycsb" and workload.args.workloads | length > 0
+
     - include_role:
         name: "byowl"
       vars:
@@ -62,5 +99,4 @@
         smallfile: "{{ workload.args }}"
       when: workload.name == "smallfile" and workload.args.clients > 0
 
-
-    when: workload is defined
+    when: workload is defined and cr_state.resources[0].status.complete|bool == false

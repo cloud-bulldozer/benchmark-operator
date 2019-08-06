@@ -56,6 +56,15 @@
                   name: ycsb-test
         backoffLimit: 4
 
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "{{ ycsb_workload }}"
+      complete: false
+
 - name: Wait for YCSB Workload Job to Succeed...
   k8s_facts:
     kind: Job

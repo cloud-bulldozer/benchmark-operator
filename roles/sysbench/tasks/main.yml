@@ -22,3 +22,12 @@
     state: present
     definition: "{{ lookup('template', 'workload_vm.yml') | from_yaml }}"
   when:  sysbench.kind is defined and sysbench.kind == "vm"
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Complete
+      complete: true

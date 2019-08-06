@@ -62,6 +62,15 @@
       delay: 15
     when: iperf3.retries is not defined
 
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
+
   # TODO(aakarsh): Add indexing work for iperf too
   # - include_role:
   #     name: result

@@ -78,3 +78,23 @@
 - name: Start FIO Client
   k8s:
     definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
+
+- name: Wait for fiod job to succeed...
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    name: '{{ meta.name }}-fio-client'
+    namespace: "{{ operator_namespace }}"
+  register: fiod_jobs
+  until: "fiod_jobs | json_query('resources[].status.succeeded')"
+  retries: 1000
+  delay: 20
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "Complete"
+      complete: true

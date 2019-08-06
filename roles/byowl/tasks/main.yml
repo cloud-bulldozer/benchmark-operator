@@ -6,3 +6,23 @@
     state: present
     definition: "{{ lookup('template', 'workload.yml') | from_yaml }}"
   when: byowl.kind is not defined
+
+- name: Wait for fiod job to succeed...
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    name: '{{ meta.name }}-byowl'
+    namespace: "{{ operator_namespace }}"
+  register: byowl_jobs
+  until: "byowl_jobs | json_query('resources[].status.succeeded')"
+  retries: 1000
+  delay: 20
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "Complete"
+      complete: true

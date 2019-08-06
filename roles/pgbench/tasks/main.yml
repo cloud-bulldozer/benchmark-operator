@@ -17,6 +17,16 @@
   loop_control:
     loop_var: dbnum
 
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Complete
+      complete: true
+
+
 #TODO:
 #- database passwords are currently provided in plain text in the CR
 #- add database warmup cycle

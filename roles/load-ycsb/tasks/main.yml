@@ -1,4 +1,5 @@
 ---
+
 - name: setting ycsb_workload var
   set_fact:
     ycsb_workload: "workloada"
@@ -55,6 +56,15 @@
               configMap:
                 name: ycsb-test
         backoffLimit: 4
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Loading
+      complete: false
 
 - name: Wait for Load Job to Succeed...
   k8s_facts:

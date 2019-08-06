@@ -8,16 +8,6 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: resource_state.resources[0].status is not defined
-
 - name: Get current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -149,4 +139,4 @@
         state: Complete
         complete: true
 
-  when: ( uperf.pair > 0 ) and (resource_state.resources[0].status.complete|bool == false )
+  when: ( uperf.pair > 0 ) and (cr_state.resources[0].status.complete|bool == false )

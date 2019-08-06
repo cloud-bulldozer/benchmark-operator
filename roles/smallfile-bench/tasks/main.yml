@@ -87,3 +87,12 @@
     definition: "{{ lookup('template', 'workload_job.yml.j2') }}"
   with_sequence: start=1 count={{smallfile.clients}}
   when: smallfile.clients > 0
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "Complete"
+      complete: true
