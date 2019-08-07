@@ -2,24 +2,50 @@
 {% if fs_drift.threads is defined %}
 threads: {{ fs_drift.threads }}
 {% endif %}
-
+{% if fs_drift.duration is defined %}
+duration: {{ fs_drift.duration }}
+{% endif %}
 {% if fs_drift.max_file_size_kb is defined %}
-max-file-size-kb: {{ fs_drift.max_file_size_kb }}
+max_file_size_kb: {{ fs_drift.max_file_size_kb }}
 {% endif %}
-
 {% if fs_drift.max_files is defined %}
-max-files: {{ fs_drift.max_files }}
+max_files: {{ fs_drift.max_files }}
 {% endif %}
-
-{% if fs_drift.max_files_per_dir is defined %}
-max-files-per-dir: {{fs_drift.max_files_per_dir}}
-{% endif %}
-
-{% if fs_drift.dirs_per_level is defined %}
-dirs-per-level: {{fs_drift.dirs_per_level}}
-{% endif %}
-
 {% if fs_drift.max_record_size_kb is defined %}
-max-record-size-kb: {{fs_drift.max_record_size_kb}}
+max_record_size_kb: {{fs_drift.max_record_size_kb}}
 {% endif %}
+{% if fs_drift.levels is defined %}
+levels: {{fs_drift.levels}}
+{% endif %}
+{% if fs_drift.dirs_per_level is defined %}
+dirs_per_level: {{fs_drift.dirs_per_level}}
+{% endif %}
+{% if fs_drift.max_random_reads is defined %}
+max_random_reads: {{fs_drift.max_random_reads}}
+{% endif %}
+{% if fs_drift.max_random_writes is defined %}
+max_random_writes: {{fs_drift.max_random_writes}}
+{% endif %}
+{% if fs_drift.fdatasync_pct is defined %}
+fdatasync_pct: {{fs_drift.fdatasync_pct}}
+{% endif %}
+{% if fs_drift.fsync_pct is defined %}
+fsync_pct: {{fs_drift.fsync_pct}}
+{% endif %}
+{% if fs_drift.report_interval is defined %}
+report_interval: {{fs_drift.report_interval}}
+{% endif %}
+{% if fs_drift.random_distribution is defined %}
+random_distribution: {{fs_drift.random_distribution}}
+{% endif %}
+{% if fs_drift.mean_velocity is defined %}
+mean_velocity: {{fs_drift.mean_velocity}}
+{% endif %}
+{% if fs_drift.gaussian_stddev is defined %}
+gaussian_stddev: {{fs_drift.gaussian_stddev}}
+{% endif %}
+{% if fs_drift.create_stddevs_ahead is defined %}
+create_stddevs_ahead: {{fs_drift.create_stddevs_ahead}}
+{% endif %}
+
 

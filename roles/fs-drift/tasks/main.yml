@@ -2,13 +2,13 @@
 - set_fact:
     fs_drift_path: /mnt/pvc
 
-- name: Create PVC
+- name: Create PVCs
   k8s:
     definition:
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "fs-drift-claim"
+        name: "fs-drift-claim-{{ item }}"
         namespace: "{{ operator_namespace }}"
         annotations:
           volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
@@ -18,6 +18,8 @@
         resources:
           requests:
             storage: "{{fs_drift.storagesize}}"
+  with_sequence: start=1 count={{ fs_drift.worker_pods }}
+  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined and fs_drift.storagesize is defined
 
 - name: Generate fs-drift test input yaml
   k8s:
@@ -63,7 +65,7 @@
                 command: ["/bin/sh", "-c"]
                 workingDir: /root/fs-drift-master/
                 args:
-                  - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.clients}}
+                  - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.worker_pods}}
                 volumeMounts:
                   - name: config-volume
                     mountPath: "/tmp"
@@ -74,6 +76,10 @@
                   defaultmode: 0777
             restartPolicy: Never
 
-- name: get params
+- name: run the workload
   k8s:
     definition: "{{ lookup('template', 'workload_job.yml.j2') }}"
+  with_sequence: start=1 count={{fs_drift.worker_pods}}
+  when: fs_drift.worker_pods > 0
+
+

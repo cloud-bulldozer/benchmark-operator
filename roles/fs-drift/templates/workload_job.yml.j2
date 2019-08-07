@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: "{{ meta.name }}-fs-drift-client-benchmark"
+  name: "{{ meta.name }}-fs-drift-client-benchmark-pod-{{ item }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
@@ -17,23 +17,26 @@ spec:
           command: ["/bin/sh", "-c"]
           workingDir: /root/fs-drift/
           args:
-            - python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
-              export TMPDIR=/tmp/fs-drift;
+            - set -x;
+              export TMPDIR=/var/tmp/fs-drift-output;
               rm -rf $TMPDIR;
               mkdir -pv $TMPDIR;
-              rm -rf {{fs_drift_path}}/RESULTS ;
-              mkdir -p {{fs_drift_path}}/RESULTS;
-              mkdir -p {{fs_drift_path}}/fs_drift_test_data;
+              mkdir -pv $TMPDIR/RESULTS;
+              mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
               echo starting fs-drift;
-              ls /tmp/fs-drift;
-              cat /tmp/fs-drift/fs-drift-params;
-              python fs-drift.py 
-                --yaml-input-file /tmp/fs-drift/fs-drift-params.yaml 
+              ls -lR /tmp/fs-drift;
+              cat /tmp/fs-drift/params;
+              python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
+              python /fs-drift/fs-drift.py 
+                --input-yaml /tmp/fs-drift/params
+                --top {{ fs_drift_path }}/fs_drift_test_data
                 --response-times Y 
-                --output-json {{fs_drift_path}}/RESULTS/results.json;
-              ls $TMPDIR;
-              cp $TMPDIR/fsd*log {{fs_drift_path}}/RESULTS/;
-              cp $TMPDIR/*.csv {{fs_drift_path}}/RESULTS/;
+                --output-json $TMPDIR/RESULTS/results.json;
+              ls -lR $TMPDIR;
+              cat $TMPDIR/RESULTS/results.json;
+              cp -v /var/tmp/fsd*log $TMPDIR/RESULTS/;
+              ls {{fs_drift_path}};
+              cp -v {{fs_drift_path}}/fs_drift_test_data/network-shared/*rsptimes.csv $TMPDIR/RESULTS/;
               echo RUN STATUS DONE
           volumeMounts:
             - name: config-volume
@@ -43,10 +46,10 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: smallfile-test
+            name: fs-drift-test
             defaultmode: 0777
         - name: storage-volume
           persistentVolumeClaim:
-            claimName: "fs-drift-claim"
+            claimName: "fs-drift-claim-{{ item }}"
       restartPolicy: Never
       serviceAccountName: benchmark-operator

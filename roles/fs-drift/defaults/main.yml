@@ -1,2 +1,2 @@
 ripsaw_image: "quay.io/cloud-bulldozer/ripsaw:latest"
-
+storage_claim_namespace: "rook-ceph"

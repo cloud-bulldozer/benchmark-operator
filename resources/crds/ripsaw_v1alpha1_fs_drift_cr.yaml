@@ -8,16 +8,11 @@ spec:
     name: fs-drift
     args:
       # increase samples to 3 to get % deviation in results
+      # NOT IMPLEMENTED YET
       samples: 1
       # 1 pod
-      clients: 1
-      # 5 fs-drift threads per pod
-      threads: 5
-      # files no bigger than maximum file size in KB
-      max_file_size_kb: 64
-      # no more than 1000 files total in each pod if RWO (e.g. RBD)
-      # no more than 1000 files per cluster if RWX (e.g. Cephfs)
-      max_files: 100
+      # NOT IMPLEMENTED YET, can't yet do more than 1 pod
+      worker_pods: 2
       # in CI, use the default storageclass (local storage)
       # if you are on a real system, you can use Ceph or whatever
       # by filling in storage class
@@ -25,3 +20,13 @@ spec:
       storageclass: local-storage
       # 5 threads x 100 files/thread x 64 KB/file ~= 300 MB << 1 GiB
       storagesize: 1Gi
+      # -- below are fs-drift.py parameters defined in fs-drift README.md
+      # duration only 30 sec by default, should be much longer
+      duration: 30
+      # 5 fs-drift threads per pod
+      threads: 5
+      # files no bigger than maximum file size in KB
+      max_file_size_kb: 64
+      # no more than 1000 files total in each pod if RWO (e.g. RBD)
+      # no more than 1000 files per cluster if RWX (e.g. Cephfs)
+      max_files: 100
