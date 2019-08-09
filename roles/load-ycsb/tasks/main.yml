@@ -27,6 +27,8 @@
             - name: ycsb
               image: "quay.io/cloud-bulldozer/ycsb-server:latest"
               env:
+              - name: clustername
+                value: "{{ clustername }}"
               - name: es
                 value: "{{elasticsearch.server | default()}}"
               - name: es_port

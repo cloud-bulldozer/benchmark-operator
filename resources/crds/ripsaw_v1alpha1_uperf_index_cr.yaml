@@ -4,6 +4,7 @@ metadata:
   name: uperf-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   #elasticsearch:
   #   server: elk.server.com
   #   port: 9200
