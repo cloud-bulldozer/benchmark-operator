@@ -19,6 +19,7 @@ spec:
           - "export PGPASSWORD='{{ item.1.password }}';
              export pgb_vers=$(pgbench --version);
              export uuid={{ uuid }};
+             export clustername= {{ clustername }};
              export pgbench_auth='-h {{ item.1.host }} -p {% if item.1.port is defined and item.1.port|int > 0 %} {{ item.1.port }} {% else %} {{ db_port }} {% endif %} -U {{ item.1.user }}';
 {% if elasticsearch is defined %}
 {% if elasticsearch.server is defined %}

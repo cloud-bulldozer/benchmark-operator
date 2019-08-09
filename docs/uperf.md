@@ -90,6 +90,7 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
   elasticsearch:
     server: <es_host>

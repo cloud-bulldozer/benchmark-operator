@@ -1,2 +1,3 @@
 ---
 operator_namespace: '{{ meta.namespace }}'
+clustername: 'myk8scluster'

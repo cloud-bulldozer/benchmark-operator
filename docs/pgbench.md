@@ -120,6 +120,7 @@ metadata:
   name: pgbench-benchmark
   namespace: ripsaw
 spec:
+  clustername: myk8scluster
   # An aribitrary user name to be stored with the results
   test_user: milton
   # My elasticsearch server information
