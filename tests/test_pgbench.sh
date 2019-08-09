@@ -55,7 +55,7 @@ spec:
             - configMapRef:
                 name: postgres-config
 EOF
-  postgres_pod=$(get_pod 'app=postgres' 300)
+  postgres_pod=$(get_pod 'app=postgres' 600)
   # get the postgres pod IP
   postgres_ip=0
   counter=0
@@ -66,10 +66,10 @@ EOF
   done
   # deploy the test CR with the postgres pod IP
   sed s/host:/host:\ ${postgres_ip}/ tests/test_crs/valid_pgbench.yaml | kubectl apply -f -
-  pgbench_pod=$(get_pod 'app=pgbench-client' 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n my-ripsaw --timeout=60s" "60s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n my-ripsaw --timeout=60s" "60s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client -n my-ripsaw --timeout=300s" "300s" $pgbench_pod
+  pgbench_pod=$(get_pod 'app=pgbench-client' 600)
+  wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n my-ripsaw --timeout=120s" "120s" $pgbench_pod
+  wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n my-ripsaw --timeout=120s" "120s" $pgbench_pod
+  wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client -n my-ripsaw --timeout=600s" "600s" $pgbench_pod
   kubectl logs -n my-ripsaw $pgbench_pod | grep 'tps ='
   echo "pgbench test: Success"
 }

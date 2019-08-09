@@ -28,7 +28,7 @@ function wait_clean {
   kubectl delete --all jobs --namespace my-ripsaw
   kubectl delete --all deployments --namespace my-ripsaw
   kubectl delete --all pods --namespace my-ripsaw
-  for i in {1..30}; do
+  for i in {1..60}; do
     if [ `kubectl get pods --namespace my-ripsaw | grep bench | wc -l` -ge 1 ]; then
       sleep 5
     else

@@ -15,10 +15,10 @@ function functional_test_fio {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_fiod.yaml
-  pod_count 'app=fio-benchmark' 2 300
-  fio_pod=$(get_pod 'app=fiod-client' 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod --namespace my-ripsaw --timeout=200s" "200s" $fio_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fiod-client jobs --namespace my-ripsaw --timeout=500s" "500s" $fio_pod
+  pod_count 'app=fio-benchmark' 2 600
+  fio_pod=$(get_pod 'app=fiod-client' 600)
+  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod --namespace my-ripsaw --timeout=400s" "400s" $fio_pod
+  wait_for "kubectl wait --for=condition=complete -l app=fiod-client jobs --namespace my-ripsaw --timeout=1000s" "1000s" $fio_pod
   sleep 30
   # ensuring the run has actually happened
   kubectl logs "$fio_pod" --namespace my-ripsaw | grep "fio has successfully finished sample"

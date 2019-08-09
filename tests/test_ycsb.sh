@@ -58,9 +58,9 @@ spec:
            - containerPort: 27017
 EOF
   kubectl apply -f tests/test_crs/valid_ycsb-mongo.yaml
-  ycsb_load_pod=$(get_pod 'name=ycsb-load' 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n my-ripsaw --timeout=60s" "60s" $ycsb_load_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load -n my-ripsaw --timeout=300s" "300s" $ycsb_load_pod
+  ycsb_load_pod=$(get_pod 'name=ycsb-load' 600)
+  wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n my-ripsaw --timeout=120s" "120s" $ycsb_load_pod
+  wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load -n my-ripsaw --timeout=600s" "600s" $ycsb_load_pod
   kubectl logs -n my-ripsaw $ycsb_load_pod | grep 'Starting test'
   echo "ycsb test: Success"
 }
