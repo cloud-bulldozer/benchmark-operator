@@ -26,6 +26,7 @@
             containers:
             - name: ycsb
               image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+              imagePullPolicy: Always
               env:
               - name: clustername
                 value: "{{ clustername }}"

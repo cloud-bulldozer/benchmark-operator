@@ -14,6 +14,7 @@ spec:
       containers:
         - name: benchmark-server
           image: "quay.io/cloud-bulldozer/smallfile:master"
+          imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /root/smallfile-master/
           args:
