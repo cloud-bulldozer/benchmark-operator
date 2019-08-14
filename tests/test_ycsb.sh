@@ -53,7 +53,7 @@ spec:
        - name: mongo
          image: mongo
          command: ["/bin/sh"]
-         args:  ["-c", "mkdir -p /tmp/data/db; mongod --smallfiles --bind_ip 0.0.0.0 --dbpath /tmp/data/db"]
+         args:  ["-c", "mkdir -p /tmp/data/db; mongod --bind_ip 0.0.0.0 --dbpath /tmp/data/db"]
          ports:
            - containerPort: 27017
 EOF
