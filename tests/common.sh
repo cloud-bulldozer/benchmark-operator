@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+ERRORED=false
+
 function check_full_trigger {
 python - <<END
 import os
@@ -159,10 +161,6 @@ function wait_for() {
   then
       echo "Timeout exceeded for: "$1
 
-      #Always provide the benchmark-operator logs
-      echo "Benchmark-operator logs:"
-      kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
-
       counter=3
       until [ $counter -gt $# ]
       do
@@ -173,4 +171,13 @@ function wait_for() {
       return 1
   fi
   return 0
+}
+
+function error {
+  echo "Error caught. Dumping logs before exiting"
+  echo "Benchmark operator Logs"
+  kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
+  echo "Ansible sidecar Logs"
+  kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
+  ERRORED=true
 }
