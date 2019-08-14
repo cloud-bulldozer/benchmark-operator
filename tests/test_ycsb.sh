@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
-set -xeo pipefail
+set -xeEo pipefail
 
 source tests/common.sh
 
 function finish {
+  if [ $? -eq 1 ] && [ $ERRORED != "true" ]
+  then
+    error
+  fi
+
   echo "Cleaning up ycsb"
   kubectl delete -n my-ripsaw benchmark/ycsb-mongo-benchmark
   kubectl delete -n my-ripsaw statefulset/mongo
@@ -11,6 +16,7 @@ function finish {
   delete_operator
 }
 
+trap error ERR
 trap finish EXIT
 
 function functional_test_ycsb {
