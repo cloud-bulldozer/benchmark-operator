@@ -14,11 +14,11 @@
     name: "{{ meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
-      state: Starting
+      state: Building
       complete: false
-  when: resource_state.resources[0].status is not defined
+  when: resource_state.resources[0].status.state is not defined
 
-- name: Get current state
+- name: Get current state - If it has changed
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
@@ -31,14 +31,14 @@
   - name: Create service for server pods
     k8s:
       definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
-    with_sequence: start=0 count={{uperf.pair}}
+    with_sequence: start=0 count={{ uperf.pair }}
     when: uperf.serviceip
 
   - name: Start Server(s)
     k8s:
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
-    with_sequence: start=0 count={{uperf.pair}}
+    with_sequence: start=0 count={{ uperf.pair }}
 
   - name: Wait for pods to be running....
     k8s_facts:
@@ -46,7 +46,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server
+        - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
     until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
     retries: 100
@@ -57,6 +57,8 @@
       kind: Service
       api_version: v1
       namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
     register: serviceip
     when: uperf.serviceip
 
@@ -85,20 +87,31 @@
     with_items: "{{ serviceip.resources }}"
     when: uperf.serviceip and serviceip.resources|length > 0
 
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Starting
+        complete: false
+
+  when: ( uperf.pair > 0 ) and (resource_state.resources[0].status.state == "Building" )
+
+- block:
+
   - name: Check if all clients are up
     k8s_facts:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = uperf-bench-client
+        - app = uperf-bench-client-{{ trunc_uuid }}
     register: client_pods
-    until: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
-    retries: 300
-    delay: 10
 
   - name: Signal workload
     command: "redis-cli set start true"
+    when: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
 
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -108,6 +121,11 @@
       status:
         state: Running
         complete: false
+    when: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
+
+  when: resource_state.resources[0].status.state == "Starting"
+
+- block:
 
   - name: Waiting for pods to complete....
     k8s_facts:
@@ -115,11 +133,31 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = uperf-bench-client
+        - app = uperf-bench-client-{{ trunc_uuid }}
     register: client_pods
-    until: "'Succeeded' in (client_pods | json_query('resources[].status.phase'))"
-    retries: 300
-    delay: 10
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Cleanup
+        complete: false
+    when: "uperf.pair == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
+
+  when: resource_state.resources[0].status.state == "Running"
+
+- block:
+
+  - name: Get Server Pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
 
   - name: Pod names - to clean
     set_fact:
@@ -149,4 +187,4 @@
         state: Complete
         complete: true
 
-  when: ( uperf.pair > 0 ) and (resource_state.resources[0].status.complete|bool == false )
+  when: resource_state.resources[0].status.state == "Cleanup"

@@ -2,18 +2,31 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-server-{{ item }}-benchmark'
+  name: 'fio-server-{{ item }}-benchmark-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fio-benchmark
+        app: fio-benchmark-{{ trunc_uuid }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fio-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: fio-server
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:development"
+        imagePullPolicy: Always
         ports:
           - containerPort: 8765
         command: ["/bin/sh", "-c"]
@@ -33,5 +46,5 @@ spec:
       volumes:
       - name: ceph-volume
         persistentVolumeClaim:
-          claimName: claim-{{ item }}
+          claimName: claim-{{ item }}-{{ trunc_uuid }}
 {% endif %}

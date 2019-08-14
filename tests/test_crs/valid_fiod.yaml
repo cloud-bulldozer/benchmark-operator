@@ -11,33 +11,41 @@ spec:
       samples: 2
       servers: 2
       jobs:
-        - read
         - write
+        - read
       bs:
-        - 64Ki
+        - 4KiB
+        - 64KiB
       numjobs:
         - 1
-      iodepth: 4
-      runtime: 3
-      ramp_time: 1
-      filesize: 1Gi
+        - 2
+      iodepth: 1
+      read_runtime: 3
+      read_ramp_time: 1
+      filesize: 10MiB
       log_sample_rate: 1000
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
-#  global_overrides:
-#    - "key=value"
   job_params:
-    - jobname_match: "w"
+    - jobname_match: w
       params:
-        - "fsync_on_close=1"
-        - "create_on_open=1"
-    - jobname_match: "rw"
+        - fsync_on_close=1
+        - create_on_open=1
+    - jobname_match: read
       params:
-        - "rwmixread=50"
-    - jobname_match: "readwrite"
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: rw
       params:
-        - "rwmixread=50"
-#    - jobname_match: "<search_string>"
-#      params:
-#        - "key=value"
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}

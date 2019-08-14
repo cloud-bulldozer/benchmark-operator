@@ -2,11 +2,12 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: uperf-service-{{item}}
+  name: uperf-service-{{ item }}-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
+  labels:
+    app: uperf-bench-server-{{ item }}
+    type: uperf-bench-server-{{ trunc_uuid }}
 spec:
-  selector:
-    app: uperf-bench-server-{{item}}
   ports:
   - name: uperf
     port: 20000

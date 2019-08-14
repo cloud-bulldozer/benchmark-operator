@@ -4,28 +4,30 @@ metadata:
   name: fio-benchmark
   namespace: my-ripsaw
 spec:
-  clustername: myk8scluster
 #  elasticsearch:
 #    server: <es_server>
 #    port: 9200
+#  clustername: myk8scluster
 #  test_user: ripsaw
   workload:
     name: "fio_distributed"
     args:
-      samples: 1
-      servers: 1
+      samples: 3
+      servers: 3
       pin_server: ''
       jobs:
-        - read
         - write
+        - read
       bs:
-        - 64Ki
+        - 4KiB
+        - 64KiB
       numjobs:
         - 1
+        - 8
       iodepth: 4
-      runtime: 60
-      ramp_time: 5
-      filesize: 2Gi
+      read_runtime: 60
+      read_ramp_time: 5
+      filesize: 2GiB
       log_sample_rate: 1000
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
@@ -33,18 +35,29 @@ spec:
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
 #  global_overrides:
-#    - "key=value"
+#    - key=value
   job_params:
-    - jobname_match: "w"
+    - jobname_match: w
       params:
-        - "fsync_on_close=1"
-        - "create_on_open=1"
-    - jobname_match: "rw"
+        - fsync_on_close=1
+        - create_on_open=1
+    - jobname_match: read
       params:
-        - "rwmixread=50"
-    - jobname_match: "readwrite"
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: rw
       params:
-        - "rwmixread=50"
-#    - jobname_match: "<search_string>"
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+#    - jobname_match: <search_string>
 #      params:
-#        - "key=value"
+#        - key=value

@@ -2,10 +2,10 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: '{{ meta.name }}-iperf3-server-{{item}}'
+  name: 'iperf3-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
-    app : iperf3-bench-server
+    app : iperf3-bench-server-{{ trunc_uuid }}
 spec:
 {% if iperf3.hostnetwork is defined %}
 {% if iperf3.hostnetwork %}
@@ -14,7 +14,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: "quay.io/cloud-bulldozer/iperf3:latest"
+    image: "quay.io/cloud-bulldozer/iperf3:development"
     command: ["/bin/sh", "-c"]
     args:
       - "iperf3 -s -p {{ iperf3.port }} {{ iperf3.extra_options_server }}"

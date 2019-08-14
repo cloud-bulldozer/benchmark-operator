@@ -1,0 +1,59 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: "{{ meta.name }}-fs-drift-client-benchmark-{{ trunc_uuid }}-pod-{{ item }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fs-drift-benchmark-{{ trunc_uuid }}
+    spec:
+      containers:
+        - name: benchmark-server
+          image: quay.io/cloud-bulldozer/fs-drift:master
+          command: ["/bin/sh", "-c"]
+          workingDir: /opt/fs-drift/
+          args:
+            - set -x;
+              export TMPDIR=/var/tmp/fs-drift-output;
+              rm -rf $TMPDIR;
+              mkdir -pv $TMPDIR;
+              mkdir -pv $TMPDIR/RESULTS;
+              mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
+              echo starting fs-drift;
+              ls -lR /tmp/fs-drift;
+              cat /tmp/fs-drift/params;
+              python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
+              python fs-drift.py 
+                --input-yaml /tmp/fs-drift/params
+                --top {{ fs_drift_path }}/fs_drift_test_data
+                --response-times Y 
+                --output-json $TMPDIR/RESULTS/results.json;
+              ls -lR $TMPDIR;
+              cat $TMPDIR/RESULTS/results.json;
+              cp -v /var/tmp/fsd*log $TMPDIR/RESULTS/;
+              ls {{fs_drift_path}};
+              cp -v {{fs_drift_path}}/fs_drift_test_data/network-shared/*rsptimes.csv $TMPDIR/RESULTS/;
+              echo RUN STATUS DONE
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/tmp/fs-drift"
+{% if fs_drift.storageclass is defined %}
+            - name: storage-volume
+              mountPath: "{{ fs_drift_path }}"
+{% endif %}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: fs-drift-test-{{ trunc_uuid }}
+            defaultmode: 0777
+{% if fs_drift.storageclass is defined %}
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
+{% endif %}
+      restartPolicy: Never
+      serviceAccountName: benchmark-operator

@@ -13,7 +13,7 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-ycsb-data-load-job-{{ ycsb_workload }}'
+        name: 'ycsb-data-load-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
         namespace: '{{ operator_namespace }}'
       spec:
         template:
@@ -21,11 +21,12 @@
             name: '{{ meta.name }}-ycsb-data-load'
             namespace: '{{ operator_namespace }}'
             labels:
-             name: 'ycsb-load'
+             name: 'ycsb-load-{{ trunc_uuid }}'
           spec:
             containers:
             - name: ycsb
-              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+              image: "quay.io/cloud-bulldozer/ycsb-server:development"
+              imagePullPolicy: Always
               env:
               - name: clustername
                 value: "{{ clustername }}"
@@ -53,15 +54,17 @@
             volumes:
             - name: config-volume
               configMap:
-                name: ycsb-test
+                name: ycsb-test-{{ trunc_uuid }}
         backoffLimit: 4
 
 - name: Wait for Load Job to Succeed...
   k8s_facts:
     kind: Job
     api_version: batch/v1
-    name: '{{ meta.name }}-ycsb-data-load-job-{{ ycsb_workload }}'
+    name: 'ycsb-data-load-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
     namespace: "{{ operator_namespace }}"
+    label_selectors:
+      - name = 'ycsb-load-{{ trunc_uuid }}'
   register: ycsb_load_pod
   until: "ycsb_load_pod | json_query('resources[].status.succeeded')"
   retries: 1000

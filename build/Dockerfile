@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/ansible-operator:v0.6.0
+FROM quay.io/operator-framework/ansible-operator:v0.8.1
 
 COPY group_vars/ ${HOME}/group_vars/
 COPY roles/ ${HOME}/roles/

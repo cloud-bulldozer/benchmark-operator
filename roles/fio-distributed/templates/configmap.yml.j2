@@ -2,12 +2,12 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fio-test
+  name: fio-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
-{% for job in fiod.jobs %}
-{% for bs in fiod.bs %}
 {% for numjobs in fiod.numjobs %}
+{% for bs in fiod.bs %}
+{% for job in fiod.jobs %}
   fiojob-{{job}}-{{bs}}-{{numjobs}}: |
     [global]
     directory={{fio_path}}
@@ -26,9 +26,6 @@ data:
     bs={{bs}}
     iodepth={{fiod.iodepth}}
     direct=1
-    time_based=1
-    runtime={{fiod.runtime}}
-    ramp_time={{fiod.ramp_time}}
     numjobs={{numjobs}}
 
     [{{job}}]
