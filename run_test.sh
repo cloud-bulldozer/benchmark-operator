@@ -3,13 +3,14 @@ set -x
 
 ci_dir=$1
 ci_test=`echo $1 | sed 's/-/_/g'`
-retries=1
+retries=3
 
 figlet $ci_test
 
 cd $ci_dir
-
 source tests/common.sh
+
+kubectl apply -f resources/namespace.yaml
 
 count=0
 start_time=`date`
@@ -20,7 +21,7 @@ do
   wait_clean
 
   # Test ci
-  if /bin/bash tests/$ci_test.sh > $ci_test.out 2>&1
+  if /bin/bash tests/$ci_test.sh >> $ci_test.out 2>&1
   then
     # if the test passes update the results and complete
     end_time=`date`
@@ -32,7 +33,7 @@ do
     count=$retries
   else
     # if the test failed check if we have done the max retries
-    if $count -lt $retries
+    if [ $count -lt $retries ]
     then
       echo "$ci_dir: Failed. Retrying"
       echo "$ci_dir: Failed. Retrying" >> $ci_test.out
@@ -54,3 +55,4 @@ do
   ((count++))
 done
 wait_clean
+kubectl delete -f resources/namespace.yaml
