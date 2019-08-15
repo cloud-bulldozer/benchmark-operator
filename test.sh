@@ -8,7 +8,7 @@ update_operator_image
 
 mkdir gold
 cp -pr * gold/
-max_concurrent=3
+max_concurrent=2
 
 failed=()
 success=()
@@ -47,18 +47,17 @@ do
   cd ..
 done
 
-# Run tests in parallel. Currently 3 at a time.
-cat tests/my_tests | xargs -n 1 -P 3 ./run_test.sh
+# Run tests in parallel
+cat tests/my_tests | xargs -n 1 -P $max_concurrent ./run_test.sh
 
 # Get number of successes/failures
-success=`grep -c Successful ci_results`
-failed=0
-failed=`grep -c Failed ci_results`
+success=`grep Successful ci_results`
+failed=`grep Failed ci_results`
 echo "CI tests that passed: "$success
 echo "CI tests that failed: "$failed
 echo "Smoke test: Complete"
 
-if [ $failed -gt 0 ]
+if [ `grep -c Failed ci_results` -gt 0 ]
 then
   exit 1
 fi
