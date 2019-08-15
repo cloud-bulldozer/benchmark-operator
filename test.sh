@@ -6,6 +6,10 @@ source tests/common.sh
 cleanup_operator_resources
 update_operator_image
 
+mkdir gold
+cp -pr * gold/
+max_concurrent=3
+
 failed=()
 success=()
 
@@ -28,32 +32,35 @@ fi
 test_list="$(cat tests/iterate_tests)"
 echo "running test suit consisting of ${test_list}"
 
-pass=0
+# Massage the names into something that is acceptable for a namespace
+sed 's/.sh//g' tests/iterate_tests > tests/my_tests
+sed -i 's/_/-/g' tests/my_tests
 
-# Iterate over the tests listed in test_list. For quickest testing of an individual workload have
-# its test listed first in $test_list
-for ci_test in `cat tests/iterate_tests`
+# Create individual directories for each test
+for ci_dir in `cat tests/my_tests`
 do
-  # Re-deploy operator requirements before each test
-  operator_requirements
-
-  # Test ci
-  if /bin/bash tests/$ci_test
-  then
-    success=("${success[@]}" $ci_test)
-    echo "$ci_test: Successful"
-  else
-    failed=("${failed[@]}" $ci_test)
-    pass=1
-    echo "$ci_test: Failed"
-  fi
-
-  # Ensure that all operator resources have been cleaned up after each test
-  cleanup_operator_resources
+  mkdir $ci_dir
+  cp -pr gold/* $ci_dir/
+  cd $ci_dir/
+  # Edit the namespaces so we can run in parallel
+  sed -i "s/my-ripsaw/my-ripsaw-$ci_dir/g" `grep -Rl my-ripsaw`
+  cd ..
 done
 
-echo "CI tests that passed: "${success[@]}
-echo "CI tests that failed: "${failed[@]}
+# Run tests in parallel. Currently 3 at a time.
+cat tests/my_tests | xargs -n 1 -P 3 ./run_test.sh
+
+# Get number of successes/failures
+success=`grep -c Successful ci_results`
+failed=0
+failed=`grep -c Failed ci_results`
+echo "CI tests that passed: "$success
+echo "CI tests that failed: "$failed
 echo "Smoke test: Complete"
 
-exit $pass
+if [ $failed -gt 0 ]
+then
+  exit 1
+fi
+  
+exit 0
