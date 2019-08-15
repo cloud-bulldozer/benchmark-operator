@@ -11,10 +11,9 @@ mkdir gold
 cp -pr * gold/
 
 # The maximum number of concurrent tests to run at one time (0 for unlimited)
-max_concurrent=1
+max_concurrent=3
 
-failed=()
-success=()
+eStatus=0
 
 git_diff_files="$(git diff remotes/origin/master --name-only)"
 for file in ${git_diff_files}
@@ -51,16 +50,18 @@ echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
 echo '-----|--------|--------|---------' >> results.markdown
 
 # Create individual directories for each test
-# If we run multiple tests at once this makes it easier
 for ci_dir in `cat tests/my_tests`
 do
   mkdir $ci_dir
   cp -pr gold/* $ci_dir/
+  cd $ci_dir/
+  # Edit the namespaces so we can run in parallel
+  sed -i "s/my-ripsaw/my-ripsaw-$ci_dir/g" `grep -Rl my-ripsaw`
+  cd ..
 done
 
 # Run tests in parallel up to $max_concurrent at a time.
 xargs -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 
-
 
 # Update and close JUnit test results.xml and markdown file
 for test_dir in `cat tests/my_tests`
@@ -87,10 +88,10 @@ sed -i "s/NUMFAILURES/$failcount/g" results.xml
 
 if [ `grep -c Failed ci_results` -gt 0 ]
 then
-  exit 1
+  eStatus=1
 fi
   
 # Clean up our created directories
 rm -rf gold test-* ci_results
 
-exit 0
+exit $eStatus 
