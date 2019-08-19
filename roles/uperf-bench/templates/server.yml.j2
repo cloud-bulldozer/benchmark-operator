@@ -2,11 +2,11 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: 'uperf-server-{{item}}'
+  name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
-    app : uperf-bench-server-{{item}}
-    type : uperf-bench-server
+    app : uperf-bench-server-{{item}}-{{ trunc_uuid }}
+    type : uperf-bench-server-{{ trunc_uuid }}
 spec:
 {% if uperf.hostnetwork is sameas true %}
   hostNetwork : true

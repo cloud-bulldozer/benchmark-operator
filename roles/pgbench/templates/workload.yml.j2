@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-pgbench-{{ dbnum }}-dbs-client-{{ item.0|int + 1 }}'
+  name: 'pgbench-{{ dbnum }}-dbs-client-{{ item.0|int + 1 }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: pgbench-client
+        app: pgbench-client-{{ trunc_uuid }}
     spec:
       containers:
       - name: benchmark

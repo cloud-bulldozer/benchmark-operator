@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: "{{ meta.name }}-smallfile-client-{{ item }}-benchmark"
+  name: "smallfile-client-{{ item }}-benchmark-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: smallfile-benchmark
+        app: smallfile-benchmark-{{ trunc_uuid }}
     spec:
       containers:
         - name: benchmark-server
@@ -42,12 +42,12 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: smallfile-test
+            name: smallfile-test-{{ trunc_uuid }}
             defaultmode: 0777
 {% if smallfile.storageclass is defined %}
         - name: ceph-volume
           persistentVolumeClaim:
-            claimName: "claim{{item}}"
+            claimName: "claim{{item}}-{{ trunc_uuid }}"
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator

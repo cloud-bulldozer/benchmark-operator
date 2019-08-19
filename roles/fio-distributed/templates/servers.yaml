@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-server-{{ item }}-benchmark'
+  name: 'fio-server-{{ item }}-benchmark-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fio-benchmark
+        app: fio-benchmark-{{ trunc_uuid }}
     spec:
       containers:
       - name: fio-server
@@ -34,5 +34,5 @@ spec:
       volumes:
       - name: ceph-volume
         persistentVolumeClaim:
-          claimName: claim-{{ item }}
+          claimName: claim-{{ item }}-{{ trunc_uuid }}
 {% endif %}
