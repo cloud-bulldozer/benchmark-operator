@@ -28,7 +28,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - app = pgbench-client
+      - app = pgbench-client-{{ trunc_uuid }}
   register: pgbench_pods
   until: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase'))"
   retries: "{{ pgbench.timeout|int * 6 }}"

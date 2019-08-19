@@ -19,24 +19,24 @@
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "claim-{{item}}"
+        name: "claim-{{ item }}-{{ uuid }}"
         namespace: '{{ operator_namespace }}'
         annotations:
-           volume.beta.kubernetes.io/storage-class: "{{fiod.storageclass}}"
+           volume.beta.kubernetes.io/storage-class: "{{ fiod.storageclass }}"
       spec:
          accessModes:
            - ReadWriteOnce
          resources:
            requests:
-             storage: "{{fiod.storagesize}}"
-  with_sequence: start=1 count={{fiod.servers}}
+             storage: "{{ fiod.storagesize }}"
+  with_sequence: start=1 count={{ fiod.servers }}
   when: fiod.storageclass is defined
 
 - name: Start FIO Server(s)
   k8s:
     definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
   when: fiod.servers > 0
-  with_sequence: start=1 count={{fiod.servers}}
+  with_sequence: start=1 count={{ fiod.servers }}
 
 - name: Capture pod list
   k8s_facts:
@@ -44,7 +44,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - app = fio-benchmark
+      - app = fio-benchmark-{{ trunc_uuid }}
   register: server_pods
   until: "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length)"
   retries: 50
@@ -69,7 +69,7 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: fio-hosts
+        name: fio-hosts-{{ trunc_uuid }}
         namespace: '{{ operator_namespace }}'
       data:
         hosts: |

@@ -16,7 +16,7 @@
     status:
       state: Starting
       complete: false
-  when: resource_state.resources[0].status is not defined
+  when: resource_state.resources[0].status.state is not defined
 
 - name: Get current state
   k8s_facts:
@@ -31,14 +31,14 @@
   - name: Create service for server pods
     k8s:
       definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
-    with_sequence: start=0 count={{uperf.pair}}
+    with_sequence: start=0 count={{ uperf.pair }}
     when: uperf.serviceip
 
   - name: Start Server(s)
     k8s:
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
-    with_sequence: start=0 count={{uperf.pair}}
+    with_sequence: start=0 count={{ uperf.pair }}
 
   - name: Wait for pods to be running....
     k8s_facts:
@@ -46,7 +46,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server
+        - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
     until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
     retries: 100
@@ -57,6 +57,8 @@
       kind: Service
       api_version: v1
       namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
     register: serviceip
     when: uperf.serviceip
 
@@ -91,7 +93,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = uperf-bench-client
+        - app = uperf-bench-client-{{ trunc_uuid }}
     register: client_pods
     until: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
     retries: 300

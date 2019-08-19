@@ -3,16 +3,16 @@ kind: Job
 apiVersion: batch/v1
 metadata:
 {% if uperf.serviceip is sameas true %}
-  name: 'uperf-client-{{item.spec.clusterIP}}'
+  name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
 {% else %}
-  name: 'uperf-client-{{item.status.podIP}}'
+  name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
   namespace: '{{ operator_namespace }}'
 spec:
   template:
     metadata:
       labels:
-        app: uperf-bench-client
+        app: uperf-bench-client-{{ trunc_uuid }}
     spec:
 {% if uperf.hostnetwork is sameas true %}
       hostNetwork : true
@@ -63,7 +63,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: uperf-test
+            name: uperf-test-{{ trunc_uuid }}
       restartPolicy: OnFailure
 {% if uperf.pin is sameas true %}
       nodeSelector:

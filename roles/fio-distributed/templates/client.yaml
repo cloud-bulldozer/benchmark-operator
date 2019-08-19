@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-client'
+  name: 'fio-client-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fiod-client
+        app: fiod-client-{{ trunc_uuid }}
     spec:
       containers:
       - name: fio-client
@@ -46,10 +46,10 @@ spec:
       volumes:
       - name: fio-volume
         configMap:
-          name: "fio-test"
+          name: "fio-test-{{ trunc_uuid }}"
           defaultMode: 0777
       - name: host-volume
         configMap:
-          name: "fio-hosts"
+          name: "fio-hosts-{{ trunc_uuid }}"
           defaultMode: 0777
       restartPolicy: Never
