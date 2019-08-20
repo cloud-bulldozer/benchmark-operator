@@ -27,7 +27,7 @@ spec:
               ls -lR /tmp/fs-drift;
               cat /tmp/fs-drift/params;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
-              python /fs-drift/fs-drift.py 
+              python /root/fs-drift/fs-drift.py 
                 --input-yaml /tmp/fs-drift/params
                 --top {{ fs_drift_path }}/fs_drift_test_data
                 --response-times Y 
