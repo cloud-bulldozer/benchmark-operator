@@ -17,7 +17,11 @@ spec:
       # if you are on a real system, you can use Ceph or whatever
       # by filling in storage class
       #storageclass: rook-ceph-block
-      storageclass: local-storage
+      storageclass: rbd-pvc
+      # the access mode for the PV must match the storage class
+      # for block storage use ReadWriteOnce
+      # for shared-filesystem storage use ReadWriteMany
+      access_mode: ReadWriteOnce
       # 5 threads x 100 files/thread x 64 KB/file ~= 300 MB << 1 GiB
       storagesize: 1Gi
       # -- below are fs-drift.py parameters defined in fs-drift README.md
