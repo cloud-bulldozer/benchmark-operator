@@ -1,0 +1,13 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  workload:
+    name: fs-drift
+    args:
+      worker_pods: 1
+      threads: 5
+      max_file_size_kb: 64
+      max_files: 1000
