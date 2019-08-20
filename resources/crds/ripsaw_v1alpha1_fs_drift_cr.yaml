@@ -16,8 +16,8 @@ spec:
       # in CI, use the default storageclass (local storage)
       # if you are on a real system, you can use Ceph or whatever
       # by filling in storage class
-      #storageclass: rook-ceph-block
-      storageclass: rbd-pvc
+      storageclass: rook-ceph-block
+      #storageclass: csi-cephfs
       # the access mode for the PV must match the storage class
       # for block storage use ReadWriteOnce
       # for shared-filesystem storage use ReadWriteMany
