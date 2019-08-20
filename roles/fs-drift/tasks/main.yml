@@ -14,7 +14,7 @@
           volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
       spec:
         accessModes:
-          - ReadWriteOnce
+          - "{{ fs_drift.access_mode }}"
         resources:
           requests:
             storage: "{{fs_drift.storagesize}}"
