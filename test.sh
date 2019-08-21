@@ -41,8 +41,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 # Prep the results.markdown file
 echo "Results for "$JOB_NAME > results.markdown
 echo "" >> results.markdown
-echo 'Test | Result' >> results.markdown
-echo '-----|-------' >> results.markdown
+echo 'Test | Result | Duration (HH:MM:SS)' >> results.markdown
+echo '-----|--------|---------' >> results.markdown
 
 # Iterate over the tests listed in test_list. For quickest testing of an individual workload have
 # its test listed first in $test_list
@@ -51,21 +51,27 @@ do
   # Re-deploy operator requirements before each test
   operator_requirements
 
+  start_time=`date`
+
   # Test ci
   if /bin/bash tests/$ci_test
   then
     success=("${success[@]}" $ci_test)
+    end_time=`date`
+    duration=`date -ud@$(($(date -ud"$end_time" +%s)-$(date -ud"$start_time" +%s))) +%T`
     echo "$ci_test: Successful"
     echo "      <testcase classname=\"CI Results\" name=\"$ci_test\"/>" >> results.xml
-    echo "$ci_test | Pass" >> results.markdown
+    echo "$ci_test | Pass | $duration" >> results.markdown
   else
     failed=("${failed[@]}" $ci_test)
     pass=1
+    end_time=`date`
+    duration=`date -ud@$(($(date -ud"$end_time" +%s)-$(date -ud"$start_time" +%s))) +%T`
     echo "$ci_test: Failed"
     echo "      <testcase classname=\"CI Results\" name=\"$ci_test\" status=\"$ci_test failed\">" >> results.xml
     echo "         <failure message=\"$ci_test failure\" type=\"test failure\"/>
       </testcase>" >> results.xml
-    echo "$ci_test | Fail" >> results.markdown
+    echo "$ci_test | Fail | $duration" >> results.markdown
     ((failcount++))
   fi
 
