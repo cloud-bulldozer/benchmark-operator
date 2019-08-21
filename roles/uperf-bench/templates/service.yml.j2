@@ -4,10 +4,10 @@ apiVersion: v1
 metadata:
   name: uperf-service-{{ item }}-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
-spec:
-  selector:
+  labels:
     app: uperf-bench-server-{{ item }}
     type: uperf-bench-server-{{ trunc_uuid }}
+spec:
   ports:
   - name: uperf
     port: 20000
