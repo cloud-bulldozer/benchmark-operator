@@ -104,6 +104,7 @@ function pod_count () {
 }
 
 function apply_operator {
+  operator_requirements
   kubectl apply -f resources/operator.yaml
   ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=60s
