@@ -3,7 +3,7 @@ set -x
 
 ci_dir=$1
 ci_test=`echo $1 | sed 's/-/_/g'`
-retries=1
+retries=3
 
 figlet $ci_test
 
@@ -28,7 +28,7 @@ do
     echo "$ci_dir: Successful"
     echo "$ci_dir: Successful" > ci_results
     echo "      <testcase classname=\"CI Results\" name=\"$ci_test\"/>" > results.xml
-    echo "$ci_test | Pass | $count | $duration" > results.markdown 
+    echo "$ci_test | Pass | $count | $duration" > results.markdown
     count=$retries
   else
     # if the test failed check if we have done the max retries
@@ -39,7 +39,7 @@ do
     else
       end_time=`date`
       duration=`date -ud@$(($(date -ud"$end_time" +%s)-$(date -ud"$start_time" +%s))) +%T`
-      echo "$ci_dir: Failed retry" 
+      echo "$ci_dir: Failed retry"
       echo "$ci_dir: Failed" > ci_results
       echo "      <testcase classname=\"CI Results\" name=\"$ci_test\" status=\"$ci_test failed\">" > results.xml
       echo "         <failure message=\"$ci_test failed\" type=\"test failure\"/>
