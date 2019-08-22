@@ -2,10 +2,10 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: '{{ meta.name }}-iperf3-server-{{item}}'
+  name: 'iperf3-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
-    app : iperf3-bench-server
+    app : iperf3-bench-server-{{ trunc_uuid }}
 spec:
 {% if iperf3.hostnetwork is defined %}
 {% if iperf3.hostnetwork %}

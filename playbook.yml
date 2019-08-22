@@ -1,11 +1,27 @@
 - hosts: localhost
   gather_facts: no
   tasks:
+  - name: Get current state
+    k8s_facts:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: '{{ meta.name }}'
+      namespace: '{{ operator_namespace }}'
+    register: cr_state
 
   - name: Run Workload
     block:
     - include_role:
         name: "uuid"
+
+    - name: Setting the uuid for the benchmark
+      k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          uuid: "{{ uuid }}"
 
     - include_role:
         name: "uperf-bench"
@@ -63,4 +79,4 @@
       when: workload.name == "smallfile" and workload.args.clients > 0
 
 
-    when: workload is defined
+    when: workload is defined and cr_state.resources[0].status is not defined

@@ -6,7 +6,7 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: '{{ meta.name }}-sysbench-config'
+        name: 'sysbench-config-{{ trunc_uuid }}'
         namespace: '{{ operator_namespace }}'
       data:
         sysbenchScript: "{{ lookup('template', 'sysbench.sh.j2') }}"

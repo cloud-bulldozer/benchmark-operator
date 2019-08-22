@@ -2,18 +2,18 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-pgbench-{{ dbnum }}-dbs-client-{{ item.0|int + 1 }}'
+  name: 'pgbench-{{ dbnum }}-dbs-client-{{ item.0|int + 1 }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: pgbench-client
+        app: pgbench-client-{{ trunc_uuid }}
     spec:
       containers:
       - name: benchmark
-        image: "quay.io/cloud-bulldozer/pgbench:latest"
+        image: "{{ pgb_base_image }}:{{ pgb_version }}"
         env:
           - name: PGPASSWORD
             value: '{{ item.1.password }}'
@@ -39,7 +39,8 @@ spec:
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
-          - "echo 'Init Database {{ item.1.host }}/{{ item.1.db_name }}';
+          - "export run_start_timestamp=$(date +%s.%3N);
+             echo 'Init Database {{ item.1.host }}/{{ item.1.db_name }}';
              pgbench $pgbench_auth -i -s {{ pgbench.scaling_factor }} {{ init_cmd_flags }} {{ item.1.db_name }};
              if [ $? -eq 0 ]; then
                echo 'Waiting for start signal...';
@@ -49,9 +50,11 @@ spec:
                    echo 'GO!';
                  {% for clients in pgbench.clients %}
                    export database='{{ item.1.host }}/{{ item.1.db_name }}';
+                   export description='scaling factor: {{ pgbench.scaling_factor }} | threads: {{ pgbench.threads }} | clients: {{ clients }}'
                    echo '';
                    echo 'Running PGBench with {{ clients }} clients on database {{ item.1.host }}/{{ item.1.db_name }}';
                    for i in `seq 1 {{ pgbench.samples|int }}`; do
+                     export sample_start_timestamp=$(date +%s.%3N);
                      echo \"Begin test sample $i of {{ pgbench.samples }}...\";
                      export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ pgbench.threads }} {% if pgbench.transactions is defined and pgbench.transactions|int > 0 %} -t {{ pgbench.transactions }} {% elif run_time|int > 0 %} -T {{ run_time }} {% endif %} -s {{ pgbench.scaling_factor }} {{ cmd_flags }} {{ item.1.db_name }}\";
                      python /opt/snafu/pgbench-wrapper/pgbench-wrapper.py -r $i;

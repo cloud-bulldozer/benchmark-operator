@@ -37,6 +37,29 @@ function wait_clean {
   done
 }
 
+# The argument is 'timeout in seconds'
+function get_uuid () {
+  sleep_time=$1
+  sleep $sleep_time
+  counter=0
+  counter_max=6
+  uuid="False"
+  until [ $uuid != "False" ] ; do
+    uuid=$(kubectl -n my-ripsaw get benchmarks -o jsonpath='{.items[0].status.uuid}')
+    if [ -z $uuid ]; then
+      sleep $sleep_time
+      uuid="False"
+    fi
+    counter=$(( counter+1 ))
+    if [ $counter -eq $counter_max ]; then
+      return 1
+    fi
+  done
+  echo ${uuid:0:8}
+  return 0
+}
+
+
 # Two arguments are 'pod label' and 'timeout in seconds'
 function get_pod () {
   counter=0
@@ -81,6 +104,7 @@ function pod_count () {
 }
 
 function apply_operator {
+  operator_requirements
   kubectl apply -f resources/operator.yaml
   ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=60s
@@ -152,7 +176,7 @@ function check_log(){
   done
 }
 
-# Takes 2 or more arguments: 'command to run', 'time to wait until true' 
+# Takes 2 or more arguments: 'command to run', 'time to wait until true'
 # Any additional arguments will be passed to kubectl -n my-ripsaw logs to provide logging if a timeout occurs
 function wait_for() {
   if ! timeout -k $2 $2 $1

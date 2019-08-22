@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: fio-test
+  name: fio-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
 {% for job in fiod.jobs %}
