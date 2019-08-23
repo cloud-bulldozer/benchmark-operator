@@ -1,6 +1,11 @@
 ---
 - set_fact:
+    fs_drift_path: /tmp
+  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is not defined
+
+- set_fact:
     fs_drift_path: /mnt/pvc
+  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined
 
 - name: Create PVCs
   k8s:

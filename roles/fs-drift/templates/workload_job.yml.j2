@@ -41,15 +41,19 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/fs-drift"
+{% if fs_drift.storageclass is defined %}
             - name: storage-volume
               mountPath: "{{ fs_drift_path }}"
+{% endif %}
       volumes:
         - name: config-volume
           configMap:
             name: fs-drift-test
             defaultmode: 0777
+{% if fs_drift.storageclass is defined %}
         - name: storage-volume
           persistentVolumeClaim:
             claimName: "fs-drift-claim-{{ item }}"
+{% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator
