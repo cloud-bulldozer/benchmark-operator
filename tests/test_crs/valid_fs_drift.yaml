@@ -9,5 +9,6 @@ spec:
     args:
       worker_pods: 1
       threads: 5
-      max_file_size_kb: 64
+      max_file_size_kb: 4
       max_files: 1000
+      duration: 5
