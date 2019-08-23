@@ -47,8 +47,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 # Prep the results.markdown file
 echo "Results for "$JOB_NAME > results.markdown
 echo "" >> results.markdown
-echo 'Test | Result | Retries' >> results.markdown
-echo '-----|--------|--------' >> results.markdown
+echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
+echo '-----|--------|--------|---------' >> results.markdown
 
 # Create individual directories for each test
 # If we run multiple tests at once this makes it easier
