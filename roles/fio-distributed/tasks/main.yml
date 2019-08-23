@@ -19,7 +19,7 @@
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "claim-{{ item }}-{{ uuid }}"
+        name: "claim-{{ item }}-{{ trunc_uuid }}"
         namespace: '{{ operator_namespace }}'
         annotations:
            volume.beta.kubernetes.io/storage-class: "{{ fiod.storageclass }}"
