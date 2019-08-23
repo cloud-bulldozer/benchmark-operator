@@ -15,7 +15,7 @@ END
 
 function populate_test_list {
   touch tests/iterate_tests
-  if [[ $(echo ${1} | grep 'roles/fs-drift') ]]; then echo "test_fs-drift.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
   if [[ $(echo ${1} | grep 'roles/uperf-bench') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
   if [[ $(echo ${1} | grep 'roles/fio-distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
   if [[ $(echo ${1} | grep 'roles/iperf3-bench') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
