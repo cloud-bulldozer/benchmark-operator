@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: fio-client
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:development"
         imagePullPolicy: Always
         env:
           - name: uuid

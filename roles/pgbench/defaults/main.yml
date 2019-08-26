@@ -1,7 +1,7 @@
 ---
 db_port: 5432
 pgb_base_image: "quay.io/cloud-bulldozer/pgbench"
-pgb_version: "latest"
+pgb_version: "development"
 timeout_min: 300
 num_databases_pattern: "{{ pgbench.num_databases_pattern|default('all') }}"
 run_time: "{{ pgbench.run_time|default('') }}"

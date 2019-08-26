@@ -16,7 +16,7 @@ spec:
       - name: sysbench
         command: ["/bin/sh", "-c"]
         args: ["/tmp/sysbenchScript"]
-        image: "quay.io/cloud-bulldozer/sysbench:latest"
+        image: "quay.io/cloud-bulldozer/sysbench:development"
         imagePullPolicy: Always
         volumeMounts:
         - name: sysbench-volume

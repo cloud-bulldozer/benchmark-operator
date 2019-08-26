@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: fio-server
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:development"
         imagePullPolicy: Always
         ports:
           - containerPort: 8765
