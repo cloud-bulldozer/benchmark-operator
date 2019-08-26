@@ -18,16 +18,19 @@ spec:
       jobs:
         - read
         - write
+      # NOTE: fio units should be given in IEC standard long format, i.e. KiB, MiB, GiB, TiB
       bs:
-        - 64Ki
+        - 64KiB
       numjobs:
         - 1
       iodepth: 4
       runtime: 60
       ramp_time: 5
-      filesize: 2Gi
+      # NOTE: fio units should be given in IEC standard long format, i.e. KiB, MiB, GiB, TiB
+      filesize: 2GiB
       log_sample_rate: 1000
       #storageclass: rook-ceph-block
+      # NOTE: storageclass units should be given in IEC standard short format, i.e. Ki, Mi, Gi, Ti
       #storagesize: 5Gi
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
