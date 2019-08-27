@@ -54,11 +54,9 @@ please make sure you follow:
 * [add workload guide](#additional-guidance-for-adding-a-workload)
 
 ### Ansible roles
-Workloads are defined within Ansible roles. The roles are located under the `roles/` directory. You can create a new role template a few different ways.
+Workloads are defined within Ansible roles. The roles are located under the `roles/` directory. You can create a new role template as follows:
 
 - Simply copy an existing role and edit as needed
-- Run the `ansible-galaxy init <role_name>` command
-- Pull a blank template from [ansible-roles](https://github.com/ansible-roles/ansible-role-template)
 
 Review the Ansible [role documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html)
 
@@ -95,7 +93,7 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
-  workload: #can be infrastructure too or can be both like in case of ycsb-couchbase
+  workload:
     name: your_workload_name
     args:
       workers: 0
@@ -115,6 +113,11 @@ to [uperf](docs/uperf.md)
 * Ensure all resources created are within the `my-ripsaw` namespace, this can be done by setting namespace
 to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
 namespace which is what `meta.namespace` would default to.
+* All resources created as part of your role should use `trunc_uuid` ansible var in their names and labels, so
+for example [fio-client job template](roles/fio-distributed/templates/client.yaml) has the name `fio-client` and label `app: fiod-client`, instead we'll append the var `trunc_uuid` to both
+the name and label so it'll be `fio-client-{{ trunc_uuid }}` and label would be `app:fiod-client-{{ trunc_uuid }}`. The reason for this
+is that 2 parallel runs of some benchmark aren't going to interfere with each other if each resource and its label is unique for that run.
+We could've looked at using the full uuid but we hit an issue with character limit of 63 so using the truncated uuid which is the first 8 digits.
 
 ### Best practices for new workloads
 The following steps are suggested for your workload to be added:
@@ -169,9 +172,8 @@ behavior can be predicted, we've mandated writing tests before PR can be merged.
 
 If a new workload is added, please follow the instructions to add a testcase to
 [test.sh](test,sh):
+* copy an existing test like [uperf test](tests/test_uperf.sh)
 * Add commands needed to setup the workload specific requirements if any
-* Create a tests/test_<workload>.sh that has the functional test
 * Add a valid cr file to [test_crs](tests/test_crs/) directory for your workload
-* Add an invalid cr file to same directory
 * Apply the cr and run a simple functional test to ensure that the expected behavior is asserted
-* Delete the cr and redo for the invalid cr
+* NOTE: make sure that your test script name has only underscores and no `-` in the name
