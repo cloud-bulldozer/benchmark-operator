@@ -33,11 +33,14 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "cat /tmp/host/hosts;
-             for file in $(ls /tmp/fio/ | egrep ^fiojob); do
-               cat /tmp/fio/$file;
-               mkdir -p /tmp/fiod-{{ uuid }}/$file;
-               python /opt/snafu/fio_wrapper/fio_wrapper.py /tmp/host/hosts /tmp/fio/$file -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/$file;
-             done;"
+{% for job in fiod.jobs %}
+{% for bs in fiod.bs %}
+{% for numjobs in fiod.numjobs %}
+             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}}; python /opt/snafu/fio_wrapper/fio_wrapper.py /tmp/host/hosts /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+             echo run finished"
         volumeMounts:
         - name: fio-volume
           mountPath: "/tmp/fio"

@@ -45,12 +45,18 @@ spec:
              export ips=$(hostname -I);
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
-                 for file in $(ls /tmp/uperf-test/ | egrep ^uperf); do
-                   cat /tmp/uperf-test/$file;
-                   for i in `seq 1 {{uperf.samples}}`; do
-                     python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/$file -r $i;
-                   done;
+{% for test in uperf.test_types %}
+{% for proto in uperf.protos %}
+{% for size in uperf.sizes %}
+{% for nthr in uperf.nthrs %}
+                 cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
+                 for i in `seq 1 {{uperf.samples}}`; do
+                   python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i;
                  done;
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
                else
                  continue;
                fi;
