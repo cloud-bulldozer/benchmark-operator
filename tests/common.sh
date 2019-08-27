@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+ERRORED=false
+
 function check_full_trigger {
 python - <<END
 import os
@@ -26,9 +28,7 @@ function populate_test_list {
 }
 
 function wait_clean {
-  kubectl delete --all jobs --namespace my-ripsaw
-  kubectl delete --all deployments --namespace my-ripsaw
-  kubectl delete --all pods --namespace my-ripsaw
+  kubectl delete all --all -n my-ripsaw
   for i in {1..30}; do
     if [ `kubectl get pods --namespace my-ripsaw | grep bench | wc -l` -ge 1 ]; then
       sleep 5
@@ -37,6 +37,29 @@ function wait_clean {
     fi
   done
 }
+
+# The argument is 'timeout in seconds'
+function get_uuid () {
+  sleep_time=$1
+  sleep $sleep_time
+  counter=0
+  counter_max=6
+  uuid="False"
+  until [ $uuid != "False" ] ; do
+    uuid=$(kubectl -n my-ripsaw get benchmarks -o jsonpath='{.items[0].status.uuid}')
+    if [ -z $uuid ]; then
+      sleep $sleep_time
+      uuid="False"
+    fi
+    counter=$(( counter+1 ))
+    if [ $counter -eq $counter_max ]; then
+      return 1
+    fi
+  done
+  echo ${uuid:0:8}
+  return 0
+}
+
 
 # Two arguments are 'pod label' and 'timeout in seconds'
 function get_pod () {
@@ -82,6 +105,7 @@ function pod_count () {
 }
 
 function apply_operator {
+  operator_requirements
   kubectl apply -f resources/operator.yaml
   ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
   kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=60s
@@ -153,16 +177,12 @@ function check_log(){
   done
 }
 
-# Takes 2 or more arguments: 'command to run', 'time to wait until true' 
+# Takes 2 or more arguments: 'command to run', 'time to wait until true'
 # Any additional arguments will be passed to kubectl -n my-ripsaw logs to provide logging if a timeout occurs
 function wait_for() {
   if ! timeout -k $2 $2 $1
   then
       echo "Timeout exceeded for: "$1
-
-      #Always provide the benchmark-operator logs
-      echo "Benchmark-operator logs:"
-      kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
 
       counter=3
       until [ $counter -gt $# ]
@@ -174,4 +194,13 @@ function wait_for() {
       return 1
   fi
   return 0
+}
+
+function error {
+  echo "Error caught. Dumping logs before exiting"
+  echo "Benchmark operator Logs"
+  kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
+  echo "Ansible sidecar Logs"
+  kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
+  ERRORED=true
 }

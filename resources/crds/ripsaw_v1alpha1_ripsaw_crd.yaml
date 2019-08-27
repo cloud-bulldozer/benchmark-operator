@@ -27,6 +27,9 @@ spec:
     type: string
     description: The state of the benchmark
     JSONPath: .status.state
+  - name: UUID
+    type: string
+    JSONPath: .status.uuid
   - name: Age
     type: date
     JSONPath: .metadata.creationTimestamp

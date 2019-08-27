@@ -4,6 +4,7 @@ metadata:
   name: pgbench-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   #elasticsearch:
   #  server: my.elasticsearch.server
   #  port: 9200
@@ -34,8 +35,6 @@ spec:
 
       ## Ripsaw-specific options
       samples: 1
-      # Timeout in minutes to wait for client pods to be ready
-      timeout: 5
       # TODO: test_sequential not yet implemented; all tests are currently parallel
       # Tests of multiple databases will be done in parallel unless
       # test_sequential is set to True

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: uperf-test
+  name: uperf-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
 {% for test in uperf.test_types %}
@@ -52,4 +52,3 @@ data:
 {% endfor %}
 {% endfor %}
 {% endfor %}
-

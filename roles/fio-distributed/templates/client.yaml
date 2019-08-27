@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-fio-client'
+  name: 'fio-client-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fiod-client
+        app: fiod-client-{{ trunc_uuid }}
     spec:
       containers:
       - name: fio-client
@@ -20,6 +20,8 @@ spec:
             value: "{{ uuid }}"
           - name: test_user
             value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
 {% if es_server %}
           - name: es
             value: "{{ es_server }}"
@@ -34,7 +36,7 @@ spec:
              for file in $(ls /tmp/fio/ | egrep ^fiojob); do
                cat /tmp/fio/$file;
                mkdir -p /tmp/fiod-{{ uuid }}/$file;
-               python /opt/snafu/fio-wrapper/fio-wrapper.py /tmp/host/hosts /tmp/fio/$file -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/$file;
+               python /opt/snafu/fio_wrapper/fio_wrapper.py /tmp/host/hosts /tmp/fio/$file -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/$file;
              done;"
         volumeMounts:
         - name: fio-volume
@@ -44,10 +46,10 @@ spec:
       volumes:
       - name: fio-volume
         configMap:
-          name: "fio-test"
+          name: "fio-test-{{ trunc_uuid }}"
           defaultMode: 0777
       - name: host-volume
         configMap:
-          name: "fio-hosts"
+          name: "fio-hosts-{{ trunc_uuid }}"
           defaultMode: 0777
       restartPolicy: Never

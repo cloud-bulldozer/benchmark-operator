@@ -22,9 +22,9 @@ spec:
         - tcp
         - udp
       sizes:
-        - 16384
+        - 1024
         - 512
       nthrs:
         - 1
-        - 8
-      runtime: 10
+        - 2
+      runtime: 2

@@ -17,6 +17,7 @@ metadata:
   name: ycsb-mongo-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   workload:
     name: ycsb
     args:

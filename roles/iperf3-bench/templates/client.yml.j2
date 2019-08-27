@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: '{{ meta.name }}-iperf3-client-{{item.status.podIP}}'
+  name: 'iperf3-client-{{ item.status.podIP }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: iperf3-bench-client
+        app: iperf3-bench-client-{{ trunc_uuid }}
     spec:
 {% if iperf3.hostnetwork is defined %}
 {% if iperf3.hostnetwork %}
@@ -21,6 +21,7 @@ spec:
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/iperf3:latest"
+        imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
           - "iperf3 -c {{ item.status.podIP }} -p {{ iperf3.port }} --{{ iperf3.transmit_type }} {{ iperf3.transmit_value }} -l {{ iperf3.length_buffer }} -P {{ iperf3.streams }} -w {{ iperf3.window_size }} -M {{ iperf3.mss }} -S {{ iperf3.ip_tos }} -O {{ iperf3.omit_start }} {{ iperf3.extra_options_client }}"

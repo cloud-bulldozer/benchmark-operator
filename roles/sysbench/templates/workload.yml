@@ -3,26 +3,27 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ meta.name }}-sysbench"
+  name: "sysbench-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-       app: sysbench
+       app: sysbench-{{ trunc_uuid }}
     spec:
       containers:
       - name: sysbench
         command: ["/bin/sh", "-c"]
         args: ["/tmp/sysbenchScript"]
         image: "quay.io/cloud-bulldozer/sysbench:latest"
+        imagePullPolicy: Always
         volumeMounts:
         - name: sysbench-volume
           mountPath: "/tmp/"
       volumes:
       - name: sysbench-volume
         configMap:
-          name: "{{ meta.name }}-sysbench-config"
+          name: "sysbench-config-{{ trunc_uuid }}"
           defaultMode: 0777
       restartPolicy: OnFailure

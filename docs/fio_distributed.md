@@ -109,6 +109,7 @@ metadata:
   name: fio-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   elasticsearch:
     server: my.elasticsearch.server
     port: 9200

@@ -16,7 +16,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = iperf3-bench-server
+        - app = iperf3-bench-server-{{ trunc_uuid }}
     register: server_pods
     until: "iperf3.pairs == (server_pods | json_query('resources[].status.podIP')|length)"
     retries: 37
@@ -41,7 +41,7 @@
         api_version: v1
         namespace: '{{ operator_namespace }}'
         label_selectors:
-          - app = iperf3-bench-client
+          - app = iperf3-bench-client-{{ trunc_uuid }}
       register: client_jobs
       until: "iperf3.pairs == (client_jobs | json_query('resources[].status.succeeded')|length)"
       retries: iperf3.retries
@@ -55,7 +55,7 @@
         api_version: v1
         namespace: '{{ operator_namespace }}'
         label_selectors:
-          - app = iperf3-bench-client
+          - app = iperf3-bench-client-{{ trunc_uuid }}
       register: client_jobs
       until: "iperf3.pairs == (client_jobs | json_query('resources[].status.succeeded')|length)"
       retries: 10

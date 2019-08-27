@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ycsb-test
+  name: ycsb-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
   tsworkload : |

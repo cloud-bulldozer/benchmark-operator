@@ -18,13 +18,13 @@ spec:
         - read
         - write
       bs:
-        - 64Ki
+        - 64KiB
       numjobs:
         - 1
       iodepth: 4
       runtime: 3
       ramp_time: 1
-      filesize: 1Gi
+      filesize: 1GiB
       log_sample_rate: 1000
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #

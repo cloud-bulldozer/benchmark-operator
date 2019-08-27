@@ -3,10 +3,10 @@
 apiVersion: kubevirt.io/v1alpha3
 kind: "VirtualMachineInstance"
 metadata:
-  name: "{{ meta.name }}-sysbench"
+  name: "sysbench-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
   labels:
-    kubevirt-vm: vm-sysbench
+    kubevirt-vm: vm-sysbench-{{ trunc_uuid }}
 spec:
   domain:
     devices:

@@ -4,6 +4,7 @@ metadata:
   name: ycsb-couchbase-benchmark
   namespace: my-ripsaw
 spec:
+  clustername: myk8scluster
   workload:
     name: ycsb
     args:

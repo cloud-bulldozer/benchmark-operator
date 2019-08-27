@@ -31,6 +31,7 @@ rules:
   - daemonsets
   - replicasets
   - statefulsets
+  - deployments/finalizers
   verbs:
   - '*'
 - apiGroups:

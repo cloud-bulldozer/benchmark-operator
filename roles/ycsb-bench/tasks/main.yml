@@ -13,7 +13,7 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: '{{ meta.name }}-ycsb-bench-job-{{ ycsb_workload }}'
+        name: 'ycsb-bench-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
         namespace: '{{ operator_namespace }}'
       spec:
         template:
@@ -21,12 +21,15 @@
             name: '{{ meta.name }}-ycsb-bench'
             namespace: '{{ operator_namespace }}'
             labels:
-              name: 'ycsb-run'
+              name: 'ycsb-run-{{ trunc_uuid }}'
           spec:
             containers:
             - name: ycsb
               image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+              imagePullPolicy: Always
               env:
+              - name: clustername
+                value: "{{ clustername }}"
               - name: es
                 value: "{{elasticsearch.server | default()}}"
               - name: es_port
@@ -51,15 +54,17 @@
             volumes:
               - name: config-volume
                 configMap:
-                  name: ycsb-test
+                  name: ycsb-test-{{ trunc_uuid }}
         backoffLimit: 4
 
 - name: Wait for YCSB Workload Job to Succeed...
   k8s_facts:
     kind: Job
     api_version: batch/v1
-    name: '{{ meta.name }}-ycsb-bench-job-{{ ycsb_workload }}'
+    name: 'ycsb-bench-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
     namespace: "{{ operator_namespace }}"
+    label_selectors:
+      - name = 'ycsb-run-{{ trunc_uuid }}'
   register: ycsb_bench
   until: "ycsb_bench | json_query('resources[].status.succeeded')"
   retries: 1000
