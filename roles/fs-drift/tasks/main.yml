@@ -13,7 +13,7 @@
       kind: PersistentVolumeClaim
       apiVersion: v1
       metadata:
-        name: "fs-drift-claim-{{ item }}"
+        name: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
         namespace: "{{ operator_namespace }}"
         annotations:
           volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
@@ -33,7 +33,7 @@
       kind: ConfigMap
       metadata:
         namespace: "{{ operator_namespace }}"
-        name: fs-drift-test
+        name: fs-drift-test-{{ trunc_uuid }}
       data:
         params: "{{ lookup('template', 'other_parameters.yaml.j2') }}"
         subscriber: "{{ lookup('template', 'subscriber.py.j2') }}"
@@ -54,7 +54,7 @@
       kind: Job
       apiVersion: batch/v1
       metadata:
-        name: "{{ meta.name }}-fs-drift-publisher"
+        name: "{{ meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
         namespace: "{{ operator_namespace }}"
       spec:
         ttlSecondsAfterFinished: 600
@@ -77,7 +77,7 @@
             volumes:
               - name: config-volume
                 configMap:
-                  name: fs-drift-test
+                  name: fs-drift-test-{{ trunc_uuid }}
                   defaultmode: 0777
             restartPolicy: Never
 

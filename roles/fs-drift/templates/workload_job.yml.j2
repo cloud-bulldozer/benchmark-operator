@@ -2,14 +2,14 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: "{{ meta.name }}-fs-drift-client-benchmark-pod-{{ item }}"
+  name: "{{ meta.name }}-fs-drift-client-benchmark-{{ trunc_uuid }}-pod-{{ item }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: fs-drift-benchmark
+        app: fs-drift-benchmark-{{ trunc_uuid }}
     spec:
       containers:
         - name: benchmark-server
@@ -48,12 +48,12 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: fs-drift-test
+            name: fs-drift-test-{{ trunc_uuid }}
             defaultmode: 0777
 {% if fs_drift.storageclass is defined %}
         - name: storage-volume
           persistentVolumeClaim:
-            claimName: "fs-drift-claim-{{ item }}"
+            claimName: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator
