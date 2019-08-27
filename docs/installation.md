@@ -90,6 +90,7 @@ run workloads:
 * [YCSB](ycsb.md)
 * [Bring your own workload](byowl.md)
 * [pgbench](pgbench.md)
+* [fs-drift](fs-drift.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 
