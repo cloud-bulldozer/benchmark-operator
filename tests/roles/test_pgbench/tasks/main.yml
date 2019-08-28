@@ -1,0 +1,124 @@
+---
+- block:
+
+  - name: get postgres pod name
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ namespace }}"
+      label_selectors:
+        - app = postgres
+    register: pod_name
+    until: "'Running' in pod_name | json_query('resources[].status.phase')"
+    retries: 20
+    delay: 5
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Postgres pod deployment failed"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure
+      fail:
+        msg: "Failed to deploy postgres pod"
+
+- block:
+
+  - name: Update IP in valid_pgbench
+    replace: 
+      path: "{{ ripsaw_dir }}{{ cr }}"
+      regexp: "host:(.*)$"
+      replace: "host: {{ pod_name | json_query('resources[].status.podIP')|first }}"
+
+  - name: Launch test
+    include_role:
+      name: launch_single
+
+  - name: Pause 2 seconds
+    pause:
+      seconds: 2
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Benchmark failed to deploy"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure
+      fail:
+        msg: "Benchmark failed to deploy"
+
+- block:
+
+  - name: Wait until SUUID is available
+    k8s_facts:
+      kind: Benchmark
+      namespace: "{{ namespace }}"
+      name: '{{ my_test.result.metadata.name }}'
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    register: pgbench_status
+    until: "pgbench_status | json_query('resources[].status.suuid')|length|bool"
+    retries: 10
+    delay: 3
+
+  - name: get pgbench-client pod name
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ namespace }}"
+      label_selectors:
+        - app=pgbench-client-{{ pgbench_status | json_query('resources[].status.suuid')|first }}
+    register: pgbench_client
+    until: "pgbench_client | json_query('resources[]')|length|bool"
+    retries: "{{ test_retries }}"
+    delay: "{{ test_delay }}"
+
+  - name: Check for test success
+    command: "kubectl -n {{ namespace }} logs {{ pgbench_client | json_query('resources[].metadata.name')|first }}"
+    register: cmnd_result
+    until: '"tps =" in cmnd_result.stdout'
+    retries: 20
+    delay: 3
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Checking for test success failed"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure
+      fail:
+        msg: "Checking for test success failed"
+
+  always:
+
+  - name: Cleanup Operator
+    include_role:
+      name: common
+      tasks_from: delete_operator.yml

@@ -1,0 +1,61 @@
+---
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+    - name: Run test_byowl
+      import_role: 
+        name: launch_test
+        vars_from: byowl.yml
+      tags: [ test_byowl, all ]
+
+    - name: Run test_fiod
+      import_role: 
+        name: launch_test
+        vars_from: fiod.yml
+      tags: [ test_fiod, all ] 
+      
+    - name: Run test_iperf3
+      import_role: 
+        name: launch_test
+        vars_from: iperf3.yml
+      tags: [ test_iperf3, all ]
+      
+    - name: Run test_smallfile
+      import_role: 
+        name: launch_test
+        vars_from: smallfile.yml
+      tags: [ test_smallfile, all ]
+      
+    - name: Run test_sysbench
+      import_role: 
+        name: launch_test
+        vars_from: sysbench.yml
+      tags: [ test_sysbench, all ]
+      
+    - name: Run test_uperf
+      import_role: 
+        name: launch_test
+        vars_from: uperf.yml
+      tags: [ test_uperf, all ]
+    
+    - name: Run test_fsdrift
+      import_role: 
+        name: launch_test
+        vars_from: fsdrift.yml
+      tags: [ test_fsdrift, all ]
+      
+    ## PGbench and YCSB currently do not have reconciliation enabled so they have
+    # their own roles
+
+    - name: Run test_pgbench
+      import_role: 
+        name: test_pgbench
+      tags: [ test_pgbench, all ]
+    
+    - name: Run test_ycsb
+      import_role: 
+        name: test_ycsb
+      tags: [ test_ycsb, all ]

@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_byowl.yaml
+namespace: my-ripsaw
+test_name: byowl
+test_retries: 10
+test_delay: 5
+test_check: "Test"

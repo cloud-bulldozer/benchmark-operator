@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_fiod.yaml
+namespace: my-ripsaw
+test_name: fiod-client
+test_retries: 100
+test_delay: 5
+test_check: "fio has successfully finished sample"

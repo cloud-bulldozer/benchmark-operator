@@ -1,0 +1,16 @@
+---
+- name: Get list of all pods in namespace
+  k8s_facts:
+    kind: Pod
+    namespace: "{{ namespace }}"
+  register: pod_list
+
+- name: Get logs from all pods
+  command: "kubectl -n {{ namespace }} logs --tail=50 {{ item }} --all-containers=true"
+  register: logs
+  with_items:
+    - "{{ pod_list | json_query('resources[].metadata.name') }}"
+
+- name: Display all logs
+  debug:
+    var: logs

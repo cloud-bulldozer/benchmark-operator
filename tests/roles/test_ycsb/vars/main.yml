@@ -1,0 +1,7 @@
+cr: /tests/roles/test_ycsb/files/valid_ycsb-mongo.yaml 
+mongo_service: /tests/roles/test_ycsb/files/mongo-service.yaml
+mongo_ss: /tests/roles/test_ycsb/files/mongo-ss.yaml
+namespace: my-ripsaw
+test_name: ycsb-load
+test_retries: 80
+test_delay: 10

@@ -1,0 +1,13 @@
+---
+allow_duplicates: true
+dependencies:
+  - role: launch_single
+    vars:
+      cr: "{{ pg_config }}"
+      my_kind: Deployment
+      api_version: extensions/v1beta1
+  - role: launch_single
+    vars:
+      cr: "{{ pg_deploy }}"
+      my_kind: Deployment
+      api_version: extensions/v1beta1

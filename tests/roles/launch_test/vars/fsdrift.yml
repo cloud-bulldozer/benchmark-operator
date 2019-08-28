@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_fs_drift.yaml
+namespace: my-ripsaw
+test_name: fs-drift-benchmark
+test_retries: 100
+test_delay: 5
+test_check: "RUN STATUS"

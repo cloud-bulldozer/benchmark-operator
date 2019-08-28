@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 set -x
 
-source tests/common.sh
+# update operator image
+tag_name="${NODE_NAME:-master}"
+operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name
+docker push quay.io/rht_perf_ci/benchmark-operator:$tag_name
+sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
 
-cleanup_operator_resources
-update_operator_image
 
 # Create a "gold" directory based off the current branch
 mkdir gold
@@ -15,28 +17,26 @@ max_concurrent=3
 
 eStatus=0
 
-git_diff_files="$(git diff remotes/origin/master --name-only)"
-for file in ${git_diff_files}
-do
-  echo "$file" >> tests/git_diff
-done
-
-check_all_tests=$(check_full_trigger)
-if [[ "$check_all_tests" != "True" ]]
+if [ -z $1 ]
 then
-  echo "checking which tests need to be run"
-  populate_test_list "${git_diff_files}"
+  test_cases="all"
+  echo "Test list supplied was empty, assuming all"
 else
-  echo "running all the tests"
-  `cp tests/test_list tests/iterate_tests`
+  test_cases=${1,,}
+fi
+
+if [[ "$test_cases" == "all" ]]
+then
+  grep tags tests/run_test.yml | awk '{ print substr($3, 1, length($3)-1)}' > tests/iterate_tests
+else
+  echo $test_cases | sed 's/,/\n/g' > tests/iterate_tests
 fi
 
 test_list="$(cat tests/iterate_tests)"
 echo "running test suit consisting of ${test_list}"
 
 # Massage the names into something that is acceptable for a namespace
-sed 's/.sh//g' tests/iterate_tests > tests/my_tests
-sed -i 's/_/-/g' tests/my_tests
+sed 's/_/-/g' tests/iterate_tests > tests/my_tests
 
 # Prep the results.xml file
 echo '<?xml version="1.0" encoding="UTF-8"?>
@@ -46,8 +46,8 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 # Prep the results.markdown file
 echo "Results for "$JOB_NAME > results.markdown
 echo "" >> results.markdown
-echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
-echo '-----|--------|--------|---------' >> results.markdown
+echo 'Test | Result | Retries| Duration (HH:MM:SS) | Failure Message (if failed)' >> results.markdown
+echo '-----|--------|--------|---------|--------' >> results.markdown
 
 # Create individual directories for each test
 for ci_dir in `cat tests/my_tests`
@@ -55,8 +55,10 @@ do
   mkdir $ci_dir
   cp -pr gold/* $ci_dir/
   cd $ci_dir/
+  my_dir=`pwd`
   # Edit the namespaces so we can run in parallel
   sed -i "s/my-ripsaw/my-ripsaw-$ci_dir/g" `grep -Rl my-ripsaw`
+  sed -i "s?^ripsaw_dir.*?ripsaw_dir: $my_dir?g" tests/group_vars/all.yml
   cd ..
 done
 

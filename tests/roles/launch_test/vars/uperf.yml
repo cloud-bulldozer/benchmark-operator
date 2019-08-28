@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_uperf.yaml
+namespace: my-ripsaw
+test_name: uperf-bench-client
+test_retries: 80
+test_delay: 10
+test_check: Success

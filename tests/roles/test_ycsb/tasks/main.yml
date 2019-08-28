@@ -1,0 +1,120 @@
+---
+- block:
+
+  - name: wait until mongo service is running
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ namespace }}"
+      label_selectors:
+        - role = mongo
+    register: pod_name
+    until: "'Running' in pod_name | json_query('resources[].status.phase')"
+    retries: 10
+    delay: 6
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "mongo service did not reach running state"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Check for success failed
+      fail:
+        msg: "Mongo service did not reach running state"
+
+- block:
+
+  - name: Launch test
+    include_role:
+      name: launch_single
+
+  - name: Pause 2 seconds
+    pause:
+      seconds: 2
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Benchmark failed to start"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Check for success failed
+      fail:
+        msg: "Benchmark failed to start"
+
+- block:
+
+  - name: Wait until SUUID is available
+    k8s_facts:
+      kind: Benchmark
+      namespace: "{{ namespace }}"
+      name: '{{ my_test.result.metadata.name }}'
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    register: ycsb_status
+    until: "ycsb_status | json_query('resources[].status.suuid')|length|bool"
+    retries: 10
+    delay: 3
+    ignore_errors: true
+
+  - name: get ycsb-data-load pod name
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ namespace }}"
+      label_selectors:
+        - name = ycsb-load-{{ ycsb_status | json_query('resources[].status.suuid')|first }}
+    register: ycsb_load
+    until: "'Succeeded' in ycsb_load | json_query('resources[].status.phase')"
+    retries: "{{ test_retries }}"
+    delay: "{{ test_delay }}"
+    ignore_errors: true
+
+  - name: Check for test success
+    command: "kubectl -n {{ namespace }} logs {{ ycsb_load | json_query('resources[].metadata.name')|first }}"
+    register: cmnd_result
+    until: '"Starting test" in cmnd_result.stdout'
+    retries: 20
+    delay: 3
+
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Check for test success failed"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Check for success failed
+      fail:
+        msg: "Check for test success failed"
+
+  always:
+
+  - name: Cleanup Operator
+    include_role:
+      name: common
+      tasks_from: delete_operator.yml

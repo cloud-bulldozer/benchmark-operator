@@ -1,0 +1,27 @@
+---
+- name: Create Namespace
+  k8s:
+    src: "{{ ripsaw_dir }}{{ ripsaw_ns }}"
+    state: present
+
+- name: Apply deploy directory
+  k8s:
+    src: "{{ ripsaw_dir }}/deploy/{{ item }}"
+    state: present
+  with_items:
+    - "{{ deploy }}"
+
+- name: Apply ripsaw crd
+  k8s:
+    src: "{{ ripsaw_dir }}{{ ripsaw_crd }}"
+    state: present
+
+- name: Deploy Operator
+  k8s:
+    src: "{{ ripsaw_dir }}{{ operator }}"
+    state: present
+    wait: true
+    wait_timeout: 120
+    wait_condition:
+      type: Available
+      status: true

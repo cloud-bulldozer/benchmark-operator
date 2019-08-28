@@ -1,0 +1,8 @@
+ripsaw_ns: /resources/namespace.yaml
+ripsaw_crd: /resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+operator: /resources/operator.yaml
+deploy:
+  - 10_service_account.yaml
+  - 20_role.yaml
+  - 30_role_binding.yaml
+  - 40_cluster_role_kubevirt.yaml

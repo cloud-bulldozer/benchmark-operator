@@ -1,0 +1,9 @@
+---
+allow_duplicates: true
+dependencies:
+  - role: launch_single
+    vars:
+      cr: "{{ mongo_service }}"
+  - role: launch_single
+    vars:
+      cr: "{{ mongo_ss }}"

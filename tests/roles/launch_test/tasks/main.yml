@@ -1,0 +1,148 @@
+---
+# Deploy the Operator and its requirements
+- block:
+
+  - name: Deploy Ripsaw Operator
+    include_role:
+      name: common
+      tasks_from: deploy.yml
+
+  rescue:
+    - name: Operator deployment failed, get logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Operator deployment failed"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure
+      fail:
+        msg: "Failed to deploy Ripsaw Operator"
+  
+# Apply the test benchmark and wait for it to complete
+- block:
+
+  - name: Apply test
+    k8s:
+      state: present
+      src: "{{ ripsaw_dir }}{{ cr }}"
+    register: my_test
+
+  - name: Wait until benchmark completes
+    k8s_facts:
+      kind: Benchmark
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      namespace: "{{ namespace }}"
+      name: "{{ my_test.result.metadata.name }}"
+    register: benchmark_status
+    until: "benchmark_status | json_query('resources[].status.complete') == [true]*(benchmark_status.resources|length)" 
+    retries: "{{ test_retries }}"
+    delay: "{{ test_delay }}"
+
+  rescue:
+    - name: Debug of benchmark_status
+      debug:
+        var: benchmark_status
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Failure waiting for benchmark to complete"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure waiting for benchmark to complete
+      fail:
+        msg: Failure waiting for benchmark to complete
+  
+# Get the SUUID and Pod name information
+- block:
+
+  - name: Get SUUID
+    set_fact: 
+      suuid: "{{ benchmark_status | json_query('resources[].status.suuid') }}"
+
+  - name: Get pod name
+    k8s_facts:
+      kind: Pod
+      namespace: "{{ namespace }}"
+      label_selectors: 
+        - app = {{ test_name }}-{{ item }}
+    register: pname
+    with_items:
+      - "{{ suuid }}"
+
+  - name: Set pod_name
+    set_fact:
+      pod_name: "{{ item | json_query('resources[].metadata.name') }}"
+    with_items:
+      - "{{ pname.results }}"
+  
+  rescue:
+    - name: Debug
+      debug:
+        msg: "SUUID: {{ suuid }} ; Pod Name: {{ pod_name }} ; k8s_facts for podname: {{ pname }}"
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          not_log: true
+    - name: Create failure file
+      copy:
+        content: "Failed to get SUUID and/or Pod Name"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Failure
+      fail:
+        msg: "Getting/setting the pod name failed"
+  
+- block:
+
+    - name: Check for test success
+      command: "kubectl -n {{ namespace }} logs {{ pod_name|first }}"
+      register: cmnd_result
+      failed_when: "'{{ test_check }}' not in cmnd_result.stdout"
+  
+  rescue:
+    - name: Get pod logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true
+    - name: Create failure file
+      copy:
+        content: "Expected command result not found"
+        dest: "{{ ripsaw_dir }}/failure"
+    - name: Check for success failed
+      fail:
+        msg: "Check for test success failed"
+
+  always:
+    - name: Cleanup
+      include_role:
+        name: common
+        tasks_from: delete_operator.yml
+        apply:
+          no_log: true

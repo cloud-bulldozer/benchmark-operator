@@ -1,0 +1,7 @@
+cr: /tests/roles/test_pgbench/files/valid_pgbench.yaml 
+pg_config: /tests/roles/test_pgbench/files/postgres-config.yaml
+pg_deploy: /tests/roles/test_pgbench/files/postgres.yaml
+namespace: my-ripsaw
+test_name: pgbench-client
+test_retries: 80
+test_delay: 10

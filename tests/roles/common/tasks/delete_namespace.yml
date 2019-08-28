@@ -1,0 +1,9 @@
+- name: Delete namespace
+  k8s:
+    src: "{{ ripsaw_dir }}/resources/namespace.yaml"
+    state: absent
+    wait: yes
+    wait_condition:
+      type: Terminating
+      status: True
+    wait_timeout: 120

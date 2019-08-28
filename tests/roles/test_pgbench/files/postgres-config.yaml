@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  namespace: my-ripsaw
+  labels:
+    app: postgres
+data:
+  POSTGRES_DB: cidb
+  POSTGRES_USER: ci
+  POSTGRES_PASSWORD: ci
+  PGDATA: /var/lib/postgresql/data/pgdata

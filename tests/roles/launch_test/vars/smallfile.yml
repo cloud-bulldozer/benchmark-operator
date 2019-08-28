@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_smallfile.yaml
+namespace: my-ripsaw
+test_name: smallfile-benchmark
+test_retries: 30
+test_delay: 10
+test_check: "RUN STATUS"

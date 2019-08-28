@@ -19,7 +19,7 @@ spec:
       samples: 2
       num_databases_pattern: 'all'
       databases:
-        - host: 
+        - host: 172.17.0.5
           user: ci
           password: ci
           db_name: cidb

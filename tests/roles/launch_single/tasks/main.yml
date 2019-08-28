@@ -1,0 +1,25 @@
+---
+- block:
+  - name: Deploy Ripsaw Operator
+    include_role:
+      name: common
+      tasks_from: deploy.yml
+
+  - name: Apply test
+    k8s:
+      state: present
+      src: "{{ ripsaw_dir }}{{ cr }}"
+    register: my_test
+
+  rescue:
+    - name: Test information
+      debug:
+        var: my_test
+    - name: Get all logs
+      include_role:
+        name: common
+        tasks_from: get_logs.yml
+    - name: Failure applying test
+      fail:
+        msg: Failure applying test
+

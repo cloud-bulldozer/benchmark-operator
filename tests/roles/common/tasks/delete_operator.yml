@@ -1,0 +1,75 @@
+- name: delete cr
+  k8s:
+    state: absent
+    src: "{{ ripsaw_dir }}{{ cr }}"
+
+- name: get all pods
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: Pod
+  register: all_pods
+
+- name: get all services
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: Service
+  register: all_services
+
+- name: get all statefulsets
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: StatefulSet
+  register: all_statefulsets
+
+- name: get all jobs
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: Job
+  register: all_jobs
+
+- name: get all replicas
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: ReplicaSet
+  register: all_replicas
+
+- name: get all deployments
+  k8s_facts:
+    namespace: "{{ namespace }}"
+    kind: Deployment
+  register: all_deployments
+
+- name: Delete all
+  k8s:
+    definition: "{{ item }}"
+    namespace: "{{ namespace }}"
+    state: absent
+    wait: yes
+    wait_condition:
+      type: Terminating
+      status: True
+    wait_timeout: 120
+  with_items:
+    - "{{ all_deployments.resources }}"
+    - "{{ all_replicas.resources }}"
+    - "{{ all_jobs.resources }}"
+    - "{{ all_statefulsets.resources }}"
+    - "{{ all_services.resources }}"
+    - "{{ all_pods.resources }}"
+
+- name: Delete deploy dir
+  k8s:
+    state: absent
+    src: "{{ ripsaw_dir }}/deploy/{{ item }}"
+  with_items:
+    - "{{ deploy | reverse | list }}"
+
+- name: Delete namespace
+  k8s:
+    src: "{{ ripsaw_dir }}/resources/namespace.yaml"
+    state: absent
+    wait: yes
+    wait_condition:
+      type: Terminating
+      status: True
+    wait_timeout: 300

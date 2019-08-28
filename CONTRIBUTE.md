@@ -164,16 +164,9 @@ Apply a new CR
 
 ## CI
 Currently we have a CI that runs against PRs.
-You can learn more about CI at [work_in_progress]
 
-### CI add test
 To ensure that adding new a workload will not break other workloads and its
-behavior can be predicted, we've mandated writing tests before PR can be merged.
+behavior can be predicted, we've mandated writing tests before a PR can be merged.
 
-If a new workload is added, please follow the instructions to add a testcase to
-[test.sh](test,sh):
-* copy an existing test like [uperf test](tests/test_uperf.sh)
-* Add commands needed to setup the workload specific requirements if any
-* Add a valid cr file to [test_crs](tests/test_crs/) directory for your workload
-* Apply the cr and run a simple functional test to ensure that the expected behavior is asserted
-* NOTE: make sure that your test script name has only underscores and no `-` in the name
+To learn more about our CI testing framework and what needs to be done to add
+additional tests. Please see [CI](CI.md)

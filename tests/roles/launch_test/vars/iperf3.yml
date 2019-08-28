@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_iperf3.yaml
+namespace: my-ripsaw
+test_name: iperf3-bench-client
+test_retries: 20
+test_delay: 10
+test_check: "iperf Done"

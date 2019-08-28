@@ -1,0 +1,6 @@
+cr: /tests/test_crs/valid_sysbench.yaml
+namespace: my-ripsaw
+test_name: sysbench
+test_retries: 50
+test_delay: 10
+test_check: "execution time"
