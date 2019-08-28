@@ -1,13 +1,18 @@
 # FIO Distributed
 
-[FIO](https://github.com/axboe/fio) has a native mechanism to run multiple servers concurrently.
+[FIO](https://github.com/axboe/fio) -- The Flexible I/O Tester -- is a tool used for benchmarking
+and stress-testing I/O subsystems. We generally refer to this type of workload as a "microbenchmark"
+because it is used in a targeted way to determine the bottlenecks and limits of a system.
 
-This workload will launch N number of FIO Servers and a single FIO Client which will kick off the
-workload.
+FIO has a native mechanism to run multiple servers concurrently against a data store. Our implementation
+of the workload in Ripsaw takes advantage of this feature, spawning N FIO servers based on the
+options provided by the user in the CR file. A single FIO client pod is then launched as the control
+point for executing the workload on the server pods in parallel.
 
 ## Running Distributed FIO
 
-Build your CR for Distributed FIO
+The Custom Resource (CR) file for fio includes a significant number of options to offer the user
+flexibility.
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -16,23 +21,30 @@ metadata:
   name: fio-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: my.es.server
+    port: 9200
+  clustername: myk8scluster
+  test_user: my_test_user_name
   workload:
     name: "fio_distributed"
     args:
-      samples: 2
-      servers: 2
+      samples: 3
+      servers: 3
       pin_server: ''
-      jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
-        - read
+      jobs:
         - write
+        - read
       bs:
-        - 64Ki
+        - 4KiB
+        - 64KiB
       numjobs:
         - 1
+        - 8
       iodepth: 4
-      runtime: 60
-      ramp_time: 5
-      filesize: 2Gi
+      read_runtime: 60
+      read_ramp_time: 5
+      filesize: 2GiB
       log_sample_rate: 1000
       storageclass: rook-ceph-block
       storagesize: 5Gi
@@ -40,29 +52,129 @@ spec:
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
 #  global_overrides:
-#    - "key=value"
+#    - key=value
   job_params:
-    - jobname_match: "w"
+    - jobname_match: w
       params:
-        - "fsync_on_close=1"
-        - "create_on_open=1"
-    - jobname_match: "rw"
+        - fsync_on_close=1
+        - create_on_open=1
+    - jobname_match: read
       params:
-        - "rwmixread=50"
-    - jobname_match: "readwrite"
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: rw
       params:
-        - "rwmixread=50"
-#    - jobname_match: "<search_string>"
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+#    - jobname_match: <search_string>
 #      params:
-#        - "key=value"
+#        - key=value
 ```
-Ripsaw will run the provided `jobs` sequentially.
 
-To disable the need for PVs, simply comment out or exclude the `storageclass` key.
+### Workload Loops
 
-Setting `pin_server` will allow the benchmark runner to pick what specific node to run all FIO server pods on.
+The options provided in the CR file are designed to allow for a nested set of job execution loops.
+This allows the user to setup a series of jobs, usually of increasing intensity, and execute the job group
+with a single request to the Ripsaw operator. This allows the user to run many jobs that may take hours
+or even days to complete, and the jobs will continue through the nested loops unattended.
 
-(*Technical Note*: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.)
+The workload loops are nested as such from the CR options:
+
+```
++---------->job---------------+
+|                             |
+| +-------->blocksize-------+ |
+| |                         | |
+| | +------>servers-------+ | |
+| | |                     | | |
+| | | +---->numjobs-----+ | | |
+| | | |                 | | | |
+| | | | +-->samples---+ | | | |
+| | | | |             | | | | |
+| | | | |             | | | | |
+| | | | +-------------+ | | | |
+| | | +-----------------+ | | |
+| | +---------------------+ | |
+| +-------------------------+ |
++-----------------------------+
+```
+
+### Understanding the CR options
+>**A note about units:**
+>
+> For consistency in the CR file, we apply the fio option `kb_base=1000` in the jobfile configmap. The
+> effect of this is that unit names are treated via IEC and SI standards, and thus units like `KB`, `MB`,
+> and `GB` are considered base-10 (1KB = 1000B), and units like `KiB`, `MiB`, and `GiB` are base-2
+> (1KiB = 1024B).
+>
+> However, note that fio (as of versions we have tested) does not react as might be expected to "shorthand"
+> IEC units like `Ki` or `Mi` -- these will be treated as base-10 instead of base-2. 
+>
+> Unfortunately, the [K8S resource model](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/resources.md)
+> specifies [explicitly](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/resources.md#resource-quantities)
+> the use of "shorthand" IEC units like `Ki` and `Mi`, and the use of the complete form of `KiB` or `MiB`
+> will result in errors.
+>
+> Therefore, be aware in providing units to the CR values that fio options should use the `MiB` format
+> while the `storagesize` option used for the K8S persistent volume claim should use the `Mi` format
+
+#### metadata
+*Values here will usually be left unchanged*
+- **name**: The name the Ripsaw operator will use for the benchmark resource
+- **namespace**: The namespace in which the benchmark will run
+
+#### spec
+- **elasticsearch**: (optional) Values are used to enable indexing of fio data; [further details are below](#indexing-in-elasticsearch-and-visualization-through-grafana)
+- **clustername**: (optional) An arbitrary name for your system under test (SUT) that can aid indexing
+- **test_user**: (optional) An arbitrary name for the user performing the tests that can aid indexing
+
+#### spec.workload
+- **name**: **DO NOT CHANGE** This value is used by the Ripsaw operator to trigger the correct Ansible role
+
+#### spec.workload.args
+*This is the meat of the workload where most of the adjustments to your needs will be made.*
+- **samples**: Number of times to run the exact same workload. This is the innermost loop, as [described above](#workload-loops)
+- **servers**: Number of fio servers that will run the specified workload concurrently
+- **pin_server**: K8S node name (per `kubectl get nodes`) on which to run server pods
+> Note: Providing a node name to `pin_server` will result in *all* server pods running on the specified node.
+- **jobs**: (list) fio job types to run, per `fio(1)` valid values for the `readwrite` option
+> Note: Under most circumstances, a `write` job should be provided as the first list item for `jobs`. This will
+> ensure that subsequent jobs in the list can use the files created by the `write` job instead of needing
+> to instantiate the files themselves prior to beginning the benchmark workload.
+- **bs**: (list) blocksize values to use for I/O transactions
+> Note: We set the `direct=1` fio option in the jobfile configmap. In order to avoid errors, the `bs` values
+> provided here should be a multiple of the filesystem blocksize (typically 4KiB). The [note above about units](#understanding-the-cr-options)
+> applies here.
+- **numjobs**: (list) Number of clones of the job to run on each server -- Total jobs will be `numjobs * servers`
+- **iodepth**: Number of I/O units to keep in flight against a file; see `fio(1)`
+- **read_runtime**: Amount of time in seconds to run `read` workloads (including `readwrite` workloads)
+- **read_ramp_time**: Amount of time in seconds to ramp up `read` workloads (i.e., executing the workload without recording the data)
+> Note: We intentionally run `write` workloads to completion of the file size specified in order to ensure
+> that complete files are available for subsequent `read` workloads. All `read` workloads are time-based,
+> using these parameters, but note this behavious is configured via the EXPERT AREA section of the CR as
+> [described below](#expert-specjob_params), and therefore this may be adjusted to user preferences.
+- **filesize**: The size of the file used for each job in the workload (per `numjobs * servers` as described above)
+- **log_sample_rate**: Applied to fio options `log_avg_msec` and `log_hist_msec` in the jobfile configmap; see `fio(1)`
+- **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
+- **storagesize**: (optional) The size of the PVCs to request from the StorageClass ([note units quirk per above](#understanding-the-cr-options))
+> Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
+
+#### EXPERT: spec.global_overrides
+The `key=value` combinations provided in the list here will be appended to the `[global]` section of the fio
+jobfile configmap. These options will therefore override the global values for all workloads in the loop.
+
+#### EXPERT: spec.job_params
+Under most circumstances, the options provided in the EXPERT AREA here should not be modified. The `key=value`
+pairs under `params` here are used to append additional fio job options based on the job type. Each `jobname_match` in the list uses a "search string" to match a job name per `fio(1)`, and if a match is made, the `key=value` list items under `params` are appended to the `[job]` section of the fio jobfile configmap.
 
 ## Indexing in elasticsearch and visualization through Grafana
 
@@ -98,61 +210,6 @@ The field for timestamp will always be `time_ms` .
 
 ### Changes to CR for indexing/visualization
 
-If you'd like to try to experiment with storing results in a pv and have followed
-instructions to deploy operator with attached pvc and would like to send results to ES (elasticsearch).
-you can instead define a custom resource as follows:
-
-```yaml
-apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
-kind: Benchmark
-metadata:
-  name: fio-benchmark
-  namespace: my-ripsaw
-spec:
-  clustername: myk8scluster
-  elasticsearch:
-    server: my.elasticsearch.server
-    port: 9200
-  test_user: ripsaw
-  workload:
-    name: "fio_distributed"
-    args:
-      samples: 2
-      servers: 2
-      pin_server: ''
-      jobs: #the list can take any of the values in [write,trim,randread,randwrite.randtrim,rw/readwrite,randrw,trimwrite]
-        - read
-        - write
-      bs:
-        - 64Ki
-      numjobs:
-        - 1
-      iodepth: 4
-      runtime: 60
-      ramp_time: 5
-      filesize: 2Gi
-      log_sample_rate: 1000
-      storageclass: rook-ceph-block
-      storagesize: 5Gi
-#######################################
-#  EXPERT AREA - MODIFY WITH CAUTION  #
-#######################################
-#  global_overrides:
-#    - "key=value"
-  job_params:
-    - jobname_match: "w"
-      params:
-        - "fsync_on_close=1"
-        - "create_on_open=1"
-    - jobname_match: "rw"
-      params:
-        - "rwmixread=50"
-    - jobname_match: "readwrite"
-      params:
-        - "rwmixread=50"
-#    - jobname_match: "<search_string>"
-#      params:
-#        - "key=value"
-```
-
-> Note: The `test_user` value is arbitrary metadata for your indexing needs, and if left undefined it will default to `ripsaw`.
+In order to index your fio results to elasticsearch, you will need to define the parameters appropriately in
+your workload CR file. The `spec.elasticsearch.server` and `spec.elasticsearch.port` values are required.
+The `spec.clustername` and `spec.test_user` values are advised to allow for better indexing of your data.
