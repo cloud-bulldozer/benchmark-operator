@@ -111,4 +111,10 @@
         smallfile: "{{ workload.args }}"
       when: workload.name == "smallfile" and workload.args.clients > 0
 
+    - include_role:
+        name: "fs-drift"
+      vars:
+        fs_drift: "{{ workload.args }}"
+      when: workload.name == "fs-drift" and workload.args.worker_pods > 0
+      
     when: cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool
