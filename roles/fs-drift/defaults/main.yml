@@ -1,2 +1,1 @@
-ripsaw_image: quay.io/cloud-bulldozer/fs-drift:latest
 storage_claim_namespace: "rook-ceph"

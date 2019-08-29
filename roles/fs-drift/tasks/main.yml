@@ -65,7 +65,7 @@
           spec:
             containers:
               - name: publisher-container
-                image: "{{ ripsaw_image }}"
+                image: quay.io/cloud-bulldozer/fs-drift:master
                 tty: true
                 command: ["/bin/sh", "-c"]
                 workingDir: /root/fs-drift-master/

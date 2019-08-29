@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: benchmark-server
-          image: "{{ ripsaw_image }}"
+          image: quay.io/cloud-bulldozer/fs-drift:master
           command: ["/bin/sh", "-c"]
           workingDir: /root/fs-drift/
           args:
