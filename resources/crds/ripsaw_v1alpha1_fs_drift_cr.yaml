@@ -27,10 +27,11 @@ spec:
       # -- below are fs-drift.py parameters defined in fs-drift README.md
       # duration only 30 sec by default, should be much longer
       duration: 30
-      # 5 fs-drift threads per pod
+      # OPTIONAL - 5 fs-drift threads per pod
       threads: 5
-      # files no bigger than maximum file size in KB
+      # OPTIONAL - files no bigger than maximum file size in KB
       max_file_size_kb: 64
-      # no more than 1000 files total in each pod if RWO (e.g. RBD)
-      # no more than 1000 files per cluster if RWX (e.g. Cephfs)
+      # OPTIONAL 
+      # no more than 100 files total in each pod if RWO (e.g. RBD)
+      # no more than 100 files per cluster if RWX (e.g. Cephfs)
       max_files: 100
