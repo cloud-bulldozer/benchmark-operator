@@ -5,9 +5,9 @@ metadata:
   name: fio-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
-{% for job in fiod.jobs %}
-{% for bs in fiod.bs %}
 {% for numjobs in fiod.numjobs %}
+{% for bs in fiod.bs %}
+{% for job in fiod.jobs %}
   fiojob-{{job}}-{{bs}}-{{numjobs}}: |
     [global]
     directory={{fio_path}}
