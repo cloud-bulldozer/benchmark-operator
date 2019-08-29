@@ -10,8 +10,7 @@ spec:
       # increase samples to 3 to get % deviation in results
       # NOT IMPLEMENTED YET
       samples: 1
-      # 1 pod
-      # NOT IMPLEMENTED YET, can't yet do more than 1 pod
+      # specify as many pods as you like
       worker_pods: 2
       # in CI, use the default storageclass (local storage)
       # if you are on a real system, you can use Ceph or whatever
