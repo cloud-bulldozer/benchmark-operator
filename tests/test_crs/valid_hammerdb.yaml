@@ -1,0 +1,23 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: hammerdb
+  namespace: my-ripsaw
+spec:
+  workload:
+    name: "hammerdb"
+    args:
+      db_init: false
+      db_benchmark: true
+      db_server: "mssql-deployment.sql-server"
+      db_port: "1433"
+      db_warehouses: 1
+      db_num_workers: 1
+      db_tcp: "true"
+      db_user: "SA"
+      db_pass: "s3curePasswordString"
+      transactions: 20000
+      runtime: 1
+      rampup: 1
+      samples: 1
+      # clients: 4      deprecated, db_num_workers is the same

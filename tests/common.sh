@@ -69,7 +69,7 @@ function get_pod () {
   pod_name="False"
   until [ $pod_name != "False" ] ; do
     sleep $sleep_time
-    pod_name=$(kubectl get pods -l $1 --namespace my-ripsaw -o name | cut -d/ -f2)
+    pod_name=$(kubectl get pods -l $1 --namespace ${3:-my-ripsaw} -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
     fi
