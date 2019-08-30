@@ -21,7 +21,6 @@ spec:
           - /tmp/ansible-operator/runner
           - stdout
           image: quay.io/benchmark-operator/benchmark-operator:master
-          #image: quay.io/mkarg/benchmark-operator:testing
           imagePullPolicy: "Always"
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
@@ -29,7 +28,6 @@ spec:
             readOnly: true
         - name: benchmark-operator
           image: quay.io/benchmark-operator/benchmark-operator:master
-          #image: quay.io/mkarg/benchmark-operator:testing
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

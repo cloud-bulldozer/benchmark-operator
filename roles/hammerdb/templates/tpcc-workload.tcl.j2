@@ -1,0 +1,60 @@
+proc runtimer { seconds } {
+set x 0
+set timerstop 0
+while {!$timerstop} {
+incr x
+after 1000
+  if { ![ expr {$x % 60} ] } {
+          set y [ expr $x / 60 ]
+          puts "Timer: $y minutes elapsed"
+  }
+update
+if {  [ vucomplete ] || $x eq $seconds } { set timerstop 1 }
+    }
+
+return
+}
+
+puts "SETTING CONFIGURATION"
+dbset db mssqls
+dbset bm TPC-C
+diset connection mssqls_server {{hammerdb.db_server}}
+diset connection mssqls_linux_server {{hammerdb.db_server}}
+diset connection mssqls_port {{hammerdb.db_port}}
+diset connection mssqls_uid {{hammerdb.db_user}}
+diset connection mssqls_pass {{hammerdb.db_pass}}
+diset connection mssqls_tcp {{hammerdb.db_tcp}}
+diset tpcc mssqls_count_ware {{hammerdb.db_warehouses}}
+diset tpcc mssqls_num_vu {{hammerdb.db_num_workers}}
+
+puts "SETTING BENCHMARK OPTIONS"
+diset tpcc mssqls_driver timed
+diset tpcc mssqls_rampup {{hammerdb.rampup}}
+diset tpcc mssqls_duration {{hammerdb.runtime}}
+diset tpcc mssqls_total_iterations {{hammerdb.transactions}}
+vuset logtotemp 1
+
+loadscript
+puts "SEQUENCE STARTED"
+
+set workers {{hammerdb.db_num_workers}}
+set transactions {{hammerdb.transactions}}
+set samples {{hammerdb.samples}}
+
+# So we are increasing the number of workers in the outer loop while
+# we run the samples in the inner loop
+
+for {set w 1} { $w <= $workers } { incr w } {
+puts "$w VU TEST"
+# the next loop needs to be turned into a while loop, since we can't double the loop variable
+for {set i 1} {$i <= $samples} {incr i} {
+        puts "============ RUNNING SAMPLE $i: $w WORKERS ============"
+        vuset vu $w
+        vucreate
+        vurun
+        runtimer 300
+        vudestroy
+        after 3000
+	}
+}
+puts "SEQUENCE COMPLETE"

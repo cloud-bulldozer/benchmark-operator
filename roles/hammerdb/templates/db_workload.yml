@@ -15,15 +15,18 @@ spec:
       containers:
       - name: hammerdb
         command: ["/bin/sh", "-c"]
-        args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /workload/workload.tcl"]
-        #args: ["/usr/local/bin/uid_entrypoint; cd /hammer; /opt/snafu/hammerdb-wrapper/hammerdb-wrapper.py"]
+        args: ["/usr/local/bin/uid_entrypoint; cd /hammer; /opt/snafu/hammerdb/hammerd_wrapper.py"]
         image: "quay.io/cloud-bulldozer/hammerdb:latest"
-        #image: "quay.io/mkarg/hammerdb:latest"
         wait: true
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
           readOnly: false
+        resources:
+          requests: 
+            memory: 3Gi
+          limits:
+            memory: 6Gi
       volumes:
       - name: hammerdb-workload-volume
         configMap:
