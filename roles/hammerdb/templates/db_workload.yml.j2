@@ -41,11 +41,11 @@ spec:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
           readOnly: false
-        resources:
-          requests: 
-            memory: 3Gi
-          limits:
-            memory: 6Gi
+        #resources:
+        #  requests: 
+        #    memory: 3Gi
+        #  limits:
+        #    memory: 6Gi
       volumes:
       - name: hammerdb-workload-volume
         configMap:

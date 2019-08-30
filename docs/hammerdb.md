@@ -46,7 +46,6 @@ The tpcc benchmark which we use can set up an arbitrary number of warehouses bet
 `db_num_workers` controls the number of virtual users, acting upon the warehouses and the goods in them. This number needs to lesser or equal to the number of warehouses.
 
 With `runtime`, `rampup` and `samples` the time for a single run, the rampup time per run and the number of runs can be controlled. 
-
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
