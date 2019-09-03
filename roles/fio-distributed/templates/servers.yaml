@@ -11,6 +11,18 @@ spec:
       labels:
         app: fio-benchmark-{{ trunc_uuid }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fio-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
       containers:
       - name: fio-server
         image: "quay.io/cloud-bulldozer/fio:latest"
