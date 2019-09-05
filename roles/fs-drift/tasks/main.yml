@@ -1,90 +1,151 @@
 ---
-- set_fact:
-    fs_drift_path: /tmp
-  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is not defined
 
-- set_fact:
-    fs_drift_path: /mnt/pvc
-  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined
-
-- name: Create PVCs
-  k8s:
-    definition:
-      kind: PersistentVolumeClaim
-      apiVersion: v1
-      metadata:
-        name: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
-        namespace: "{{ operator_namespace }}"
-        annotations:
-          volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
-      spec:
-        accessModes:
-          - "{{ fs_drift.access_mode }}"
-        resources:
-          requests:
-            storage: "{{fs_drift.storagesize}}"
-  with_sequence: start=1 count={{ fs_drift.worker_pods }}
-  when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined and fs_drift.storagesize is defined
-
-- name: Generate fs-drift test input yaml
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        namespace: "{{ operator_namespace }}"
-        name: fs-drift-test-{{ trunc_uuid }}
-      data:
-        params: "{{ lookup('template', 'other_parameters.yaml.j2') }}"
-        subscriber: "{{ lookup('template', 'subscriber.py.j2') }}"
-        publisher: "{{ lookup('template', 'publisher.py.j2') }}"
-
-- name: Capture operator information
+- name: Get current state
   k8s_facts:
-    kind: Pod
-    api_version: v1
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
     namespace: "{{ operator_namespace }}"
-    label_selectors:
-      - name = benchmark-operator
-  register: bo
+    status:
+      state: Starting
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
 
-- name: Run PUBLISHER Pod
-  k8s:
-    definition:
-      kind: Job
-      apiVersion: batch/v1
-      metadata:
-        name: "{{ meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
-        namespace: "{{ operator_namespace }}"
-      spec:
-        ttlSecondsAfterFinished: 600
-        template:
-          metadata:
-            labels:
-              app: fs-drift-publisher
-          spec:
-            containers:
-              - name: publisher-container
-                image: quay.io/cloud-bulldozer/fs-drift:master
-                tty: true
-                command: ["/bin/sh", "-c"]
-                workingDir: /root/fs-drift-master/
-                args:
-                  - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.worker_pods}}
-                volumeMounts:
-                  - name: config-volume
-                    mountPath: "/tmp"
-            volumes:
-              - name: config-volume
-                configMap:
-                  name: fs-drift-test-{{ trunc_uuid }}
-                  defaultmode: 0777
-            restartPolicy: Never
+- name: Update current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
 
-- name: run the workload
-  k8s:
-    definition: "{{ lookup('template', 'workload_job.yml.j2') }}"
-  with_sequence: start=1 count={{fs_drift.worker_pods}}
-  when: fs_drift.worker_pods > 0
+- block:
 
+  - set_fact:
+      fs_drift_path: /tmp
+    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is not defined
 
+  - set_fact:
+      fs_drift_path: /mnt/pvc
+    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined
+
+  - name: Create PVCs
+    k8s:
+      definition:
+        kind: PersistentVolumeClaim
+        apiVersion: v1
+        metadata:
+          name: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
+          namespace: "{{ operator_namespace }}"
+          annotations:
+            volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
+        spec:
+          accessModes:
+            - "{{ fs_drift.access_mode }}"
+          resources:
+            requests:
+              storage: "{{fs_drift.storagesize}}"
+    with_sequence: start=1 count={{ fs_drift.worker_pods }}
+    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined and fs_drift.storagesize is defined
+
+  - name: Generate fs-drift test input yaml
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          namespace: "{{ operator_namespace }}"
+          name: fs-drift-test-{{ trunc_uuid }}
+        data:
+          params: "{{ lookup('template', 'other_parameters.yaml.j2') }}"
+          subscriber: "{{ lookup('template', 'subscriber.py.j2') }}"
+          publisher: "{{ lookup('template', 'publisher.py.j2') }}"
+
+  - name: Capture operator information
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - name = benchmark-operator
+    register: bo
+
+  - name: Run PUBLISHER Pod
+    k8s:
+      definition:
+        kind: Job
+        apiVersion: batch/v1
+        metadata:
+          name: "{{ meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
+          namespace: "{{ operator_namespace }}"
+        spec:
+          ttlSecondsAfterFinished: 600
+          template:
+            metadata:
+              labels:
+                app: fs-drift-publisher
+            spec:
+              containers:
+                - name: publisher-container
+                  image: quay.io/cloud-bulldozer/fs-drift:master
+                  tty: true
+                  command: ["/bin/sh", "-c"]
+                  workingDir: /root/fs-drift-master/
+                  args:
+                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.worker_pods}}
+                  volumeMounts:
+                    - name: config-volume
+                      mountPath: "/tmp"
+              volumes:
+                - name: config-volume
+                  configMap:
+                    name: fs-drift-test-{{ trunc_uuid }}
+                    defaultmode: 0777
+              restartPolicy: Never
+
+  - name: run the workload
+    k8s:
+      definition: "{{ lookup('template', 'workload_job.yml.j2') }}"
+    with_sequence: start=1 count={{fs_drift.worker_pods}}
+    when: fs_drift.worker_pods > 0
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Running
+        complete: false
+
+  when: resource_state.resources[0].status.state == "Starting"
+
+- block:
+
+  - name: Waiting for pods to complete....
+    k8s_facts:
+      kind: pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = fs-drift-benchmark-{{ trunc_uuid }}
+    register: client_pods
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
+    when: "fs_drift.worker_pods == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
+
+  when: resource_state.resources[0].status.state == "Running"
