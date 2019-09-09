@@ -1,0 +1,4 @@
+---
+- name: Start the Rook-Ceph OSD Cache Dropper Listener
+  k8s:
+    definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"

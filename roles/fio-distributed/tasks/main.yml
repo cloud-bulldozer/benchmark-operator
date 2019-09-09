@@ -1,5 +1,4 @@
 ---
-
 - name: Get current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -27,6 +26,11 @@
   register: resource_state
 
 - block:
+  - name: Include rook-ceph cache drop role
+    include_role:
+      name: ceph-cache-dropper
+    when: fiod.rook_ceph_drop_caches is sameas True | default(False)
+
   - name: Provide path for fio - PV
     set_fact:
       fio_path: /mnt/pvc
