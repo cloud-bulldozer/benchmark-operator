@@ -1,5 +1,4 @@
 ---
-
 - name: Get current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1

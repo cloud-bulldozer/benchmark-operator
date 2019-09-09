@@ -48,6 +48,8 @@ spec:
       log_sample_rate: 1000
       storageclass: rook-ceph-block
       storagesize: 5Gi
+      rook_ceph_drop_caches: True
+      rook_ceph_drop_cache_pod_ip: 192.168.111.20
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
@@ -163,6 +165,8 @@ The workload loops are nested as such from the CR options:
 - **log_sample_rate**: Applied to fio options `log_avg_msec` and `log_hist_msec` in the jobfile configmap; see `fio(1)`
 - **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
 - **storagesize**: (optional) The size of the PVCs to request from the StorageClass ([note units quirk per above](#understanding-the-cr-options))
+- **rook_ceph_drop_caches**: (optional) If set to `True`, the Rook-Ceph OSD caches will be dropped prior to each sample
+- **rook_ceph_drop_cache_pod_ip**: (optional) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [cache drop pod instructions](#dropping-rook-ceph-osd-caches) below
 > Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
 
 #### EXPERT: spec.global_overrides
@@ -172,6 +176,29 @@ jobfile configmap. These options will therefore override the global values for a
 #### EXPERT: spec.job_params
 Under most circumstances, the options provided in the EXPERT AREA here should not be modified. The `key=value`
 pairs under `params` here are used to append additional fio job options based on the job type. Each `jobname_match` in the list uses a "search string" to match a job name per `fio(1)`, and if a match is made, the `key=value` list items under `params` are appended to the `[job]` section of the fio jobfile configmap.
+
+## Dropping Rook-Ceph OSD Caches
+
+Dropping the OSD caches before workloads is a normal and advised part of tests that involve storage I/O.
+Doing this with Rook-Ceph requires a privileged pod running the same namespace as the Ceph pods and with
+the Ceph command tools available. To facilitate this, we provide the
+[resources/rook_ceph_drop_cache_pod.yaml](../resources/rook_ceph_drop_cache_pod.yaml) file, which will
+deploy a pod with the correct permissions and tools, as well as running a simple HTTP listener to trigger
+the cache drop by URL.
+**You must deploy this privileged pod in order for the drop caches requests in the workload to function.**
+
+```bash
+kubectl apply -f resources/rook_ceph_drop_cache_pod.yaml
+```
+
+*Note: If Ceph is in a namespace other than `rook-ceph` you will need to modify the provided YAML accordingly.*
+
+Since the cache drop pod is deployed with host networking, the pod will take on the IP address
+of the node on which it is running. You will need to use this IP address in the CR file as described above.
+
+```bash
+kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
+```
 
 ## Indexing in elasticsearch and visualization through Grafana
 
