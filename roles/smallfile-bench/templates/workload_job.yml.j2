@@ -25,8 +25,8 @@ spec:
               rm -rf {{smallfile_path}}/RESULTS ;
               mkdir -p {{smallfile_path}}/RESULTS;
               mkdir -p {{smallfile_path}}/smallfile_test_data;
-              for i in ${arr[@]};do echo $i;
-              echo RUnning_OPERATION_$i;
+              for i in ${arr[@]};do
+              echo RUNNING_OPERATION_$i;
               cat /tmp/smallfile/smallfilejob;
               python smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
               sleep 5;
