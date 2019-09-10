@@ -1,4 +1,16 @@
 ---
-- name: Start the Rook-Ceph OSD Cache Dropper Listener
+- name: Start the rook-ceph OSD cache dropper listener
   k8s:
     definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
+
+- name: Get the rook-ceph cache dropper pod info
+  k8s_facts:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ rook_ceph_namespace }}"
+    name: rook-ceph-osd-cache-drop
+  register: ceph_cache_drop_pod
+
+- name: Collect the rook-ceph cache dropper pod IP
+  set_fact:
+    ceph_cache_drop_pod_ip: "{{ ceph_cache_drop_pod.resources[0].status.podIP }}"
