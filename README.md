@@ -5,18 +5,18 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Workloads status
 
-| Workload                       | Use                    | Status in Operator | Reconciliation usage       |
-| ------------------------------ | ---------------------- | ------------------ | -------------------------- |
-| [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 30second  |
-| [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |  Used, default : 30second  |
-| [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 30second  |
-| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 30second  |
-| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Not used                  |
-| [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 30second  |
-| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Not used                  |
-| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 30second  |
-| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                  |
-| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Not used                  |
+| Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) |
+| ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- |
+| [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 30second  | Preview               |
+| [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |  Used, default : 30second  | Not Supported         |
+| [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 30second  | Not Supported         |
+| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 30second  | Not Supported         |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Not used                  | Not Supported         |
+| [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 30second  | Not Supported         |
+| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Not used                  | Not Supported         |
+| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 30second  | Not Supported         |
+| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                  | Not Supported         |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Not used                  | Not Supported         |
 
 
 ### Reconciliation

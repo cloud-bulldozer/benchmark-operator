@@ -21,6 +21,7 @@ spec:
       pin_server: "node-0"
       pin_client: "node-1"
       samples: 1
+      kind: pod
       pair: 1
       test_types:
         - stream

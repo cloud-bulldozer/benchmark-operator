@@ -20,6 +20,7 @@ spec:
       serviceip: false
       hostnetwork: false
       pin: false
+      kind: pod
       pin_server: "node-0"
       pin_client: "node-1"
       multus:
@@ -152,7 +153,78 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
-# Storing results into Elasticsearch
+## Running Uperf in VMs through kubevirt/cnv [Preview]
+Note: this is currently in preview mode.
+
+
+### Pre-requisites
+
+You must have configured your k8s cluster with [Kubevirt](https://kubevirt.io) preferably v0.23.0 (last tested version).
+
+
+### changes to cr file
+
+```yaml
+server_vm:
+  dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
+  sockets: 2
+  cores: 1
+  threads: 1
+  image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
+  limits:
+    memory: 2Gi
+  requests:
+    memory: 2Gi
+  network:
+    front_end: bridge # or masquerade
+    multiqueue:
+      enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+      queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+  extra_options:
+    - none
+    #- hostpassthrough
+client_vm:
+  dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
+  sockets: 2
+  cores: 1
+  threads: 1
+  image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
+  limits:
+    memory: 2Gi
+  requests:
+    memory: 2Gi
+  network:
+    front_end: bridge # or masquerade
+    multiqueue:
+      enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+      queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+  extra_options:
+    - none
+    #- hostpassthrough
+```
+
+The above is the additional changes required to run uperf in vms.
+Currently we only support images that can be used as [containerDisk](https://kubevirt.io/user-guide/docs/latest/creating-virtual-machines/disks-and-volumes.html#containerdisk).
+
+You can easily make your own container-disk-image as follows by downloading your qcow2 image of choice.
+You can then make changes to your qcow2 image as needed using virt-customize.
+
+```bash
+cat << END > Dockerfile
+FROM scratch
+ADD <yourqcow2image>.qcow2 /disk/
+END
+
+podman build -t <imageurl> .
+podman push <imageurl>
+```
+
+You can either access results by indexing them directly or by accessing the console.
+The results are stored in /tmp/ directory
+
+
+
+### Storing results into Elasticsearch
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -173,6 +245,7 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
+      kind: pod
       samples: 1
       pair: 1
       test_types:
@@ -242,7 +315,7 @@ UPerf results (bytes/sec):
 
 ```
 
-# Dashboard example
+### Dashboard example
 
 Using the Elasticsearch storage describe above, we can build dashboards like the below.
 
