@@ -12,6 +12,7 @@ rules:
   - services
   - endpoints
   - persistentvolumeclaims
+  - virtualmachineinstances
   - events
   - configmaps
   - secrets
@@ -41,6 +42,12 @@ rules:
   verbs:
   - get
   - create
+- apiGroups:
+  - kubevirt.io
+  resources:
+  - virtualmachineinstances
+  verbs:
+  - '*'
 - apiGroups:
   - ripsaw.cloudbulldozer.io
   resources:

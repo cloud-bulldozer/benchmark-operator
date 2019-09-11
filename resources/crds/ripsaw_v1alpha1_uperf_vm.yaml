@@ -1,0 +1,72 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  clustername: test-cluster
+  test_user: <user> # user is a key that points to user triggering ripsaw, useful to search results in ES
+  elasticsearch:
+    server: <elastic_host>
+    port: <elastic_port>
+  cleanup: false
+  workload:
+    name: uperf
+    args:
+      hostnetwork: false # irrelevant for vms
+      serviceip: false # irrelevant for vms
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      samples: 2
+      pair: 1 # has to be one 1 for vm
+      kind: vm
+      server_vm:
+        dedicatedcpuplacement: false
+        sockets: 2
+        cores: 1
+        threads: 1
+        image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
+        limits:
+          memory: 2Gi
+        requests:
+          memory: 2Gi
+        network:
+          front_end: bridge # or masquerade
+          multiqueue:
+            enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+            queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+        extra_options:
+          - none
+          #- hostpassthrough
+      client_vm:
+        dedicatedcpuplacement: false
+        sockets: 2
+        cores: 1
+        threads: 1
+        image: kubevirt/fedora-cloud-container-disk-demo:latest
+        limits:
+          memory: 2Gi
+        requests:
+          memory: 2Gi
+        network:
+          front_end: bridge # or masquerade
+          multiqueue:
+            enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+            queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+        extra_options:
+          - none
+          #- hostpassthrough
+      test_types:
+        #- stream
+        - rr
+      protos:
+        - tcp
+        #- udp
+      sizes:
+        #- 1024
+        - 512
+      nthrs:
+        #- 1
+        - 2
+      runtime: 5
