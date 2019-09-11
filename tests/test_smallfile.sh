@@ -21,9 +21,8 @@ function functional_test_smallfile {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_smallfile.yaml
-  uuid=$(get_uuid 20)
-  sleep 15
-  smallfile_pod=$(kubectl get pods -l app=smallfile-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client)
+  uuid=$(get_uuid 120)
+  smallfile_pod=$(get_pod "app=smallfile-benchmark-$uuid" 300)
   echo smallfile_pod $smallfile_pod
   wait_for "kubectl wait --for=condition=Initialized pods/$smallfile_pod --namespace my-ripsaw --timeout=200s" "200s" $smallfile_pod
   wait_for "kubectl wait --for=condition=complete -l app=smallfile-benchmark-$uuid jobs --namespace my-ripsaw --timeout=100s" "100s" $smallfile_pod

@@ -40,21 +40,20 @@ function wait_clean {
 
 # The argument is 'timeout in seconds'
 function get_uuid () {
-  sleep_time=$1
-  sleep $sleep_time
   counter=0
-  counter_max=6
+  sleep_time=5
+  counter_max=$(( $1 / sleep_time ))
   uuid="False"
   until [ $uuid != "False" ] ; do
     uuid=$(kubectl -n my-ripsaw get benchmarks -o jsonpath='{.items[0].status.uuid}')
     if [ -z $uuid ]; then
-      sleep $sleep_time
       uuid="False"
     fi
     counter=$(( counter+1 ))
     if [ $counter -eq $counter_max ]; then
       return 1
     fi
+    sleep $sleep_time
   done
   echo ${uuid:0:8}
   return 0
@@ -68,7 +67,6 @@ function get_pod () {
   counter_max=$(( $2 / sleep_time ))
   pod_name="False"
   until [ $pod_name != "False" ] ; do
-    sleep $sleep_time
     pod_name=$(kubectl get pods -l $1 --namespace my-ripsaw -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
@@ -77,6 +75,7 @@ function get_pod () {
     if [ $counter -eq $counter_max ]; then
       return 1
     fi
+    sleep $sleep_time
   done
   echo $pod_name
   return 0
@@ -90,7 +89,6 @@ function pod_count () {
   pod_count=0
   export $1
   until [ $pod_count == $2 ] ; do
-    sleep $sleep_time
     pod_count=$(kubectl get pods -n my-ripsaw -l $1 -o name | wc -l)
     if [ -z $pod_count ]; then
       pod_count=0
@@ -99,6 +97,7 @@ function pod_count () {
     if [ $counter -eq $counter_max ]; then
       return 1
     fi
+    sleep $sleep_time
   done
   echo $pod_count
   return 0

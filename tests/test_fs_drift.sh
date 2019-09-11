@@ -15,9 +15,8 @@ function functional_test_fs_drift {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_fs_drift.yaml
-  sleep 15
-  uuid=$(get_uuid 20)
-  fsdrift_pod=$(kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client)
+  uuid=$(get_uuid 120)
+  fsdrift_pod=$(get_pod "app=fs-drift-benchmark-$uuid" 300)
   echo fsdrift_pod $fs_drift_pod
   wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod \
     --namespace my-ripsaw --timeout=200s" "200s" $fsdrift_pod

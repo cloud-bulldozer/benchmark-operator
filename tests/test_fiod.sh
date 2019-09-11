@@ -21,7 +21,7 @@ function functional_test_fio {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_fiod.yaml
-  uuid=$(get_uuid 20)
+  uuid=$(get_uuid 120)
   pod_count "app=fio-benchmark-$uuid" 2 300
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod --namespace my-ripsaw --timeout=200s" "200s" $fio_pod
