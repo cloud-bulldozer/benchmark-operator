@@ -61,7 +61,7 @@ do
 done
 
 # Run tests in parallel up to $max_concurrent at a time.
-xargs -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 
+parallel -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 
 
 # Update and close JUnit test results.xml and markdown file
 for test_dir in `cat tests/my_tests`
