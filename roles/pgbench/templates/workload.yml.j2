@@ -14,6 +14,7 @@ spec:
       containers:
       - name: benchmark
         image: "{{ pgb_base_image }}:{{ pgb_version }}"
+        wait: true
         env:
           - name: PGPASSWORD
             value: '{{ item.1.password }}'

@@ -18,6 +18,7 @@ spec:
         args: ["/tmp/sysbenchScript"]
         image: "quay.io/cloud-bulldozer/sysbench:latest"
         imagePullPolicy: Always
+        wait: true
         volumeMounts:
         - name: sysbench-volume
           mountPath: "/tmp/"

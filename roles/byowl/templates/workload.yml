@@ -16,4 +16,5 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["{{ byowl.commands }}"]
         image: "{{ byowl.image }}"
+        wait: true
       restartPolicy: OnFailure

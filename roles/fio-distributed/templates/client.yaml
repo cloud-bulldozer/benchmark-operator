@@ -15,6 +15,7 @@ spec:
       - name: fio-client
         image: "quay.io/cloud-bulldozer/fio:latest"
         imagePullPolicy: Always
+        wait: true
         env:
           - name: uuid
             value: "{{ uuid }}"

@@ -14,6 +14,7 @@ spec:
   containers:
   - name: benchmark
     image: "quay.io/cloud-bulldozer/uperf:latest"
+    wait: true
     command: ["/bin/sh","-c"]
     args: ["uperf -s -v -P 20000"]
   restartPolicy: OnFailure
