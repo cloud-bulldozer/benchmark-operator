@@ -16,6 +16,7 @@ spec:
           image: quay.io/cloud-bulldozer/fs-drift:master
           command: ["/bin/sh", "-c"]
           workingDir: /opt/fs-drift/
+          wait: true
           args:
             - set -x;
               export TMPDIR=/var/tmp/fs-drift-output;

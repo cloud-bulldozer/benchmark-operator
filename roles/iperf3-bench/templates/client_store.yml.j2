@@ -21,6 +21,7 @@ spec:
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/iperf3:latest"
+        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "mkdir -p {{results.path}}/iperf3-{{ uuid }};

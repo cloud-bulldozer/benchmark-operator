@@ -17,6 +17,7 @@ spec:
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /root/smallfile-master/
+          wait: true
           args:
             - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
               export TMPDIR=/tmp

@@ -29,6 +29,7 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8765
+        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "fio --server"
