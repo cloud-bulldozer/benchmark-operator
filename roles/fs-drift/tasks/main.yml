@@ -94,7 +94,7 @@
             spec:
               containers:
                 - name: publisher-container
-                  image: quay.io/cloud-bulldozer/fs-drift:master
+                  image: quay.io/cloud-bulldozer/fs-drift:0.0.1
                   tty: true
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/fs-drift-master/

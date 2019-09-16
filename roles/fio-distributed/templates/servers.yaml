@@ -25,7 +25,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: fio-server
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:0.0.1"
         imagePullPolicy: Always
         ports:
           - containerPort: 8765

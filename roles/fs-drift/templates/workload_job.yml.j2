@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: benchmark-server
-          image: quay.io/cloud-bulldozer/fs-drift:master
+          image: quay.io/cloud-bulldozer/fs-drift:0.0.1
           command: ["/bin/sh", "-c"]
           workingDir: /opt/fs-drift/
           wait: true
@@ -28,10 +28,10 @@ spec:
               ls -lR /tmp/fs-drift;
               cat /tmp/fs-drift/params;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
-              python fs-drift.py 
+              python fs-drift.py
                 --input-yaml /tmp/fs-drift/params
                 --top {{ fs_drift_path }}/fs_drift_test_data
-                --response-times Y 
+                --response-times Y
                 --output-json $TMPDIR/RESULTS/results.json;
               ls -lR $TMPDIR;
               cat $TMPDIR/RESULTS/results.json;

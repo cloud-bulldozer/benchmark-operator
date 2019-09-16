@@ -20,14 +20,14 @@ spec:
           - /usr/local/bin/ao-logs
           - /tmp/ansible-operator/runner
           - stdout
-          image: quay.io/benchmark-operator/benchmark-operator:master
+          image: quay.io/benchmark-operator/benchmark-operator:0.0.1
           imagePullPolicy: "Always"
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
             name: runner
             readOnly: true
         - name: benchmark-operator
-          image: quay.io/benchmark-operator/benchmark-operator:master
+          image: quay.io/benchmark-operator/benchmark-operator:0.0.1
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: fio-client
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:0.0.1"
         imagePullPolicy: Always
         wait: true
         env:
