@@ -16,6 +16,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Not used                  |
 | [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 30second  |
 | [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                  |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Not used                  |
 
 
 ### Reconciliation
