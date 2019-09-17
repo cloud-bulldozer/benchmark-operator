@@ -14,24 +14,26 @@ spec:
       containers:
         - name: benchmark-server
           image: "quay.io/cloud-bulldozer/smallfile:master"
+          # example of how to debug using your own workload image
+          #image: "quay.io/bengland2/smallfile:master"
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
-          workingDir: /root/smallfile-master/
+          workingDir: /opt/snafu
           wait: true
           args:
             - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
               export TMPDIR=/tmp
-              arr=$(python <<< "print(' '.join({{smallfile.operation}}))");
+              arr=$(python <<< "print(','.join({{smallfile.operation}}))");
               rm -rf {{smallfile_path}}/RESULTS ;
               mkdir -p {{smallfile_path}}/RESULTS;
               mkdir -p {{smallfile_path}}/smallfile_test_data;
-              for i in ${arr[@]};do
-              echo RUNNING_OPERATION_$i;
-              cat /tmp/smallfile/smallfilejob;
-              python smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
-              sleep 5;
-              done;
-              rm -rf {{ smallfile_path }}/smallfile_test_data;
+              python /opt/snafu/run_snafu.py 
+              --samples {{smallfile.samples}}
+              --tool smallfile 
+              --operations $arr 
+              --top {{smallfile_path}}/smallfile_test_data 
+              --dir /var/tmp/RESULTS 
+              --yaml-input-file /tmp/smallfile/smallfilejob ;
               echo RUN STATUS DONE
           volumeMounts:
             - name: config-volume
