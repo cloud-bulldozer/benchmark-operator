@@ -12,10 +12,10 @@ spec:
       db_init: true
       db_benchmark: true
       ## Standard options used for all operations, initialization and benchmark
-      db_server: "192.168.42.214"
-      db_port: "30159"
-      db_user: ""
-      db_pass: ""
+      db_server: "mssql-deployment.sql-server"
+      db_port: "1443"
+      db_user: "SA"
+      db_pass: "s3curePasswordString"
       db_warehouses: 1
       db_num_workers: 1
       db_tcp: "true"
