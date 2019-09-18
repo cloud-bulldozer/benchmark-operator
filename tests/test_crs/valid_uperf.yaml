@@ -13,6 +13,8 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
+      multus:
+        enabled: false
       samples: 2
       pair: 1
       test_types:

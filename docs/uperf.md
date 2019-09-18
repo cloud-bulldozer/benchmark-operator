@@ -22,6 +22,8 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
+      multus:
+        enabled: false
       samples: 1
       pair: 1
       test_types:
@@ -53,7 +55,11 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 
 `pin_client` what node to pin the client pod to.
 
+`multus[1]` Configure our pods to use multus.
+
 `samples` how many times to run the tests. For example
+
+[1] https://github.com/intel/multus-cni/tree/master/examples
 
 ```yaml
       samples: 3
@@ -73,6 +79,71 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Will run `stream` w/ `tcp` and message size `1024` three times and
 `stream` w/ `tcp` and message size `16384` three times. This will help us
 gain confidence in our results.
+
+If the user desires to test with Multus, use the below Multus `NetworkAtachmentDefinition`
+as an example:
+
+```
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-range-0
+spec:
+  config: '{
+            "cniVersion": "0.3.1",
+            "type": "macvlan",
+            "master": "eno1",
+            "mode": "bridge",
+            "ipam": {
+                    "type": "host-local",
+                    "ranges": [
+                    [ {
+                       "subnet": "11.10.0.0/16",
+                       "rangeStart": "11.10.1.20",
+                       "rangeEnd": "11.10.3.50"
+                    } ] ]
+            }
+        }'
+---
+apiVersion: "k8s.cni.cncf.io/v1"
+kind: NetworkAttachmentDefinition
+metadata:
+  name: macvlan-range-1
+spec:
+  config: '{
+            "cniVersion": "0.3.1",
+            "type": "macvlan",
+            "master": "eno1",
+            "mode": "bridge",
+            "ipam": {
+                    "type": "host-local",
+                    "ranges": [
+                    [ {
+                       "subnet": "11.10.0.0/16",
+                       "rangeStart": "11.10.1.60",
+                       "rangeEnd": "11.10.3.90"
+                    } ] ]
+            }
+        }'
+```
+
+This will use the same IP subnet across nodes, but not overlap
+IP addresses.
+
+To enable Multus in Ripsaw, here is the relevant config.
+
+```
+      ...
+      multus:
+        enabled: true
+        client: "macvlan-range-0"
+        server: "macvlan-range-1"
+      pin: true
+      pin_server: "openshift-master-0.dev4.kni.lab.eng.bos.redhat.com"
+      pin_client: "openshift-master-1.dev4.kni.lab.eng.bos.redhat.com"
+      ...
+
+```
 
 Once done creating/editing the resource file, you can run it by:
 
