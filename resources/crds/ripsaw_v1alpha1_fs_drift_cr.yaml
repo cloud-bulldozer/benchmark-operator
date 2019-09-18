@@ -4,6 +4,13 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
+  test_user: homer_simpson
+  # to separate this test run from everyone else's
+  clustername: aws-2009-09-10
+  # where elastic search is running
+  es_server: ec2-18-220-65-133.us-east-2.compute.amazonaws.com
+  es_port: 19020
+  es_index: ripsaw-smallfile
   workload:
     name: fs-drift
     args:
