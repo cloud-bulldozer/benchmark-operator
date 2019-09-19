@@ -14,8 +14,7 @@ spec:
   workload:
     name: fs-drift
     args:
-      # increase samples to 3 to get % deviation in results
-      # NOT IMPLEMENTED YET
+      # increase samples to 3 to measure variance in results
       samples: 1
       # specify as many pods as you like
       worker_pods: 2
@@ -33,11 +32,11 @@ spec:
       # -- below are fs-drift.py parameters defined in fs-drift README.md
       # duration only 30 sec by default, should be much longer
       duration: 30
-      # OPTIONAL - 5 fs-drift threads per pod
+      # OPTIONAL - fs-drift sub-processes per pod
       threads: 5
       # OPTIONAL - files no bigger than maximum file size in KB
       max_file_size_kb: 64
-      # OPTIONAL 
-      # no more than 100 files total in each pod if RWO (e.g. RBD)
-      # no more than 100 files per cluster if RWX (e.g. Cephfs)
+      # OPTIONAL
+      # at most this many files in each pod if RWO (e.g. RBD)
+      # at most this many files per cluster if RWX (e.g. Cephfs)
       max_files: 100
