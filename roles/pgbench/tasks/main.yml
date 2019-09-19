@@ -1,4 +1,30 @@
 ---
+- name: Get current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "Init"
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Update current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
 - name: Capture benchmark operator information
   k8s_facts:
     kind: Pod
@@ -11,11 +37,33 @@
 - name: Generate list of database counts
   include_tasks: generate_num_databases.yml
 
-- name: Begin pgbench workloads
+- name: Init benchmark environment
+  include_tasks: init.yml
+  when: resource_state.resources[0].status.state == "Init"
+
+- name: Get dbnum_item from redis
+  command: "redis-cli get dbnum_item"
+  register: get_dbnum_item
+
+- name: Set dbnum_item
+  set_fact:
+    dbnum_item: "{{ get_dbnum_item.stdout | int }}"
+
+- name: Set dbnum
+  set_fact:
+    dbnum: "{{ num_databases[dbnum_item|int] | int }}"
+
+- name: Prep pgbench workload
+  include_tasks: prep_workload.yml
+  when: resource_state.resources[0].status.state == "Prep Workload"
+
+- name: Check pgbench clients
+  include_tasks: check_clients.yml
+  when: resource_state.resources[0].status.state == "Check Clients"
+
+- name: Run pgbench workloads
   include_tasks: run_workload.yml
-  with_items: "{{ num_databases }}"
-  loop_control:
-    loop_var: dbnum
+  when: resource_state.resources[0].status.state == "Run Workload"
 
 #TODO:
 #- database passwords are currently provided in plain text in the CR
