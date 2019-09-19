@@ -17,8 +17,23 @@ spec:
           # example of what to do when debugging image
           # image: quay.io/bengland2/fs-drift:latest
           command: ["/bin/sh", "-c"]
-          workingDir: /opt/fs-drift/
+          workingDir: /opt/snafu
           wait: true
+          env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if es_server %}
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
           args:
             - set -x;
               export TMPDIR=/tmp/fs-drift-output;
@@ -32,7 +47,7 @@ spec:
               --top {{fs_drift_path}}/fs_drift_test_data
               --dir $TMPDIR/RESULTS
               --samples {{fs_drift.samples}}
-              --yaml-input-file /tmp/fs-drift/params
+              --yaml-input-file /tmp/fs-drift/params ;
               echo RUN STATUS DONE
           volumeMounts:
             - name: config-volume
