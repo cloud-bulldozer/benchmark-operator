@@ -21,4 +21,3 @@
   set_fact:
     num_databases: "{{ num_databases|default([]) + [pgbench.databases|length] }}"
   when: num_databases_pattern == "all"
-
