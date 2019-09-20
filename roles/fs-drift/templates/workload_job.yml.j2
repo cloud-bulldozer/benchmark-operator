@@ -22,11 +22,11 @@ spec:
           env:
           - name: uuid
             value: "{{ uuid }}"
+{% if es_server is defined %}
           - name: test_user
             value: "{{ test_user }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if es_server %}
           - name: es
             value: "{{ es_server }}"
           - name: es_port
