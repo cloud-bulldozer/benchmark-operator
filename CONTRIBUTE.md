@@ -133,9 +133,11 @@ The container is built using the [Operator SDK](https://github.com/operator-fram
 The public repository could be [quay](https://quay.io) in which case you'll need to:
 
 ```bash
-$ operator-sdk build quay.io/<username>/benchmark-operator:testing
-$ docker push quay.io/<username>/benchmark-operator:testing
+$ operator-sdk build quay.io/<username>/benchmark-operator:testing --image-builder podman 
+$ podman push quay.io/<username>/benchmark-operator:testing
 ```
+
+Note: you can also use docker, and no, we'll not judge ;)
 
 `:testing` is simply a tag. You can define different tags to use with your image, like `:latest` or `:master`
 
