@@ -46,7 +46,9 @@ spec:
               --tool fs-drift
               --top {{fs_drift_path}}/fs_drift_test_data
               --dir $TMPDIR/RESULTS
+{% if fs_drift.samples is defined %}
               --samples {{fs_drift.samples}}
+{% endif %}
               --yaml-input-file /tmp/fs-drift/params ;
               echo RUN STATUS DONE
           volumeMounts:
