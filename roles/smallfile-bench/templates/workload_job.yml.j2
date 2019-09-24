@@ -28,7 +28,7 @@ spec:
               for i in ${arr[@]};do
               echo RUNNING_OPERATION_$i;
               cat /tmp/smallfile/smallfilejob;
-              python smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
+              smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
               sleep 5;
               done;
               rm -rf {{ smallfile_path }}/smallfile_test_data;
