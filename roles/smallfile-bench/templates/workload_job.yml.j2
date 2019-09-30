@@ -51,7 +51,7 @@ spec:
               --top {{smallfile_path}}/smallfile_test_data 
               --dir /var/tmp/RESULTS 
               --yaml-input-file /tmp/smallfile/smallfilejob ;
-              echo RUN STATUS DONE
+              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/smallfile"
@@ -59,6 +59,7 @@ spec:
             - name: ceph-volume
               mountPath: "{{ smallfile_path }}"
 {% endif %}
+      restartPolicy: Never
       volumes:
         - name: config-volume
           configMap:
