@@ -9,6 +9,6 @@ spec:
     args:
       clients: 1
       operation: ["create", "read", "append", "delete"]
-      threads: 5
+      threads: 1
       file_size: 64
       files: 100
