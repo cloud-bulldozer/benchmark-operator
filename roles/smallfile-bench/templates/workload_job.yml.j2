@@ -11,6 +11,7 @@ spec:
       labels:
         app: smallfile-benchmark-{{ trunc_uuid }}
     spec:
+      restartPolicy: Never
       containers:
         - name: benchmark-server
           image: "quay.io/cloud-bulldozer/smallfile:master"
