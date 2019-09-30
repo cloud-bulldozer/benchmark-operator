@@ -6,6 +6,7 @@ metadata:
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
+  backoffLimit: 0
   template:
     metadata:
       labels:
