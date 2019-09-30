@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -xeo pipefail
 
-source tests/common.sh
+source common.sh
 
 function finish {
   echo "Cleaning up fs-drift"

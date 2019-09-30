@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -xeEo pipefail
 
-source tests/common.sh
+source common.sh
 
 function finish {
   if [ $? -eq 1 ] && [ $ERRORED != "true" ]
