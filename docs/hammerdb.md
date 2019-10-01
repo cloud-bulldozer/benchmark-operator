@@ -36,16 +36,16 @@ spec:
       samples: 1
 ```
 
-The 'db_init' feature determines wether the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to 'false'.
+The `db_init` feature determines wether the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
 
-The 'db_benchmark' feature is used to run the actual benchmark when set to true. 'db_server' either holds the name or the IP address of the DB server, 'db_port' the port on which the DB is accessible. If 'db_tcp' is set to true the client will use a TCP connection, if it's set to false UDP will be used.
+The `db_benchmark` feature is used to run the actual benchmark when set to true. `db_server` either holds the name or the IP address of the DB server, `db_port` the port on which the DB is accessible. If `db_tcp` is set to true the client will use a TCP connection, if it's set to `false` UDP will be used.
 
-'db_user' and 'db_pass' need to be set identical to the settings on the DB server side. 
+`db_user` and `db_pass` need to be set identical to the settings on the DB server side. 
 
-The tpcc benchmark which we use can set up an arbitrary number of warehouses between which goods will be transferred in order to simulate a real-world scenario. The higher the number of warehouses is, the more complex and load-heavy the benchmark can get. 'db_warehouses' is used to define this number. 
-'db_num_workers' controls the number of virtual users, acting upon the warehouses and the goods in them. This number needs to lesser or equal to the number of warehouses.
+The tpcc benchmark which we use can set up an arbitrary number of warehouses between which goods will be transferred in order to simulate a real-world scenario. The higher the number of warehouses is, the more complex and load-heavy the benchmark can get. `db_warehouses` is used to define this number. 
+`db_num_workers` controls the number of virtual users, acting upon the warehouses and the goods in them. This number needs to lesser or equal to the number of warehouses.
 
-With 'runtime', 'rampup' and 'samples' the time for a single run, the rampup time per run and the number of runs can be controlled. 
+With `runtime`, `rampup` and `samples` the time for a single run, the rampup time per run and the number of runs can be controlled. 
 
 Once done creating/editing the resource file, you can run it by:
 
