@@ -1,0 +1,80 @@
+puts "SETTING CONFIGURATION"
+global complete
+proc wait_to_complete {} {
+        global complete
+        set complete [vucomplete]
+        if {!$complete} { after 5000 wait_to_complete } else {
+		vudestroy
+		exit
+	}
+}
+
+proc runtimer { seconds } {
+set x 0
+set timerstop 0
+while {!$timerstop} {
+  incr x
+  after 1000
+    if { ![ expr {$x % 60} ] } {
+    set y [ expr $x / 60 ]
+    puts "Time: $y minutes elapsed"
+    }
+  update
+  if { [ vucomplete ] || $x eq $seconds } { set timerstop 1 }
+     }
+  return
+}
+
+puts "SETTING CONFIGURATION"
+dbset db mssqls
+dbset bm TPC-C
+diset connection mssqls_server {{hammerdb.db_server}}
+diset connection mssqls_linux_server {{hammerdb.db_server}}
+diset connection mssqls_port {{hammerdb.db_port}}
+diset connection mssqls_uid {{hammerdb.db_user}}
+diset connection mssqls_pass {{hammerdb.db_pass}} 
+diset connection mssqls_tcp {{hammerdb.db_tcp}}
+diset tpcc mssqls_count_ware {{hammerdb.db_warehouses}}
+diset tpcc mssqls_num_vu {{hammerdb.db_num_workers}}
+
+puts "SETTING BENCHMARK OPTIONS"
+diset tpcc mssqls_driver timed
+diset tpcc mssqls_rampup {{hammerdb.rampup}}
+diset tpcc mssqls_duration {{hammerdb.runtime}}
+vuset logtotemp 1
+
+set db_num_workers {{hammerdb.db_num_workers}}
+set transactions {{hammerdb.transactions}}
+set samples {{hammerdb.samples}}
+
+loadscript
+puts "SEQUENCE STARTED"
+
+# is it smart to run the tests in this order? 
+# Outer loop = number of samples
+# Inner loop = increasing number of VUSERS
+# or would it be better to do it the other way round?
+
+
+for {set s 1} {$s <= $samples} {incr s} {
+	puts "Running sample $s"
+	set i 1
+	while {$i <= $db_num_workers} {
+	  # we increase the number of workers by the power of until we reach the limit of db_num_workers, defined in the CR
+	  puts "Number of intended virtual users (VU): $i"
+	  puts "Number of transactions: $transactions"
+	  puts "$i VU TEST"
+	  vuset vu $i
+	  set i [expr {$i * 2}]
+	  vucreate
+	  vurun
+	  runtimer 200 
+	  # time allowed for one run, need to find a better way to determine this, depending on the transactions
+	  after $transactions
+	}
+}
+
+puts "SEQUENCE COMPLETE"
+wait_to_complete
+vwait forever
+
