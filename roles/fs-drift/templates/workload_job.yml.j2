@@ -18,6 +18,7 @@ spec:
           image: quay.io/cloud-bulldozer/fs-drift:master
           # example of what to do when debugging image
           # image: quay.io/bengland2/fs-drift:latest
+          imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /opt/snafu
           wait: true
