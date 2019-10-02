@@ -43,7 +43,6 @@ spec:
               mkdir -pv $TMPDIR/RESULTS;
               mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
-              if [ $? = 0 ] ; then exit 1 ; fi ;
               cat /tmp/fs-drift/params;
               python run_snafu.py
               --tool fs-drift
@@ -53,7 +52,7 @@ spec:
               --samples {{fs_drift.samples}}
 {% endif %}
               --yaml-input-file /tmp/fs-drift/params ;
-              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
+              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else echo FAIL ; exit 1 ; fi
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/fs-drift"
