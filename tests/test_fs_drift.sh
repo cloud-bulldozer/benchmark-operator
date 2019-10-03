@@ -5,8 +5,8 @@ source tests/common.sh
 
 function finish {
   echo "Cleaning up fs-drift"
-  #kubectl delete -f tests/test_crs/valid_fs_drift.yaml
-  #delete_operator
+  kubectl delete -f tests/test_crs/valid_fs_drift.yaml
+  delete_operator
 }
 
 trap finish EXIT
