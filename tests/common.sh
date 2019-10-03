@@ -69,7 +69,7 @@ function get_pod () {
   pod_name="False"
   until [ $pod_name != "False" ] ; do
     sleep $sleep_time
-    pod_name=$(kubectl get pods -l $1 --namespace my-ripsaw -o name | cut -d/ -f2)
+    pod_name=$(kubectl get pods -l $1 --namespace ${3:-my-ripsaw} -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
     fi
@@ -163,7 +163,21 @@ function cleanup_operator_resources {
 function update_operator_image {
   tag_name="${NODE_NAME:-master}"
   operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name --image-builder podman
-  podman push quay.io/rht_perf_ci/benchmark-operator:$tag_name
+
+  # In case we have issues uploading to quay we will retry a few times
+  try_count=0
+  while [ $try_count -le 2 ]
+  do
+    if podman push quay.io/rht_perf_ci/benchmark-operator:$tag_name
+    then
+      try_count=2
+    elif [[ $try_count -eq 2 ]]
+    then
+      echo "Could not upload image to quay. Exiting"
+      exit 1
+    fi
+    ((try_count++))
+  done
   sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 

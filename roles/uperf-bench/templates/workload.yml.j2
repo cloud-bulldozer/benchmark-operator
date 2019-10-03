@@ -13,6 +13,10 @@ spec:
     metadata:
       labels:
         app: uperf-bench-client-{{ trunc_uuid }}
+{% if uperf.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ uperf.multus.client }}
+{% endif %}
     spec:
 {% if uperf.hostnetwork is sameas true %}
       hostNetwork : true
@@ -27,9 +31,13 @@ spec:
         args:
 {% if uperf.serviceip is sameas true %}
           - "export serviceip=true;
-             export h={{item.spec.clusterIP}};
+            export h={{item.spec.clusterIP}};
+{% else %}
+{% if uperf.multus.client is defined %}
+          - "export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
           - "export h={{item.status.podIP}};
+{% endif %}
 {% endif %}
 {% if elasticsearch is defined %}
 {% if elasticsearch.server is defined %}

@@ -1,0 +1,29 @@
+---
+
+apiVersion: batch/v1
+kind: "job"
+metadata:
+  name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: hammerdb_creator-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: hammerdb
+        command: ["/bin/sh", "-c"]
+        args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /creator/createdb.tcl"]
+        image: "quay.io/cloud-bulldozer/hammerdb:latest"
+        volumeMounts:
+        - name: hammerdb-creator-volume
+          mountPath: "/creator"
+          readOnly: false
+      volumes:
+      - name: hammerdb-creator-volume
+        configMap:
+          name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+          defaultMode: 0640
+      restartPolicy: OnFailure

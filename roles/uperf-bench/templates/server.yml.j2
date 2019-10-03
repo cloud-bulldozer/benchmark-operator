@@ -7,6 +7,10 @@ metadata:
   labels:
     app : uperf-bench-server-{{item}}-{{ trunc_uuid }}
     type : uperf-bench-server-{{ trunc_uuid }}
+{% if uperf.multus.enabled is sameas true %}
+  annotations:
+    k8s.v1.cni.cncf.io/networks: {{ uperf.multus.server}}
+{% endif %}
 spec:
 {% if uperf.hostnetwork is sameas true %}
   hostNetwork : true

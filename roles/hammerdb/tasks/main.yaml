@@ -1,0 +1,60 @@
+---
+
+- name: template db creation script
+  k8s: 
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata: 
+        name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+        namespace: '{{ operator_namespace }}'
+      data: 
+        createdb.tcl: "{{ lookup('template', 'createdb.tcl.j2') }}"
+
+
+- name: template db workload script
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+        namespace: '{{ operator_namespace }}'
+      data:
+        workload.tcl: "{{ lookup('template', 'workload.tcl.j2') }}"
+
+- name: start db creation job
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
+  when: hammerdb.db_init is defined and hammerdb.db_init
+
+- name: wait for db creation job to finish
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+    namespace: "{{ operator_namespace }}"
+  register: hammerdb_creator_pod
+  until: "hammerdb_creator_pod | json_query('resources[].status.succeeded')"
+  retries: 40
+  delay: 15
+  when: hammerdb.db_init is defined and hammerdb.db_init
+  
+- name: start db workload job
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'db_workload.yml') | from_yaml }}"
+  when: hammerdb.db_benchmark is defined and hammerdb.db_benchmark
+
+- name: wait for db workload job to finish
+  k8s_facts:
+    kind: Job
+    api_version: batch/v1
+    name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+    namespace: "{{ operator_namespace }}"
+  register: hammerdb_workload_pod
+  until: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
+  retries: 200
+  delay: 30
+  when: hammerdb.db_benchmark is defined and hammerdb.db_benchmark
