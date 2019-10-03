@@ -6,39 +6,54 @@ metadata:
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
+  backoffLimit: 0
   template:
     metadata:
       labels:
         app: fs-drift-benchmark-{{ trunc_uuid }}
     spec:
+      restartPolicy: Never
       containers:
         - name: benchmark-server
           image: quay.io/cloud-bulldozer/fs-drift:master
+          # example of what to do when debugging image
+          # image: quay.io/bengland2/fs-drift:latest
+          imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
-          workingDir: /opt/fs-drift/
+          workingDir: /opt/snafu
           wait: true
+          env:
+          - name: uuid
+            value: "{{ uuid }}"
+{% if es_server is defined %}
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
           args:
             - set -x;
-              export TMPDIR=/var/tmp/fs-drift-output;
+              export TMPDIR=/tmp/fs-drift-output;
               rm -rf $TMPDIR;
-              mkdir -pv $TMPDIR;
               mkdir -pv $TMPDIR/RESULTS;
               mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
-              echo starting fs-drift;
-              ls -lR /tmp/fs-drift;
-              cat /tmp/fs-drift/params;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
-              python fs-drift.py 
-                --input-yaml /tmp/fs-drift/params
-                --top {{ fs_drift_path }}/fs_drift_test_data
-                --response-times Y 
-                --output-json $TMPDIR/RESULTS/results.json;
-              ls -lR $TMPDIR;
-              cat $TMPDIR/RESULTS/results.json;
-              cp -v /var/tmp/fsd*log $TMPDIR/RESULTS/;
-              ls {{fs_drift_path}};
-              cp -v {{fs_drift_path}}/fs_drift_test_data/network-shared/*rsptimes.csv $TMPDIR/RESULTS/;
-              echo RUN STATUS DONE
+              cat /tmp/fs-drift/params;
+              python run_snafu.py
+              --tool fs-drift
+              --top {{fs_drift_path}}/fs_drift_test_data
+              --dir $TMPDIR/RESULTS
+{% if fs_drift.samples is defined %}
+              --samples {{fs_drift.samples}}
+{% endif %}
+              --yaml-input-file /tmp/fs-drift/params ;
+              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else echo FAIL ; exit 1 ; fi
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/fs-drift"
