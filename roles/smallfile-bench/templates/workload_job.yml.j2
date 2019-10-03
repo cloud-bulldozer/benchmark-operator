@@ -6,33 +6,54 @@ metadata:
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
+  backoffLimit: 0
   template:
     metadata:
       labels:
         app: smallfile-benchmark-{{ trunc_uuid }}
     spec:
+      restartPolicy: Never
       containers:
         - name: benchmark-server
           image: "quay.io/cloud-bulldozer/smallfile:master"
+          # example of how to debug using your own workload image
+          #image: "quay.io/bengland2/smallfile:master"
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
-          workingDir: /root/smallfile-master/
+          workingDir: /opt/snafu
           wait: true
+          env:
+{% if es_server is defined %}
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
           args:
             - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
               export TMPDIR=/tmp
-              arr=$(python <<< "print(' '.join({{smallfile.operation}}))");
+              arr=$(python <<< "print(','.join({{smallfile.operation}}))");
               rm -rf {{smallfile_path}}/RESULTS ;
               mkdir -p {{smallfile_path}}/RESULTS;
               mkdir -p {{smallfile_path}}/smallfile_test_data;
-              for i in ${arr[@]};do
-              echo RUNNING_OPERATION_$i;
-              cat /tmp/smallfile/smallfilejob;
-              smallfile_cli.py --operation ${i} --yaml-input-file /tmp/smallfile/smallfilejob --output-json {{smallfile_path}}/RESULTS/SMALLFILE_${i}_RUN_RESULT;
-              sleep 5;
-              done;
-              rm -rf {{ smallfile_path }}/smallfile_test_data;
-              echo RUN STATUS DONE
+              python /opt/snafu/run_snafu.py 
+{% if smallfile.samples is defined %}
+              --samples {{smallfile.samples}}
+{% endif %}
+              --tool smallfile 
+              --operations $arr 
+              --top {{smallfile_path}}/smallfile_test_data 
+              --dir /var/tmp/RESULTS 
+              --yaml-input-file /tmp/smallfile/smallfilejob ;
+              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/smallfile"
@@ -40,6 +61,7 @@ spec:
             - name: ceph-volume
               mountPath: "{{ smallfile_path }}"
 {% endif %}
+      restartPolicy: Never
       volumes:
         - name: config-volume
           configMap:

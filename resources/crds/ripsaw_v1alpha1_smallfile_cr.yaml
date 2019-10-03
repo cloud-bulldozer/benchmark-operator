@@ -4,6 +4,11 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
+  test_user: homer_simpson
+  clustername: aws-2009-09-10
+  es_server: my.elasticsearch.server
+  es_port: 9020
+  es_index: ripsaw-smallfile
   workload:
     name: smallfile
     args:
