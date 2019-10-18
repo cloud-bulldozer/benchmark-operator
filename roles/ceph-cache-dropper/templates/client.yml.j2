@@ -10,7 +10,7 @@ spec:
     image: quay.io/cloud-bulldozer/ceph-cache-dropper:latest
     command: ["/bin/sh", "-c"]
     args:
-      - "cd /opt/snafu/ceph-cache-dropper;
+      - "cd /opt/bohica/ceph-cache-dropper;
          python ./osd-cache-drop-websvc.py"
     imagePullPolicy: Always
     env:

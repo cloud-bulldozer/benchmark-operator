@@ -27,9 +27,6 @@ data:
     iodepth={{fiod.iodepth}}
     direct=1
     numjobs={{numjobs}}
-{% if ceph_cache_drop_pod_ip %}
-    exec_prerun=curl http://{{ceph_cache_drop_pod_ip}}:9432/drop_osd_caches
-{% endif %}
 
     [{{job}}]
     rw={{job}}
