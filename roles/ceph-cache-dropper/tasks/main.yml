@@ -1,4 +1,7 @@
 ---
+- name: Init the rook-ceph cache dropper pod IP to empty
+  command: "redis-cli del ceph_cache_drop_pod_ip"
+
 - name: Start the rook-ceph OSD cache dropper listener
   k8s:
     definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
@@ -12,5 +15,4 @@
   register: ceph_cache_drop_pod
 
 - name: Collect the rook-ceph cache dropper pod IP
-  set_fact:
-    ceph_cache_drop_pod_ip: "{{ ceph_cache_drop_pod.resources[0].status.podIP }}"
+  command: "redis-cli set ceph_cache_drop_pod_ip {{ ceph_cache_drop_pod.resources[0].status.podIP }}"

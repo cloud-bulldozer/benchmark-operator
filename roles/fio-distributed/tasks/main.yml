@@ -26,6 +26,9 @@
   register: resource_state
 
 - block:
+  - name: Init the rook-ceph cache dropper pod IP to empty
+    command: "redis-cli del ceph_cache_drop_pod_ip"
+    
   - name: Include rook-ceph cache drop role
     include_role:
       name: ceph-cache-dropper
@@ -139,6 +142,14 @@
         data:
           hosts: |
             {{ fio_hosts }}
+
+  - name: Get rook-ceph cache dropper pod IP
+    command: "redis-cli get ceph_cache_drop_pod_ip"
+    register: get_ceph_cache_drop_pod_ip
+
+  - name: Set rook-ceph cache dropper pod IP
+    set_fact:
+      ceph_cache_drop_pod_ip: "{{ get_ceph_cache_drop_pod_ip.stdout }}"
 
   - name: Start FIO Client
     k8s:
