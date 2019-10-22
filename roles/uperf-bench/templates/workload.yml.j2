@@ -23,6 +23,18 @@ spec:
       serviceAccountName: benchmark-operator
       serviceAccount: benchmark-operator
 {% endif %}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: type
+                  operator: In
+                  values:
+                  - uperf-bench-server-{{ trunc_uuid }}
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/uperf:latest"
