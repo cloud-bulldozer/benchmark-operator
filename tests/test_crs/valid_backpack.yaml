@@ -1,0 +1,16 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: byowl-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: "echo Test"

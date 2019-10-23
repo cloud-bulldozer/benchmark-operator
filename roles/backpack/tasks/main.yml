@@ -1,0 +1,111 @@
+---
+- name: Get benchmark state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+  register: cr_state
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: "Metadata Collecting"
+      complete: false
+  when: cr_state.resources[0].status.state is not defined
+
+- name: Get benchmark state 
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+  register: cr_state
+
+- name: Get DaemonSet state
+  k8s_facts:
+    api_version: apps/v1
+    kind: DaemonSet
+    name: "backpack-{{ trunc_uuid }}"
+    namespace: "{{ operator_namespace }}"
+  register: my_daemonset
+  ignore_errors: true
+
+- name: set original generation fact
+  set_fact:
+    backpack_orig_gen: "{{ my_daemonset | json_query('resources[].metadata.generation')|first | default('1') }}"
+
+- name: Ensure present daemonset
+  k8s:
+    state: present
+    definition: "{{ lookup('template', 'backpack.yml') | from_yaml }}"
+
+- name: Get DaemonSet Status
+  k8s_facts:
+    api_version: apps/v1
+    kind: DaemonSet
+    name: "backpack-{{ trunc_uuid }}"
+    namespace: "{{ operator_namespace }}"
+  register: my_daemonset
+
+- block:
+
+  - name: set current generation fact
+    set_fact:
+      backpack_cur_gen: "{{ my_daemonset | json_query('resources[].metadata.generation')|first }}"
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Metadata Collecting"
+        complete: false
+    when: backpack_orig_gen != backpack_cur_gen
+
+  - name: Get benchmark state
+    k8s_facts:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+    register: cr_state
+
+  - block:
+  
+    - name: Get initial pod list
+      k8s_facts:
+        kind: Pod
+        namespace: "{{ operator_namespace }}"
+        label_selectors:
+          - name = backpack-{{ trunc_uuid }}
+      register: pods
+    
+    - block:
+
+      - k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: null
+            complete: false
+      
+      - name: Get benchmark state
+        k8s_facts:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+        register: cr_state
+
+      when: backpack_cur_gen == pods | json_query('resources[].metadata.labels."pod-template-generation"')|first and "ContainersNotReady" not in pods | json_query('resources[].status.conditions[].reason')
+
+    when: backpack_orig_gen == backpack_cur_gen
+
+  when: "my_daemonset | json_query('resources[].status.desiredNumberScheduled') == my_daemonset | json_query('resources[].status.numberReady') and my_daemonset | json_query('resources[].status.numberReady') != 0 "
