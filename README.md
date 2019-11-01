@@ -39,6 +39,9 @@ advantage of the reconciliation loop, these two benchmarks need to be rewritten.
 ## Contributing
 [Contributing](CONTRIBUTE.md)
 
+## Metadata Collection
+[Metadata Collection](docs/metadata.md)
+
 ## Community
 Key Members(slack_usernames): aakarsh, dblack or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)

@@ -1,0 +1,40 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: "backpack-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  selector:
+    matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+        - backpack-{{ trunc_uuid }}
+  template:
+    metadata:
+      labels:
+        name: backpack-{{ trunc_uuid }}
+    spec:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+      containers:
+      - name: backpack
+        image: quay.io/cloud-bulldozer/backpack:latest
+        command: ["/bin/sh", "-c"]
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} ; sleep infinity"]
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata_privileged | default(false) | bool }}
+        readinessProbe:
+          exec:
+            command:
+              - ls
+              - /tmp/stockpile.json
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 120
+      serviceAccountName: {{ metadata_sa | default('default') }}
+      terminationGracePeriodSeconds: 30

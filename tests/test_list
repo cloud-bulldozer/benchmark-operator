@@ -1,3 +1,4 @@
+test_backpack.sh
 test_ycsb.sh
 test_fiod.sh
 test_fs-drift.sh

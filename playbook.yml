@@ -11,7 +11,7 @@
     register: cr_state
 
   - debug:
-      msg: "{{cr_state}}"
+      msg: "{{ cr_state }}"
 
   - name: Set Workload UUID
     block:
@@ -57,70 +57,78 @@
         trunc_uuid: "{{ cr_state.resources[0].status.suuid }}"
 
     - include_role:
-        name: "uperf-bench"
-      vars:
-        uperf: "{{ workload.args }}"
-      when: workload.name == "uperf"  and workload.args.pair > 0
+        name: backpack
+      when: metadata_collection | default(false) | bool
 
-    - include_role:
-        name: "iperf3-bench"
-      vars:
-        iperf3: "{{ workload.args }}"
-      when: workload.name == "iperf3" and workload.args.pairs > 0
+    - block:
 
-    - include_role:
-        name: sysbench
-      vars:
-        sysbench : "{{ workload.args }}"
-      when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
+      - include_role:
+          name: "uperf-bench"
+        vars:
+          uperf: "{{ workload.args }}"
+        when: workload.name == "uperf"  and workload.args.pair > 0
 
-    - include_role:
-        name: "load-ycsb"
-      vars:
-        ycsb: "{{ workload.args }}"
-      when: workload.name == "ycsb" and workload.args.workloads | length > 0
+      - include_role:
+          name: "iperf3-bench"
+        vars:
+          iperf3: "{{ workload.args }}"
+        when: workload.name == "iperf3" and workload.args.pairs > 0
 
-    - include_role:
-        name: "ycsb-bench"
-      vars:
-        ycsb: "{{ workload.args }}"
-      with_items: '{{ workload.args.workloads }}'
-      when: workload.name == "ycsb" and workload.args.workloads | length > 0
+      - include_role:
+          name: sysbench
+        vars:
+          sysbench : "{{ workload.args }}"
+        when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
 
-    - include_role:
-        name: "byowl"
-      vars:
-        byowl: "{{ workload.args }}"
-      when: workload.name == "byowl" and workload.args.clients > 0
+      - include_role:
+          name: "load-ycsb"
+        vars:
+          ycsb: "{{ workload.args }}"
+        when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
-    - include_role:
-        name: "fio-distributed"
-      vars:
-        fiod: "{{ workload.args }}"
-      when: workload.name == "fio_distributed" and workload.args.servers > 0
+      - include_role:
+          name: "ycsb-bench"
+        vars:
+          ycsb: "{{ workload.args }}"
+        with_items: '{{ workload.args.workloads }}'
+        when: workload.name == "ycsb" and workload.args.workloads | length > 0
 
-    - include_role:
-        name: "pgbench"
-      vars:
-        pgbench: "{{ workload.args }}"
-      when: workload.name == "pgbench" and workload.args.clients > 0
+      - include_role:
+          name: "byowl"
+        vars:
+          byowl: "{{ workload.args }}"
+        when: workload.name == "byowl" and workload.args.clients > 0
 
-    - include_role:
-        name: "smallfile-bench"
-      vars:
-        smallfile: "{{ workload.args }}"
-      when: workload.name == "smallfile" and workload.args.clients > 0
+      - include_role:
+          name: "fio-distributed"
+        vars:
+          fiod: "{{ workload.args }}"
+        when: workload.name == "fio_distributed" and workload.args.servers > 0
 
-    - include_role:
-        name: "fs-drift"
-      vars:
-        fs_drift: "{{ workload.args }}"
-      when: workload.name == "fs-drift" and workload.args.worker_pods > 0
+      - include_role:
+          name: "pgbench"
+        vars:
+          pgbench: "{{ workload.args }}"
+        when: workload.name == "pgbench" and workload.args.clients > 0
 
-    - include_role:
-        name: "hammerdb"
-      vars:
-        hammerdb: "{{ workload.args }}"
-      when: workload.name == "hammerdb" 
+      - include_role:
+          name: "smallfile-bench"
+        vars:
+          smallfile: "{{ workload.args }}"
+        when: workload.name == "smallfile" and workload.args.clients > 0
+
+      - include_role:
+          name: "fs-drift"
+        vars:
+          fs_drift: "{{ workload.args }}"
+        when: workload.name == "fs-drift" and workload.args.worker_pods > 0
+
+      - include_role:
+          name: "hammerdb"
+        vars:
+          hammerdb: "{{ workload.args }}"
+        when: workload.name == "hammerdb" 
+
+      when: cr_state.resources[0].status.complete != "Metadata Collecting"
       
     when: cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool
