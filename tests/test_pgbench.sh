@@ -73,6 +73,9 @@ EOF
   # deploy the test CR with the postgres pod IP
   sed s/host:/host:\ ${postgres_ip}/ tests/test_crs/valid_pgbench.yaml | kubectl apply -f -
   uuid=$(get_uuid 20)
+
+  wait_for_backpack $uuid
+
   pgbench_pod=$(get_pod "app=pgbench-client-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n my-ripsaw --timeout=60s" "60s" $pgbench_pod
   wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n my-ripsaw --timeout=60s" "60s" $pgbench_pod

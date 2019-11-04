@@ -4,6 +4,10 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
   workload:
     name: smallfile
     args:

@@ -24,6 +24,9 @@ function functional_test_hammerdb {
 	apply_operator
 	kubectl apply -f tests/test_crs/valid_hammerdb.yaml
 	uuid=$(get_uuid 20)
+
+        wait_for_backpack $uuid
+        
 	# Wait for the creator pod to initialize the DB
         #DISABLED
 	#hammerdb_creator_pod=$(get_pod "app=hammerdb_creator-$uuid" 300)

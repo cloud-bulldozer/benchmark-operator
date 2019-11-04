@@ -17,17 +17,13 @@ function finish {
 trap error ERR
 trap finish EXIT
 
-function functional_test_byowl {
+function functional_test_backpack {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_backpack.yaml
   uuid=$(get_uuid 20)
 
-  node_count=`kubectl get nodes | grep -v NAME | wc -l`
-  until [ `kubectl -n my-ripsaw get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'` -eq $node_count ] ; do
-    sleep 5
-  done
-  echo $backpack_pod
+  wait_for_backpack $uuid
 
   for pod in `kubectl -n my-ripsaw get pods -l name=backpack-$uuid | grep -v NAME | awk '{print $1}'`
   do
@@ -44,4 +40,4 @@ function functional_test_byowl {
   echo "Backpack test: Success"
 }
 
-functional_test_byowl
+functional_test_backpack

@@ -5,7 +5,7 @@
     kind: Benchmark
     name: "{{ meta.name }}"
     namespace: "{{ operator_namespace }}"
-  register: cr_state
+  register: benchmark_state
 
 - k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -15,7 +15,8 @@
     status:
       state: "Metadata Collecting"
       complete: false
-  when: cr_state.resources[0].status.state is not defined
+      metadata: "Collecting"
+  when: benchmark_state.resources[0].status.state is not defined
 
 - name: Get benchmark state 
   k8s_facts:
@@ -23,7 +24,7 @@
     kind: Benchmark
     name: "{{ meta.name }}"
     namespace: "{{ operator_namespace }}"
-  register: cr_state
+  register: benchmark_state
 
 - name: Get DaemonSet state
   k8s_facts:
@@ -65,6 +66,7 @@
       status:
         state: "Metadata Collecting"
         complete: false
+        metadata: "Collecting"
     when: backpack_orig_gen != backpack_cur_gen
 
   - name: Get benchmark state
@@ -73,7 +75,7 @@
       kind: Benchmark
       name: "{{ meta.name }}"
       namespace: "{{ operator_namespace }}"
-    register: cr_state
+    register: benchmark_state
 
   - block:
   
@@ -95,6 +97,7 @@
           status:
             state: null
             complete: false
+            metadata: "Complete"
       
       - name: Get benchmark state
         k8s_facts:
@@ -102,10 +105,11 @@
           kind: Benchmark
           name: "{{ meta.name }}"
           namespace: "{{ operator_namespace }}"
-        register: cr_state
+        register: benchmark_state
 
       when: backpack_cur_gen == pods | json_query('resources[].metadata.labels."pod-template-generation"')|first and "ContainersNotReady" not in pods | json_query('resources[].status.conditions[].reason')
-
+    
     when: backpack_orig_gen == backpack_cur_gen
 
   when: "my_daemonset | json_query('resources[].status.desiredNumberScheduled') == my_daemonset | json_query('resources[].status.numberReady') and my_daemonset | json_query('resources[].status.numberReady') != 0 "
+
