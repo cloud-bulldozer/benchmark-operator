@@ -129,6 +129,6 @@
           hammerdb: "{{ workload.args }}"
         when: workload.name == "hammerdb" 
 
-      when: cr_state.resources[0].status.complete != "Metadata Collecting"
+      when: cr_state.resources[0].status.state is not defined or cr_state.resources[0].status.state != "Metadata Collecting"
       
     when: cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool
