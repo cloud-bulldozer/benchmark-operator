@@ -218,3 +218,28 @@ function error {
   kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
   ERRORED=true
 }
+
+function wait_for_backpack() {
+  echo "Waiting for backpack to complete before starting benchmark test"
+  
+  uuid=$1
+  count=0
+  while [[ $count -lt 30 ]]
+  do
+    if [[ `kubectl -n my-ripsaw get daemonsets backpack-$uuid` ]]
+    then
+      desired=`kubectl -n my-ripsaw get daemonsets backpack-$uuid | grep -v NAME | awk '{print $2}'`
+      ready=`kubectl -n my-ripsaw get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'`
+      if [[ $desired -eq $ready ]]
+      then
+        echo "Backpack complete. Starting benchmark"
+        count=30
+      fi
+    fi
+    if [[ $count -ne 30 ]]
+    then
+      sleep 5
+      count=$((count + 1))
+    fi
+  done
+}

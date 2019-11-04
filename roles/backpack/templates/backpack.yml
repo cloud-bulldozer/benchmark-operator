@@ -8,13 +8,14 @@ spec:
   selector:
     matchExpressions:
       - key: app
-        operator: NotIn
+        operator: In
         values:
         - backpack-{{ trunc_uuid }}
   template:
     metadata:
       labels:
         name: backpack-{{ trunc_uuid }}
+        app: backpack-{{ trunc_uuid }}
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
