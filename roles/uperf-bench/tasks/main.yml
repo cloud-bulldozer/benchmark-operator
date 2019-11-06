@@ -70,7 +70,7 @@
           - type = uperf-bench-server-{{ trunc_uuid }}
       register: serviceip
       when: uperf.serviceip
-    when: uperf.kind == "pod"
+    when: resource_kind == "pod"
 
   - block:
 
@@ -95,7 +95,7 @@
     - name: blocking client from running uperf
       command: "redis-cli set {{ trunc_uuid }} false"
       with_items: "{{ server_vms.resources }}"
-    when: uperf.kind == "vm" and uperf.pair|int == 1
+    when: resource_kind == "vm" and uperf.pair|int == 1
 
   - name: Generate uperf xml files
     k8s:
@@ -113,7 +113,7 @@
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
       with_items: "{{ serviceip.resources }}"
       when: uperf.serviceip and serviceip.resources|length > 0
-    when: uperf.kind == "pod"
+    when: resource_kind == "pod"
 
   - block:
     - name: Generate uperf test files
@@ -126,7 +126,7 @@
         definition: "{{ lookup('template', 'workload_vm.yml.j2') | from_yaml }}"
       with_items: "{{ server_vms.resources }}"
       when: server_vms.resources|length > 0
-    when: uperf.kind == "vm"
+    when: resource_kind == "vm"
 
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -164,7 +164,7 @@
           state: Running
           complete: false
       when: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
-    when: uperf.kind == "pod"
+    when: resource_kind == "pod"
 
   - block:
     - name: set complete to false
@@ -192,7 +192,7 @@
           state: Running
           complete: false
       when: "uperf.pair  == (client_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
-    when: uperf.kind == "vm"
+    when: resource_kind == "vm"
   when: resource_state.resources[0].status.state == "Starting"
 
 - block:
@@ -215,7 +215,7 @@
           state: Cleanup
           complete: false
       when: "uperf.pair == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
-    when: uperf.kind == "pod"
+    when: resource_kind == "pod"
 
   - block:
 
@@ -232,7 +232,7 @@
           state: Cleanup
           complete: false
       when: complete_status.stdout == "true"
-    when: uperf.kind == "vm"
+    when: resource_kind == "vm"
 
   when: resource_state.resources[0].status.state == "Running"
 
@@ -266,7 +266,7 @@
         name: "{{ item }}"
       with_items: "{{ clean_pods }}"
       when: cleanup
-    when: uperf.kind == "pod"
+    when: resource_kind == "pod"
 
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1

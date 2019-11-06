@@ -17,7 +17,6 @@ spec:
         enabled: false
       samples: 2
       pair: 1
-      kind: pod
       test_types:
         - stream
         - rr
