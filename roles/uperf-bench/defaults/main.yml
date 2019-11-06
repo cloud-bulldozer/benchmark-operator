@@ -1,4 +1,5 @@
 ---
+resource_kind: "{{ uperf.kind | default('pod') }}"
 uperf:
   proto: tcp
   test_type: stream

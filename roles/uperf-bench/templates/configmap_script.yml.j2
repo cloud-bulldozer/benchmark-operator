@@ -28,7 +28,7 @@ data:
 {% for nthr in uperf.nthrs %}
         cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
         for i in `seq 1 {{uperf.samples}}`; do
-          python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{uperf.kind}}| tee /tmp/uperf-{{trunc_uuid}}-{{test}}-{{proto}}-{{size}}-{{nthr}};
+          python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}}| tee /tmp/uperf-{{trunc_uuid}}-{{test}}-{{proto}}-{{size}}-{{nthr}};
         done;
 {% endfor %}
 {% endfor %}
