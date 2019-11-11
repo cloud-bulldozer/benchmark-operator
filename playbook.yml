@@ -38,12 +38,12 @@
     - set_fact:
         uuid: "{{ cr_state.resources[0].status.uuid }}"
         trunc_uuid: "{{ cr_state.resources[0].status.suuid }}"
-    
+
     - block:
-      
+
       - include_role:
           name: backpack
-    
+
       when: metadata_collection is defined and metadata_collection | default('false') | bool and (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata != "Complete")
 
     - block:
@@ -70,14 +70,14 @@
           name: "load-ycsb"
         vars:
           ycsb: "{{ workload.args }}"
-        when: workload.name == "ycsb" and workload.args.workloads | length > 0
+        when: workload.name == "ycsb" and workload.args.workloads | length > 0 and load_ycsb
 
       - include_role:
           name: "ycsb-bench"
         vars:
           ycsb: "{{ workload.args }}"
         with_items: '{{ workload.args.workloads }}'
-        when: workload.name == "ycsb" and workload.args.workloads | length > 0
+        when: workload.name == "ycsb" and workload.args.workloads | length > 0 and run_ycsb
 
       - include_role:
           name: "byowl"
@@ -113,7 +113,7 @@
           name: "hammerdb"
         vars:
           hammerdb: "{{ workload.args }}"
-        when: workload.name == "hammerdb" 
+        when: workload.name == "hammerdb"
 
       when: not metadata_collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete")
 

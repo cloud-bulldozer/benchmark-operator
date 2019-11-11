@@ -50,15 +50,28 @@ Note: We currently support running either workloade or workloadd( and not in the
 Reason: Similar to reason provided by [YCSB documentation](https://github.com/brianfrankcooper/YCSB/wiki/Core-Workloads#running-the-workloads), we'd need to drop the database
         after running either of the workloadd/workloade. This would mean operator to have knowledge of interaction with the said DB, which was outside the scope of this operator.
 
-`options_run` these are the options passed to ycsb binary while running the workload, this is where the target database and options are passed.
-Please read YCSB documentation on the necessary args required for the particular database. And note, the url or API needs to be accessible from the ycsb pod.
-
 The following options are optional:
 
-`loaded` This can be optionally set to true, if you have already loaded the database.
+`load` This can be optionally set to false, if you'd like to just run the workload and have already loaded previously.
 
-`options_load` This needs to be set if `loaded` is not defined or set to false, and like in the case of `options_run` this needs to be configured properly,
+`options_load` This needs to be set if `load` is not defined or set to True, these are the options passed to ycsb binary while running the workload, this is where the target database and options are passed.
+Please read YCSB documentation on the necessary args required for the particular database. And note, the url or API needs to be accessible from the ycsb pod.
+
+`run` This can be optionally set to false, if you'd like to just load the database.
+
+`options_run` needs to be set if `run` isn't set or set to True, and like in the case of `options_load` this needs to be configured properly,
 so that the ycsb pod can access the API of database.
+
+### Selectively load and run on different runs
+
+There can be use cases where you'd like to load and run workloads in different runs,
+this is especially required if you'd like to flush data in the database to the disk.
+
+You'll then need to first create a cr with `run` set to false, so the benchmark will only load the database.
+
+once the database is loaded, you can use database specific commands by accessing database to flush data onto disk.
+
+then you can delete previous cr, and then create another cr with `load` set to false, so benchmark will only run the database
 
 Once done creating/editing the resource file, you can run it by:
 

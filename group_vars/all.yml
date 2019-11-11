@@ -1,3 +1,5 @@
 ---
 operator_namespace: '{{ meta.namespace }}'
 clustername: 'myk8scluster'
+load_ycsb: "{{ workload.args.load | default('True') }}"
+run_ycsb: "{{ uperf.args.run | default('True') }}"
