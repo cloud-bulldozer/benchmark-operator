@@ -23,6 +23,10 @@ spec:
             value: "{{ test_user }}"
           - name: clustername
             value: "{{ clustername }}"
+{% if ceph_cache_drop_pod_ip %}
+          - name: ceph_cache_drop_pod_ip
+            value: "{{ ceph_cache_drop_pod_ip }}"
+{% endif %}
 {% if es_server %}
           - name: es
             value: "{{ es_server }}"
