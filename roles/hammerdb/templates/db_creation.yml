@@ -17,6 +17,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /creator/createdb.tcl"]
         image: "quay.io/cloud-bulldozer/hammerdb:latest"
+        imagePullPolicy: Always
         volumeMounts:
         - name: hammerdb-creator-volume
           mountPath: "/creator"

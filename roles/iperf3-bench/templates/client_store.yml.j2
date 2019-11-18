@@ -21,6 +21,7 @@ spec:
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/iperf3:latest"
+        imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
         args:

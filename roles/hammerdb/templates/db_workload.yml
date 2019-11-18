@@ -19,6 +19,7 @@ spec:
         #args: ["/usr/local/bin/uid_entrypoint; cd /hammer; /opt/snafu/hammerdb-wrapper/hammerdb-wrapper.py"]
         image: "quay.io/cloud-bulldozer/hammerdb:latest"
         #image: "quay.io/mkarg/hammerdb:latest"
+        imagePullPolicy: Always
         wait: true
         volumeMounts:
         - name: hammerdb-workload-volume
