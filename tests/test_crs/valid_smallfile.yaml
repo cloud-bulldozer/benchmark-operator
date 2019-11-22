@@ -9,7 +9,7 @@ spec:
   clustername: test_ci
   # where elastic search is running
   elasticsearch:
-    host: "marquez.perf.lab.eng.rdu2.redhat.com"
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
   metadata_collection: true
   workload:

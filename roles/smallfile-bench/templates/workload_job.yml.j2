@@ -29,9 +29,9 @@ spec:
             value: "{{ test_user }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch.host is defined %}
+{% if elasticsearch.server is defined %}
           - name: es
-            value: "{{ elasticsearch.host }}"
+            value: "{{ elasticsearch.server }}"
           - name: es_port
             value: "{{ elasticsearch.port }}"
 {% endif %}

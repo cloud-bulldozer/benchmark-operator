@@ -7,7 +7,7 @@ spec:
   test_user: homer_simpson
   clustername: aws-2009-09-10
   elasticsearch:
-    host: my.elasticsearch.server
+    server: my.elasticsearch.server
     port: 9020
   workload:
     name: smallfile
