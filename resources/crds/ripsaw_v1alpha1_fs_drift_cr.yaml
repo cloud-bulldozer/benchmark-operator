@@ -9,7 +9,7 @@ spec:
   clustername: aws-2009-09-10
   # where elastic search is running
   elasticsearch:
-    server: marquez.perf.lab.eng.rdu2.redhat.com
+    server: my.elasticsearch.server
     port: 9200
   workload:
     name: fs-drift
