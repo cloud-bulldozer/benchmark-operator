@@ -23,19 +23,17 @@ spec:
           workingDir: /opt/snafu
           wait: true
           env:
-{% if es_server is defined %}
           - name: uuid
             value: "{{ uuid }}"
           - name: test_user
             value: "{{ test_user }}"
           - name: clustername
             value: "{{ clustername }}"
+{% if elasticsearch.host is defined %}
           - name: es
-            value: "{{ es_server }}"
+            value: "{{ elasticsearch.host }}"
           - name: es_port
-            value: "{{ es_port }}"
-          - name: es_index
-            value: "{{ es_index }}"
+            value: "{{ elasticsearch.port }}"
 {% endif %}
           args:
             - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};

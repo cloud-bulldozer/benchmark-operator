@@ -6,9 +6,9 @@ metadata:
 spec:
   test_user: homer_simpson
   clustername: aws-2009-09-10
-  es_server: my.elasticsearch.server
-  es_port: 9020
-  es_index: ripsaw-smallfile
+  elasticsearch:
+    host: my.elasticsearch.server
+    port: 9020
   workload:
     name: smallfile
     args:
