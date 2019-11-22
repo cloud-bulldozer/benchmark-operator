@@ -8,9 +8,9 @@ spec:
   # to separate this test run from everyone else's
   clustername: test_ci
   # where elastic search is running
-  es_server: "marquez.perf.lab.eng.rdu2.redhat.com"
-  es_port: 9200
-  es_index: ripsaw-fs-drift
+  elasticsearch:
+    host: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
   metadata_collection: true
   workload:
     name: smallfile
