@@ -37,7 +37,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
-        image: "quay.io/cloud-bulldozer/uperf:latest"
+        image: "quay.io/msheth/uperf:v1"
         imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
@@ -61,6 +61,13 @@ spec:
 {% endif %}
 {% if test_user is defined %}
              export test_user={{test_user}};
+{% endif %}
+{% if uperf.pin is sameas true %}
+             export client_node={{uperf.pin_client}};
+             export server_node={{uperf.pin_server}};
+{% else %}
+             export client_node=UNSET;
+             export server_node=UNSET;
 {% endif %}
              export clustername={{clustername}};
              export hostnet={{uperf.hostnetwork}};
