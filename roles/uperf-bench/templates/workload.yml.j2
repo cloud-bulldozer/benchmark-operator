@@ -62,6 +62,13 @@ spec:
 {% if test_user is defined %}
              export test_user={{test_user}};
 {% endif %}
+{% if uperf.pin is sameas true %}
+             export client_node={{uperf.pin_client}};
+             export server_node={{uperf.pin_server}};
+{% else %}
+             export client_node=UNSET;
+             export server_node=UNSET;
+{% endif %}
              export clustername={{clustername}};
              export hostnet={{uperf.hostnetwork}};
              export ips=$(hostname -I);
