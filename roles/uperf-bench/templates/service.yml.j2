@@ -5,7 +5,7 @@ metadata:
   name: uperf-service-{{ item }}-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
   labels:
-    app: uperf-bench-server-{{ item }}
+    app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
     type: uperf-bench-server-{{ trunc_uuid }}
 spec:
   ports:
