@@ -34,6 +34,8 @@ spec:
             value: "{{ elasticsearch.server }}"
           - name: es_port
             value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ es_index }}"
 {% endif %}
           args:
             - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
