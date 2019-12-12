@@ -7,7 +7,8 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- name: Update current state
+  k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -17,7 +18,7 @@
       complete: false
   when: resource_state.resources[0].status.state is not defined
 
-- name: Update current state
+- name: Get current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
