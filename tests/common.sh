@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
 ERRORED=false
+image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
+image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
+echo "using container image location $image_location and account $image_account"
 
 function check_full_trigger {
 python - <<END
@@ -162,13 +165,13 @@ function cleanup_operator_resources {
 
 function update_operator_image {
   tag_name="${NODE_NAME:-master}"
-  operator-sdk build quay.io/rht_perf_ci/benchmark-operator:$tag_name --image-builder podman
+  operator-sdk build $image_location/$image_account/benchmark-operator:$tag_name --image-builder podman
 
   # In case we have issues uploading to quay we will retry a few times
   try_count=0
   while [ $try_count -le 2 ]
   do
-    if podman push quay.io/rht_perf_ci/benchmark-operator:$tag_name
+    if podman push $image_location/$image_account/benchmark-operator:$tag_name
     then
       try_count=2
     elif [[ $try_count -eq 2 ]]
@@ -178,7 +181,7 @@ function update_operator_image {
     fi
     ((try_count++))
   done
-  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: quay.io/rht_perf_ci/benchmark-operator:$tag_name # |" resources/operator.yaml
+  sed -i "s|          image: $image_location/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 
 function check_log(){
