@@ -8,6 +8,8 @@ metadata:
     app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
     type: uperf-bench-server-{{ trunc_uuid }}
 spec:
+  selector:
+    type: uperf-bench-server-{{ trunc_uuid }}
   ports:
   - name: uperf
     port: 20000
