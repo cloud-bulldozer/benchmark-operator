@@ -19,5 +19,5 @@ spec:
       clients: 1
       operation: ["create", "read", "append", "delete"]
       threads: 1
-      file_size: 64
-      files: 100
+      file_size: 0
+      files: 100000
