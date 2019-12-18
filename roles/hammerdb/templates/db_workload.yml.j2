@@ -28,13 +28,16 @@ spec:
              {% endif %}
              export db_server={{hammerdb.db_server}};
              export db_port={{hammerdb.db_port}};
-             export db_user={{hammerdb.db_user}};
              export db_warehouses={{hammerdb.db_warehouses}};
              export db_num_workers={{hammerdb.db_num_workers}};
+	     export db_tcp={{hammerdb.db_tcp}};
+             export db_user={{hammerdb.db_user}};
              export transactions={{hammerdb.transactions}};
+	     export test_type={{hammerdb.test_type}};
              export runtime={{hammerdb.transactions}};
              export rampup={{hammerdb.rampup}};
              export samples={{hammerdb.samples}};
+	     export timed_test={{hammerdb.timed_test"}};
              cd /hammer; 
              /opt/snafu/hammerdb/hammerd_wrapper.py"
         volumeMounts:
