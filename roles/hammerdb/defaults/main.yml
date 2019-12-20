@@ -1,5 +1,1 @@
 ---
-hammerdb:
-  protocol: tcp
-  runtime: 30
-

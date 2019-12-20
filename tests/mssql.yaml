@@ -19,8 +19,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
-        #image: mcr.microsoft.com/mssql/server:2017-latest
-        image: quay.io/mkarg/mssql:latest
+        image: mcr.microsoft.com/mssql/server:2017-latest
         ports:
         - containerPort: 1433
         env:

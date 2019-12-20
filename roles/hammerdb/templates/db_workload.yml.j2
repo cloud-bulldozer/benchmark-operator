@@ -1,0 +1,52 @@
+---
+apiVersion: batch/v1
+kind: "job"
+metadata:
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: hammerdb_workload-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: hammerdb
+        #image: "quay.io/cloud-bulldozer/hammerdb:latest"
+        image: "quay.io/mkarg/hammerdb:latest"
+        wait: true
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "/usr/local/bin/uid_entrypoint; 
+             {% if elasticsearch is defined %}
+             {% if elasticsearch.server is defined %}
+             export es_server={{elasticsearch.server}};
+             export es_port={{elasticsearch.port}};
+             export uuid={{uuid}};
+             {% endif %}
+             {% endif %}
+             export db_server={{hammerdb.db_server}};
+             export db_port={{hammerdb.db_port}};
+             export db_warehouses={{hammerdb.db_warehouses}};
+             export db_num_workers={{hammerdb.db_num_workers}};
+	     export db_tcp={{hammerdb.db_tcp}};
+             export db_user={{hammerdb.db_user}};
+             export transactions={{hammerdb.transactions}};
+	     export test_type={{hammerdb.test_type}};
+             export runtime={{hammerdb.runtime}};
+             export rampup={{hammerdb.rampup}};
+             export samples={{hammerdb.samples}};
+	     export timed_test={{hammerdb.timed_test}};
+             cd /hammer; 
+             /opt/snafu/hammerdb/hammerd_wrapper.py"
+        volumeMounts:
+        - name: hammerdb-workload-volume
+          mountPath: "/workload"
+          readOnly: false
+      volumes:
+      - name: hammerdb-workload-volume
+        configMap:
+          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+          defaultMode: 0640
+      restartPolicy: OnFailure

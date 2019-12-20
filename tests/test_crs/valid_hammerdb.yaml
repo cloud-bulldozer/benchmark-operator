@@ -11,6 +11,8 @@ spec:
   workload:
     name: "hammerdb"
     args:
+      timed_test: true
+      test_type: "tpc-c"
       db_init: false
       db_benchmark: true
       db_server: "mssql-deployment.sql-server"
@@ -21,7 +23,7 @@ spec:
       db_user: "SA"
       db_pass: "s3curePasswordString"
       transactions: 20000
-      runtime: 1
+      runtime: 30
       rampup: 1
       samples: 1
       # clients: 4      deprecated, db_num_workers is the same
