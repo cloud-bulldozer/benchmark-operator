@@ -21,7 +21,7 @@
         name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
         namespace: '{{ operator_namespace }}'
       data:
-        workload.tcl: "{{ lookup('template', 'workload.tcl.j2') }}"
+        tpcc-workload.tcl: "{{ lookup('template', 'tpcc-workload.tcl.j2') }}"
 
 - name: start db creation job
   k8s:
@@ -44,7 +44,7 @@
 - name: start db workload job
   k8s:
     state: present
-    definition: "{{ lookup('template', 'db_workload.yml') | from_yaml }}"
+    definition: "{{ lookup('template', 'db_workload.yml.j2') | from_yaml }}"
   when: hammerdb.db_benchmark is defined and hammerdb.db_benchmark
 
 - name: wait for db workload job to finish
