@@ -12,9 +12,9 @@ spec:
   workload:
     name: "vdbench"
     args:
-      servers: 3
-      pin_server: 'vdbench'
-      threads: 8
+      servers: 1
+      #pin_server: 'vdbench'
+      threads: 1
       fileselect: random
       fileio: random
       jobs:
@@ -22,23 +22,23 @@ spec:
           op: read
         - name: RandomWrite
           op: write
-        - name: RandomMix75
-          op: read
-          rdpct: 75
+      #   - name: RandomMix75
+      #     op: read
+      #     rdpct: 75
       iorate:
         - max
-        - curve
-      curve: (10,20,30,50,65,70,80,83,85,88,90,92,95,97,100)
+      #  - curve
+      #curve: (10,20,30,50,65,70,80,83,85,88,90,92,95,97,100)
       bs:
         - 4k
-        - 16k
-      depth: 3
-      width: 4
-      files: 256
-      file_size: 5
-      runtime: 600
-      pause: 5
-      storageclass: ocs-storagecluster-ceph-rbd
-      storagesize: 100Gi
+      #  - 16k
+      depth: 2
+      width: 2
+      files: 10
+      file_size: 1
+      runtime: 180
+      pause: 1
+      #storageclass: ocs-storagecluster-ceph-rbd
+      #storagesize: 100Gi
       #rook_ceph_drop_caches: True
       #rook_ceph_drop_cache_pod_ip: 192.168.111.20
