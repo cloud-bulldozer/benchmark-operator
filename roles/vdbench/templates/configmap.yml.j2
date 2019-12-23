@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vdbench-test-{{ trunc_uuid }}
+  namespace: '{{ operator_namespace }}'
+data:
+{% for numjobs in vdbenchd.numjobs %}
+{% for bs in vdbenchd.bs %}
+{% for job in vdbenchd.jobs %}
+  vdbenchjob-{{job}}-{{bs}}-{{numjobs}}: |
+    [global]
+    directory={{vdbench_path}}
+    filename_format=f.\$jobnum.\$filenum
+    write_bw_log=vdbench
+    write_iops_log=vdbench
+    write_lat_log=vdbench
+    write_hist_log=vdbench
+    log_avg_msec={{vdbenchd.log_sample_rate}}
+    log_hist_msec={{vdbenchd.log_sample_rate}}
+    clocksource=clock_gettime
+    kb_base=1000
+    unit_base='8'
+    ioengine=libaio
+    size={{vdbenchd.filesize}}
+    bs={{bs}}
+    iodepth={{vdbenchd.iodepth}}
+    direct=1
+    numjobs={{numjobs}}
+
+    [{{job}}]
+    rw={{job}}
+{% if global_overrides|default([])|length %}
+{% for override in global_overrides %}
+    {{ override }}
+{% endfor %}
+{% endif %}
+{% if job_params|default([])|length %}
+{% for match in job_params %}
+{% if match.jobname_match in job %}
+{% for param in match.params %}
+    {{ param }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

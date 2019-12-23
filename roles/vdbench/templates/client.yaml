@@ -1,0 +1,63 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'vdbench-client-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: vdbenchd-client-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: vdbench-client
+        image: "avilibm/vdbench:latest"
+        imagePullPolicy: Always
+        wait: true
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if ceph_cache_drop_pod_ip %}
+          - name: ceph_cache_drop_pod_ip
+            value: "{{ ceph_cache_drop_pod_ip }}"
+{% endif %}
+{% if es_server %}
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
+        command: ["/bin/bash", "-c"]
+        args:
+          - "cat /tmp/host/hosts;
+{% for numjobs in vdbenchd.numjobs %}
+{% for bs in vdbenchd.bs %}
+{% for job in vdbenchd.jobs %}
+             cat /tmp/vdbench/vdbenchjob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/vdbenchd-{{ uuid }}/vdbenchjob-{{job}}-{{bs}}-{{numjobs}}; python /opt/snafu/run_snafu.py -t vdbench -H /tmp/host/hosts -j /tmp/vdbench/vdbenchjob-{{job}}-{{bs}}-{{numjobs}} -s {{vdbenchd.samples}} -d /tmp/vdbenchd-{{ uuid }}/vdbenchjob-{{job}}-{{bs}}-{{numjobs}};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+             echo run finished"
+        volumeMounts:
+        - name: vdbench-volume
+          mountPath: "/tmp/vdbench"
+        - name: host-volume
+          mountPath: "/tmp/host"
+      volumes:
+      - name: vdbench-volume
+        configMap:
+          name: "vdbench-test-{{ trunc_uuid }}"
+          defaultMode: 0777
+      - name: host-volume
+        configMap:
+          name: "vdbench-hosts-{{ trunc_uuid }}"
+          defaultMode: 0777
+      restartPolicy: Never

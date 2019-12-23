@@ -1,0 +1,51 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'vdbench-server-{{ item }}-benchmark-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: vdbench-benchmark-{{ trunc_uuid }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - vdbench-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: vdbench-server
+        image: "avilibm/vdbench:latest"
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 5570
+        wait: true
+        command: ["/bin/bash", "-c"]
+        args:
+          - "vdbench rsh"
+{% if vdbenchd.storageclass is defined %}
+        volumeMounts:
+        - name: ceph-volume
+          mountPath: "/mnt/vdb"
+{% endif %}
+      restartPolicy: Never
+{% if pin_server %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ pin_server }}'
+{% endif %}
+{% if vdbenchd.storageclass is defined %}
+      volumes:
+      - name: ceph-volume
+        persistentVolumeClaim:
+          claimName: claim-{{ item }}-{{ trunc_uuid }}
+{% endif %}

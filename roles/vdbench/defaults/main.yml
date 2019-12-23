@@ -1,0 +1,8 @@
+---
+es: "{{ elasticsearch|default([]) }}"
+es_server: "{{ es.server|default('') }}"
+es_port: "{{ es.port|default(9200) }}"
+es_index: "ripsaw-vdbench"
+test_user: "ripsaw"
+pin_server: "{{ vdbenchd.pin_server|default('') }}"
+ceph_cache_drop_pod_ip: "{{ vdbenchd.rook_ceph_drop_cache_pod_ip|default('') }}"
