@@ -1,0 +1,65 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vdbench-benchmark
+  namespace: my-ripsaw
+spec:
+#  elasticsearch:
+#    server: <es_server>
+#    port: 9200
+#  clustername: myk8scluster
+#  test_user: ripsaw
+  workload:
+    name: "vdbench_distributed"
+    args:
+      samples: 3
+      servers: 3
+      pin_server: ''
+      jobs:
+        - write
+        - read
+      bs:
+        - 4KiB
+        - 64KiB
+      numjobs:
+        - 1
+        - 8
+      iodepth: 4
+      read_runtime: 60
+      read_ramp_time: 5
+      filesize: 2GiB
+      log_sample_rate: 1000
+      #storageclass: rook-ceph-block
+      #storagesize: 5Gi
+      #rook_ceph_drop_caches: True
+      #rook_ceph_drop_cache_pod_ip: 192.168.111.20
+#######################################
+#  EXPERT AREA - MODIFY WITH CAUTION  #
+#######################################
+#  global_overrides:
+#    - key=value
+  job_params:
+    - jobname_match: w
+      params:
+        - fsync_on_close=1
+        - create_on_open=1
+    - jobname_match: read
+      params:
+        - time_based=1
+        - runtime={{ vdbenchd.read_runtime }}
+        - ramp_time={{ vdbenchd.read_ramp_time }}
+    - jobname_match: rw
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ vdbenchd.read_runtime }}
+        - ramp_time={{ vdbenchd.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ vdbenchd.read_runtime }}
+        - ramp_time={{ vdbenchd.read_ramp_time }}
+#    - jobname_match: <search_string>
+#      params:
+#        - key=value
