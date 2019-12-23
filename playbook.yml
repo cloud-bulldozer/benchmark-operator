@@ -102,6 +102,12 @@
         when: workload.name == "fio_distributed" and workload.args.servers > 0
 
       - include_role:
+          name: "vdbench"
+        vars:
+          vdbenchd: "{{ workload.args }}"
+        when: workload.name == "vdbench" and workload.args.servers > 0
+
+      - include_role:
           name: "pgbench"
         vars:
           pgbench: "{{ workload.args }}"
