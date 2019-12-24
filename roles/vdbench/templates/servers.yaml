@@ -32,11 +32,11 @@ spec:
         wait: true
         command: ["/bin/bash", "-c"]
         args:
-          - "vdbench rsh"
+          - "/opt/vdbench/bin/vdbench rsh"
 {% if vdbenchd.storageclass is defined %}
         volumeMounts:
         - name: ceph-volume
-          mountPath: "/mnt/vdb"
+          mountPath: "/mnt/pvc"
 {% endif %}
       restartPolicy: Never
 {% if pin_server %}
