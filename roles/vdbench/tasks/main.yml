@@ -28,7 +28,7 @@
 - block:
   - name: Provide path for vdbench - PV
     set_fact:
-      vdbench_path: /mnt/vdb
+      vdbench_path: /mnt/pvc
     when: vdbenchd.storageclass is defined
 
   - name: Provide path for vdbench - No PV
@@ -118,7 +118,7 @@
   # can perhaps optimize here, by adding to list in above loop
   - name: Create IP list
     set_fact:
-      fio_hosts: |
+      vdbench_hosts: |
          {% for ip, node in pod_details.iteritems() %}
          {{ ip }}
          {% endfor %}
