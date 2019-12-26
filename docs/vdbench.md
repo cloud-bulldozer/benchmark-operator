@@ -159,9 +159,9 @@ of the node on which it is running. You will need to use this IP address in the 
 kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
 ```
 
-### Collecting Results
+## Collecting Results
 
-## Indexing in elasticsearch and visualization through Grafana
+### Indexing in elasticsearch and visualization through Grafana
 
 Currently we are not supported this option, it will be supported in future release.
 In this version of the CR, you need to deploy it from a script that then monitor the clien log for **Test Run Finished**
