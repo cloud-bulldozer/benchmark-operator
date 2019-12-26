@@ -1,0 +1,28 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vdbench-benchmark
+  namespace: my-ripsaw
+spec:
+  workload:
+    name: "vdbench"
+    args:
+      servers: 2
+      pin_server: 'vdbench'
+      threads: 4
+      fileselect: random
+      fileio: random
+      jobs:
+        - name: RandomMix75
+          op: read
+          rdpct: 75
+      iorate:
+        - max
+      bs:
+        - 4k
+      depth: 1
+      width: 1
+      files: 256
+      file_size: 1
+      runtime: 60
+      pause: 1
