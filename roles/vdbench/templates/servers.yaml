@@ -41,7 +41,7 @@ spec:
       restartPolicy: Never
 {% if pin_server %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ pin_server }}'
+        app-node: '{{ pin_server }}'
 {% endif %}
 {% if vdbenchd.storageclass is defined %}
       volumes:
