@@ -5,18 +5,19 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Workloads status
 
-| Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) |
-| ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- |
+| Workload                       | Use                    | Status in Operator | Reconciliation usage      | VM support (kubevirt) |
+| ------------------------------ | ---------------------- | ------------------ | ------------------------- | --------------------- |
 | [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 3second  | Preview               |
 | [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported         |
 | [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 3second  | Not Supported         |
+| [vdbench](docs/vdbench.md)     | Storage IO             | Working            |  Used, default : 3second  | Not Supported         |
 | [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported         |
-| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Not used                  | Not Supported         |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Not used                 | Not Supported         |
 | [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 3second  | Not Supported         |
 | [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Used, default : 3second  | Not Supported         |
 | [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 3second  | Not Supported         |
-| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                  | Not Supported         |
-| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Not used                  | Not Supported         |
+| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                 | Not Supported         |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Not used                 | Not Supported         |
 
 
 ### Reconciliation

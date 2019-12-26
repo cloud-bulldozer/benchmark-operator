@@ -10,56 +10,35 @@ spec:
 #  clustername: myk8scluster
 #  test_user: ripsaw
   workload:
-    name: "vdbench_distributed"
+    name: "vdbench"
     args:
-      samples: 3
-      servers: 3
-      pin_server: ''
+      servers: 30
+      pin_server: 'vdbench'
+      threads: 8
+      fileselect: random
+      fileio: random
       jobs:
-        - write
-        - read
+        - name: RandomRead
+          op: read
+        - name: RandomWrite
+          op: write
+        - name: RandomMix75
+          op: read
+          rdpct: 75
+      iorate:
+        - max
+        - curve
+      curve: (10,20,30,50,65,70,80,83,85,88,90,92,95,97,100)
       bs:
-        - 4KiB
-        - 64KiB
-      numjobs:
-        - 1
-        - 8
-      iodepth: 4
-      read_runtime: 60
-      read_ramp_time: 5
-      filesize: 2GiB
-      log_sample_rate: 1000
-      #storageclass: rook-ceph-block
-      #storagesize: 5Gi
+        - 4k
+        - 16k
+      depth: 3
+      width: 4
+      files: 256
+      file_size: 5
+      runtime: 600
+      pause: 5
+      storageclass: ocs-storagecluster-ceph-rbd
+      storagesize: 100Gi
       #rook_ceph_drop_caches: True
       #rook_ceph_drop_cache_pod_ip: 192.168.111.20
-#######################################
-#  EXPERT AREA - MODIFY WITH CAUTION  #
-#######################################
-#  global_overrides:
-#    - key=value
-  job_params:
-    - jobname_match: w
-      params:
-        - fsync_on_close=1
-        - create_on_open=1
-    - jobname_match: read
-      params:
-        - time_based=1
-        - runtime={{ vdbenchd.read_runtime }}
-        - ramp_time={{ vdbenchd.read_ramp_time }}
-    - jobname_match: rw
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ vdbenchd.read_runtime }}
-        - ramp_time={{ vdbenchd.read_ramp_time }}
-    - jobname_match: readwrite
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ vdbenchd.read_runtime }}
-        - ramp_time={{ vdbenchd.read_ramp_time }}
-#    - jobname_match: <search_string>
-#      params:
-#        - key=value

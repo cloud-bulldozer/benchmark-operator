@@ -10,7 +10,7 @@ data:
     include=/tmp/host_list
 
 {% for ind in range(vdbenchd.servers) %}
-    fsd=fsd{{ind}},anchor=/mnt/pvc/dir{{ind}},depth={{vdbenchd.depth}},width={{vdbenchd.width}},files={{vdbenchd.files}},size={{vdbenchd.file_size}}M
+    fsd=fsd{{ind}},anchor=/mnt/pvc/dir{{ind}},depth={{vdbenchd.depth}},width={{vdbenchd.width}},openflags=o_direct,files={{vdbenchd.files}},size={{vdbenchd.file_size}}M
 {% endfor %}
 
 {% for j in vdbenchd.jobs %}
