@@ -13,7 +13,7 @@ launched as the control point for executing the workload on the server pods in p
 We implement the Filesystem option of the vdbench benchmark and not the RAW device test - this might be in future release.
 ## Running VDBench
 
-The Custom Resource (CR) file for fio includes a significant number of options to offer the user
+The Custom Resource (CR) file for vdbench includes a significant number of options to offer the user
 flexibility.
 
 ```yaml
@@ -95,7 +95,7 @@ The workload loops are nested as such from the CR options:
 - **namespace**: The namespace in which the benchmark will run
 
 #### spec
-- **elasticsearch**: (optional) Values are used to enable indexing of vdbench data; [further details are below](#indexing-in-elasticsearch-and-visualization-through-grafana)
+- **elasticsearch**: (optional) Values are used to enable indexing of vdbench data; [further details are below](#Collecting-Results)
 - **clustername**: (optional) An arbitrary name for your system under test (SUT) that can aid indexing
 - **test_user**: (optional) An arbitrary name for the user performing the tests that can aid indexing
 
@@ -158,6 +158,8 @@ of the node on which it is running. You will need to use this IP address in the 
 ```bash
 kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
 ```
+
+### Collecting Results
 
 ## Indexing in elasticsearch and visualization through Grafana
 
