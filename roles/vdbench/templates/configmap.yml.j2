@@ -5,45 +5,28 @@ metadata:
   name: vdbench-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
-{% for numjobs in vdbenchd.numjobs %}
-{% for bs in vdbenchd.bs %}
-{% for job in vdbenchd.jobs %}
-  vdbenchjob-{{job}}-{{bs}}-{{numjobs}}: |
-    [global]
-    directory={{vdbench_path}}
-    filename_format=f.\$jobnum.\$filenum
-    write_bw_log=vdbench
-    write_iops_log=vdbench
-    write_lat_log=vdbench
-    write_hist_log=vdbench
-    log_avg_msec={{vdbenchd.log_sample_rate}}
-    log_hist_msec={{vdbenchd.log_sample_rate}}
-    clocksource=clock_gettime
-    kb_base=1000
-    unit_base='8'
-    ioengine=libaio
-    size={{vdbenchd.filesize}}
-    bs={{bs}}
-    iodepth={{vdbenchd.iodepth}}
-    direct=1
-    numjobs={{numjobs}}
+  vdbenchjob-test_defenition: |
 
-    [{{job}}]
-    rw={{job}}
-{% if global_overrides|default([])|length %}
-{% for override in global_overrides %}
-    {{ override }}
+    include=/tmp/host_list
+
+{% for ind in range(vdbenchd.servers) %}
+    fsd=fsd{{ind}},anchor=/mnt/pvc/dir{{ind}},depth={{vdbenchd.depth}},width={{vdbenchd.width}},files={{vdbenchd.files}},size={{vdbenchd.file_size}}M
 {% endfor %}
-{% endif %}
-{% if job_params|default([])|length %}
-{% for match in job_params %}
-{% if match.jobname_match in job %}
-{% for param in match.params %}
-    {{ param }}
-{% endfor %}
-{% endif %}
-{% endfor %}
-{% endif %}
+
+{% for j in vdbenchd.jobs %}
+{% for ind in range(vdbenchd.servers) %}
+    fwd={{j.name}}_{{ind}},host=hd{{ind}},fsd=fsd{{ind}},operation={{j.op}},fileio={{vdbenchd.fileio}},fileselect={{vdbenchd.fileselect}},threads={{vdbenchd.threads}}
 {% endfor %}
 {% endfor %}
+
+{% for bs in vdbenchd.bs %}
+{% for j in vdbenchd.jobs %}
+{%- for ior in vdbenchd.iorate %}
+    rd={{bs}}-{{j.name}}-{{ior}},fwd={{j.name}}_*,fwdrate={{ior}},
+{%- if ior == "curve" %}curve={{vdbenchd.curve}},{% endif %}
+{%- if j.rdpct is defined %}rdpct={{j.rdpct}},{% endif %}
+xfersize={{bs}},elapsed={{vdbenchd.runtime}},interval=10,format=restart,pause={{vdbenchd.pause}}m
 {% endfor %}
+{% endfor %}
+{% endfor %}
+
