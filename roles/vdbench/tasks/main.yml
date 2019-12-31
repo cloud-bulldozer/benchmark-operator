@@ -33,7 +33,7 @@
 
   - name: Provide path for vdbench - No PV
     set_fact:
-      fio_path: /tmp
+      vdbench_path: /tmp
     when: vdbenchd.storageclass is not defined
 
   - name: Generate vdbench test
