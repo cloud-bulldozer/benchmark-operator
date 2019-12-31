@@ -25,7 +25,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: vdbench-server
-        image: "avilibm/vdbench:latest"
+        image: "quay.io/avili/vdbench:latest"
         imagePullPolicy: Always
         ports:
           - containerPort: 5570
