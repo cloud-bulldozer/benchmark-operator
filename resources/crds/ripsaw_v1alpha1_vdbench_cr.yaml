@@ -12,7 +12,7 @@ spec:
   workload:
     name: "vdbench"
     args:
-      servers: 30
+      servers: 3
       pin_server: 'vdbench'
       threads: 8
       fileselect: random
