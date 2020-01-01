@@ -14,8 +14,9 @@ data:
 {% endfor %}
 
 {% for j in vdbenchd.jobs %}
-{% for ind in range(vdbenchd.servers) %}
+{%- for ind in range(vdbenchd.servers) %}
     fwd={{j.name}}_{{ind}},host=hd{{ind}},fsd=fsd{{ind}},operation={{j.op}},fileio={{vdbenchd.fileio}},fileselect={{vdbenchd.fileselect}},threads={{vdbenchd.threads}}
+{%- if j.rdpct is defined %},rdpct={{j.rdpct}}{% endif %}
 {% endfor %}
 {% endfor %}
 
@@ -24,7 +25,6 @@ data:
 {%- for ior in vdbenchd.iorate %}
     rd={{bs}}-{{j.name}}-{{ior}},fwd={{j.name}}_*,fwdrate={{ior}},
 {%- if ior == "curve" %}curve={{vdbenchd.curve}},{% endif %}
-{%- if j.rdpct is defined %}rdpct={{j.rdpct}},{% endif %}
 xfersize={{bs}},elapsed={{vdbenchd.runtime}},interval=10,format=restart,pause={{vdbenchd.pause}}m
 {% endfor %}
 {% endfor %}
