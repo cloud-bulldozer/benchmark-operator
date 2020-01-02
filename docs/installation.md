@@ -1,7 +1,7 @@
 ## Installation
 This guide uses minishift version v1.33.0+ as the local Kubernetes cluster
 and quay.io for the public registry. We also test on minikube version v0.35+.
-`kubectl` is used but can be substituted* with `oc`.
+`kubectl` is used but can be substituted with `oc`.
 
 ### Supported versions
 * [OKD](https://www.okd.io/)
@@ -103,3 +103,18 @@ Now that we're running workloads we can cleanup by running following commands
 # kubectl delete -f resources/operator.yaml
 # kubectl delete -f deploy
 ```
+
+## running CI
+
+If you want to run CI on your laptop as part of developing a PR, you may want to use your own image location and account (i.e. your
+own image repository account).   To do this, set 2 environment variables:
+
+* RIPSAW_CI_IMAGE_LOCATION - host where image repository lives (default is quay.io)
+* RIPSAW_CI_IMAGE_ACCOUNT - user account (default is rht_perf_ci).
+
+This allows you to have the CI run on your own private image built with your PR.  This assumes that your benchmark's CI
+script in tests/ utilizes the common code in tests/common.sh to launch ripsaw.
+
+You can modify your ripsaw image to use a test version of your benchmark image as well.  For examples, see roles/\*/templates/workload.yml.j2  and look for the **image:** tag.
+
+
