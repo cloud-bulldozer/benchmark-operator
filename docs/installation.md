@@ -115,6 +115,6 @@ own image repository account).   To do this, set 2 environment variables:
 This allows you to have the CI run on your own private image built with your PR.  This assumes that your benchmark's CI
 script in tests/ utilizes the common code in tests/common.sh to launch ripsaw.
 
-You can modify your ripsaw image to use a test version of your benchmark image as well.  For examples, see roles/\*/templates/workload.yml.j2  and look for the **image:** tag.
+You can modify your ripsaw image to use a test version of your benchmark image as well.  For examples, see workload.yml.j2 files in the roles/ tree and look for the image: tag.
 
 
