@@ -15,6 +15,10 @@ spec:
       restartPolicy: Never
       containers:
         - name: benchmark-server
+{% if hostpath is defined %}
+          securityContext:
+            privileged: true
+{% endif %}
           image: quay.io/cloud-bulldozer/fs-drift:master
           # example of what to do when debugging image
           # image: quay.io/bengland2/fs-drift:latest
@@ -57,8 +61,8 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/fs-drift"
-{% if fs_drift.storageclass is defined %}
-            - name: storage-volume
+{% if fs_drift.storageclass is defined  or hostpath is defined %}
+            - name: data-volume
               mountPath: "{{ fs_drift_path }}"
 {% endif %}
       volumes:
@@ -67,9 +71,14 @@ spec:
             name: fs-drift-test-{{ trunc_uuid }}
             defaultmode: 0777
 {% if fs_drift.storageclass is defined %}
-        - name: storage-volume
+        - name: data-volume
           persistentVolumeClaim:
             claimName: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
+{% elif hostpath is defined %}
+        - name: data-volume
+          hostPath:
+            path: {{ hostpath }}
+            type: DirectoryOrCreate
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator

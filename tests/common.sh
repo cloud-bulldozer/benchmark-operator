@@ -31,6 +31,7 @@ function populate_test_list {
 }
 
 function wait_clean {
+  kubectl delete benchmark --all -n my-ripsaw
   kubectl delete all --all -n my-ripsaw
   for i in {1..30}; do
     if [ `kubectl get pods --namespace my-ripsaw | grep bench | wc -l` -ge 1 ]; then
@@ -111,9 +112,7 @@ function pod_count () {
 function apply_operator {
   operator_requirements
   kubectl apply -f resources/operator.yaml
-  ripsaw_pod=$(get_pod 'name=benchmark-operator' 300)
-  kubectl wait --for=condition=Initialized "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=60s
-  kubectl wait --for=condition=Ready "pods/$ripsaw_pod" --namespace my-ripsaw --timeout=300s
+  kubectl wait --for=condition=available "deployment/benchmark-operator" -n my-ripsaw --timeout=300s
 }
 
 function delete_operator {
