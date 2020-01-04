@@ -25,6 +25,10 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       containers:
       - name: fio-server
+{% if hostpath is defined %}
+        securityContext:
+          privileged: true
+{% endif %}
         image: "quay.io/cloud-bulldozer/fio:latest"
         imagePullPolicy: Always
         ports:
@@ -33,19 +37,26 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "cd /tmp; fio --server"
-{% if fiod.storageclass is defined %}
+{% if fiod.storageclass is defined or hostpath is defined %}
         volumeMounts:
-        - name: ceph-volume
-          mountPath: "/mnt/pvc"
+        - name: data-volume
+          mountPath: "{{ fio_path }}"
 {% endif %}
       restartPolicy: Never
+      serviceAccountName: benchmark-operator
 {% if pin_server %}
       nodeSelector:
         kubernetes.io/hostname: '{{ pin_server }}'
 {% endif %}
 {% if fiod.storageclass is defined %}
       volumes:
-      - name: ceph-volume
+      - name: data-volume
         persistentVolumeClaim:
           claimName: claim-{{ item }}-{{ trunc_uuid }}
+{% elif hostpath is defined %}
+      volumes:
+      - name: data-volume
+        hostPath:
+          path: {{ hostpath }}
+          type: DirectoryOrCreate
 {% endif %}

@@ -1,0 +1,57 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
+  cleanup: false
+  hostpath: /mnt/vda1/fiod/
+  workload:
+    name: "fio_distributed"
+    args:
+      samples: 2
+      servers: 2
+      jobs:
+        - write
+        - read
+      bs:
+        - 4KiB
+        - 64KiB
+      numjobs:
+        - 1
+        - 2
+      iodepth: 2
+      read_runtime: 3
+      read_ramp_time: 1
+      filesize: 10MiB
+      log_sample_rate: 1000
+#######################################
+#  EXPERT AREA - MODIFY WITH CAUTION  #
+#######################################
+  job_params:
+    - jobname_match: w
+      params:
+        - fsync_on_close=1
+        - create_on_open=1
+    - jobname_match: read
+      params:
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: rw
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+

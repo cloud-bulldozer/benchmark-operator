@@ -15,6 +15,10 @@ spec:
       restartPolicy: Never
       containers:
         - name: benchmark-server
+{% if hostpath is defined %}
+          securityContext:
+            privileged: true
+{% endif %}
           image: "quay.io/cloud-bulldozer/smallfile:master"
           # example of how to debug using your own workload image
           #image: "quay.io/bengland2/smallfile:master"
@@ -61,8 +65,8 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/smallfile"
-{% if smallfile.storageclass is defined %}
-            - name: ceph-volume
+{% if smallfile.storageclass is defined or hostpath is defined %}
+            - name: data-volume
               mountPath: "{{ smallfile_path }}"
 {% endif %}
       restartPolicy: Never
@@ -72,9 +76,14 @@ spec:
             name: smallfile-test-{{ trunc_uuid }}
             defaultmode: 0777
 {% if smallfile.storageclass is defined %}
-        - name: ceph-volume
+        - name: data-volume
           persistentVolumeClaim:
             claimName: "claim{{item}}-{{ trunc_uuid }}"
+{% elif hostpath is defined %}
+        - name: data-volume
+          hostPath:
+            path: {{ hostpath }}
+            type: DirectoryOrCreate
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator
