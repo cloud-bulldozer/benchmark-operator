@@ -181,7 +181,7 @@ function update_operator_image {
     fi
     ((try_count++))
   done
-  sed -i "s|          image: $image_location/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
+  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 
 function check_log(){
