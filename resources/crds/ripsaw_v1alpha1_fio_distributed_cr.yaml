@@ -37,7 +37,9 @@ spec:
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
 #  global_overrides:
-#    - key=value
+#  NOTE: Dropping caches as per this example can only be done if the
+#        fio server is running in a privileged pod
+#    - exec_prerun=bash -c 'sync && echo 3 > /proc/sys/vm/drop_caches'
   job_params:
     - jobname_match: w
       params:

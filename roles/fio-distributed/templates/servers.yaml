@@ -32,7 +32,7 @@ spec:
         wait: true
         command: ["/bin/sh", "-c"]
         args:
-          - "fio --server"
+          - "cd /tmp; fio --server"
 {% if fiod.storageclass is defined %}
         volumeMounts:
         - name: ceph-volume
