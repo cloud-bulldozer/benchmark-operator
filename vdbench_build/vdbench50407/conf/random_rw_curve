@@ -1,0 +1,26 @@
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+* Random read/write performance curve.
+*
+
+sd=sd1,lun=/dev/block0,size=10G,openflags=o_direct
+sd=sd2,lun=/dev/block1,size=10G,openflags=o_direct
+sd=sd3,lun=/dev/block2,size=10G,openflags=o_direct
+sd=sd4,lun=/dev/block3,size=10G,openflags=o_direct
+
+wd=wd1,sd=sd*,seekpct=random,rdpct=50,xfersize=8192
+
+rd=default,sd=sd*,elapsed=600,seekpct=100,xfersize=8k,interval=1,iorate=curve,pause=120
+
+#rd=prealloc,sd=sd*,elapsed=100h,interval=10,maxdata=10G,iorate=max,xfersize=265k,rdpct=0
+
+rd=8k_random_read
+rd=8k_random_write,rdpct=0
+rd=8k_random_rw,rdpct=70
+

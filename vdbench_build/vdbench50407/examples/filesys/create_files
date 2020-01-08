@@ -1,0 +1,22 @@
+
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+*
+* Create numerous small files.
+*
+* Note: rd=rd1 is merely a dummy run to allow a format to be executed
+* Note: the thread count for the format is taken from fwd1
+*
+
+fsd=fsd1,anchor=/dir,depth=1,width=1,files=10000,size=8k
+
+fwd=fwd1,fsd=fsd1,operation=read,threads=16
+
+rd=rd1,fwd=fwd*,fwdrate=100,format=yes,elapsed=5,interval=1
+

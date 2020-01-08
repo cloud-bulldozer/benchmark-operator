@@ -1,0 +1,4 @@
+fsd=fsd1,anchor=/mnt/lun0,depth=2,width=2,files=8,size=800m,totalsize=50g
+fwd=fwd1,fsd=fsd1,operation=write,xfersize=4k,fileio=random,fileselect=random,threads=8
+rd=rd1,fwd=fwd1,fwdrate=max,format=yes,elapsed=24h,interval=10
+

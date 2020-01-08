@@ -1,0 +1,9 @@
+# This test scenario will fill all volumes with data.
+
+#sd=sd1,lun=/dev/block0,size=10G,openflags=(o_direct,o_sync,fsync)
+
+include=/opt/vdbench/conf/include_disk
+
+# run time is depand on the total capacity - should be about 10 to 30 Min.
+rd=prealloc,sd=sd*,elapsed=100h,interval=10,maxdata=1,iorate=max,xfersize=256k,rdpct=0,seekpct=0,threads=8
+
