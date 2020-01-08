@@ -1,0 +1,23 @@
+
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+* Sequential read/write.
+*
+* What this run ultimately does: on AVERAGE read,write,read,write, etc,
+* sequentially through the whole lun, a.g. read block 1, write block2,
+* read block3, write block4, etc.
+* For each i/o a randomizer is used to decide wheter it will be a read or a write.
+*
+*
+
+sd=sd1,lun=/dev/rdsk/cxtxdxsx
+
+wd=wd1,sd=sd*,seekpct=seq,rdpct=50,xfersize=8192
+
+rd=rd1,wd=wd*,elapsed=120,interval=10,iorate=max

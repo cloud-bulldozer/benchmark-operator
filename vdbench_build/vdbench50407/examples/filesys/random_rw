@@ -1,0 +1,32 @@
+
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+* Random read and write of randomly selected files.
+*
+* 'format=yes' first creates (depth*width*files) 1000 128k files.
+* Test then will have eight threads each randomly select a file and do random
+* reads.  After 'stopafter=100' reads the file is closed and a new
+* file is randomly selected.
+* An other eight threads will do the same, but only for writes.
+*
+* Note: the amount of files and the total combined file size in this test
+* guarantees that most if not all of the i/o activity is done from cache.
+* Increase the amount of files and/or the file size to make sure that some
+* real disk i/o activity is done.
+*
+
+fsd=fsd1,anchor=/dir1,depth=1,width=1,files=1000,size=128k
+
+fwd=default,xfersize=4k,fileio=random,fileselect=random,threads=8,
+stopafter=100
+fwd=fwd1,fsd=fsd1,operation=read
+fwd=fwd2,fsd=fsd1,operation=write
+
+rd=rd1,fwd=fwd*,fwdrate=max,format=yes,elapsed=120,interval=1
+

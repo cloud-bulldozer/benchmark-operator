@@ -1,0 +1,32 @@
+
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+
+*
+*
+* This is a multi-host file system test example.
+* Note that an FSD can be used only from ONE host. This to make sure that
+* one host is not deleting a file that an other host is using.
+*
+* Note: with Vdbench 5.00 not specifying specific host names in the FWD
+* will cause a nullpointer Exception.
+*
+*
+
+hd=default,user=userx
+hd=one,system=hosta
+hd=two,system=hostb
+
+fsd=fsd1,anchor=/home/userx/junk/dir1,depth=2,width=2,files=2,size=128k
+fsd=fsd2,anchor=/home/userx/junk/dir2,depth=2,width=2,files=2,size=128k
+
+fwd=fwd1,host=one,fsd=fsd1,operation=read,xfersize=4k,fileio=sequential,fileselect=random,threads=2
+fwd=fwd2,host=two,fsd=fsd2,operation=read,xfersize=4k,fileio=sequential,fileselect=random,threads=2
+
+rd=rd1,fwd=fwd*,fwdrate=max,format=yes,elapsed=10,interval=1

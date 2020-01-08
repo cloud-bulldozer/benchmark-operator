@@ -1,0 +1,20 @@
+
+*
+* Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+*
+
+*
+* Author: Henk Vandenbergh.
+*
+
+
+*Example 2: Single run, two raw disk, two workloads.
+
+sd=sd1,lun=/dev/rdsk/c0t0d0sx
+sd=sd2,lun=/dev/rdsk/c0t0d1sx
+wd=wd1,sd=sd1,xfersize=4k,rdpct=80,skew=40
+wd=wd2,sd=sd2,xfersize=8k,rdpct=0
+rd=run1,wd=wd*,iorate=200,elapsed=10,interval=1
+
+*Two raw disks: sd1 does 80 i/o's per second, read-to-write ratio 4:1, 4k records. sd2 does 120 i/o's per second, 100% write at 8k records.
+

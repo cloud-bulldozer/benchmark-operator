@@ -1,0 +1,41 @@
+*
+* This file contains masks to be used by the Vdbench SD parameter generation tool
+*
+* '#': sequence number '1' through 'n'
+* '$': disk name.
+* '%': slice number
+*
+* Any mask containing '<' and '>' will be split in two, with the
+* objective of the left mask (until '<') being used for the
+* first disk, and the right side of the mask (inside '<' and '>')
+* being used for all other disks.  This allows the creation of a single command
+* with multiple disks and command continuation characters ('\').
+*
+* See 'testing' below.
+
+*
+
+* This is the hardcoded default:
+sd=sd#,lun=/dev/rdsk/$%
+
+* Placed in a script this should label this disk
+printf "label\nyes\nquit\n" | format -d $
+
+* This results in only a list of disks:
+$
+
+* Create a file system on one disk:
+printf "yes\n" | newfs /dev/dsk/$%
+
+* Create a file system on multiple disks:
+newfs </dev/dsk/$%>
+
+* List cache status:
+* If you redirect the output to 'file_x' you can scan it using
+* nawk '{ if ($1 == "selecting") disk = $2; if ($3 == "Cache") print disk " " $0;}' file_x
+printf "cache\nwrite_cache\ndisplay\nquit\nread_cache\ndisplay\nquit\nquit\nquit\n" | format -e -d $
+
+* Testing:
+ls -l </dev/dsk/$%>
+
+
