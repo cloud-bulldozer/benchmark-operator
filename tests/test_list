@@ -9,4 +9,4 @@ test_sysbench.sh
 test_uperf.sh
 test_byowl.sh
 test_hammerdb.sh
-test_vdbench.sh
+test_vdbenchd.sh
