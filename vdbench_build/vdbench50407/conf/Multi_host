@@ -1,0 +1,1 @@
+hd=default,vdbench=/opt/vdbench/vdbench,user=root,shell=vdbench

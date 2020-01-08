@@ -1,0 +1,6 @@
+sd=sd1,lun=/dev/block0,size=10G,openflags=o_direct
+
+rd=prealloc,sd=sd*,elapsed=100h,interval=10,maxdata=1,iorate=max,xfersize=256k,rdpct=0,pause=5m,threads=32,seekpct=0
+
+rd=4k_random_read,xfersize=4k,iorate=5500,sd=sd*,elapsed=90m,seekpct=100,interval=10,threads=32,rdpct=100
+
