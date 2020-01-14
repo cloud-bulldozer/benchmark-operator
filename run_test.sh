@@ -10,8 +10,6 @@ figlet $ci_test
 cd $ci_dir
 source tests/common.sh
 
-kubectl apply -f resources/namespace.yaml
-
 count=0
 start_time=`date`
 
@@ -55,4 +53,3 @@ do
   ((count++))
 done
 wait_clean
-kubectl delete -f resources/namespace.yaml
