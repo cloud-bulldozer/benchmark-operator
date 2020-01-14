@@ -52,7 +52,10 @@ for {set i 1} {$i <= $samples} {incr i} {
         vuset vu $w
         vucreate
         vurun
-        runtimer 600
+	# runtimer in seconds must exceed rampup + duration
+	# so we're doing the math here: (runtime + rampup) * 60 give us the total in seconds. As a security factor we multiply by 1.05
+	set runtimer_seconds [expr { {{hammerdb.rampup}} + {{hammerdb.runtime}} ) * 60 * 1.05 }]
+        runtimer $runtimer_seconds
         vudestroy
         after 5000
 	}
