@@ -227,7 +227,8 @@ function wait_for_backpack() {
   
   uuid=$1
   count=0
-  while [[ $count -lt 30 ]]
+  max_count=60
+  while [[ $count -lt $max_count ]]
   do
     if [[ `kubectl -n my-ripsaw get daemonsets backpack-$uuid` ]]
     then
@@ -236,10 +237,10 @@ function wait_for_backpack() {
       if [[ $desired -eq $ready ]]
       then
         echo "Backpack complete. Starting benchmark"
-        count=30
+        count=$max_count
       fi
     fi
-    if [[ $count -ne 30 ]]
+    if [[ $count -ne $max_count ]]
     then
       sleep 5
       count=$((count + 1))
