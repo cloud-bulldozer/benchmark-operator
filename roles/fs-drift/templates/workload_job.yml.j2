@@ -12,6 +12,18 @@ spec:
       labels:
         app: fs-drift-benchmark-{{ trunc_uuid }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fs-drift-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
       restartPolicy: Never
       containers:
         - name: benchmark-server
