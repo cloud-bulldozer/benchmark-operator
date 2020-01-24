@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: vdbench-client
-        image: "quay.io/avili/vdbench:latest"
+        image: "quay.io/avili/vdbench:1.0.1"
         imagePullPolicy: Always
         wait: true
         env:
