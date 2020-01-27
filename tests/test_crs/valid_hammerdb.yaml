@@ -7,13 +7,13 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
-  metadata_collection: true
+  #metadata_collection: true
   workload:
     name: "hammerdb"
     args:
       timed_test: true
       test_type: "tpc-c"
-      db_init: false
+      db_init: true
       db_benchmark: true
       db_server: "mssql-deployment.sql-server"
       db_port: "1433"
@@ -22,8 +22,8 @@ spec:
       db_tcp: "true"
       db_user: "SA"
       db_pass: "s3curePasswordString"
-      transactions: 20000
-      runtime: 30
-      rampup: 1
+      transactions: 100000
+      runtime: 10
+      rampup: 10
       samples: 1
       # clients: 4      deprecated, db_num_workers is the same
