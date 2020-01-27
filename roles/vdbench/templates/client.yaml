@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: vdbench-client
-        image: "quay.io/avili/vdbench:1.0.1"
+        image: "docker-registry.upshift.redhat.com/vdbench/vdbench:master"
         imagePullPolicy: Always
         wait: true
         env:
