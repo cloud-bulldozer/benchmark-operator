@@ -1,5 +1,7 @@
 # VDBench
 
+This Benchmark is : **FOR RED-HAT INTERNAL USE ONLY !!!**
+
 [VDbench](https://www.oracle.com/downloads/server-storage/vdbench-downloads.html) -- is a tool used for benchmarking
 and stress-testing I/O subsystems. We generally refer to this type of workload as a "microbenchmark"
 because it is used in a targeted way to determine the bottlenecks and limits of a system.
