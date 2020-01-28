@@ -40,7 +40,7 @@ spec:
    role: mongo
 EOF
 cat << EOF | kubectl apply -f -
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
  name: mongo
@@ -48,6 +48,9 @@ metadata:
 spec:
  serviceName: "mongo"
  replicas: 1
+ selector:
+   matchLabels:
+     role: mongo
  template:
    metadata:
      labels:
