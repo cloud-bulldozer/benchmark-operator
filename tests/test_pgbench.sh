@@ -45,6 +45,9 @@ metadata:
   name: postgres
   namespace: my-ripsaw
 spec:
+  selector:
+    matchLabels:
+      app: postgres
   replicas: 1
   selector:
     matchLabels:

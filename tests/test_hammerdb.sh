@@ -5,7 +5,7 @@ source tests/common.sh
 
 function initdb_pod {
 	echo "Setting up a MS-SQL DB Pod"
-	kubectl create -f tests/mssql.yaml
+	kubectl apply -f tests/mssql.yaml
         mssql_pod=$(get_pod "app=mssql" 300 "sql-server")
 	kubectl wait --for=condition=Ready "pods/$mssql_pod" --namespace sql-server --timeout=300s
 }
