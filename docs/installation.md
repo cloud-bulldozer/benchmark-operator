@@ -1,18 +1,17 @@
 ## Installation
-This guide uses minishift version v1.33.0+ as the local Kubernetes cluster
-and quay.io for the public registry. We also test on minikube version v0.35+.
+This guide uses minikube version v1.5.2+ as the local Kubernetes cluster
+and quay.io for the public registry. We also test on crc version v1.7.0+.
 `kubectl` is used but can be substituted with `oc`.
 
 ### Supported versions
-* [OKD](https://www.okd.io/)
-  * Experimental: 3.11
 * [OpenShift® Container Platform](https://www.openshift.com/products/container-platform/)
-  * Fully supported: 4.0
-  * Experimental: 3.11
+  * Fully supported: 4.3
 * [kubernetes](https://kubernetes.io/)
-  * Experimental: 1.11-1.13
+  * Fully supported: 1.16.2
 
-Note: Experimental tag refers to some workloads that might be functioning
+Note: 
+* Experimental tag refers to some workloads that might be functioning
+* To use versions of Openshift and kubernetes prior to 4.3 and 1.16.2 respectively, please use version 0.0.2 of ripsaw
 
 ### Requirements
 <!---

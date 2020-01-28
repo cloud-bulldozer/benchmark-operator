@@ -46,6 +46,9 @@ metadata:
  name: mongo
  namespace: my-ripsaw
 spec:
+ selector:
+   matchLabels:
+     role: mongo
  serviceName: "mongo"
  replicas: 1
  selector:
