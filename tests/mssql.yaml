@@ -11,6 +11,9 @@ metadata:
   namespace: sql-server
 spec:
   replicas: 1
+  selector: 
+    matchLabels:
+      app: mssql
   template:
     metadata:
       labels:
