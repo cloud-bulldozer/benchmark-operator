@@ -23,7 +23,7 @@ spec:
       db_user: "SA"
       db_pass: "s3curePasswordString"
       transactions: 100000
-      runtime: 3
-      rampup: 3
+      runtime: 1
+      rampup: 1
       samples: 1
       # clients: 4      deprecated, db_num_workers is the same
