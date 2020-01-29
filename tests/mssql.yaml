@@ -4,7 +4,7 @@ kind: Namespace
 metadata:
   name: sql-server
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mssql-deployment
@@ -22,6 +22,9 @@ spec:
         image: mcr.microsoft.com/mssql/server:2017-latest
         ports:
         - containerPort: 1433
+        resources:
+          requests:
+            memory: "2048Mi"
         env:
         - name: MSSQL_PID
           value: "Developer"
