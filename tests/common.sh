@@ -40,6 +40,7 @@ function wait_clean {
     fi
   done
   kubectl delete namespace my-ripsaw
+  kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 }
 
 # The argument is 'timeout in seconds'
