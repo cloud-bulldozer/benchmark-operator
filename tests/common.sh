@@ -40,7 +40,9 @@ function wait_clean {
       break
     fi
   done
-  kubectl delete namespace my-ripsaw
+  if [[ `kubectl get namespace my-ripsaw` ]]; then
+    kubectl delete namespace my-ripsaw
+  fi
 }
 
 # The argument is 'timeout in seconds'
