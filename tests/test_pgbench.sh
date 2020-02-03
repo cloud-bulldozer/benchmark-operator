@@ -39,13 +39,16 @@ data:
   PGDATA: /var/lib/postgresql/data/pgdata
 EOF
 cat << EOF | kubectl apply -f -
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
   namespace: my-ripsaw
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
   template:
     metadata:
       labels:
