@@ -3,8 +3,19 @@ set -xeo pipefail
 
 source tests/common.sh
 
+function finish {
+  if [ $? -eq 1 ] && [ $ERRORED != "true" ]
+  then
+    error
+  fi
+
+  echo "Cleaning up fs_drift"
+  wait_clean
+}
+
+
 trap error ERR
-trap wait_clean EXIT
+trap finish EXIT
 
 function functional_test_fs_drift {
   apply_operator
@@ -32,9 +43,9 @@ function functional_test_fs_drift {
   kubectl logs "$fsdrift_pod" -n my-ripsaw
   kubectl logs "$fsdrift_pod" -n my-ripsaw | grep "RUN STATUS"
   echo "${test_name} test: Success"
-  wait_clean
 }
 
 figlet $(basename $0)
 functional_test_fs_drift "fs-drift" tests/test_crs/valid_fs_drift.yaml
+wait_clean
 functional_test_fs_drift "fs-drift hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml

@@ -3,8 +3,19 @@ set -xeEo pipefail
 
 source tests/common.sh
 
+function finish {
+  if [ $? -eq 1 ] && [ $ERRORED != "true" ]
+  then
+    error
+  fi
+
+  echo "Cleaning up smallfile"
+  wait_clean
+}
+
+
 trap error ERR
-trap wait_clean EXIT
+trap finish EXIT
 
 function functional_test_smallfile {
   apply_operator
@@ -33,9 +44,9 @@ function functional_test_smallfile {
     kubectl logs ${pod} --namespace my-ripsaw | grep "RUN STATUS"
   done
   echo "${test_name} test: Success"
-  wait_clean
 }
 
 figlet $(basename $0)
 functional_test_smallfile "smallfile" tests/test_crs/valid_smallfile.yaml
+wait_clean
 functional_test_smallfile "smallfile hostpath" tests/test_crs/valid_smallfile_hostpath.yaml
