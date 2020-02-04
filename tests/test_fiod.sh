@@ -3,8 +3,18 @@ set -xeEo pipefail
 
 source tests/common.sh
 
+function finish {
+  if [ $? -eq 1 ] && [ $ERRORED != "true" ]
+  then
+    error
+  fi
+
+  echo "Cleaning up fio"
+  wait_clean
+}
+
 trap error ERR
-trap wait_clean EXIT
+trap finish EXIT
 
 function functional_test_fio {
   apply_operator
@@ -22,9 +32,9 @@ function functional_test_fio {
   kubectl logs "$fio_pod" -n my-ripsaw
   kubectl logs "$fio_pod" -n my-ripsaw | grep "fio has successfully finished sample"
   echo "${test_name} test: Success"
-  wait_clean
 }
 
 figlet $(basename $0)
 functional_test_fio "Fio distributed" tests/test_crs/valid_fiod.yaml
+wait_clean
 functional_test_fio "Fio hostpath distributed" tests/test_crs/valid_fiod_hostpath.yaml
