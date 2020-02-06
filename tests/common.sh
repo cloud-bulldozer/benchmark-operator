@@ -240,13 +240,16 @@ function wait_for_backpack() {
       if [[ $desired -eq $ready ]]
       then
         echo "Backpack complete. Starting benchmark"
-        count=$max_count
+        break
       fi
     fi
+    count=$((count + 1))
     if [[ $count -ne $max_count ]]
     then
       sleep 5
-      count=$((count + 1))
+    else
+      echo "Backpack failed to complete. Exiting"
+      exit 1
     fi
   done
 }
