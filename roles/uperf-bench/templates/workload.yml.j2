@@ -72,6 +72,9 @@ spec:
              export clustername={{clustername}};
              export hostnet={{uperf.hostnetwork}};
              export ips=$(hostname -I);
+             export bo_ip={{bo.resources[0].status.podIP}};
+             export redis_port={{bo.resources[0].spec.containers[2].ports[0].containerPort}};
+             export redis_collection={{uperf.redis_collection}};
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
 {% for test in uperf.test_types %}
@@ -81,6 +84,15 @@ spec:
                  cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
                  for i in `seq 1 {{uperf.samples}}`; do
                    python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}};
+                   if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} hget uperf-test {{uuid}}-uperf-{{test}}-{{proto}}-{{size}}-{{nthr}}) =~ '1' ]]; then
+                     if [[ {{uperf.continue_on_failure}} =~ 'true' ]]; then
+                       echo Workload {{uuid}} failed with parameters {{test}}-{{proto}}-{{size}}-{{nthr}}. Continuing with the next test..;  
+                       break;
+                     else
+                       echo Workload {{uuid}} failed with parameters {{test}}-{{proto}}-{{size}}-{{nthr}}. Aborting the test..;
+                       exit;
+                     fi;
+                   fi;
                  done;
 {% endfor %}
 {% endfor %}
@@ -104,3 +116,5 @@ spec:
       nodeSelector:
           kubernetes.io/hostname: '{{ uperf.pin_client }}'
 {% endif %}
+
+

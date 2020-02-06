@@ -32,3 +32,5 @@ spec:
       nthrs:
         - 1
       runtime: 30
+      continue_on_failure: "true"
+      redis_collection: "true"

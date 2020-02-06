@@ -36,6 +36,8 @@ spec:
       nthrs:
         - 1
       runtime: 30
+      continue_on_failure: "true"
+      redis_collection: "true"
 ```
 
 `serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
@@ -58,7 +60,11 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 
 `multus[1]` Configure our pods to use multus.
 
-`samples` how many times to run the tests. For example
+`samples` how many times to run the tests. For example.
+
+`continue_on_failure` If a failure occurs,  a `"true"` will continue on with the next test and a `"false"` will abort the test.
+
+`redis_collection` If `"true"`, the redis backend will collect the status code of each test. This can be set to `"false"` if this functionality is not required.
 
 [1] https://github.com/intel/multus-cni/tree/master/examples
 
@@ -75,6 +81,8 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
       nthrs:
         - 1
       runtime: 30
+      continue_on_failure: "true"
+      redis_collection: "true"
 ```
 
 Will run `stream` w/ `tcp` and message size `1024` three times and
@@ -257,6 +265,8 @@ spec:
       nthrs:
         - 1
       runtime: 30
+      continue_on_failure: "true"
+      redis_collection: "true"
 ```
 
 The new fields :
