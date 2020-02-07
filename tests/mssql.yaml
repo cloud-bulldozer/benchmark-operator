@@ -20,6 +20,8 @@ spec:
         app: mssql
     spec:
       terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsUser: 10001
       containers:
       - name: mssql
         #image: mcr.microsoft.com/mssql/server:2017-latest
