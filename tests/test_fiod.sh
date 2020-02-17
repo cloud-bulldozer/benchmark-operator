@@ -23,10 +23,10 @@ function functional_test_fio {
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
   uuid=$(get_uuid 20)
-  wait_for_backpack $uuid
-  pod_count "app=fio-benchmark-$uuid" 2 300
+  pod_count "app=fio-benchmark-$uuid" 2 300  
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=200s" "200s" $fio_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=500s" "500s" $fio_pod
   wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=500s" "500s" $fio_pod
   # ensuring the run has actually happened
   kubectl logs "$fio_pod" -n my-ripsaw

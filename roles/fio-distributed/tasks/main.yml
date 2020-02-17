@@ -95,7 +95,7 @@
       status:
         state: StartingClient
         complete: false
-    when : "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length)"
+    when : "fiod.servers == (server_pods | json_query('resources[].status.podIP')|length) and fiod.servers == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length)"
 
   when: resource_state.resources[0].status.state == "StartingServers"
 

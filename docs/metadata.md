@@ -2,6 +2,9 @@
 
 How To:
 * [How it Works](#how-it-works)
+* [Targeted Init Containers](#targeted-init-containers)
+* [DaemonSet](#daemonset)
+* [Differences between targeted and daemonset](#Differences-between-targeted-and-daemonset)
 * [Enable Collection](#enable-collection)
 * [Additional Options](#additional-options)
 * [Running Additional Collections](#running-additional-collections)
@@ -11,16 +14,83 @@ How To:
 The metadata collection is done through the use of [Stockpile](https://github.com/cloud-bulldozer/stockpile), [Backpack](https://github.com/cloud-bulldozer/backpack) and [Scribe](https://github.com/cloud-bulldozer/scribe).
 The data is then uploaded to a defined Elasticsearch instance.
 
-When launching your benchmark, if enabled, the metadata collection container (backpack)
-will launch as a DaemonSet on all nodes in the cluster. It will then run stockpile
-to gather data and then push that information up to Elasticsearch.
+There are two ways to launch metadata collection from a workload.
+
+# Targeted Init Containers
+
+The first, and default behavior, is through init containers. These are defined in
+the workload template with an init container section that looks like:
+
+```
+{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: quay.io/cloud-bulldozer/backpack:latest
+        command: ["/bin/sh", "-c"]
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata_privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata_sa | default('default') }}
+{% endif %}
+```
+
+This allows the targeted collection of metadata on nodes that only have workloads on
+them. This avoids trying to collect data from nodes we are not touching. The backpack
+container will run stockpile to gather data and then push that information into
+Elasticsearch. Once complete the init container will terminate and the workload will 
+launch and continue as normal.
+
+*NOTE: ycsb does not currently support the targeted init container method. Please 
+use the DaemonSet method described below*
+
+# DaemonSet
+
+If it is desired to run the metadata collection in the "classic" way (i.e. as a DaemonSet),
+then you will need to set ```metadata_targeted: false``` in your cr file.
+
+When configured in this way, backpack will launch as a DaemonSet on all nodes in 
+the cluster when the workload is applied. Backpack will then run stockpile to gather
+ data and then push that information up to Elasticsearch exactly like the targeted/init
+ container option.
 
 It runs the data collection/upload immediately upon launch and will not enter "Ready"
 state until the initial data collection/upload has completed. Once this is done,
 your benchmark will then launch and continue as normal. 
 
-NOTE: The backpack pods will not complete/terminate until you delete your benchmark.
-This is done to allow additional collections to be done as an ad-hoc basis as well.
+# Differences between targeted and daemonset
+
+There are a few notable differences between the DaemonSet and targeted options:
+
+- First, and most important, the DaemonSet will run on ALL nodes of the cluster.
+This means that if you have 200 nodes it will collect data from all the nodes
+even if your relevant pod(s) are only running on a subset of nodes. You will end
+up with more data than you need and slow down the start of your workload.
+
+- If running targeted and with a service account (more on that below) the
+entire workload will run as that service account. That is because service accounts
+are done at a level above the container definition and can only be applied once.
+
+- When run as a daemonset the backpack pods will not complete/terminate 
+until you delete your benchmark. This is done to allow additional collections to 
+be done as an ad-hoc basis as well.
+
+- When running as a targeted init container the benchmark metadata status will be
+set to "Collecting" however it will never be marked as completed as that would require
+additional logic in the workloads which is out of scope.
+
+- Finally, running as a daemonset requires no additions to the workload
+template. This may be preferable in certain situations.
 
 # Enable Collection
 
@@ -83,8 +153,7 @@ spec:
       commands: "echo Test"
 ```
 
-The metadata collection will now run as described previously and continue to
-the defined benchmark.
+The metadata collection will now run as defined.
 
 # Additional Options
 
@@ -110,7 +179,7 @@ There are multiple kubernetes (k8s) based modules that are run in stockpile.
 These modules are not accessable by default as the default service account
 that runs the pod does not have the required privileges to view them. 
 
-To allow the Daemon Set's pods view permissions on the cluster you can apply
+To allow the pods view permissions on the cluster you can apply
 the following yaml to create a service account with the appropriate 
 privileges.
 
@@ -259,6 +328,8 @@ subjects:
 ```
 
 # Running Additional Collections
+
+*NOTE* This is only applicable to the DaemonSet collection method
 
 While upon initial creation metadata is collected, it may be useful to collect
 additional runs of data at other times. To do this you will need to loop through

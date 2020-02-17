@@ -32,6 +32,19 @@
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     with_sequence: start=1 count={{ iperf3.pairs }}
 
+  - name: Update state to Starting Server
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Server"
+
+  when: resource_state.resources[0].status.state == "Starting"
+
+- block:
+
   - name: Wait for pods to be running....
     k8s_facts:
       kind: Pod
@@ -40,15 +53,47 @@
       label_selectors:
         - app = iperf3-bench-server-{{ trunc_uuid }}
     register: server_pods
-    until: "iperf3.pairs == (server_pods | json_query('resources[].status.podIP')|length)"
-    retries: 40
-    delay: 10
+
+  - name: Update state to Starting Clients
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "iperf3.pairs == (server_pods | json_query('resources[].status.podIP')|length) and (server_pods | json_query('resources[].status.phase') is defined and iperf3.pairs == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length)"
+
+  when: resource_state.resources[0].status.state == "Starting Server"
+
+- block:
+
+  - name: Get server pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = iperf3-bench-server-{{ trunc_uuid }}
+    register: server_pods
 
   - name: Start Client(s)
     k8s:
       definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
     with_items: "{{ server_pods.resources }}"
-    when: server_pods.resources|length > 0
+
+  - name: Update state to Waiting for Clients
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Waiting for Clients"  
+
+  when: resource_state.resources[0].status.state == "Starting Clients"
+
+- block:
 
   - name: Wait for pods to be running....
     k8s_facts:
@@ -69,7 +114,7 @@
         complete: false
     when: client_pods.resources|length > 0
 
-  when: ( iperf3.pairs > 0 ) and resource_state.resources[0].status.state == "Starting"
+  when: ( iperf3.pairs > 0 ) and resource_state.resources[0].status.state == "Waiting for Clients"
 
 - block:
   - name: Waiting for Jobs to complete....
