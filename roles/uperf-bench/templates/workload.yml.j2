@@ -83,7 +83,7 @@ spec:
 {% for nthr in uperf.nthrs %}
                  cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
                  for i in `seq 1 {{uperf.samples}}`; do
-                   python /opt/snafu/uperf-wrapper/uperf-wrapper.py -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}};
+                   python /opt/snafu/run_snafu.py --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}};
                  done;
 {% endfor %}
 {% endfor %}
