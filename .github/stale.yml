@@ -1,0 +1,22 @@
+# Settings for Pulls:
+pulls:
+  # Number of days of inactivity before an Issue or Pull Request becomes stale
+  daysUntilStale: 15
+
+  # Number of days of inactivity before an Issue or Pull Request with the stale label is closed.
+  daysUntilClose: 10
+
+  # Label to use when marking as stale
+  staleLabel: not_ready
+
+  # Exempt Labels
+  exemptLabels:
+    - hold
+
+# Settings for issues
+issues:
+  daysUntilStale: 60
+  daysUntilClose: 14
+  staleLabel: not_ready
+  exemptLabels:
+    - hold
