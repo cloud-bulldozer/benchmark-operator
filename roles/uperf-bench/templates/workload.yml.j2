@@ -56,7 +56,6 @@ spec:
 {% if elasticsearch.server is defined %}
              export es={{elasticsearch.server}};
              export es_port={{elasticsearch.port}};
-             export uuid={{uuid}};
 {% endif %}
 {% endif %}
 {% if test_user is defined %}
@@ -69,9 +68,17 @@ spec:
              export client_node=UNSET;
              export server_node=UNSET;
 {% endif %}
+{% if redis_collection is defined %}
+             export redis_collection={{redis_collection}};
+{% else %}
+             export redis_collection=False;
+{% endif %}
              export clustername={{clustername}};
              export hostnet={{uperf.hostnetwork}};
              export ips=$(hostname -I);
+             export uuid={{uuid}};
+             export redis_port={{bo.resources[0].spec.containers[2].ports[0].containerPort}};
+             export bo_ip={{bo.resources[0].status.podIP}};
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
 {% for test in uperf.test_types %}

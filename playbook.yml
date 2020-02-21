@@ -47,6 +47,13 @@
       when: metadata_collection is defined and metadata_collection | default('false') | bool and (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata != "Complete")
 
     - block:
+      - include_role:
+          name: redis-collection
+        vars:
+          uperf: "{{ workload.args }}"
+      when: redis_collection is defined
+
+    - block:
 
       - include_role:
           name: "uperf-bench"
@@ -113,7 +120,7 @@
           name: "hammerdb"
         vars:
           hammerdb: "{{ workload.args }}"
-        when: workload.name == "hammerdb" 
+        when: workload.name == "hammerdb"
 
       when: not metadata_collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete")
 
