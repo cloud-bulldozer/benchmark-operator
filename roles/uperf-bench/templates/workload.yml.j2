@@ -59,8 +59,10 @@ spec:
 {% if elasticsearch.server is defined %}
              export es={{elasticsearch.server}};
              export es_port={{elasticsearch.port}};
+             export es_index={{es_index}}
              export uuid={{uuid}};
 {% endif %}
+
 {% endif %}
 {% if test_user is defined %}
              export test_user={{test_user}};

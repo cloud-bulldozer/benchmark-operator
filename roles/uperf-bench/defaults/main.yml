@@ -6,3 +6,4 @@ uperf:
   nthr: 1
   size: 1024
   runtime: 60
+es_index: "ripsaw-uperf"
