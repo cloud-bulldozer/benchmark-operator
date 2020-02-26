@@ -14,6 +14,7 @@ spec:
       containers:
       - name: hammerdb
         image: "quay.io/cloud-bulldozer/hammerdb:master"
+        imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
         args: 
@@ -39,7 +40,6 @@ spec:
 	     export timed_test={{hammerdb.timed_test}};
              cd /hammer; 
              /opt/snafu/hammerdb/hammerd_wrapper.py"
-      imagePullPolicy: Always
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
