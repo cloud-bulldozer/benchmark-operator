@@ -10,32 +10,32 @@ function finish {
   fi
 
   echo "Cleaning up Uperf"
-  kubectl delete -f tests/test_crs/valid_uperf.yaml
-  delete_operator
+  wait_clean
 }
 
 trap error ERR
 trap finish EXIT
 
 function functional_test_uperf {
-  figlet $(basename $0)
   apply_operator
-  kubectl apply -f tests/test_crs/valid_uperf.yaml
+  test_name=$1
+  cr=$2
+  echo "Performing: ${test_name}"
+  kubectl apply -f ${cr}
   uuid=$(get_uuid 20)
-
   pod_count "type=uperf-bench-server-$uuid" 1 900
-
   uperf_server_pod=$(get_pod "app=uperf-bench-server-0-$uuid" 300)
   wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=uperf-bench-server-0-$uuid pods --timeout=300s" "300s" $uperf_server_pod
   uperf_client_pod=$(get_pod "app=uperf-bench-client-$uuid" 900)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$uperf_client_pod --timeout=500s" "500s" $uperf_client_pod
-  wait_for "kubectl -n my-ripsaw wait --for=condition=complete -l app=uperf-bench-client-$uuid jobs --timeout=500s" "500s" $uperf_client_pod
-  #check_log $uperf_client_pod "Success"
-  # This is for the operator playbook to finish running
-  sleep 30
-
+  wait_for "kubectl wait -n my-ripsaw --for=condition=Initialized pods/$uperf_client_pod --timeout=500s" "500s" $uperf_client_pod
+  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=uperf-bench-client-$uuid jobs --timeout=500s" "500s" $uperf_client_pod
   # ensuring that uperf actually ran and we can access metrics
-  kubectl logs "$uperf_client_pod" --namespace my-ripsaw | grep Success
-  echo "Uperf test: Success"
+  kubectl logs "$uperf_client_pod" -n my-ripsaw
+  kubectl logs "$uperf_client_pod" -n my-ripsaw | grep Success
+  echo "${test_name} test: Success"
 }
-functional_test_uperf
+
+figlet $(basename $0)
+functional_test_uperf "Uperf without resources definition" tests/test_crs/valid_uperf.yaml
+wait_clean
+functional_test_uperf "Uperf with resources definition" tests/test_crs/valid_uperf_resources.yaml

@@ -1,0 +1,44 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
+  cleanup: false
+  workload:
+    name: uperf
+    args:
+      client_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      server_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      hostnetwork: false
+      serviceip: false
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      multus:
+        enabled: false
+      samples: 2
+      pair: 1
+      test_types:
+        - stream
+        - rr
+      protos:
+        - tcp
+        - udp
+      sizes:
+        - 1024
+        - 512
+      nthrs:
+        - 1
+        - 2
+      runtime: 2
