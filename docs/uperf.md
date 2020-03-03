@@ -17,6 +17,20 @@ spec:
   workload:
     name: uperf
     args:
+      client_resources:
+        requests:
+          cpu: 500m
+          memory: 500Mi
+        limits:
+          cpu: 500m
+          memory: 500Mi
+      server_resources:
+        requests:
+          cpu: 500m
+          memory: 500Mi
+        limits:
+          cpu: 500m
+          memory: 500Mi
       serviceip: false
       hostnetwork: false
       pin: false
@@ -37,6 +51,8 @@ spec:
         - 1
       runtime: 30
 ```
+
+`client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
 `serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
 

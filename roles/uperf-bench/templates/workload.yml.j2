@@ -38,6 +38,9 @@ spec:
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/uperf:latest"
+{% if uperf.client_resources is defined %}
+        resources: {{ uperf.client_resources | to_json }}
+{% endif %}
         imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
