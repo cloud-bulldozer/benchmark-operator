@@ -24,7 +24,6 @@ function functional_test_fs_drift {
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
   uuid=$(get_uuid 20)
-  wait_for_backpack $uuid
   count=0
   while [[ $count -lt 24 ]]; do
     if [[ `kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client` ]]; then
@@ -37,7 +36,7 @@ function functional_test_fs_drift {
     fi
   done
   echo fsdrift_pod $fs_drift_pod
-  wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n my-ripsaw --timeout=200s" "200s" $fsdrift_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n my-ripsaw --timeout=500s" "500s" $fsdrift_pod
   wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n my-ripsaw --timeout=100s" "200s" $fsdrift_pod
   # Print logs and check status
   kubectl logs "$fsdrift_pod" -n my-ripsaw

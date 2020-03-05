@@ -66,3 +66,5 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f resources/crds/ripsaw_v1alpha1_ycsb_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
+
+*NOTE: Please note that if using metadata collection, ycsb does not currently work with the targeted init container method described in the metadata docs*

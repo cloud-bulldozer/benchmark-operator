@@ -23,11 +23,10 @@ function functional_test_iperf {
   kubectl apply -f tests/test_crs/valid_iperf3.yaml
   uuid=$(get_uuid 20)
 
-  wait_for_backpack $uuid
-
-  pod_count "app=iperf3-bench-server-$uuid" 1 300
+  iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
   iperf_client_pod=$(get_pod "app=iperf3-bench-client-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$iperf_client_pod --timeout=200s" "200s" $iperf_client_pod
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
   wait_for "kubectl -n my-ripsaw wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
   sleep 5
   # ensuring that iperf actually ran and we can access metrics

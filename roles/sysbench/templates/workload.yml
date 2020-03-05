@@ -28,3 +28,24 @@ spec:
           name: "sysbench-config-{{ trunc_uuid }}"
           defaultMode: 0777
       restartPolicy: OnFailure
+{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: quay.io/cloud-bulldozer/backpack:latest
+        command: ["/bin/sh", "-c"]
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata_privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata_sa | default('default') }}
+{% endif %}

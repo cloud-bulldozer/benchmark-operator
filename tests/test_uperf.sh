@@ -23,11 +23,12 @@ function functional_test_uperf {
   kubectl apply -f tests/test_crs/valid_uperf.yaml
   uuid=$(get_uuid 20)
 
-  wait_for_backpack $uuid
-
   pod_count "type=uperf-bench-server-$uuid" 1 900
+
+  uperf_server_pod=$(get_pod "app=uperf-bench-server-0-$uuid" 300)
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=uperf-bench-server-0-$uuid pods --timeout=300s" "300s" $uperf_server_pod
   uperf_client_pod=$(get_pod "app=uperf-bench-client-$uuid" 900)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$uperf_client_pod --timeout=200s" "200s" $uperf_client_pod
+  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$uperf_client_pod --timeout=500s" "500s" $uperf_client_pod
   wait_for "kubectl -n my-ripsaw wait --for=condition=complete -l app=uperf-bench-client-$uuid jobs --timeout=500s" "500s" $uperf_client_pod
   #check_log $uperf_client_pod "Success"
   # This is for the operator playbook to finish running

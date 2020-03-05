@@ -25,8 +25,6 @@ function functional_test_hammerdb {
 	kubectl apply -f tests/test_crs/valid_hammerdb.yaml
 	uuid=$(get_uuid 20)
 
-        wait_for_backpack $uuid
-        
 	# Wait for the creator pod to initialize the DB
         #DISABLED
 	#hammerdb_creator_pod=$(get_pod "app=hammerdb_creator-$uuid" 300)
@@ -34,9 +32,8 @@ function functional_test_hammerdb {
 	#kubectl wait --for=condition=complete -l app=hammerdb_creator-$uuid --namespace my-ripsaw jobs --timeout=600s
 	# Wait for the workload pod to run the actual workload
 	hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
-	kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=100s
+	kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=400s
 	kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace my-ripsaw jobs --timeout=500s
-	#kubectl logs "$hammerdb_workload_pod" --namespace my-ripsaw | grep "SEQUENCE COMPLETE"
 	kubectl logs "$hammerdb_workload_pod" --namespace my-ripsaw | grep "Timestamp"
 	echo "Hammerdb test: Success"
 }

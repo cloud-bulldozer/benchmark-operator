@@ -26,77 +26,149 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
+- name: Capture operator information
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
 - block:
-  - name: Capture operator information
+  
+  - name: Create service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+    with_sequence: start=0 count={{ uperf.pair }}
+    when: uperf.serviceip
+
+  - name: Start Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    register: servers
+    with_sequence: start=0 count={{ uperf.pair }}
+
+  - name: Wait for pods to be running....
     k8s_facts:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - name = benchmark-operator
-    register: bo
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
 
-  - block:
-    - name: Create service for server pods
-      k8s:
-        definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
-      with_sequence: start=0 count={{ uperf.pair }}
-      when: uperf.serviceip
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Servers"
 
-    - name: Start Server(s)
-      k8s:
-        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
-      register: servers
-      with_sequence: start=0 count={{ uperf.pair }}
+  when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
 
-    - name: Wait for pods to be running....
-      k8s_facts:
-        kind: Pod
-        api_version: v1
-        namespace: '{{ operator_namespace }}'
-        label_selectors:
-          - type = uperf-bench-server-{{ trunc_uuid }}
-      register: server_pods
-      until: "'Running' in (server_pods | json_query('resources[].status.phase'))"
-      retries: 100
-      delay: 10
+- block:
 
-    - name: Capture ServiceIP
-      k8s_facts:
-        kind: Service
-        api_version: v1
-        namespace: '{{ operator_namespace }}'
-        label_selectors:
-          - type = uperf-bench-server-{{ trunc_uuid }}
-      register: serviceip
-      when: uperf.serviceip
-    when: resource_kind == "pod"
+  - name: Start Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'server_vm.yml.j2') | from_yaml }}"
+    register: servers
+    with_sequence: start=0 count={{ uperf.pair }}
 
-  - block:
+  - name: Wait for vms to be running....
+    k8s_facts:
+      kind: VirtualMachineInstance
+      api_version: kubevirt.io/v1alpha3
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_vms
+  
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Servers"
 
-    - name: Start Server(s)
-      k8s:
-        definition: "{{ lookup('template', 'server_vm.yml.j2') | from_yaml }}"
-      register: servers
-      with_sequence: start=0 count={{ uperf.pair }}
+  when: resource_state.resources[0].status.state == "Building" and resource_kind == "vm"
 
-    - name: Wait for vms to be running....
-      k8s_facts:
-        kind: VirtualMachineInstance
-        api_version: kubevirt.io/v1alpha3
-        namespace: '{{ operator_namespace }}'
-        label_selectors:
-          - type = uperf-bench-server-{{ trunc_uuid }}
-      register: server_vms
-      until: "uperf.pair  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
-      retries: 100
-      delay: 15
+- block:
 
-    - name: blocking client from running uperf
-      command: "redis-cli set {{ trunc_uuid }} false"
-      with_items: "{{ server_vms.resources }}"
-    when: resource_kind == "vm" and uperf.pair|int == 1
+  - name: Get server pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
+    
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "uperf.pair == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
 
+  - name: Capture ServiceIP
+    k8s_facts:
+      kind: Service
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: serviceip
+    when: "uperf.serviceip and uperf.pair == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+
+  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
+
+- block:
+  
+  - name: Wait for vms to be running....
+    k8s_facts:
+      kind: VirtualMachineInstance
+      api_version: kubevirt.io/v1alpha3
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_vms
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "uperf.pair == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and uperf.pair  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+
+  - name: blocking client from running uperf
+    command: "redis-cli set {{ trunc_uuid }} false"
+    with_items: "{{ server_vms.resources }}"
+    when: "uperf.pair == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and uperf.pair  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+
+  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "vm" and uperf.pair|int == 1
+
+- block:
+
+  - name: Get pod info
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
+  
   - name: Generate uperf xml files
     k8s:
       definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
@@ -113,9 +185,21 @@
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
       with_items: "{{ serviceip.resources }}"
       when: uperf.serviceip and serviceip.resources|length > 0
+
     when: resource_kind == "pod"
 
   - block:
+
+    - name: Wait for vms to be running....
+      k8s_facts:
+        kind: VirtualMachineInstance
+        api_version: kubevirt.io/v1alpha3
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - type = uperf-bench-server-{{ trunc_uuid }}
+      register: server_vms
+
+
     - name: Generate uperf test files
       k8s:
         definition: "{{ lookup('template', 'configmap_script.yml.j2') | from_yaml }}"
@@ -126,23 +210,23 @@
         definition: "{{ lookup('template', 'workload_vm.yml.j2') | from_yaml }}"
       with_items: "{{ server_vms.resources }}"
       when: server_vms.resources|length > 0
-    when: resource_kind == "vm"
 
+    when: resource_kind == "vm"
+  
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: Starting
-        complete: false
+        state: Waiting for Clients
 
-  when: ( uperf.pair > 0 ) and (resource_state.resources[0].status.state == "Building" )
+  when: resource_state.resources[0].status.state == "Starting Clients"
 
 - block:
 
   - block:
-    - name: Check if all clients are up
+    - name: Get client pod status
       k8s_facts:
         kind: Pod
         api_version: v1
@@ -151,26 +235,24 @@
           - app = uperf-bench-client-{{ trunc_uuid }}
       register: client_pods
 
-    - name: Signal workload
-      command: "redis-cli set start true"
-      when: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
-
-    - k8s_status:
+    - name: Update resource state
+      k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
         namespace: "{{ operator_namespace }}"
         status:
-          state: Running
-          complete: false
-      when: "uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
+          state: Clients Running
+      when: "uperf.pair == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and uperf.pair  == (client_pods | json_query('resources[].status.podIP')|length)"
+    
     when: resource_kind == "pod"
 
   - block:
+    
     - name: set complete to false
       command: "redis-cli set complete false"
 
-    - name: Check if all clients are up
+    - name: Get client vm status
       k8s_facts:
         kind: VirtualMachineInstance
         api_version: kubevirt.io/v1alpha3
@@ -179,21 +261,35 @@
           - app = uperf-bench-client-{{ trunc_uuid }}
       register: client_vms
 
-    - name: Signal workload
-      command: "redis-cli set start true"
-      when: "uperf.pair  == (client_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
-
-    - k8s_status:
+    - name: Update resource state
+      k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
         namespace: "{{ operator_namespace }}"
         status:
-          state: Running
-          complete: false
-      when: "uperf.pair  == (client_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+          state: Clients Running
+      when: "uperf.pair == client_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and uperf.pair  == (client_vm | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+
     when: resource_kind == "vm"
-  when: resource_state.resources[0].status.state == "Starting"
+
+  when: resource_state.resources[0].status.state == "Waiting for Clients"
+
+- block:
+
+  - name: Signal workload
+    command: "redis-cli set start true"
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Running"
+
+  when: resource_state.resources[0].status.state == "Clients Running"
 
 - block:
   - block:

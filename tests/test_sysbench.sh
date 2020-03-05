@@ -23,10 +23,8 @@ function functional_test_sysbench {
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
   uuid=$(get_uuid 20)
 
-  wait_for_backpack $uuid
-
   sysbench_pod=$(get_pod "app=sysbench-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$sysbench_pod --namespace my-ripsaw --timeout=200s" "200s" $sysbench_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$sysbench_pod --namespace my-ripsaw --timeout=500s" "500s" $sysbench_pod
   # Higher timeout as it takes longer
   wait_for "kubectl wait --for=condition=complete -l app=sysbench-$uuid --namespace my-ripsaw jobs" "300s" $sysbench_pod
   # sleep isn't needed as the sysbench is kind: job so once it's complete we can access logs
