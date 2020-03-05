@@ -168,22 +168,17 @@ function cleanup_operator_resources {
 
 function update_operator_image {
   tag_name="${NODE_NAME:-master}"
-  operator-sdk build $image_location/$image_account/benchmark-operator:$tag_name --image-builder podman
-
+  if operator-sdk build $image_location/$image_account/benchmark-operator:$tag_name --image-builder podman; then
   # In case we have issues uploading to quay we will retry a few times
-  try_count=0
-  while [ $try_count -le 2 ]
-  do
-    if podman push $image_location/$image_account/benchmark-operator:$tag_name
-    then
-      try_count=2
-    elif [[ $try_count -eq 2 ]]
-    then
+    for i in {1..3}; do
+      podman push $image_location/$image_account/benchmark-operator:$tag_name && break
       echo "Could not upload image to quay. Exiting"
       exit 1
-    fi
-    ((try_count++))
-  done
+    done
+  else
+    echo "Could not build image. Exiting"
+    exit 1
+  fi
   sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 
