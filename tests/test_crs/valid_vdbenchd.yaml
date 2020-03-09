@@ -7,8 +7,8 @@ spec:
   workload:
     name: "vdbench"
     args:
-      servers: 2
-      pin_server: 'vdbench'
+      servers: 1
+      #pin_server: 'vdbench'
       threads: 4
       fileselect: random
       fileio: random
@@ -22,7 +22,7 @@ spec:
         - 4k
       depth: 1
       width: 1
-      files: 256
+      files: 20
       file_size: 1
       runtime: 60
       pause: 1
