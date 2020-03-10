@@ -47,8 +47,8 @@
               - name: uuid
                 value: "{{uuid}}"
               imagePullPolicy: Always
-              command: ["/bin/sh"]
-              args: ["-c", "/opt/snafu/run_snafu.py --tool ycsb -r 1 -d {{ ycsb.driver }} -w {{ ycsb_workload }} -x \"{{ ycsb.options_run }}\""]
+              command: ["/bin/sh", "-c"]
+              args: ["python /opt/snafu/run_snafu.py --tool ycsb -r 1 -l -d {{ ycsb.driver }} -w {{ ycsb_workload }} -x \"{{ ycsb.options_load }}\""]
               volumeMounts:
                 - name: config-volume
                   mountPath: "/tmp/ycsb"
