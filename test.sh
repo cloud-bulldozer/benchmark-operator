@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -x
 
+# Checking to see if pipeline worked
+
 source tests/common.sh
 
 cleanup_operator_resources
