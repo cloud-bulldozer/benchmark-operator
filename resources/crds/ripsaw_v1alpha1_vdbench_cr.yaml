@@ -4,11 +4,13 @@ metadata:
   name: vdbench-benchmark
   namespace: my-ripsaw
 spec:
-#  elasticsearch:
-#    server: <es_server>
-#    port: 9200
-#  clustername: myk8scluster
-#  test_user: ripsaw
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
+  metadata_targeted: false
+  clustername: myk8scluster
+  test_user: ripsaw
   workload:
     name: "vdbench"
     args:
