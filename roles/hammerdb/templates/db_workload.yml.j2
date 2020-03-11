@@ -24,6 +24,7 @@ spec:
              export es_server={{elasticsearch.server}};
              export es_port={{elasticsearch.port}};
              export uuid={{uuid}};
+             export es_index={{es_index}};
              {% endif %}
              {% endif %}
              export db_server={{hammerdb.db_server}};
@@ -39,7 +40,7 @@ spec:
              export samples={{hammerdb.samples}};
 	     export timed_test={{hammerdb.timed_test}};
              cd /hammer; 
-             /opt/snafu/hammerdb/hammerd_wrapper.py"
+             /opt/snafu/run_snafu.py --tool hammerdb"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
