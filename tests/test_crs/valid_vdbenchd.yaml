@@ -4,12 +4,19 @@ metadata:
   name: vdbench-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    port: 9200
+  metadata_collection: true
+  metadata_targeted: false
+  clustername: myk8scluster
+  test_user: ripsaw
   workload:
     name: "vdbench"
     args:
       servers: 1
       #pin_server: 'vdbench'
-      threads: 4
+      threads: 1
       fileselect: random
       fileio: random
       jobs:
