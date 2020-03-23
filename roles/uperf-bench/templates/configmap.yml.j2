@@ -12,8 +12,8 @@ data:
   uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} : |
     <?xml version=1.0?>
     <profile name="{{test}}-{{proto}}-{{size}}-{{nthr}}">
-    <group nthreads="{{nthr}}">
     {% if ( 'rr' == test ) %}
+      <group nthreads="{{nthr}}">
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
@@ -23,8 +23,10 @@ data:
           <transaction iterations="1">
             <flowop type=disconnect />
           </transaction>
+      </group>
     {% endif %}
     {% if ( 'stream' == test or 'bidirec' == test ) %}
+      <group nthreads="{{nthr}}">
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
@@ -34,8 +36,10 @@ data:
           <transaction iterations="1">
             <flowop type=disconnect />
           </transaction>
+      </group>
     {% endif %}
     {% if ( 'maerts' == test or 'bidirec' == test ) %}
+      <group nthreads="{{nthr}}">
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
@@ -45,8 +49,8 @@ data:
           <transaction iterations="1">
             <flowop type=disconnect />
           </transaction>
-    {% endif %}
       </group>
+    {% endif %}
     </profile>
 {% endfor %}
 {% endfor %}
