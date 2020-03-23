@@ -24,6 +24,7 @@ spec:
       test_types:
         - stream
         - rr
+        - bidirec
       protos:
         - tcp
         - udp
