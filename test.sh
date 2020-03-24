@@ -16,26 +16,20 @@ max_concurrent=3
 eStatus=0
 
 git_diff_files="$(git diff remotes/origin/master --name-only)"
-for file in ${git_diff_files}
-do
-  echo "$file" >> tests/git_diff
-done
 
-check_all_tests=$(check_full_trigger)
-if [[ "$check_all_tests" != "True" ]]
-then
-  echo "checking which tests need to be run"
-  populate_test_list "${git_diff_files}"
+if [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "(build/|deploy/|group_vars/|resources/|/common.sh|/uuid)"` ]]; then
+        echo "Running full test"
+        cp tests/test_list tests/iterate_tests
 else
-  echo "running all the tests"
-  `cp tests/test_list tests/iterate_tests`
+        echo "Running specific tests"
+        populate_test_list "${git_diff_files}"
 fi
 
 test_list="$(cat tests/iterate_tests)"
 echo "running test suit consisting of ${test_list}"
 
 # Massage the names into something that is acceptable for a namespace
-sed 's/.sh//g' tests/iterate_tests > tests/my_tests
+sed 's/.sh//g' tests/iterate_tests | sort | uniq > tests/my_tests
 sed -i 's/_/-/g' tests/my_tests
 
 # Prep the results.xml file
