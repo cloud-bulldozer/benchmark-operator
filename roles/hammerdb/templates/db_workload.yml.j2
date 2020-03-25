@@ -40,7 +40,7 @@ spec:
              export samples={{hammerdb.samples}};
 	     export timed_test={{hammerdb.timed_test}};
              cd /hammer; 
-             /opt/snafu/run_snafu.py --tool hammerdb"
+             /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
