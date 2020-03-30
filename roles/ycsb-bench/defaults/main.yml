@@ -3,3 +3,4 @@ user: ""
 elasticsearch:
         server: ""
         port: ""
+es_index: "ripsaw-ycsb"
