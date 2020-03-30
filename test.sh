@@ -4,11 +4,6 @@ set -x
 source tests/common.sh
 
 cleanup_operator_resources
-update_operator_image
-
-# Create a "gold" directory based off the current branch
-mkdir gold
-cp -pr * gold/
 
 # The maximum number of concurrent tests to run at one time (0 for unlimited)
 max_concurrent=3
@@ -42,6 +37,13 @@ echo "Results for "$JOB_NAME > results.markdown
 echo "" >> results.markdown
 echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
 echo '-----|--------|--------|---------' >> results.markdown
+
+# Update the operator image
+update_operator_image
+
+# Create a "gold" directory based off the current branch
+mkdir gold
+cp -pr * gold/
 
 # Create individual directories for each test
 for ci_dir in `cat tests/my_tests`
