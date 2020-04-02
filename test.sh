@@ -23,6 +23,13 @@ fi
 test_list="$(cat tests/iterate_tests)"
 echo "running test suit consisting of ${test_list}"
 
+if [[ ${test_list} == "" ]]; then
+  echo "No tests to run"
+  echo "Results for "$JOB_NAME > results.markdown
+  echo "No tests to run" >> results.markdown
+  exit 0
+fi
+
 # Massage the names into something that is acceptable for a namespace
 sed 's/.sh//g' tests/iterate_tests | sort | uniq > tests/my_tests
 sed -i 's/_/-/g' tests/my_tests

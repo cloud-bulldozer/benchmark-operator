@@ -10,6 +10,7 @@ function populate_test_list {
 
   for item in $@
   do
+    # Check for changes in roles
     if [[ $(echo ${item} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/uperf-bench') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/fio-distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
@@ -22,6 +23,20 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/smallfile-bench') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
 
+    # Check for changes in cr files
+    if [[ $(echo ${item} | grep 'valid_backpack*.yaml') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_byowl*.yaml') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fiod*.yaml') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fs_drift*.yaml') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_hammerdb*.yaml') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_iperf3*.yaml') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_pgbench*.yaml') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_smallfile*.yaml') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_sysbench*.yaml') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_uperf*.yaml') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_ycsb*.yaml') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+
+    # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
     
     if [[ $(echo ${test_check} | grep 'test_.*.sh') ]]; then echo ${test_check} >> tests/iterate_tests; fi
