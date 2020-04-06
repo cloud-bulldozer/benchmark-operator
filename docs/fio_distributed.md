@@ -29,6 +29,7 @@ spec:
   workload:
     name: "fio_distributed"
     args:
+      prefill: true
       samples: 3
       servers: 3
       pin_server: ''
@@ -168,7 +169,8 @@ The workload loops are nested as such from the CR options:
 - **rook_ceph_drop_caches**: (optional) If set to `True`, the Rook-Ceph OSD caches will be dropped prior to each sample
 - **rook_ceph_drop_cache_pod_ip**: (optional) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [cache drop pod instructions](#dropping-rook-ceph-osd-caches) below
 > Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
-
+- **prefill**: (Optional) boolean to enable/disable prefill SDS <br />
+--  prefill requirement stems from Ceph RBD thin-provisioning - just creating the RBD volume doesn't mean that there is space allocated to read and write out there. For example, reads to an uninitialized volume don't even talk to the Ceph OSDs, they just return immediately with zeroes in the client.
 #### EXPERT: spec.global_overrides
 The `key=value` combinations provided in the list here will be appended to the `[global]` section of the fio
 jobfile configmap. These options will therefore override the global values for all workloads in the loop.
