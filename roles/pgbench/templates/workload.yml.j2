@@ -15,7 +15,6 @@ spec:
       - name: benchmark
         image: "{{ pgb_base_image }}:{{ pgb_version }}"
         imagePullPolicy: Always
-        wait: true
         env:
           - name: PGPASSWORD
             value: '{{ item.1.password }}'
@@ -80,7 +79,6 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata_privileged | default(false) | bool }}
         env:

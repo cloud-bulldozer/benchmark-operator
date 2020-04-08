@@ -9,6 +9,7 @@ spec:
     port: 9200
   metadata_collection: true
   cleanup: false
+  pre_run_cmd: "touch {{ fio_path }}/prerun"
   workload:
     name: "fio_distributed"
     args:

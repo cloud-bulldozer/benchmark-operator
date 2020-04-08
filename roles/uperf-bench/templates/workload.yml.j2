@@ -42,7 +42,6 @@ spec:
         resources: {{ uperf.client_resources | to_json }}
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
 {% if uperf.serviceip is sameas true %}
@@ -114,7 +113,6 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata_privileged | default(false) | bool }}
         env:

@@ -9,6 +9,8 @@ spec:
     port: 9200
   metadata_collection: true
   cleanup: false
+  privileged_pre_run: true
+  pre_run_cmd: "touch {{ fio_path }}/prerun"
   hostpath: /mnt/vda1/fiod/
   workload:
     name: "fio_distributed"

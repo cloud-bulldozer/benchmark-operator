@@ -33,7 +33,6 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8765
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "cd /tmp; fio --server"
@@ -60,14 +59,24 @@ spec:
           path: {{ hostpath }}
           type: DirectoryOrCreate
 {% endif %}
-{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
       initContainers:
+      - name: pre-run
+        image: {{ pre_run_image|default("quay.io/cloud-bulldozer/fio:latest", true) }}
+        command: ["/bin/sh"]
+        args: ["-c", "{{ pre_run_cmd|default("exit 0", true) }}"]
+{% if fiod.storageclass is defined or hostpath is defined %}
+        volumeMounts:
+        - name: data-volume
+          mountPath: "{{ fio_path }}"
+{% endif %}
+        securityContext:
+          privileged: {{ privileged_pre_run|default(false, true) }}
+{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
       - name: backpack-{{ trunc_uuid }}
         image: quay.io/cloud-bulldozer/backpack:latest
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata_privileged | default(false) | bool }}
         env:

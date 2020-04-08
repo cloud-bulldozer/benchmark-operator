@@ -22,7 +22,6 @@ spec:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/iperf3:latest"
         imagePullPolicy: Always
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "iperf3 -c {{ item.status.podIP }} -p {{ iperf3.port }} --{{ iperf3.transmit_type }} {{ iperf3.transmit_value }} -l {{ iperf3.length_buffer }} -P {{ iperf3.streams }} -w {{ iperf3.window_size }} -M {{ iperf3.mss }} -S {{ iperf3.ip_tos }} -O {{ iperf3.omit_start }} {{ iperf3.extra_options_client }}"
@@ -38,7 +37,6 @@ spec:
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata_privileged | default(false) | bool }}
         env:

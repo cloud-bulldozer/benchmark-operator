@@ -16,7 +16,6 @@ spec:
   - name: benchmark
     image: "quay.io/cloud-bulldozer/iperf3:latest"
     imagePullPolicy: Always
-    wait: true
     command: ["/bin/sh", "-c"]
     args:
       - "iperf3 -s -p {{ iperf3.port }} {{ iperf3.extra_options_server }}"
@@ -32,7 +31,6 @@ spec:
     command: ["/bin/sh", "-c"]
     args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
     imagePullPolicy: Always
-    wait: true
     securityContext:
       privileged: {{ metadata_privileged | default(false) | bool }}
     env:

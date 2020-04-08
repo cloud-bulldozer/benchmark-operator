@@ -29,7 +29,6 @@ the workload template with an init container section that looks like:
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata_privileged | default(false) | bool }}
         env:
