@@ -225,12 +225,18 @@ function wait_for() {
 }
 
 function error {
+  if [[ $ERRORED == "true" ]]
+  then
+    exit
+  fi
+
+  ERRORED=true
+
   echo "Error caught. Dumping logs before exiting"
   echo "Benchmark operator Logs"
   kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
   echo "Ansible sidecar Logs"
   kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
-  ERRORED=true
 }
 
 function wait_for_backpack() {
