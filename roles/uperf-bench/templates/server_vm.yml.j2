@@ -62,6 +62,6 @@ spec:
           - yum copr enable ndokos/pbench -y
           - yum install -y pbench-uperf redis git
           - redis-cli -h {{ bo.resources[0].status.podIP }} set {{ trunc_uuid }} true
-          - uperf -s -v -P 20000
+          - uperf -s -v
     name: cloudinitdisk
 status: {}

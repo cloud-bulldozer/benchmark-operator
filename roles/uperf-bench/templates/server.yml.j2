@@ -24,7 +24,7 @@ spec:
     imagePullPolicy: Always
     wait: true
     command: ["/bin/sh","-c"]
-    args: ["uperf -s -v -P 20000"]
+    args: ["uperf -s -v"]
   restartPolicy: OnFailure
 {% if uperf.pin is sameas true %}
   nodeSelector:
