@@ -5,29 +5,42 @@ image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
 echo "using container image location $image_location and account $image_account"
 
-function check_full_trigger {
-python - <<END
-import os
-with open('tests/full_test_file_trigger', 'r') as file:
-    a = file.read()
-a = filter(None,a.split('\n'))
-with open('tests/git_diff', 'r') as file:
-    b = file.read()
-b = filter(None,b.split('\n'))
-print(any((x in a for x in b)))
-END
-}
-
 function populate_test_list {
-  touch tests/iterate_tests
-  if [[ $(echo ${1} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/uperf-bench') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/fio-distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/iperf3-bench') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/byowl') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
-  if [[ $(echo ${1} | grep 'roles/ycsb-bench') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+  rm -f tests/iterate_tests
+
+  for item in $@
+  do
+    # Check for changes in roles
+    if [[ $(echo ${item} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/uperf-bench') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/fio-distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/iperf3-bench') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/byowl') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/ycsb-bench') || $(echo ${item} | grep 'roles/load-ycsb') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/backpack') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/smallfile-bench') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+
+    # Check for changes in cr files
+    if [[ $(echo ${item} | grep 'valid_backpack*.yaml') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_byowl*.yaml') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fiod*.yaml') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fs_drift*.yaml') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_hammerdb*.yaml') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_iperf3*.yaml') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_pgbench*.yaml') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_smallfile*.yaml') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_sysbench*.yaml') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_uperf*.yaml') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_ycsb*.yaml') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+
+    # Check for changes in test scripts
+    test_check=`echo $item | awk -F / '{print $2}'`
+    
+    if [[ $(echo ${test_check} | grep 'test_.*.sh') ]]; then echo ${test_check} >> tests/iterate_tests; fi
+  done
 }
 
 function wait_clean {
@@ -212,12 +225,18 @@ function wait_for() {
 }
 
 function error {
+  if [[ $ERRORED == "true" ]]
+  then
+    exit
+  fi
+
+  ERRORED=true
+
   echo "Error caught. Dumping logs before exiting"
   echo "Benchmark operator Logs"
   kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
   echo "Ansible sidecar Logs"
   kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
-  ERRORED=true
 }
 
 function wait_for_backpack() {

@@ -38,4 +38,6 @@ function functional_test_uperf {
 figlet $(basename $0)
 functional_test_uperf "Uperf without resources definition" tests/test_crs/valid_uperf.yaml
 wait_clean
+functional_test_uperf "Uperf with ServiceIP" tests/test_crs/valid_uperf_serviceip.yaml
+wait_clean
 functional_test_uperf "Uperf with resources definition" tests/test_crs/valid_uperf_resources.yaml
