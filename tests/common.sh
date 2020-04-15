@@ -24,17 +24,17 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/smallfile-bench') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
 
     # Check for changes in cr files
-    if [[ $(echo ${item} | grep 'valid_backpack*.yaml') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_byowl*.yaml') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_fiod*.yaml') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_fs_drift*.yaml') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_hammerdb*.yaml') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_iperf3*.yaml') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_pgbench*.yaml') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_smallfile*.yaml') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_sysbench*.yaml') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_uperf*.yaml') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_ycsb*.yaml') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_byowl*') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fiod*') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_fs_drift*') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_hammerdb*') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_iperf3*') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_pgbench*') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_smallfile*') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_sysbench*') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_uperf*') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
 
     # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
