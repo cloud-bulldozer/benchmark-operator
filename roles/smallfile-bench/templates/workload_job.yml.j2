@@ -31,7 +31,7 @@ spec:
           securityContext:
             privileged: true
 {% endif %}
-          image: "quay.io/cloud-bulldozer/smallfile:master"
+          image: "quay.io/cloud-bulldozer/smallfile:0.0.2"
           # example of how to debug using your own workload image
           #image: "quay.io/bengland2/smallfile:master"
           imagePullPolicy: Always
@@ -64,14 +64,14 @@ spec:
               rm -rf {{smallfile_path}}/RESULTS ;
               mkdir -p {{smallfile_path}}/RESULTS;
               mkdir -p {{smallfile_path}}/smallfile_test_data;
-              python /opt/snafu/run_snafu.py 
+              python /opt/snafu/run_snafu.py
 {% if smallfile.samples is defined %}
               --samples {{smallfile.samples}}
 {% endif %}
-              --tool smallfile 
-              --operations $arr 
-              --top {{smallfile_path}}/smallfile_test_data 
-              --dir /var/tmp/RESULTS 
+              --tool smallfile
+              --operations $arr
+              --top {{smallfile_path}}/smallfile_test_data
+              --dir /var/tmp/RESULTS
               --yaml-input-file /tmp/smallfile/smallfilejob ;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:

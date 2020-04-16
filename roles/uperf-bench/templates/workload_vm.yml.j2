@@ -77,7 +77,7 @@ spec:
           - yum install -y pbench-uperf redis git python-pip numpy
           - pip install --upgrade pip
           - pip install "elasticsearch>=6.0.0,<=7.0.2"
-          - git clone https://github.com/cloud-bulldozer/snafu /opt/snafu
+          - git clone --single-branch --branch 0.0.2 https://github.com/cloud-bulldozer/snafu /opt/snafu
           - bash /tmp/uperf_script/run_script.sh
     name: cloudinitdisk
   - configMap:

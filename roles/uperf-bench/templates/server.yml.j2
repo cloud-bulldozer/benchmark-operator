@@ -17,7 +17,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: "quay.io/cloud-bulldozer/uperf:latest"
+    image: "quay.io/cloud-bulldozer/uperf:0.0.2"
 {% if uperf.server_resources is defined %}
     resources: {{ uperf.server_resources | to_json }}
 {% endif %}

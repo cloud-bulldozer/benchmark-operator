@@ -29,7 +29,7 @@ spec:
         securityContext:
           privileged: true
 {% endif %}
-        image: "quay.io/cloud-bulldozer/fio:latest"
+        image: "quay.io/cloud-bulldozer/fio:0.0.2"
         imagePullPolicy: Always
         ports:
           - containerPort: 8765

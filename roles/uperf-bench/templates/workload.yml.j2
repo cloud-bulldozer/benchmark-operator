@@ -37,7 +37,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
-        image: "quay.io/cloud-bulldozer/uperf:latest"
+        image: "quay.io/cloud-bulldozer/uperf:0.0.2"
 {% if uperf.client_resources is defined %}
         resources: {{ uperf.client_resources | to_json }}
 {% endif %}

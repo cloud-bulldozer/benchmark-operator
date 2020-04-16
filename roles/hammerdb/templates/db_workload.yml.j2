@@ -13,12 +13,12 @@ spec:
     spec:
       containers:
       - name: hammerdb
-        image: "quay.io/cloud-bulldozer/hammerdb:master"
+        image: "quay.io/cloud-bulldozer/hammerdb:0.0.2"
         imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
-        args: 
-          - "/usr/local/bin/uid_entrypoint; 
+        args:
+          - "/usr/local/bin/uid_entrypoint;
              {% if elasticsearch is defined %}
              {% if elasticsearch.server is defined %}
              export es={{elasticsearch.server}};
@@ -39,7 +39,7 @@ spec:
              export rampup={{hammerdb.rampup}};
              export samples={{hammerdb.samples}};
 	     export timed_test={{hammerdb.timed_test}};
-             cd /hammer; 
+             cd /hammer;
              python /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
