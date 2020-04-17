@@ -69,7 +69,10 @@ spec:
 ## Metadata Collection
 [Metadata Collection](docs/metadata.md)
 
+## Cerberus Integration
+[Cerberus Integration](docs/cerberus.md)
+
 ## Community
-Key Members(slack_usernames): aakarsh, dblack or rook
+Key Members(slack_usernames): aakarsh, dry923, rsevilla or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
 * [**#forum-kni-perfscale on CoreOS Slack**](https://coreos.slack.com)

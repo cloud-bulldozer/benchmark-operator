@@ -2,6 +2,14 @@
   gather_facts: no
   tasks:
 
+  - name: Get update from Cerberus if connected
+    block:
+    - include_role:
+        name: "cerberus"
+
+    when: cerberus_url is defined and cerberus_url != ""
+
+
   - name: Get state
     k8s_facts:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -38,8 +46,9 @@
           complete: false
           suuid: "{{ trunc_uuid }}"
           metadata: "not collected"
-
-    when: workload is defined and cr_state.resources[0].status is not defined
+          cerberus: "not connected"
+    
+    when: workload is defined and (cr_state.resources[0].status is not defined or cr_state.resources[0].status.uuid is not defined)
 
   - name: Run Workload
     block:
@@ -136,4 +145,4 @@
 
       when: metadata is not defined or not metadata.collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete") or metadata.targeted | default('true') | bool
     
-    when: cr_state is defined and cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool
+    when: cr_state is defined and cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool and (cr_state.resources[0].status.state is not defined or cr_state.resources[0].status.state != "Error")

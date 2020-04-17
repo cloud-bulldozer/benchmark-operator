@@ -1,0 +1,28 @@
+---
+- name: Get status from Cerberus
+  uri:
+    url: "{{ cerberus_url }}"
+    return_content: yes
+  register: result
+
+- name: Update status if unhealthy
+  k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      cerberus: "Connected"
+      state: "Error"
+  when: result.content == "False"
+
+- name: Update status if healthy
+  k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      cerberus: "Connected"
+  when: result.content == "True"
+
