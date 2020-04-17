@@ -40,13 +40,14 @@ spec:
               metadata:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
+              cerberus_url:
+                type: string
               cleanup:
                 type: boolean
               test_user: 
                 type: string
               clustername: 
                 type: string
-### I don't know if this one is needed but its in fs_drift
               es_index: 
                 type: string 
           status:
@@ -62,6 +63,8 @@ spec:
                 type: string
               uuid:
                 type: string
+              cerberus:
+                type: string
     additionalPrinterColumns:
     - name: Type
       type: string
@@ -75,6 +78,10 @@ spec:
       type: string
       description: The state of metadata collection
       jsonPath: .status.metadata
+    - name: Cerberus
+      type: string
+      description: If Cerberus is connected or not
+      jsonPath: .status.cerberus
     - name: UUID
       type: string
       jsonPath: .status.uuid
