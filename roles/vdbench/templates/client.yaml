@@ -1,0 +1,68 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'vdbench-client-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: vdbenchd-client-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: vdbench-client
+        #image: "docker-registry.upshift.redhat.com/vdbench/vdbench:master"
+        image: "quay.io/avili/vdbench:1.0.4"
+        imagePullPolicy: Always
+        wait: true
+        env:
+          - name: VD_DEPTH
+            value: "{{ vdbenchd.depth }}"
+          - name: VD_WIDTH
+            value: "{{ vdbenchd.width }}"
+          - name: VD_FILES
+            value: "{{ vdbenchd.files }}"
+          - name: VD_SIZE
+            value: "{{ vdbenchd.file_size }}"
+          - name: VD_RUNTIME
+            value: "{{ vdbenchd.runtime }}"
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if ceph_cache_drop_pod_ip %}
+          - name: ceph_cache_drop_pod_ip
+            value: "{{ ceph_cache_drop_pod_ip }}"
+{% endif %}
+{% if es_server %}
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
+        command: ["/bin/bash", "-c"]
+        args:
+          - "/opt/vdbench/scripts/ripsawrun.sh ;
+             echo Test Run Finished ;
+             sleep 60"
+        volumeMounts:
+        - name: vdbench-volume
+          mountPath: "/tmp/vdbench"
+        - name: host-volume
+          mountPath: "/tmp/host"
+      volumes:
+      - name: vdbench-volume
+        configMap:
+          name: "vdbench-test-{{ trunc_uuid }}"
+          defaultMode: 0777
+      - name: host-volume
+        configMap:
+          name: "vdbench-hosts-{{ trunc_uuid }}"
+          defaultMode: 0777
+      restartPolicy: Never

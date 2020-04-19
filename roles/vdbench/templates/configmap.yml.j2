@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vdbench-test-{{ trunc_uuid }}
+  namespace: '{{ operator_namespace }}'
+data:
+  vdbenchjob-test_defenition: |
+
+    include=/tmp/host_list
+
+{% for ind in range(vdbenchd.servers) %}
+    fsd=fsd{{ind}},anchor=/mnt/pvc/dir{{ind}},depth={{vdbenchd.depth}},width={{vdbenchd.width}},openflags=o_direct,files={{vdbenchd.files}},size={{vdbenchd.file_size}}M
+{% endfor %}
+
+{% for bs in vdbenchd.bs %}
+{% for j in vdbenchd.jobs %}
+{%- for ind in range(vdbenchd.servers) %}
+    fwd={{j.name}}_{{bs}}_{{ind}},xfersize={{bs}},host=hd{{ind}},fsd=fsd{{ind}},operation={{j.op}},fileio={{vdbenchd.fileio}},fileselect={{vdbenchd.fileselect}},threads={{vdbenchd.threads}}
+{%- if j.rdpct is defined %},rdpct={{j.rdpct}}{% endif %}
+
+{% endfor %}
+{% endfor %}
+
+{% endfor %}
+
+{% for bs in vdbenchd.bs %}
+{% for j in vdbenchd.jobs %}
+{%- for ior in vdbenchd.iorate %}
+    rd={{bs}}-{{j.name}}-{{ior}},fwd={{j.name}}_{{bs}}*,fwdrate={{ior}},
+{%- if ior == "curve" %}curve={{vdbenchd.curve}},{% endif %}
+elapsed={{vdbenchd.runtime}},interval=10,format=restart,pause={{vdbenchd.pause}}m
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
