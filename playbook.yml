@@ -125,6 +125,12 @@
           hammerdb: "{{ workload.args }}"
         when: workload.name == "hammerdb" 
 
+      - include_role:
+          name: "vdbench"
+        vars:
+          vdbenchd: "{{ workload.args }}"
+        when: workload.name == "vdbench" and workload.args.servers > 0
+
       when: not metadata_collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete") or metadata_targeted | default('true') | bool
     
     when: cr_state is defined and cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool
