@@ -28,6 +28,7 @@ function populate_test_list {
   if [[ $(echo ${1} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
   if [[ $(echo ${1} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
   if [[ $(echo ${1} | grep 'roles/ycsb-bench') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+  if [[ $(echo ${1} | grep 'roles/vdbench') ]]; then echo "test_vdbenchd.sh" >> tests/iterate_tests; fi
 }
 
 function wait_clean {
