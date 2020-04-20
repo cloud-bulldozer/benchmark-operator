@@ -5,7 +5,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-   server: "marquez.perf.lab.eng.rdu2.redhat.com"
+    server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
   metadata_collection: true
   metadata_targeted: false
@@ -38,7 +38,7 @@ spec:
       width: 2
       files: 10
       file_size: 1
-      runtime: 180
+      runtime: 60
       pause: 1
       #storageclass: ocs-storagecluster-ceph-rbd
       #storagesize: 100Gi
