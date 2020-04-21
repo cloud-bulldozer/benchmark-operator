@@ -24,11 +24,17 @@ spec:
       - name: backpack
         image: quay.io/cloud-bulldozer/backpack:latest
         command: ["/bin/sh", "-c"]
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name; sleep infinity"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force; sleep infinity"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379; sleep infinity"]
+{% endif %}
         imagePullPolicy: Always
         wait: true
-        securityContext:
-          privileged: {{ metadata_privileged | default(false) | bool }}
+{% if metadata is defined and metadata.privileged is defined %}
+       securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+{% endif %}
         readinessProbe:
           exec:
             command:
@@ -46,5 +52,7 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-      serviceAccountName: {{ metadata_sa | default('default') }}
+{% if metadata is defined and metadata.serviceaccount is defined %}
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+{% endif %}
       terminationGracePeriodSeconds: 30

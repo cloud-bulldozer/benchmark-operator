@@ -22,16 +22,20 @@ The first, and default behavior, is through init containers. These are defined i
 the workload template with an init container section that looks like:
 
 ```
-{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
+{% if metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
         image: quay.io/cloud-bulldozer/backpack:latest
         command: ["/bin/sh", "-c"]
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
         imagePullPolicy: Always
         wait: true
         securityContext:
-          privileged: {{ metadata_privileged | default(false) | bool }}
+          privileged: {{ metadata.privileged | default(false) | bool }}
         env:
           - name: my_node_name
             valueFrom:
@@ -41,7 +45,7 @@ the workload template with an init container section that looks like:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-      serviceAccountName: {{ metadata_sa | default('default') }}
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
 {% endif %}
 ```
 
@@ -57,7 +61,7 @@ use the DaemonSet method described below*
 # DaemonSet
 
 If it is desired to run the metadata collection in the "classic" way (i.e. as a DaemonSet),
-then you will need to set ```metadata_targeted: false``` in your cr file.
+then you will need to set ```metadata.targeted: false``` in your cr file.
 
 When configured in this way, backpack will launch as a DaemonSet on all nodes in 
 the cluster when the workload is applied. Backpack will then run stockpile to gather
@@ -113,7 +117,7 @@ spec:
       commands: "echo Test"
 ```
 
-- Add ```metadata_collection: true``` to the spec section of the yaml
+- Add ```metadata.collection: true``` to the spec section of the yaml
 ```
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
@@ -121,7 +125,8 @@ metadata:
   name: byowl-benchmark
   namespace: my-ripsaw
 spec:
-  metadata_collection: true
+  metadata:
+    collection: true
   workload:
     name: byowl
     args:
@@ -144,7 +149,8 @@ spec:
   elasticsearch:
     server: "my.elastic.server.foo"
     port: 9200
-  metadata_collection: true
+  metadata:
+    collection: true
   workload:
     name: byowl
     args:
@@ -158,17 +164,18 @@ The metadata collection will now run as defined.
 # Additional Options
 
 There are a few additional options that can be enabled to enahnce the amount
-of data collected.
+of data collected as well as reduce redundancy.
 
 ## Privleged Pods
 
 By default, pods are run in an unprivledged state. While this makes permissions
 a lesser issue, it does limit the amount of data collected. For example, dmidecode
-requires privledges to read the memory information and generate the data.
+requires privileges to read the memory information and generate the data.
 
-To enable privleged pods set:
+To enable privileged pods set:
 ```
-metadata_privledged: true
+metadata:
+  privileged: true
 ```
 
 In the spec section of the benchmark yaml as outlined for the other variables.
@@ -325,6 +332,25 @@ subjects:
 - kind: ServiceAccount
   name: backpack-view
   namespace: my-ripsaw
+```
+
+## Redis integration
+
+When the stockpile-wrapper.py script is passed --redisip [ip of redis] and --redisport [redis port]
+it will attempt to check Redis to see if the host has had its metadata collected for the current uuid.
+If it has already been collected we will not run the collection again. This will reduce some redundant
+data that was being collected when pods were launched on the same node.
+
+If it is desired to run the metadata collection regardless of if Redis claims it was already run then
+passing the script the --force option will force the metadata collection to occur.
+
+*NOTE* As Redis integration is already configured for the existing workloads nothing needs to be
+done to enable it. However, if you wish to use the --force option you will need to add ```force: true```
+to the metadata section of your workload cr file.
+
+```
+metadata:
+  force: true
 ```
 
 # Running Additional Collections
