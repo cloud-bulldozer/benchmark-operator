@@ -45,6 +45,10 @@ spec:
             value: "{{ test_user }}"
           - name: clustername
             value: "{{ clustername }}"
+{% if elasticsearch.cert_verify is defined %}
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify }}"
+{% endif %}
 {% if elasticsearch.server is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"

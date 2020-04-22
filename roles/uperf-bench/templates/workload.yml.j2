@@ -56,6 +56,9 @@ spec:
 {% endif %}
 {% endif %}
 {% if elasticsearch is defined %}
+{% if elasticsearch.cert_verify is defined %}
+             export es_verify_cert={{ elasticsearch.cert_verify }};
+{% endif %}
 {% if elasticsearch.server is defined %}
              export es={{elasticsearch.server}};
              export es_port={{elasticsearch.port}};

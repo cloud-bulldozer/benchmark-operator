@@ -36,6 +36,8 @@
                 value: "{{elasticsearch.port | default()}}"
               - name: es_index
                 value: "{{ es_index }}"
+              - name: es_verify_cert
+                value: "{{ elasticsearch.cert_verify | default("true") }}"
               - name: user
                 value: "{{test_user | default()}}"
               - name: workload

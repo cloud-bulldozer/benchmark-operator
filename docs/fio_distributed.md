@@ -117,7 +117,7 @@ The workload loops are nested as such from the CR options:
 > (1KiB = 1024B).
 >
 > However, note that fio (as of versions we have tested) does not react as might be expected to "shorthand"
-> IEC units like `Ki` or `Mi` -- these will be treated as base-10 instead of base-2. 
+> IEC units like `Ki` or `Mi` -- these will be treated as base-10 instead of base-2.
 >
 > Unfortunately, the [K8S resource model](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/resources.md)
 > specifies [explicitly](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/scheduling/resources.md#resource-quantities)
@@ -131,11 +131,6 @@ The workload loops are nested as such from the CR options:
 *Values here will usually be left unchanged*
 - **name**: The name the Ripsaw operator will use for the benchmark resource
 - **namespace**: The namespace in which the benchmark will run
-
-#### spec
-- **elasticsearch**: (optional) Values are used to enable indexing of fio data; [further details are below](#indexing-in-elasticsearch-and-visualization-through-grafana)
-- **clustername**: (optional) An arbitrary name for your system under test (SUT) that can aid indexing
-- **test_user**: (optional) An arbitrary name for the user performing the tests that can aid indexing
 
 #### spec.workload
 - **name**: **DO NOT CHANGE** This value is used by the Ripsaw operator to trigger the correct Ansible role
@@ -201,41 +196,3 @@ of the node on which it is running. You will need to use this IP address in the 
 ```bash
 kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
 ```
-
-## Indexing in elasticsearch and visualization through Grafana
-
-### Setup of Elasticsearch and Grafana
-
-You'll need to standup the infrastructure required to index and visualize results.
-We are using Elasticsearch as the database, and Grafana for visualizing.
-
-#### Elasticsearch
-
-Currently, we have tested with elasticsearch 7.0.1, so please deploy an elasticsearch instance.
-There are are many guides that are quite helpful to deploy elasticsearch, for starters
-you can follow the guide to deploy with docker by [elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/7.0/docker.html).
-
-Once you have verified that you can access the elasticsearch, you'll have to create an index template for ripsaw-fio-logs.
-
-We send fio logs to the index `ripsaw-fio-logs`, the template can be found in [arsenal](https://github.com/cloud-bulldozer/arsenal/blob/master/fio-distributed/elasticsearch/7.0.1/fio-logs.json).
-
-Ripsaw will be indexing the fio result json to the index `ripsaw-fio-result`. For this, no template is required. However if you're an advanced user of elasticsearch, you can create it and edit its settings.
-
-
-#### Grafana
-
-Currently for fio-distributed, we have tested with grafana 6.3.0. An useful guide to deploy with docker
-is present in [grafana docs](https://grafana.com/docs/installation/docker/#running-a-specific-version-of-grafana).
-
-Once you've set it up, you can import the dashboard from the template in [arsenal](https://github.com/cloud-bulldozer/arsenal/blob/master/fio-distributed/grafana/6.3.0/dashboard.json).
-
-You can then follow instructions to import dashboard like adding the data source following the [grafana docs](https://grafana.com/docs/reference/export_import/#importing-a-dashboard)
-
-Please set the data source to point to the earlier, and the index name should be `ripsaw-fio-logs`.
-The field for timestamp will always be `time_ms` .
-
-### Changes to CR for indexing/visualization
-
-In order to index your fio results to elasticsearch, you will need to define the parameters appropriately in
-your workload CR file. The `spec.elasticsearch.server` and `spec.elasticsearch.port` values are required.
-The `spec.clustername` and `spec.test_user` values are advised to allow for better indexing of your data.

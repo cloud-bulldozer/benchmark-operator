@@ -9,7 +9,7 @@ and quay.io for the public registry. We also test on crc version v1.7.0+.
 * [kubernetes](https://kubernetes.io/)
   * Fully supported: 1.16.2
 
-Note: 
+Note:
 * Experimental tag refers to some workloads that might be functioning
 * To use versions of Openshift and kubernetes prior to 4.3 and 1.16.2 respectively, please use version 0.0.2 of ripsaw
 
@@ -91,7 +91,9 @@ run workloads:
 * [pgbench](pgbench.md)
 * [fs-drift](fs-drift.md)
 
-If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
+If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR.
+Please read [elasticsearch](elasticsearch.md) for further info on setting your
+cr with values for allowing of indexing to elasticsearch.
 
 ### Clean up
 Now that we're running workloads we can cleanup by running following commands
@@ -115,5 +117,3 @@ This allows you to have the CI run on your own private image built with your PR.
 script in tests/ utilizes the common code in tests/common.sh to launch ripsaw.
 
 You can modify your ripsaw image to use a test version of your benchmark image as well.  For examples, see workload.yml.j2 files in the roles/ tree and look for the image: tag.
-
-

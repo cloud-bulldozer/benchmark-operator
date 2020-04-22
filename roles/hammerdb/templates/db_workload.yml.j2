@@ -17,9 +17,12 @@ spec:
         imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
-        args: 
-          - "/usr/local/bin/uid_entrypoint; 
+        args:
+          - "/usr/local/bin/uid_entrypoint;
              {% if elasticsearch is defined %}
+             {% if elasticsearch.cert_verify is defined %}
+             export es_verify_cert={{ elasticsearch.cert_verify }};
+             {% endif %}
              {% if elasticsearch.server is defined %}
              export es={{elasticsearch.server}};
              export es_port={{elasticsearch.port}};
@@ -39,7 +42,7 @@ spec:
              export rampup={{hammerdb.rampup}};
              export samples={{hammerdb.samples}};
 	     export timed_test={{hammerdb.timed_test}};
-             cd /hammer; 
+             cd /hammer;
              python /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume

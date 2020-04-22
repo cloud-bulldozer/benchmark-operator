@@ -30,6 +30,11 @@ spec:
             value: '{{ test_user }}'
           - name: clustername
             value: '{{ clustername }}'
+{% if elasticsearch is defined %}
+{% if elasticsearch.cert_verify is defined %}
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify }}"
+{% endif %}
 {% if es_server %}
           - name: es
             value: '{{ es_server }}'
@@ -37,6 +42,7 @@ spec:
             value: '{{ es_port }}'
           - name: es_index
             value: '{{ es_index_prefix }}'
+{% endif %}
 {% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]

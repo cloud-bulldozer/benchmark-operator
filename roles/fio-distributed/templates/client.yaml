@@ -27,6 +27,11 @@ spec:
           - name: ceph_cache_drop_pod_ip
             value: "{{ ceph_cache_drop_pod_ip }}"
 {% endif %}
+{% if elasticsearch is defined %}
+{% if elasticsearch.cert_verify is defined %}
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify }}"
+{% endif %}
 {% if es_server %}
           - name: es
             value: "{{ es_server }}"
@@ -34,6 +39,7 @@ spec:
             value: "{{ es_port }}"
           - name: es_index
             value: "{{ es_index }}"
+{% endif %}
 {% endif %}
         command: ["/bin/sh", "-c"]
         args:
