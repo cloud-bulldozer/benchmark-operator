@@ -92,7 +92,9 @@ run workloads:
 * [fs-drift](fs-drift.md)
 * [servicemesh](servicemesh.md)
 
-If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
+If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR.
+Please read [elasticsearch](elasticsearch.md) for further info on setting your
+cr with values for allowing of indexing to elasticsearch.
 
 ### Clean up
 Now that we're running workloads we can cleanup by running following commands

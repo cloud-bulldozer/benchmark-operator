@@ -239,52 +239,6 @@ You can either access results by indexing them directly or by accessing the cons
 The results are stored in /tmp/ directory
 
 
-
-### Storing results into Elasticsearch
-
-```yaml
-apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
-kind: Benchmark
-metadata:
-  name: example-benchmark
-  namespace: my-ripsaw
-spec:
-  clustername: myk8scluster
-  test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
-  elasticsearch:
-    server: <es_host>
-    port: <es_port>
-  workload:
-    name: uperf
-    args:
-      hostnetwork: false
-      pin: false
-      pin_server: "node-0"
-      pin_client: "node-1"
-      kind: pod
-      samples: 1
-      pair: 1
-      test_types:
-        - stream
-      protos:
-        - tcp
-      sizes:
-        - 16384
-      nthrs:
-        - 1
-      runtime: 30
-```
-
-The new fields :
-
-`elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-
-`elasticsearch.port` port which elasticsearch is listening, typically `9200`.
-
-`user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
-
-By default we will utilize the `uperf-results` index for Elasticsearch.
-
 Deploying the above(assuming pairs is set to 1) would result in
 
 ```bash
@@ -330,13 +284,3 @@ UPerf results (bytes/sec):
 +-------------------------------------------------------------------------------------------------------------------+
 
 ```
-
-### Dashboard example
-
-Using the Elasticsearch storage describe above, we can build dashboards like the below.
-
-![UPerf Dashboard](https://i.imgur.com/gSVZ9MX.png)
-
-To reuse the dashboard above, use the json [here](https://github.com/cloud-bulldozer/arsenal/tree/master/uperf/grafana)
-
-Additionally, by default we will utilize the `uperf-results` index for Elasticsearch.

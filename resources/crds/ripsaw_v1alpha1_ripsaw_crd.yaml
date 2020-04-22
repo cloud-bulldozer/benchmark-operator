@@ -33,6 +33,8 @@ spec:
                     type: string
                   parallel:
                     type: boolean
+                  cert_verify:
+                    type: boolean
               prometheus:
                 type: object
                 properties:
@@ -46,6 +48,8 @@ spec:
                     type: string
                   prom_token:
                     type: string
+                  cert_verify:
+                    type: boolean
               workload:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object

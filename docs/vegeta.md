@@ -109,11 +109,11 @@ spec:
 
 Where:
 
-- `elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-- `elasticsearch.port` port which elasticsearch is listening, typically `9200`.
+- `elasticsearch.server` this is the elasticsearch cluster IP you want to send the result data to for long term storage.
+- `elasticsearch.port` port where elasticsearch is listening, typically `9200`.
 - `elasticsearch.index_name` Elasticseach to index the logs in. This parameter is optional, and defaults to *ripsaw-vegeta*.
 
-In addition, the following parameters can be also specified at the `spec` level to improve ES indexing.
+In addition, the following parameters can also be specified at the `spec` level to improve ES indexing.
 - `test_user` user is a key that points to user triggering ripsaw, useful to search results in ES. Defaults to *ripsaw*.
 - `clustername` an arbitrary name for your system under test (SUT) that can aid indexing.
 
@@ -124,6 +124,7 @@ The following metrics are indexed at one second intervals:
 - status_codes: Breakdown of the number status codes observed over the interval.
 - requests: Total number of requests executed until that moment.
 - p99_latency: 99th percentile of the request latency observed over the interval in µs.
+- p95_latency: 95th percentile of the request latency observed over the interval in µs.
 - req_latency: Average latency of all requests observed over the interval in µs.
 - bytes_in: Incoming byte metrics over the interval.
 - bytes_out: Outgoing byte metrics over the interval.

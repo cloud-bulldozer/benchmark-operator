@@ -49,6 +49,8 @@ spec:
             value: "{{ elasticsearch.port }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-smallfile") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default("false") }}"
 {% endif %}
@@ -63,6 +65,8 @@ spec:
             value: "{{ prometheus.prom_token | default() }}"
           - name: prom_url
             value: "{{ prometheus.prom_url | default() }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
 {% endif %}
           - name: redis_host
             value: "{{ bo.resources[0].status.podIP }}"
@@ -81,10 +85,10 @@ spec:
 {% if workload_args.samples is defined %}
               --samples {{workload_args.samples}}
 {% endif %}
-              --tool smallfile 
-              --operations $arr 
-              --top {{smallfile_path}}/smallfile_test_data 
-              --dir /var/tmp/RESULTS 
+              --tool smallfile
+              --operations $arr
+              --top {{smallfile_path}}/smallfile_test_data
+              --dir /var/tmp/RESULTS
               --yaml-input-file /tmp/smallfile/smallfilejob ;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:

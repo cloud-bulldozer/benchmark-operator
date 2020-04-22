@@ -29,6 +29,8 @@ spec:
             value: "{{ elasticsearch.port }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-hammerdb") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default("false") }}"
 {% endif %}

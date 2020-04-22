@@ -20,22 +20,24 @@ spec:
         - name: clustername
           value: "{{ clustername }}"
         - name: user
-          value: "{{test_user | default()}}"
+          value: "{{ test_user | default() }}"
         - name: workload
-          value: "{{ycsb_workload_load}}"
+          value: "{{ ycsb_workload_load }}"
         - name: num_records
-          value: "{{workload_args.recordcount}}"
+          value: "{{ workload_args.recordcount }}"
         - name: num_operations
-          value: "{{workload_args.operationcount}}"
+          value: "{{ workload_args.operationcount }}"
         - name: uuid
-          value: "{{uuid}}"
+          value: "{{ uuid }}"
 {% if elasticsearch is defined %}
         - name: es
           value: "{{ elasticsearch.server }}"
         - name: es_port
           value: "{{ elasticsearch.port }}"
         - name: es_index
-          value: "{{ elasticsearch.index_name | default("ripsaw-fio") }}"
+          value: "{{ elasticsearch.index_name | default("ripsaw-ycsb") }}"
+        - name: es_verify_cert
+          value: "{{ elasticsearch.cert_verify | default("true") }}"
         - name: parallel
           value: "{{ elasticsearch.parallel | default("false") }}"
 {% endif %}
