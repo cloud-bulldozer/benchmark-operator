@@ -3,6 +3,8 @@
 ERRORED=false
 image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
+es_server=${ES_SERVER:-marquez.perf.lab.eng.rdu2.redhat.com}
+es_port=${ES_PORT:-9200}
 echo "using container image location $image_location and account $image_account"
 
 function populate_test_list {
@@ -76,7 +78,7 @@ function get_uuid () {
       return 1
     fi
   done
-  echo ${uuid:0:8}
+  echo $uuid
   return 0
 }
 
@@ -128,6 +130,7 @@ function apply_operator {
   operator_requirements
   kubectl apply -f resources/operator.yaml
   kubectl wait --for=condition=available "deployment/benchmark-operator" -n my-ripsaw --timeout=300s
+  backpack_requirements
 }
 
 function delete_operator {
@@ -160,6 +163,15 @@ function operator_requirements {
   kubectl apply -f resources/namespace.yaml
   kubectl apply -f deploy
   kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+}
+
+function backpack_requirements {
+  kubectl apply -f resources/backpack_role.yaml
+  if [[ `command -v oc` ]]
+  then
+    oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator
+    oc adm policy -n my-ripsaw add-scc-to-user privileged -z backpack-view
+  fi
 }
 
 function create_operator {
@@ -265,5 +277,18 @@ function wait_for_backpack() {
       echo "Backpack failed to complete. Exiting"
       exit 1
     fi
+  done
+}
+
+function check_es() {
+  if [[ ${#} != 2 ]]; then
+    echo "Wrong number of arguments: ${#}"
+    exit $NOTOK
+  fi
+  uuid=$1
+  index=${@:2}
+  for my_index in $index; do
+    python3 tests/check_es.py -s $es_server -p $es_port -u $uuid -i $my_index \
+      || exit $NOTOK
   done
 }

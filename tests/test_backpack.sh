@@ -21,23 +21,22 @@ function functional_test_backpack {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_backpack.yaml
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
 
   wait_for_backpack $uuid
+  
+  echo "Waiting 2 minutes to ensure data is in ES"
+  sleep 120
 
-  for pod in `kubectl -n my-ripsaw get pods -l name=backpack-$uuid | grep -v NAME | awk '{print $1}'`
-  do
-    if [[ `kubectl -n my-ripsaw exec $pod -- ls /tmp/stockpile.json` ]]
-    then
-      echo "Found stockpile.json on "$pod
-    else
-      echo "Could not find stockpile.json on "$pod
-      echo "Backpack test: Fail"
-      exit 1
-    fi
-  done
-
-  echo "Backpack test: Success"
+  indexes="cpu_vulnerabilities-metadata cpuinfo-metadata dmidecode-metadata k8s_configmaps-metadata k8s_namespaces-metadata k8s_nodes-metadata k8s_pods-metadata lspci-metadata meminfo-metadata sysctl-metadata"
+  if check_es "${long_uuid}" "${indexes}"
+  then
+    echo "Backpack test: Success"
+  else
+    exit 1
+    echo "Faled to find data in ES"
+  fi
 }
 
 functional_test_backpack

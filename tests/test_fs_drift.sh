@@ -23,7 +23,9 @@ function functional_test_fs_drift {
   cr=$2
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
+
   count=0
   while [[ $count -lt 24 ]]; do
     if [[ `kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client` ]]; then
@@ -41,7 +43,15 @@ function functional_test_fs_drift {
   # Print logs and check status
   kubectl logs "$fsdrift_pod" -n my-ripsaw
   kubectl logs "$fsdrift_pod" -n my-ripsaw | grep "RUN STATUS"
-  echo "${test_name} test: Success"
+
+  indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
+  if check_es "${long_uuid}" "${indexes}"
+  then
+    echo "${test_name} test: Success"
+  else
+    echo "Failed to find data for ${test_name} in ES"
+    exit 1
+  fi
 }
 
 figlet $(basename $0)

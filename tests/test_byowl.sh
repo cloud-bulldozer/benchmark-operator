@@ -21,7 +21,8 @@ function functional_test_byowl {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_byowl.yaml
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
   
   byowl_pod=$(get_pod "app=byowl-$uuid" 300)
   wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$byowl_pod --timeout=500s" "500s" $byowl_pod

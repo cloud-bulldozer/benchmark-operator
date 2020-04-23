@@ -23,7 +23,9 @@ function functional_test_smallfile {
   cr=$2
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
+
   count=0
   while [[ $count -lt 24 ]]; do
     if [[ `kubectl get pods -l app=smallfile-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client` ]]; then
@@ -42,7 +44,15 @@ function functional_test_smallfile {
   for pod in ${smallfile_pod}; do
     kubectl logs ${pod} --namespace my-ripsaw | grep "RUN STATUS"
   done
-  echo "${test_name} test: Success"
+
+  index="ripsaw-smallfile-results ripsaw-smallfile-rsptimes"
+  if check_es "${long_uuid}" "${index}"
+  then
+    echo "${test_name} test: Success"
+  else
+    echo "Failed to find data for ${test_name} in ES"
+    exit 1
+  fi
 }
 
 figlet $(basename $0)

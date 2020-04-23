@@ -10,6 +10,8 @@ spec:
   metadata:
     collection: true
     targeted: false
+    privileged: true
+    serviceaccount: backpack-view
   workload:
     name: byowl
     args:
