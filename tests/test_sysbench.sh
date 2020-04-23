@@ -21,7 +21,8 @@ function functional_test_sysbench {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
 
   sysbench_pod=$(get_pod "app=sysbench-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$sysbench_pod --namespace my-ripsaw --timeout=500s" "500s" $sysbench_pod

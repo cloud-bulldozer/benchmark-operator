@@ -70,7 +70,8 @@ spec:
            - containerPort: 27017
 EOF
   kubectl apply -f tests/test_crs/valid_ycsb-mongo.yaml
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
 
   wait_for_backpack $uuid
 
@@ -78,7 +79,15 @@ EOF
   wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n my-ripsaw --timeout=60s" "60s" $ycsb_load_pod
   wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load-$uuid -n my-ripsaw --timeout=300s" "300s" $ycsb_load_pod
   kubectl logs -n my-ripsaw $ycsb_load_pod | grep 'Starting test'
-  echo "ycsb test: Success"
+
+  index="ripsaw-ycsb-summary ripsaw-ycsb-results"
+  if check_es "${long_uuid}" "${index}"
+  then
+    echo "ycsb test: Success"
+  else
+    echo "Failed to find data for ${test_name} in ES"
+    exit 1
+  fi
 }
 
 functional_test_ycsb

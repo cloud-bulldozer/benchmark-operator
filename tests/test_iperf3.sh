@@ -21,7 +21,8 @@ function functional_test_iperf {
   figlet $(basename $0)
   apply_operator
   kubectl apply -f tests/test_crs/valid_iperf3.yaml
-  uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid 20)
+  uuid=${long_uuid:0:8}
 
   iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)
   wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
