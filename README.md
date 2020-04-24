@@ -33,6 +33,33 @@ un-block it. The benchmarks mentioned above that state `Used` for Reconciliation
 These two bencharmks are written in a way that doesn't allow for reconciliation to be implemented. To take
 advantage of the reconciliation loop, these two benchmarks need to be rewritten.
 
+## Optional workload images
+Optional locations for workload images can now be added easily without the need to rebuild the operator.
+To do so in the workload args section of the CR add image: [location]
+
+NOTE: This is not a required arguement. If omitted it will default to the currently verified workload image.
+Additionally, this is not enabled for YCSB
+
+For Example:
+
+```
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: "my-es.foo.bar"
+    port: 9200
+  metadata_collection: true
+  cleanup: false
+  workload:
+    name: "foo"
+    args:
+      image: my.location/foo:latest
+```
+
 ## Installation
 [Installation](docs/installation.md)
 

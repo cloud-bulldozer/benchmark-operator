@@ -20,7 +20,7 @@ spec:
 {% endif %}
       containers:
       - name: benchmark
-        image: "quay.io/cloud-bulldozer/iperf3:latest"
+        image: {{ iperf3.image | default('quay.io/cloud-bulldozer/iperf3:latest') }}
         imagePullPolicy: Always
         wait: true
         command: ["/bin/sh", "-c"]
@@ -34,7 +34,7 @@ spec:
 {% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
-        image: quay.io/cloud-bulldozer/backpack:latest
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
         imagePullPolicy: Always
