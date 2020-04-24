@@ -22,7 +22,7 @@ spec:
         effect: NoSchedule
       containers:
       - name: backpack
-        image: quay.io/cloud-bulldozer/backpack:latest
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
         command: ["/bin/sh", "-c"]
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name; sleep infinity"]
         imagePullPolicy: Always
