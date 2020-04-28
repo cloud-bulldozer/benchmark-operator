@@ -12,7 +12,8 @@ spec:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
   es_index: ripsaw-smallfile
-  metadata_collection: true
+  metadata:
+    collection: true
   workload:
     name: smallfile
     args:
