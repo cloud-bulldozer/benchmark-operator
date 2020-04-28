@@ -7,8 +7,9 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
-  metadata_collection: true
-  metadata_targeted: false
+  metadata:
+    collection: true
+    targeted: false
   workload:
     name: ycsb
     args:

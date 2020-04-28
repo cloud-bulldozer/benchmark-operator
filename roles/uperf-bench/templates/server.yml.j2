@@ -17,7 +17,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: "quay.io/cloud-bulldozer/uperf:latest"
+    image: {{ uperf.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
 {% if uperf.server_resources is defined %}
     resources: {{ uperf.server_resources | to_json }}
 {% endif %}
@@ -36,16 +36,20 @@ spec:
     - name: net.ipv4.ip_local_port_range
       value: 20000 20011
 {% endif %}
-{% if metadata_collection|default(false) is sameas true and metadata_targeted|default(true) is sameas true %}
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
   initContainers:
   - name: backpack-{{ trunc_uuid }}
-    image: quay.io/cloud-bulldozer/backpack:latest
+    image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
     command: ["/bin/sh", "-c"]
-    args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+    args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+    args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
     imagePullPolicy: Always
     wait: true
     securityContext:
-      privileged: {{ metadata_privileged | default(false) | bool }}
+      privileged: {{ metadata.privileged | default(false) | bool }}
     env:
       - name: my_node_name
         valueFrom:
@@ -55,5 +59,5 @@ spec:
         valueFrom:
           fieldRef:
             fieldPath: metadata.name
-  serviceAccountName: {{ metadata_sa | default('default') }}
+  serviceAccountName: {{ metadata.serviceaccount | default('default') }}
 {% endif %}

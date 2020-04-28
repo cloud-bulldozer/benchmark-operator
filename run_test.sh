@@ -7,6 +7,9 @@ retries=3
 
 figlet $ci_test
 
+# Random short sleep to avoid command collision
+sleep $[ ( $RANDOM % 10 )]s
+
 cd $ci_dir
 source tests/common.sh
 

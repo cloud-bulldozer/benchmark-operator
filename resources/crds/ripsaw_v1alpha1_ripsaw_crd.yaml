@@ -37,12 +37,9 @@ spec:
                 type: array
                 items:
                   type: object
-              metadata_collection:
-                type: boolean
-              metadata_privledged:
-                type: boolean
-              metadata_targeted:
-                type: boolean
+              metadata:
+                x-kubernetes-preserve-unknown-fields: true
+                type: object
               cleanup:
                 type: boolean
               test_user: 

@@ -12,7 +12,8 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
-  metadata_collection: true
+  metadata:
+    collection: true
   hostpath: /mnt/vda1/fs_drift
   workload:
     name: fs-drift
