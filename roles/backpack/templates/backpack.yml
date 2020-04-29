@@ -32,7 +32,7 @@ spec:
         imagePullPolicy: Always
         wait: true
 {% if metadata is defined and metadata.privileged is defined %}
-       securityContext:
+        securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
 {% endif %}
         readinessProbe:
