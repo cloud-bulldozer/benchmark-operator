@@ -9,6 +9,8 @@ spec:
 #    port: 9200
 #  clustername: myk8scluster
 #  test_user: ripsaw
+# Run fio sever as privileged in order to be able to drop caches
+  privileged: true
   workload:
     name: "fio_distributed"
     args:
@@ -29,6 +31,10 @@ spec:
       read_ramp_time: 5
       filesize: 2GiB
       log_sample_rate: 1000
+#  NOTE: Dropping caches as per this example can only be done if the
+#        fio server is running in a privileged pod
+      global_overrides:
+        - exec_prerun=sync && echo 3 > /proc/sys/vm/drop_caches
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
       #rook_ceph_drop_caches: True

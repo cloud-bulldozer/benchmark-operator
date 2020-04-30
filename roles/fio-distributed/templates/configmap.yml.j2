@@ -50,8 +50,8 @@ data:
 
     [{{job}}]
     rw={{job}}
-{% if global_overrides|default([])|length %}
-{% for override in global_overrides %}
+{% if fiod.global_overrides|default([])|length %}
+{% for override in fiod.global_overrides %}
     {{ override }}
 {% endfor %}
 {% endif %}

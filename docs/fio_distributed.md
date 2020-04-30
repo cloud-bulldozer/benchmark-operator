@@ -26,6 +26,7 @@ spec:
     port: 9200
   clustername: myk8scluster
   test_user: my_test_user_name
+  privileged: false
   workload:
     name: "fio_distributed"
     args:
@@ -51,11 +52,11 @@ spec:
       storagesize: 5Gi
       rook_ceph_drop_caches: True
       rook_ceph_drop_cache_pod_ip: 192.168.111.20
+   #  global_overrides:
+   #    - key=value
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
-#  global_overrides:
-#    - key=value
   job_params:
     - jobname_match: w
       params:
@@ -136,6 +137,7 @@ The workload loops are nested as such from the CR options:
 - **elasticsearch**: (optional) Values are used to enable indexing of fio data; [further details are below](#indexing-in-elasticsearch-and-visualization-through-grafana)
 - **clustername**: (optional) An arbitrary name for your system under test (SUT) that can aid indexing
 - **test_user**: (optional) An arbitrary name for the user performing the tests that can aid indexing
+- **privileged**: (optional) Run Fio server pods as privileged. This option is useful in case we want to run a privileged command through the [Fio exec_prerun](https://fio.readthedocs.io/en/latest/fio_doc.html#cmdoption-arg-exec-prerun) parameter. i.e. `echo 3 > /proc/sys/vm/drop_caches`
 
 #### spec.workload
 - **name**: **DO NOT CHANGE** This value is used by the Ripsaw operator to trigger the correct Ansible role
@@ -178,6 +180,36 @@ jobfile configmap. These options will therefore override the global values for a
 #### EXPERT: spec.job_params
 Under most circumstances, the options provided in the EXPERT AREA here should not be modified. The `key=value`
 pairs under `params` here are used to append additional fio job options based on the job type. Each `jobname_match` in the list uses a "search string" to match a job name per `fio(1)`, and if a match is made, the `key=value` list items under `params` are appended to the `[job]` section of the fio jobfile configmap.
+
+## Dropping Kernel Caches
+Dropping kernel caches at the Fio server side is usually required to obtain more consistent results in I/O benchmarking.
+Performing this operation requires to run Fio server pods as privileged, we can achieve that by using the `privileged` 
+variable of the Fio Benchmark resource as the example below:
+
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+spec:
+  privileged: true
+  workload:
+    args:
+      samples: 3
+      servers: 3
+      jobs:
+        - write
+      bs:
+        - 4KiB
+      numjobs:
+        - 1
+      iodepth: 4
+      read_runtime: 60
+      filesize: 2GiB
+      global_overrides:
+        - exec_prerun=sync && echo 3 > /proc/sys/vm/drop_caches
+```
+
+**Note exec_prerun value without quotes"
+
 
 ## Dropping Rook-Ceph OSD Caches
 

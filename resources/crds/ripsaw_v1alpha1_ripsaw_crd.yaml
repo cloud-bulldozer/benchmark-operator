@@ -46,6 +46,8 @@ spec:
                 type: string
               clustername: 
                 type: string
+              privileged:
+                type: boolean
 ### I don't know if this one is needed but its in fs_drift
               es_index: 
                 type: string 
