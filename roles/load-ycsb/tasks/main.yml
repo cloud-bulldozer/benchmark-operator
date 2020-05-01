@@ -52,6 +52,10 @@
               volumeMounts:
                 - name: config-volume
                   mountPath: "/tmp/ycsb"
+{% if ycsb.pin is sameas true %}
+              nodeSelector:
+                kubernetes.io/hostname: '{{ ycsb.pin_client }}'
+{% endif %}
             restartPolicy: Never
             volumes:
             - name: config-volume
