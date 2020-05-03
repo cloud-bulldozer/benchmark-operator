@@ -30,6 +30,8 @@ spec:
         - workloadb
       options_load: '-p mongodb.url="mongodb://mongo/ycsb?"' #passed as is to ycsb when loading database
       options_run: '-p mongodb.url="mongodb://mongo/ycsb?" -threads 10 -target 100'
+      pin: false
+      #pin_node:
 ```
 
 The following options in args are required:
@@ -59,6 +61,11 @@ The following options are optional:
 
 `options_load` This needs to be set if `loaded` is not defined or set to false, and like in the case of `options_run` this needs to be configured properly,
 so that the ycsb pod can access the API of database.
+
+`pin` will allow the benchmark runner place nodes on specific nodes, using the `hostname` label.
+
+`pin_node` what node to pin the pod to.
+
 
 Once done creating/editing the resource file, you can run it by:
 

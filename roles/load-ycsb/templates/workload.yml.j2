@@ -1,0 +1,52 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'ycsb-data-load-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  template:
+    metadata:
+      name: '{{ meta.name }}-ycsb-data-load'
+      namespace: '{{ operator_namespace }}'
+      labels:
+        name: 'ycsb-load-{{ trunc_uuid }}'
+    spec:
+      containers:
+      - name: ycsb
+        image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+        imagePullPolicy: Always
+        env:
+        - name: clustername
+          value: "{{ clustername }}"
+        - name: es
+          value: "{{ elasticsearch.server | default() }}"
+        - name: es_port
+          value: "{{ elasticsearch.port | default() }}"
+        - name: es_index
+          value: "{{ es_index }}"
+        - name: user
+          value: "{{ test_user | default() }}"
+        - name: workload
+          value: "{{ ycsb_workload }}"
+        - name: num_records
+          value: "{{ ycsb.recordcount }}"
+        - name: num_operations
+          value: "{{ ycsb.operationcount }}"
+        - name: uuid
+          value: "{{ uuid }}"
+        command: ["/bin/sh", "-c"]
+        args: ['python /opt/snafu/run_snafu.py --tool ycsb -r 1 -l -d {{ ycsb.driver }} -u {{ uuid }} --user {{ test_user | default("ripsaw") }} -w {{ ycsb_workload }} -x "{{ ycsb.options_load }}"']
+        volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/ycsb"
+{% if ycsb.pin|default(false) is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ ycsb.pin_node }}'
+{% endif %}
+      restartPolicy: OnFailure
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ycsb-test-{{ trunc_uuid }}
+  backoffLimit: 4
