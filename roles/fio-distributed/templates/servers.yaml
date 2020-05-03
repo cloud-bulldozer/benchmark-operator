@@ -12,6 +12,14 @@ spec:
         app: fio-benchmark-{{ trunc_uuid }}
     spec:
       affinity:
+{% if fiod.avoidlabel is defined %}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            matchExpressions:
+            - key: {{ fiod.avoidlabel }}
+              operator: DoesNotExist
+{% endif %}
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
