@@ -12,23 +12,41 @@ spec:
   workload:
     name: "fio_distributed"
     args:
+      # if true, do large sequential write to preallocate volume before using
+      prefill: true
+      # number of times each test
       samples: 3
+      # number of fio pods generating workload
       servers: 3
+      # put all fio pods on this server
       pin_server: ''
+      # test types, see fio documentation
       jobs:
         - write
         - read
+        - randwrite
+        - randread
+      # I/O request sizes (also called block size)
       bs:
-        - 4KiB
-        - 64KiB
+        - 4k
+        - 64k
+      # how many fio processes per pod
       numjobs:
         - 1
-        - 8
+      # with libaio ioengine, number of in-flight requests per process
       iodepth: 4
-      read_runtime: 60
+      # how long to run write tests, this is TOO SHORT DURATION
+      read_runtime: 15
+      # how long to run read tests, this is TOO SHORT DURATION
+      write_runtime: 15
+      # don't start measuring until this many seconds pass, for reads
       read_ramp_time: 5
+      # don't start measuring until this many seconds pass, for writes
+      write_ramp_time: 5
+      # size of file to access 
       filesize: 2GiB
-      log_sample_rate: 1000
+      # interval between i/o stat samples in milliseconds
+      log_sample_rate: 3000
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
       #rook_ceph_drop_caches: True
@@ -41,10 +59,12 @@ spec:
 #        fio server is running in a privileged pod
 #    - exec_prerun=bash -c 'sync && echo 3 > /proc/sys/vm/drop_caches'
   job_params:
-    - jobname_match: w
+    - jobname_match: write
       params:
         - fsync_on_close=1
         - create_on_open=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
     - jobname_match: read
       params:
         - time_based=1
@@ -62,6 +82,21 @@ spec:
         - time_based=1
         - runtime={{ fiod.read_runtime }}
         - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: randread
+      params:
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: randwrite
+      params:
+        - time_based=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
+    - jobname_match: randrw
+      params:
+        - time_based=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
 #    - jobname_match: <search_string>
 #      params:
 #        - key=value

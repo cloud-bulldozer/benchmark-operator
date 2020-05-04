@@ -43,7 +43,9 @@ spec:
              cat /tmp/fio/fiojob-prefill;
              mkdir -p /tmp/fiod-{{ uuid }}/fiojob-prefill;
              fio --client=/tmp/host/hosts /tmp/fio/fiojob-prefill --output-format=json;
-             sleep 300;
+{% if fiod.post_prefill_sleep is defined %}
+             sleep {{ fiod.post_prefill_sleep }};
+{% endif %}
              echo ***********End of Prefill*************;
 {% endif %}
 {% for numjobs in fiod.numjobs %}

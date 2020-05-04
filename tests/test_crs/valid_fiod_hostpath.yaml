@@ -16,9 +16,13 @@ spec:
     args:
       samples: 2
       servers: 2
+      prefill: true
       jobs:
         - write
         - read
+        - randwrite
+        - randread
+        - randrw
       bs:
         - 4KiB
         - 64KiB
@@ -26,18 +30,23 @@ spec:
         - 1
         - 2
       iodepth: 2
-      read_runtime: 3
+      read_runtime: 6
+      write_runtime: 6
       read_ramp_time: 1
+      write_ramp_time: 1
       filesize: 10MiB
-      log_sample_rate: 1000
+      log_sample_rate: 2000
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
   job_params:
-    - jobname_match: w
+    - jobname_match: write
       params:
+        - time_based=1
         - fsync_on_close=1
         - create_on_open=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
     - jobname_match: read
       params:
         - time_based=1
@@ -55,4 +64,19 @@ spec:
         - time_based=1
         - runtime={{ fiod.read_runtime }}
         - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: randread
+      params:
+        - time_based=1
+        - runtime={{ fiod.read_runtime }}
+        - ramp_time={{ fiod.read_ramp_time }}
+    - jobname_match: randwrite
+      params:
+        - time_based=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
+    - jobname_match: randrw
+      params:
+        - time_based=1
+        - runtime={{ fiod.write_runtime }}
+        - ramp_time={{ fiod.write_ramp_time }}
 

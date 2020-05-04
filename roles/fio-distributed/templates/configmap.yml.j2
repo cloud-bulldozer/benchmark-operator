@@ -57,7 +57,7 @@ data:
 {% endif %}
 {% if job_params|default([])|length %}
 {% for match in job_params %}
-{% if match.jobname_match in job %}
+{% if match.jobname_match == job %}
 {% for param in match.params %}
     {{ param }}
 {% endfor %}
