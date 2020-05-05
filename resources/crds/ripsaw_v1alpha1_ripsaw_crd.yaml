@@ -29,6 +29,8 @@ spec:
                     type: string
                   port: 
                     type: integer
+                  index_name:
+                    type: string
               workload:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
@@ -48,8 +50,6 @@ spec:
                 type: string
               clustername: 
                 type: string
-              es_index: 
-                type: string 
               hostpath:
                 type: string
           status:

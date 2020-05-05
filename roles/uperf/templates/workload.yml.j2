@@ -38,11 +38,31 @@ spec:
       containers:
       - name: benchmark
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-uperf") }}"
+{% endif %}
+{% if uperf.pin is sameas true %}
+          - name: client_node
+            client_node: {{ uperf.pin_client }}
+          - name: client_node
+            server_node: {{ uperf.pin_server }}
+{% endif %}
 {% if workload_args.client_resources is defined %}
         resources: {{ workload_args.client_resources | to_json }}
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
 {% if workload_args.serviceip is sameas true %}
@@ -55,26 +75,6 @@ spec:
           - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
-{% if elasticsearch is defined %}
-{% if elasticsearch.server is defined %}
-             export es={{elasticsearch.server}};
-             export es_port={{elasticsearch.port}};
-             export es_index={{es_index}}
-             export uuid={{uuid}};
-{% endif %}
-
-{% endif %}
-{% if test_user is defined %}
-             export test_user={{test_user}};
-{% endif %}
-{% if workload_args.pin is sameas true %}
-             export client_node={{workload_args.pin_client}};
-             export server_node={{workload_args.pin_server}};
-{% else %}
-             export client_node=UNSET;
-             export server_node=UNSET;
-{% endif %}
-             export clustername={{clustername}};
              export hostnet={{workload_args.hostnetwork}};
              export ips=$(hostname -I);
              while true; do
@@ -120,7 +120,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

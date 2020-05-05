@@ -17,7 +17,6 @@ spec:
         args: ["{{ workload_args.commands }}"]
         image: "{{ workload_args.image }}"
         imagePullPolicy: Always
-        wait: true
       restartPolicy: OnFailure
 {% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
@@ -30,7 +29,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}        
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

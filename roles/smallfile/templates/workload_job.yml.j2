@@ -35,24 +35,25 @@ spec:
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /opt/snafu
-          wait: true
           env:
           - name: uuid
             value: "{{ uuid }}"
           - name: test_user
-            value: "{{ test_user }}"
+            value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch.server is defined %}
+{% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
           - name: es_port
             value: "{{ elasticsearch.port }}"
           - name: es_index
-            value: "{{ es_index }}"
+            value: "{{ elasticsearch.index_name | default("ripsaw-smallfile") }}"
 {% endif %}
           - name: redis_host
             value: "{{ bo.resources[0].status.podIP }}"
+          - name: TMPDIR
+            value: /tmp
           - name: clients
             value: "{{ workload_args.clients|default('1')|int }}"
           args:
@@ -108,7 +109,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

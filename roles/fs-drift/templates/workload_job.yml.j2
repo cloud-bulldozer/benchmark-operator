@@ -37,34 +37,34 @@ spec:
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /opt/snafu
-          wait: true
           env:
           - name: uuid
             value: "{{ uuid }}"
           - name: test_user
-            value: "{{ test_user }}"
+            value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch.server is defined %}
+{% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
           - name: es_port
             value: "{{ elasticsearch.port }}"
           - name: es_index
-            value: "{{ es_index }}"
+            value: "{{ elasticsearch.index_name | default("ripsaw-fs-drift") }}"
 {% endif %}
+          - name: TMPDIR
+            value: /tmp/fs-drift-output
           args:
             - set -x;
-              export TMPDIR=/tmp/fs-drift-output;
-              rm -rf $TMPDIR;
-              mkdir -pv $TMPDIR/RESULTS;
+              rm -rf ${TMPDIR};
+              mkdir -pv ${TMPDIR}/RESULTS;
               mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
               cat /tmp/fs-drift/params;
               python run_snafu.py
               --tool fs-drift
               --top {{fs_drift_path}}/fs_drift_test_data
-              --dir $TMPDIR/RESULTS
+              --dir ${TMPDIR}/RESULTS
 {% if workload_args.samples is defined %}
               --samples {{workload_args.samples}}
 {% endif %}
@@ -105,7 +105,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}        
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

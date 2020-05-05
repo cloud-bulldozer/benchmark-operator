@@ -33,7 +33,6 @@ spec:
         imagePullPolicy: Always
         ports:
           - containerPort: 8765
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "cd /tmp; fio --server"
@@ -44,7 +43,7 @@ spec:
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator
-{% if pin_server %}
+{% if fiod.pin_server|default() %}
       nodeSelector:
         kubernetes.io/hostname: '{{ pin_server }}'
 {% endif %}
@@ -71,7 +70,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

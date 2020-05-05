@@ -43,7 +43,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379; sleep infinity"]
 {% endif %}
         imagePullPolicy: Always
-        wait: true
 {% if metadata is defined and metadata.privileged is defined %}
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}

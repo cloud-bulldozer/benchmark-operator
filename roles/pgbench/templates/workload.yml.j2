@@ -15,7 +15,6 @@ spec:
       - name: benchmark
         image: "{{ pgb_base_image }}:{{ pgb_version }}"
         imagePullPolicy: Always
-        wait: true
         env:
           - name: PGPASSWORD
             value: '{{ item.1.password }}'
@@ -27,16 +26,16 @@ spec:
                    -p {% if item.1.port is defined and item.1.port|int > 0 %} {{ item.1.port }} {% else %} {{ db_port }} {% endif %}
                    -U {{ item.1.user }}
           - name: test_user
-            value: '{{ test_user }}'
+            value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: '{{ clustername }}'
-{% if es_server %}
+{% if elasticsearch is defined %}
           - name: es
-            value: '{{ es_server }}'
+            value: "{{ elasticsearch.server }}"
           - name: es_port
-            value: '{{ es_port }}'
+            value: "{{ elasticsearch.port }}"
           - name: es_index
-            value: '{{ es_index_prefix }}'
+            value: "{{ elasticsearch.index_name | default("ripsaw-pgbench") }}"
 {% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
@@ -84,7 +83,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}        
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

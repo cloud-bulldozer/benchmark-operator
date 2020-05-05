@@ -8,10 +8,10 @@ spec:
   # to separate this test run from everyone else's
   clustername: test_ci
   # where elastic search is running
-  es_index: ripsaw-fs-drift
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
+    index_name: ripsaw-fs-drift
   metadata:
     collection: true
   hostpath: /mnt/vda1/fs_drift

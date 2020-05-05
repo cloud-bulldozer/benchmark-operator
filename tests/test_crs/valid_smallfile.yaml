@@ -11,7 +11,7 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
-  es_index: ripsaw-smallfile
+    index_name: ripsaw-smallfile
   metadata:
     collection: true
   workload:

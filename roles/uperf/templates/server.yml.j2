@@ -22,7 +22,6 @@ spec:
     resources: {{ workload_args.server_resources | to_json }}
 {% endif %}
     imagePullPolicy: Always
-    wait: true
     command: ["/bin/sh","-c"]
     args: ["uperf -s -v -P 20000"]
   restartPolicy: OnFailure
@@ -47,7 +46,6 @@ spec:
     args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}
     imagePullPolicy: Always
-    wait: true
     securityContext:
       privileged: {{ metadata.privileged | default(false) | bool }}
     env:

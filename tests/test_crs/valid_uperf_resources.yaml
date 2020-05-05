@@ -7,6 +7,7 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
+    index_name: ripsaw-uperf
   metadata:
     collection: true
   cleanup: false
