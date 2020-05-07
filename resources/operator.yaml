@@ -48,7 +48,7 @@ spec:
           - mountPath: /tmp/ansible-operator/runner
             name: runner
         - name: redis-master
-          image: k8s.gcr.io/redis:v1
+          image: quay.io/crio/redis@sha256:1780b5a5496189974b94eb2595d86731d7a0820e4beb8ea770974298a943ed55
           env:
             - name: MASTER
               value: "true"
