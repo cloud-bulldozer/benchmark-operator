@@ -14,7 +14,7 @@ spec:
   workload:
     name: "fio_distributed"
     args:
-      samples: 2
+      samples: 1
       servers: 2
       prefill: true
       jobs:
@@ -25,7 +25,6 @@ spec:
         - randrw
       bs:
         - 4KiB
-        - 64KiB
       numjobs:
         - 1
         - 2

@@ -23,9 +23,7 @@ spec:
         - randrw
       bs:
         - 4KiB
-        - 64KiB
       numjobs:
-        - 1
         - 2
       iodepth: 1
       read_runtime: 10
