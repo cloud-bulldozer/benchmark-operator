@@ -72,6 +72,37 @@ It runs the data collection/upload immediately upon launch and will not enter "R
 state until the initial data collection/upload has completed. Once this is done,
 your benchmark will then launch and continue as normal. 
 
+The DaemonSet option is able to take another optional parameters that the targeted 
+variant cannot. You are able to supply a list of label/value pairs in label. This 
+will have the DaemonSet only run on nodes that match any of the labels provided. 
+
+In the below example the metadata DaemonSet will only run on nodes labeled with foo=bar 
+OR awesome=sauce. It can match either provided label.
+
+```
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: byowl-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: "my.elastic.server.foo"
+    port: 9200
+  metadata:
+    collection: true
+    targeted: false
+    label:
+      - [ 'foo', 'bar' ]
+      - [ 'awesome', 'sauce' ]
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: "echo Test"
+```
+
 # Differences between targeted and daemonset
 
 There are a few notable differences between the DaemonSet and targeted options:
