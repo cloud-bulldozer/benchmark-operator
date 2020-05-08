@@ -20,6 +20,19 @@ spec:
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
+{% if metadata.label is defined %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+{% for meta_name, meta_value in metadata.label %}
+            - matchExpressions:
+              - key: {{ meta_name }}
+                operator: In
+                values:
+                - {{ meta_value }}
+{% endfor %}
+{% endif %}
       containers:
       - name: backpack
         image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
