@@ -1,0 +1,136 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+{% if workload_args.serviceip is sameas true %}
+  name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+{% else %}
+  name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+{% endif %}
+  namespace: '{{ operator_namespace }}'
+spec:
+  template:
+    metadata:
+      labels:
+        app: uperf-bench-client-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% endif %}
+    spec:
+{% if workload_args.hostnetwork is sameas true %}
+      hostNetwork : true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: type
+                  operator: In
+                  values:
+                  - uperf-bench-server-{{ trunc_uuid }}
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+{% if workload_args.client_resources is defined %}
+        resources: {{ workload_args.client_resources | to_json }}
+{% endif %}
+        imagePullPolicy: Always
+        wait: true
+        command: ["/bin/sh", "-c"]
+        args:
+{% if workload_args.serviceip is sameas true %}
+          - "export serviceip=true;
+            export h={{item.spec.clusterIP}};
+{% else %}
+{% if workload_args.multus.client is defined %}
+          - "export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+{% else %}
+          - "export h={{item.status.podIP}};
+{% endif %}
+{% endif %}
+{% if elasticsearch is defined %}
+{% if elasticsearch.server is defined %}
+             export es={{elasticsearch.server}};
+             export es_port={{elasticsearch.port}};
+             export es_index={{es_index}}
+             export uuid={{uuid}};
+{% endif %}
+
+{% endif %}
+{% if test_user is defined %}
+             export test_user={{test_user}};
+{% endif %}
+{% if workload_args.pin is sameas true %}
+             export client_node={{workload_args.pin_client}};
+             export server_node={{workload_args.pin_server}};
+{% else %}
+             export client_node=UNSET;
+             export server_node=UNSET;
+{% endif %}
+             export clustername={{clustername}};
+             export hostnet={{workload_args.hostnetwork}};
+             export ips=$(hostname -I);
+             while true; do
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+{% for test in workload_args.test_types %}
+{% for proto in workload_args.protos %}
+{% for size in workload_args.sizes %}
+{% for nthr in workload_args.nthrs %}
+                 cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
+                 for i in `seq 1 {{workload_args.samples}}`; do
+                   python /opt/snafu/run_snafu.py --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+                 done;
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+               else
+                 continue;
+               fi;
+               break;
+             done;
+             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
+        volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/uperf-test"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: uperf-test-{{ trunc_uuid }}
+      restartPolicy: OnFailure
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+{% endif %}

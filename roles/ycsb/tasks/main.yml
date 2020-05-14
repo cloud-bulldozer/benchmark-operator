@@ -1,0 +1,220 @@
+---
+- name: Get benchmark state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+  register: resource_state
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get benchmark state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+  register: resource_state
+
+- block:
+
+  - name: setting ycsb_workload_load var
+    set_fact:
+      ycsb_workload_load: "workloada"
+
+  - name: Generate workloads
+    k8s:
+      definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+
+  - name: Load Data Into Database
+    k8s:
+      definition: "{{ lookup('template', 'ycsb_load.yaml') | from_yaml }}"
+    when: workload_args.loaded is undefined or not workload_args.loaded
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Running Load"
+    when: workload_args.loaded is undefined or not workload_args.loaded|default('false')
+  
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting First Workload"
+    when: workload_args.loaded is defined and workload_args.loaded|default('false')
+
+  when: resource_state.resources[0].status.state == "Building" 
+
+- block:
+
+  - name: setting ycsb_workload_load var
+    set_fact:
+      ycsb_workload_load: "workloada"
+  
+  - name: Wait for Load Job to Succeed...
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: 'ycsb-data-load-job-{{ ycsb_workload_load }}-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - name = 'ycsb-load-{{ trunc_uuid }}'
+    register: ycsb_load_pod
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting First Workload"
+    when: "ycsb_load_pod | json_query('resources[].status.succeeded')"
+ 
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Complete"
+    when: workload_args.workloads is undefined and ycsb_load_pod | json_query('resources[].status.succeeded')
+
+  when: resource_state.resources[0].status.state == "Running Load"
+
+- block:
+
+  - name: Add the workload list length to redis
+    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb {{ workload_args.workloads|length }}"
+
+  - name: Add the first workload index to redis
+    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current 0"
+    
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Workload"
+    
+  when: resource_state.resources[0].status.state == "Starting First Workload"
+
+- block:
+   
+  - name: Get current workload index
+    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    register: wrkload
+
+  - name: set ycsb_workload variable
+    set_fact:
+      ycsb_workload: "{{ workload_args.workloads[wrkload.stdout|int] }}"
+
+  - name: Generate workloads
+    k8s:
+      definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+
+  - name: Run YCSB Workload
+    k8s:
+      definition: "{{ lookup('template', 'ycsb_run.yaml') | from_yaml }}"
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Running Workload"
+
+  when: resource_state.resources[0].status.state == "Starting Workload"
+
+- block:
+
+  - name: Get current workload from redis
+    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    register: wrkload
+
+  - name: set ycsb_workload variable
+    set_fact:
+      ycsb_workload: "{{ workload_args.workloads[wrkload.stdout|int] }}"
+
+  - name: Wait for YCSB Workload Job to Succeed...
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: 'ycsb-bench-job-{{ ycsb_workload }}-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - name = 'ycsb-run-{{ trunc_uuid }}'
+    register: ycsb_bench
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Workload Complete"
+    when: "ycsb_bench | json_query('resources[].status.succeeded')"
+
+  when: resource_state.resources[0].status.state == "Running Workload"
+
+- block:
+
+  - name: Get current workload from redis
+    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    register: current_workload
+
+  - name: Get list length of workloads from redis
+    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb"
+    register: workload_list
+
+  - name: Iterate index
+    set_fact:
+      new_workload_index: "{{ current_workload.stdout|int + 1 }}"
+
+  - name: Update current workload item in redis
+    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current {{ new_workload_index }}"
+  
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Workload"
+    when: workload_list.stdout != new_workload_index
+
+  - name: Update resource state
+    k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Complete"
+    when: workload_list.stdout == new_workload_index
+
+  when: resource_state.resources[0].status.state == "Workload Complete"

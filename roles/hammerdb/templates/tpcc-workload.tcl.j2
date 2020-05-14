@@ -18,28 +18,28 @@ return
 puts "SETTING CONFIGURATION"
 dbset db mssqls
 dbset bm TPC-C
-diset connection mssqls_server {{hammerdb.db_server}}
-diset connection mssqls_linux_server {{hammerdb.db_server}}
-diset connection mssqls_port {{hammerdb.db_port}}
-diset connection mssqls_uid {{hammerdb.db_user}}
-diset connection mssqls_pass {{hammerdb.db_pass}}
-diset connection mssqls_tcp {{hammerdb.db_tcp}}
-diset tpcc mssqls_count_ware {{hammerdb.db_warehouses}}
-diset tpcc mssqls_num_vu {{hammerdb.db_num_workers}}
+diset connection mssqls_server {{workload_args.db_server}}
+diset connection mssqls_linux_server {{workload_args.db_server}}
+diset connection mssqls_port {{workload_args.db_port}}
+diset connection mssqls_uid {{workload_args.db_user}}
+diset connection mssqls_pass {{workload_args.db_pass}}
+diset connection mssqls_tcp {{workload_args.db_tcp}}
+diset tpcc mssqls_count_ware {{workload_args.db_warehouses}}
+diset tpcc mssqls_num_vu {{workload_args.db_num_workers}}
 
 puts "SETTING BENCHMARK OPTIONS"
 diset tpcc mssqls_driver timed
-diset tpcc mssqls_rampup {{hammerdb.rampup}}
-diset tpcc mssqls_duration {{hammerdb.runtime}}
-diset tpcc mssqls_total_iterations {{hammerdb.transactions}}
+diset tpcc mssqls_rampup {{workload_args.rampup}}
+diset tpcc mssqls_duration {{workload_args.runtime}}
+diset tpcc mssqls_total_iterations {{workload_args.transactions}}
 vuset logtotemp 1
 
 loadscript
 puts "SEQUENCE STARTED"
 
-set workers {{hammerdb.db_num_workers}}
-set transactions {{hammerdb.transactions}}
-set samples {{hammerdb.samples}}
+set workers {{workload_args.db_num_workers}}
+set transactions {{workload_args.transactions}}
+set samples {{workload_args.samples}}
 
 # So we are increasing the number of workers in the outer loop while
 # we run the samples in the inner loop
@@ -54,7 +54,7 @@ for {set i 1} {$i <= $samples} {incr i} {
         vurun
 	# runtimer in seconds must exceed rampup + duration
 	# so we're doing the math here: (runtime + rampup) * 60 give us the total in seconds. As a security factor we multiply by 1.05
-	set calculation [expr { ( {{hammerdb.rampup}} + {{hammerdb.runtime}} ) * 60 * 1.4 }]
+	set calculation [expr { ( {{workload_args.rampup}} + {{workload_args.runtime}} ) * 60 * 1.4 }]
 	set runtimer_seconds [expr int($calculation)]
         runtimer $runtimer_seconds
 	runtimer 350

@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fio-test-{{ trunc_uuid }}
+  namespace: '{{ operator_namespace }}'
+data:
+{% if workload_args.prefill is defined and workload_args.prefill is sameas true %}
+  fiojob-prefill: |
+    [global]
+    directory={{fio_path}}
+    filename_format=f.\$jobnum.\$filenum
+    clocksource=clock_gettime
+    kb_base=1000
+    unit_base=8
+    ioengine=libaio
+    size={{workload_args.filesize}}
+    bs=4096KiB
+    iodepth=1
+    direct=1
+    numjobs=1
+    
+    [write]
+    rw=write
+    create_on_open=1
+    fsync_on_close=1
+{% endif %}
+{% for numjobs in workload_args.numjobs %}
+{% for bs in workload_args.bs %}
+{% for job in workload_args.jobs %}
+  fiojob-{{job}}-{{bs}}-{{numjobs}}: |
+    [global]
+    directory={{fio_path}}
+    filename_format=f.\$jobnum.\$filenum
+    write_bw_log=fio
+    write_iops_log=fio
+    write_lat_log=fio
+    write_hist_log=fio
+    log_avg_msec={{workload_args.log_sample_rate}}
+    log_hist_msec={{workload_args.log_sample_rate}}
+    clocksource=clock_gettime
+    kb_base=1000
+    unit_base=8
+    ioengine=libaio
+    size={{workload_args.filesize}}
+    bs={{bs}}
+    iodepth={{workload_args.iodepth}}
+    direct=1
+    numjobs={{numjobs}}
+
+    [{{job}}]
+    rw={{job}}
+{% if global_overrides|default([])|length %}
+{% for override in global_overrides %}
+    {{ override }}
+{% endfor %}
+{% endif %}
+{% if job_params|default([])|length %}
+{% for match in job_params %}
+{% if match.jobname_match == job %}
+{% for param in match.params %}
+    {{ param }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

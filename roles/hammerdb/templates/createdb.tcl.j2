@@ -9,14 +9,14 @@ proc wait_to_complete {} {
 puts "SETTING CONFIGURATION"
 dbset db mssqls
 dbset bm TPC-C
-diset connection mssqls_server {{hammerdb.db_server}}
-diset connection mssqls_linux_server {{hammerdb.db_server}}
-diset connection mssqls_port {{hammerdb.db_port}}
-diset connection mssqls_uid {{hammerdb.db_user}}
-diset connection mssqls_pass {{hammerdb.db_pass}} 
-diset connection mssqls_tcp {{hammerdb.db_tcp}}
-diset tpcc mssqls_count_ware {{hammerdb.db_warehouses}}
-diset tpcc mssqls_num_vu {{hammerdb.db_num_workers}}
+diset connection mssqls_server {{workload_args.db_server}}
+diset connection mssqls_linux_server {{workload_args.db_server}}
+diset connection mssqls_port {{workload_args.db_port}}
+diset connection mssqls_uid {{workload_args.db_user}}
+diset connection mssqls_pass {{workload_args.db_pass}} 
+diset connection mssqls_tcp {{workload_args.db_tcp}}
+diset tpcc mssqls_count_ware {{workload_args.db_warehouses}}
+diset tpcc mssqls_num_vu {{workload_args.db_num_workers}}
 
 puts "CREATING SCHEMA"
 buildschema

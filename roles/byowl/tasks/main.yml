@@ -32,7 +32,7 @@
     k8s:
       state: present
       definition: "{{ lookup('template', 'workload.yml') | from_yaml }}"
-    when: byowl.kind is not defined
+    when: workload_args.kind is not defined
 
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -64,6 +64,6 @@
       status:
         state: Complete
         complete: true
-    when: "byowl.clients == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
+    when: "workload_args.clients == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
 
   when: resource_state.resources[0].status.state == "Running"

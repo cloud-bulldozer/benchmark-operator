@@ -1,0 +1,124 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: "smallfile-client-{{ item }}-benchmark-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: smallfile-benchmark-{{ trunc_uuid }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - smallfile-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
+      restartPolicy: Never
+      containers:
+        - name: benchmark-server
+{% if hostpath is defined %}
+          securityContext:
+            privileged: true
+{% endif %}
+          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/smallfile:master') }}
+          imagePullPolicy: Always
+          command: ["/bin/sh", "-c"]
+          workingDir: /opt/snafu
+          wait: true
+          env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch.server is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
+          - name: redis_host
+            value: "{{ bo.resources[0].status.podIP }}"
+          - name: clients
+            value: "{{ workload_args.clients|default('1')|int }}"
+          args:
+            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
+              export TMPDIR=/tmp
+              arr=$(python <<< "print(','.join({{workload_args.operation}}))");
+              rm -rf {{smallfile_path}}/RESULTS ;
+              mkdir -p {{smallfile_path}}/RESULTS;
+              mkdir -p {{smallfile_path}}/smallfile_test_data;
+              python /opt/snafu/run_snafu.py 
+{% if workload_args.samples is defined %}
+              --samples {{workload_args.samples}}
+{% endif %}
+              --tool smallfile 
+              --operations $arr 
+              --top {{smallfile_path}}/smallfile_test_data 
+              --dir /var/tmp/RESULTS 
+              --yaml-input-file /tmp/smallfile/smallfilejob ;
+              if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/tmp/smallfile"
+{% if workload_args.storageclass is defined or hostpath is defined %}
+            - name: data-volume
+              mountPath: "{{ smallfile_path }}"
+{% endif %}
+      restartPolicy: Never
+      volumes:
+        - name: config-volume
+          configMap:
+            name: smallfile-test-{{ trunc_uuid }}
+            defaultmode: 0777
+{% if workload_args.storageclass is defined %}
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: "claim{{item}}-{{ trunc_uuid }}"
+{% elif hostpath is defined %}
+        - name: data-volume
+          hostPath:
+            path: {{ hostpath }}
+            type: DirectoryOrCreate
+{% endif %}
+      restartPolicy: Never
+      serviceAccountName: benchmark-operator
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('benchmark-operator') }}
+{% endif %}
