@@ -55,9 +55,6 @@ container will run stockpile to gather data and then push that information into
 Elasticsearch. Once complete the init container will terminate and the workload will 
 launch and continue as normal.
 
-*NOTE: ycsb does not currently support the targeted init container method. Please 
-use the DaemonSet method described below*
-
 # DaemonSet
 
 If it is desired to run the metadata collection in the "classic" way (i.e. as a DaemonSet),

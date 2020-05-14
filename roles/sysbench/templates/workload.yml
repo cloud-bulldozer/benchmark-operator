@@ -16,7 +16,7 @@ spec:
       - name: sysbench
         command: ["/bin/sh", "-c"]
         args: ["/tmp/sysbenchScript"]
-        image: {{ sysbench.image | default('quay.io/cloud-bulldozer/sysbench:latest') }}
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/sysbench:latest') }}
         imagePullPolicy: Always
         wait: true
         volumeMounts:

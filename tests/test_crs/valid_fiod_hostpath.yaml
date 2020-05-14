@@ -10,7 +10,7 @@ spec:
   metadata:
     collection: true
   cleanup: false
-  hostpath: /mnt/vda1/fiod/
+  hostpath: /mnt/vda1/workload_args/
   workload:
     name: "fio_distributed"
     args:
@@ -44,38 +44,38 @@ spec:
         - time_based=1
         - fsync_on_close=1
         - create_on_open=1
-        - runtime={{ fiod.write_runtime }}
-        - ramp_time={{ fiod.write_ramp_time }}
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
     - jobname_match: read
       params:
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: rw
       params:
         - rwmixread=50
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: readwrite
       params:
         - rwmixread=50
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: randread
       params:
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: randwrite
       params:
         - time_based=1
-        - runtime={{ fiod.write_runtime }}
-        - ramp_time={{ fiod.write_ramp_time }}
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
     - jobname_match: randrw
       params:
         - time_based=1
-        - runtime={{ fiod.write_runtime }}
-        - ramp_time={{ fiod.write_ramp_time }}
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
 

@@ -1,0 +1,78 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'ycsb-data-load-job-{{ ycsb_workload_load }}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  template:
+    metadata:
+      name: '{{ meta.name }}-ycsb-data-load'
+      namespace: '{{ operator_namespace }}'
+      labels:
+        name: 'ycsb-load-{{ trunc_uuid }}'
+    spec:
+      containers:
+      - name: ycsb
+        image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/ycsb-server:latest') }}"
+        imagePullPolicy: Always
+        env:
+        - name: clustername
+          value: "{{ clustername }}"
+        - name: es
+          value: "{{elasticsearch.server | default()}}"
+        - name: es_port
+          value: "{{elasticsearch.port | default()}}"
+        - name: es_index
+          value: "{{ es_index }}"
+        - name: user
+          value: "{{test_user | default()}}"
+        - name: workload
+          value: "{{ycsb_workload_load}}"
+        - name: num_records
+          value: "{{workload_args.recordcount}}"
+        - name: num_operations
+          value: "{{workload_args.operationcount}}"
+        - name: uuid
+          value: "{{uuid}}"
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args: ['python /opt/snafu/run_snafu.py --tool ycsb -r 1 -l -d {{ workload_args.driver }} -u {{ uuid }} --user {{ test_user | default("ripsaw") }} -w {{ ycsb_workload_load }} -x "{{ workload_args.options_load }}"']
+        volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/ycsb"
+{% if workload_args.pin|default(false) is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
+      restartPolicy: Never
+      volumes:
+      - name: config-volume
+        configMap:
+          name: ycsb-test-{{ trunc_uuid }}
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('benchmark-operator') }}
+{% endif %}
+  backoffLimit: 4

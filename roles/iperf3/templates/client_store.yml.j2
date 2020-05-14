@@ -1,0 +1,41 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'iperf3-client-{{ item.status.podIP }}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: iperf3-bench-client-{{ trunc_uuid }}
+    spec:
+{% if workload_args.hostnetwork is defined %}
+{% if workload_args.hostnetwork %}
+      hostNetwork: true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
+{% endif %}
+      containers:
+      - name: benchmark
+        image: "quay.io/cloud-bulldozer/iperf3:latest"
+        imagePullPolicy: Always
+        wait: true
+        command: ["/bin/sh", "-c"]
+        args:
+          - "mkdir -p {{results.path}}/iperf3-{{ uuid }};
+             iperf3 -c {{ item.status.podIP }} -J -p {{ workload_args.port }} --{{ workload_args.transmit_type }} {{ workload_args.transmit_value }} -l {{ workload_args.length_buffer }} -P {{ workload_args.streams }} -w {{ workload_args.window_size }} -M {{ workload_args.mss }} -S {{ workload_args.ip_tos }} -O {{ workload_args.omit_start }} {{ workload_args.extra_options_client }} >> {{results.path}}/iperf3-{{ uuid }}/iperf_result.json"
+        volumeMounts:
+          - name: result-data
+            mountPath: "{{results.path}}"
+      volumes:
+        - name: result-data
+          persistentVolumeClaim:
+            claimName: result-volume
+{% if workload_args.pin_client is defined %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
+      restartPolicy: OnFailure

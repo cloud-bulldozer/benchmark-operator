@@ -76,72 +76,10 @@
 
     - block:
 
-      - include_role:
-          name: "uperf-bench"
+      - include_role: 
+          name: "{{ workload.name }}"
         vars:
-          uperf: "{{ workload.args }}"
-        when: workload.name == "uperf"  and workload.args.pair > 0
-
-      - include_role:
-          name: "iperf3-bench"
-        vars:
-          iperf3: "{{ workload.args }}"
-        when: workload.name == "iperf3" and workload.args.pairs > 0
-
-      - include_role:
-          name: sysbench
-        vars:
-          sysbench : "{{ workload.args }}"
-        when: workload.name == "sysbench" and workload.args.enabled is defined and workload.args.enabled
-
-      - include_role:
-          name: "load-ycsb"
-        vars:
-          ycsb: "{{ workload.args }}"
-        when: workload.name == "ycsb" and workload.args.workloads | length > 0
-
-      - include_role:
-          name: "ycsb-bench"
-        vars:
-          ycsb: "{{ workload.args }}"
-        with_items: '{{ workload.args.workloads }}'
-        when: workload.name == "ycsb" and workload.args.workloads | length > 0
-
-      - include_role:
-          name: "byowl"
-        vars:
-          byowl: "{{ workload.args }}"
-        when: workload.name == "byowl" and workload.args.clients > 0
-
-      - include_role:
-          name: "fio-distributed"
-        vars:
-          fiod: "{{ workload.args }}"
-        when: workload.name == "fio_distributed" and workload.args.servers > 0
-
-      - include_role:
-          name: "pgbench"
-        vars:
-          pgbench: "{{ workload.args }}"
-        when: workload.name == "pgbench" and workload.args.clients > 0
-
-      - include_role:
-          name: "smallfile-bench"
-        vars:
-          smallfile: "{{ workload.args }}"
-        when: workload.name == "smallfile" and workload.args.clients > 0
-
-      - include_role:
-          name: "fs-drift"
-        vars:
-          fs_drift: "{{ workload.args }}"
-        when: workload.name == "fs-drift" and workload.args.worker_pods > 0
-
-      - include_role:
-          name: "hammerdb"
-        vars:
-          hammerdb: "{{ workload.args }}"
-        when: workload.name == "hammerdb" 
+          workload_args: "{{ workload.args }}"
 
       when: metadata is not defined or not metadata.collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete") or metadata.targeted | default('true') | bool
     

@@ -1,0 +1,98 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'fio-client-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fiod-client-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: fio-client
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fio:latest') }}
+        imagePullPolicy: Always
+        wait: true
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if ceph_cache_drop_pod_ip %}
+          - name: ceph_cache_drop_pod_ip
+            value: "{{ ceph_cache_drop_pod_ip }}"
+{% endif %}
+{% if es_server %}
+          - name: es
+            value: "{{ es_server }}"
+          - name: es_port
+            value: "{{ es_port }}"
+          - name: es_index
+            value: "{{ es_index }}"
+{% endif %}
+        command: ["/bin/sh", "-c"]
+        args:
+          - "cat /tmp/host/hosts;
+{% if workload_args.prefill is defined and workload_args.prefill is sameas true %}
+             echo ***************Prefill*****************;
+             cat /tmp/fio/fiojob-prefill;
+             mkdir -p /tmp/fiod-{{ uuid }}/fiojob-prefill;
+             fio --client=/tmp/host/hosts /tmp/fio/fiojob-prefill --output-format=json;
+{% if workload_args.post_prefill_sleep is defined %}
+             sleep {{ workload_args.post_prefill_sleep }};
+{% endif %}
+             echo ***********End of Prefill*************;
+{% endif %}
+{% for numjobs in workload_args.numjobs %}
+{% for bs in workload_args.bs %}
+{% for job in workload_args.jobs %}
+             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}}; python /opt/snafu/run_snafu.py -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+             echo run finished"
+        volumeMounts:
+        - name: fio-volume
+          mountPath: "/tmp/fio"
+        - name: host-volume
+          mountPath: "/tmp/host"
+      volumes:
+      - name: fio-volume
+        configMap:
+          name: "fio-test-{{ trunc_uuid }}"
+          defaultMode: 0777
+      - name: host-volume
+        configMap:
+          name: "fio-hosts-{{ trunc_uuid }}"
+          defaultMode: 0777
+      restartPolicy: Never
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        wait: true
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+{% endif %}

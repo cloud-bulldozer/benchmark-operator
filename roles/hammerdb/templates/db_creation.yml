@@ -16,7 +16,7 @@ spec:
       - name: hammerdb
         command: ["/bin/sh", "-c"]
         args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /creator/createdb.tcl"]
-        image: {{ hammerdb.image | default('quay.io/cloud-bulldozer/hammerdb:latest') }}
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:latest') }}
         imagePullPolicy: Always
         volumeMounts:
         - name: hammerdb-creator-volume

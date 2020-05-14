@@ -11,7 +11,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported         |
 | [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 3second  | Not Supported         |
 | [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported         |
-| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Not used                  | Not Supported         |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Used, default : 3second  | Not Supported         |
 | [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 3second  | Not Supported         |
 | [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Used, default : 3second  | Not Supported         |
 | [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 3second  | Not Supported         |

@@ -1,9 +1,0 @@
----
-resource_kind: "{{ uperf.kind | default('pod') }}"
-uperf:
-  proto: tcp
-  test_type: stream
-  nthr: 1
-  size: 1024
-  runtime: 60
-es_index: "ripsaw-uperf"

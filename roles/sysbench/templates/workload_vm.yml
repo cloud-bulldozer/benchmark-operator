@@ -25,7 +25,7 @@ spec:
   terminationGracePeriodSeconds: 0
   volumes:
   - containerDisk:
-      image: "{{ sysbench.image }}"
+      image: "{{ workload_args.image }}"
     name: containerdisk
   - cloudInitNoCloud:
       userData: |

@@ -43,22 +43,22 @@ spec:
         args:
           - "export run_start_timestamp=$(date +%s.%3N);
              echo 'Init Database {{ item.1.host }}/{{ item.1.db_name }}';
-             pgbench $pgbench_auth -i -s {{ pgbench.scaling_factor }} {{ init_cmd_flags }} {{ item.1.db_name }};
+             pgbench $pgbench_auth -i -s {{ workload_args.scaling_factor }} {{ init_cmd_flags }} {{ item.1.db_name }};
              if [ $? -eq 0 ]; then
                echo 'Waiting for start signal...';
                redis-cli -h {{ bo.resources[0].status.podIP }} lpush pgb_client_ready {{ item.0|int }};
                while true; do
                  if [[ $(redis-cli -h {{ bo.resources[0].status.podIP }} get pgb_start) =~ 'true' ]]; then
                    echo 'GO!';
-                 {% for clients in pgbench.clients %}
+                 {% for clients in workload_args.clients|default('1') %}
                    export database='{{ item.1.host }}/{{ item.1.db_name }}';
-                   export description='scaling factor: {{ pgbench.scaling_factor }} | threads: {{ pgbench.threads }} | clients: {{ clients }}'
+                   export description='scaling factor: {{ workload_args.scaling_factor }} | threads: {{ workload_args.threads }} | clients: {{ clients }}'
                    echo '';
                    echo 'Running PGBench with {{ clients }} clients on database {{ item.1.host }}/{{ item.1.db_name }}';
-                   for i in `seq 1 {{ pgbench.samples|int }}`; do
+                   for i in `seq 1 {{ workload_args.samples|int }}`; do
                      export sample_start_timestamp=$(date +%s.%3N);
-                     echo \"Begin test sample $i of {{ pgbench.samples }}...\";
-                     export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ pgbench.threads }} {% if pgbench.transactions is defined and pgbench.transactions|int > 0 %} -t {{ pgbench.transactions }} {% elif run_time|int > 0 %} -T {{ run_time }} {% endif %} -s {{ pgbench.scaling_factor }} {{ cmd_flags }} {{ item.1.db_name }}\";
+                     echo \"Begin test sample $i of {{ workload_args.samples }}...\";
+                     export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ workload_args.threads }} {% if workload_args.transactions is defined and workload_args.transactions|int > 0 %} -t {{ workload_args.transactions }} {% elif run_time|int > 0 %} -T {{ run_time }} {% endif %} -s {{ workload_args.scaling_factor }} {{ cmd_flags }} {{ item.1.db_name }}\";
                      python /opt/snafu/run_snafu.py --tool pgbench -r $i;
                    done;
                  {% endfor %}

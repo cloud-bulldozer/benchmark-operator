@@ -1,5 +1,5 @@
 #!/bin/bash
-{% for test in sysbench.tests %}
+{% for test in workload_args.tests %}
 {% if test.name == "cpu" or test.name == "memory" %}
 sysbench --test={{test.name}} {% for opt,value in test.parameters.iteritems() %} --{{opt}}={{value}} {% endfor %} run
 {% elif test.name == "fileio" %}

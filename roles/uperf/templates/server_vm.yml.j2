@@ -1,0 +1,67 @@
+---
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstance
+metadata:
+  name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+  labels:
+    app : uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    type : uperf-bench-server-{{ trunc_uuid }}
+spec:
+  domain:
+    cpu:
+      sockets: {{ workload_args.server_vm.sockets }}
+      cores: {{ workload_args.server_vm.cores }}
+      threads: {{ workload_args.server_vm.threads }}
+      dedicatedCpuPlacement: {{ workload_args.server_vm.dedicatedcpuplacement }}
+{% if 'hostpassthrough' in workload_args.server_vm.extra_options %}
+      model: host-passthrough
+{% endif %}
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: containerdisk
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+      interfaces:
+        - name: default
+          {{ workload_args.server_vm.network.front_end }}: {}
+      networkInterfaceMultiqueue: {{ workload_args.server_vm.network.multiqueue.enabled }}
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: {{ workload_args.server_vm.requests.memory }}
+      limits:
+        memory: {{ workload_args.server_vm.limits.memory }}
+  terminationGracePeriodSeconds: 0
+{% if workload_args.pin is sameas true %}
+  nodeSelector:
+    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+{% endif %}
+  networks:
+    - name: default
+      pod: {}
+  volumes:
+  - name: containerdisk
+    containerDisk:
+      image: {{ workload_args.server_vm.image }}
+  - cloudInitNoCloud:
+      userData: |-
+        #cloud-config
+        password: ripsaw
+        chpasswd: { expire: False }
+        runcmd:
+{% if workload_args.server_vm.network.multiqueue.enabled %}
+          - yum install -y ethtool
+          - ethtool -L eth0 combined {{ workload_args.server_vm.network.multiqueue.queues }}
+{% endif %}
+          - yum install -y yum-plugin-copr
+          - yum copr enable ndokos/pbench -y
+          - yum install -y pbench-uperf redis git
+          - redis-cli -h {{ bo.resources[0].status.podIP }} set {{ trunc_uuid }} true
+          - uperf -s -v -P 20000
+    name: cloudinitdisk
+status: {}

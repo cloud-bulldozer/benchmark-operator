@@ -12,7 +12,6 @@ spec:
   workload:
     name: sysbench
     args:
-      enabled: true
       tests:
       - name: cpu
         parameters:

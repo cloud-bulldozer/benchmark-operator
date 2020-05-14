@@ -30,11 +30,11 @@
 
   - set_fact:
       fs_drift_path: /tmp
-    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is not defined
+    when: workload_args.worker_pods|default('1')|int > 0 and workload_args.storageclass is not defined
 
   - set_fact:
       fs_drift_path: /mnt/pvc
-    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined
+    when: workload_args.worker_pods|default('1')|int > 0 and workload_args.storageclass is defined
 
   - name: Create PVCs
     k8s:
@@ -45,15 +45,15 @@
           name: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
           namespace: "{{ operator_namespace }}"
           annotations:
-            volume.beta.kubernetes.io/storage-class: "{{fs_drift.storageclass}}"
+            volume.beta.kubernetes.io/storage-class: "{{workload_args.storageclass}}"
         spec:
           accessModes:
-            - "{{ fs_drift.access_mode }}"
+            - "{{ workload_args.access_mode }}"
           resources:
             requests:
-              storage: "{{fs_drift.storagesize}}"
-    with_sequence: start=1 count={{ fs_drift.worker_pods }}
-    when: fs_drift.worker_pods > 0 and fs_drift.storageclass is defined and fs_drift.storagesize is defined
+              storage: "{{workload_args.storagesize}}"
+    with_sequence: start=1 count={{ workload_args.worker_pods|default('1')|int }}
+    when: workload_args.worker_pods|default('1')|int > 0 and workload_args.storageclass is defined and workload_args.storagesize is defined
 
   - name: Generate fs-drift test input yaml
     k8s:
@@ -99,7 +99,7 @@
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/fs-drift-master/
                   args:
-                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{fs_drift.worker_pods}}
+                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.worker_pods|default('1')|int}}
                   volumeMounts:
                     - name: config-volume
                       mountPath: "/tmp"
@@ -113,8 +113,8 @@
   - name: run the workload
     k8s:
       definition: "{{ lookup('template', 'workload_job.yml.j2') }}"
-    with_sequence: start=1 count={{fs_drift.worker_pods}}
-    when: fs_drift.worker_pods > 0
+    with_sequence: start=1 count={{workload_args.worker_pods|default('1')|int}}
+    when: workload_args.worker_pods|default('1')|int > 0
 
   - k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -146,6 +146,6 @@
       status:
         state: Complete
         complete: true
-    when: "fs_drift.worker_pods == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
+    when: "workload_args.worker_pods|default('1')|int == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
 
   when: resource_state.resources[0].status.state == "Running"

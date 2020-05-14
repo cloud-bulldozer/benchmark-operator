@@ -31,7 +31,7 @@ spec:
           securityContext:
             privileged: true
 {% endif %}
-          image: {{ fs_drift.image | default('quay.io/cloud-bulldozer/fs-drift:master') }}
+          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fs-drift:master') }}
           # example of what to do when debugging image
           # image: quay.io/bengland2/fs-drift:latest
           imagePullPolicy: Always
@@ -65,15 +65,15 @@ spec:
               --tool fs-drift
               --top {{fs_drift_path}}/fs_drift_test_data
               --dir $TMPDIR/RESULTS
-{% if fs_drift.samples is defined %}
-              --samples {{fs_drift.samples}}
+{% if workload_args.samples is defined %}
+              --samples {{workload_args.samples}}
 {% endif %}
               --yaml-input-file /tmp/fs-drift/params ;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else echo FAIL ; exit 1 ; fi
           volumeMounts:
             - name: config-volume
               mountPath: "/tmp/fs-drift"
-{% if fs_drift.storageclass is defined  or hostpath is defined %}
+{% if workload_args.storageclass is defined  or hostpath is defined %}
             - name: data-volume
               mountPath: "{{ fs_drift_path }}"
 {% endif %}
@@ -82,7 +82,7 @@ spec:
           configMap:
             name: fs-drift-test-{{ trunc_uuid }}
             defaultmode: 0777
-{% if fs_drift.storageclass is defined %}
+{% if workload_args.storageclass is defined %}
         - name: data-volume
           persistentVolumeClaim:
             claimName: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"

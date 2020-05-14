@@ -14,8 +14,8 @@ spec:
       containers:
       - name: byowl
         command: ["/bin/sh", "-c"]
-        args: ["{{ byowl.commands }}"]
-        image: "{{ byowl.image }}"
+        args: ["{{ workload_args.commands }}"]
+        image: "{{ workload_args.image }}"
         imagePullPolicy: Always
         wait: true
       restartPolicy: OnFailure

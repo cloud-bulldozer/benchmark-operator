@@ -37,7 +37,7 @@
 
 - name: set original generation fact
   set_fact:
-    backpack_orig_gen: "{{ my_daemonset | json_query('resources[].metadata.generation')|first | default('1') }}"
+    backpack_orig_gen: "{{ my_daemonset | json_query('resources[].metadata.generation')|first | default('1')|int }}"
 
 - name: Ensure present daemonset
   k8s:

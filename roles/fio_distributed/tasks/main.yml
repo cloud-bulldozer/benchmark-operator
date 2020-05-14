@@ -1,0 +1,173 @@
+---
+- name: Get current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get current state - If it has changed
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- block:
+  - name: Provide path for fio - PV
+    set_fact:
+      fio_path: /mnt/pvc
+    when: workload_args.storageclass is defined
+
+  - name: Provide path for fio - No PV
+    set_fact:
+      fio_path: /tmp
+    when: workload_args.storageclass is not defined
+
+  - name: Generate fio test
+    k8s:
+      definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+
+  - name: Create PVC(s)
+    k8s:
+      definition:
+        kind: PersistentVolumeClaim
+        apiVersion: v1
+        metadata:
+          name: "claim-{{ item }}-{{ trunc_uuid }}"
+          namespace: '{{ operator_namespace }}'
+          annotations:
+             volume.beta.kubernetes.io/storage-class: "{{ workload_args.storageclass }}"
+        spec:
+           accessModes:
+             - ReadWriteOnce
+           resources:
+             requests:
+               storage: "{{ workload_args.storagesize }}"
+    with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
+    when: workload_args.storageclass is defined
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: StartingServers
+        complete: false
+
+  - name: Start FIO Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
+    when: workload_args.servers|default('1')|int > 0
+    with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
+
+  when: resource_state.resources[0].status.state == "Building"
+
+- block :
+
+  - name: Capture pod list
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = fio-benchmark-{{ trunc_uuid }}
+    register: server_pods
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: StartingClient
+        complete: false
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length)"
+
+  when: resource_state.resources[0].status.state == "StartingServers"
+
+- block:
+
+  - name: Capture updated pod list
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = fio-benchmark-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: Create IP list and nodes
+    set_fact:
+      pod_details: "{{ pod_details|default({}) | combine({item.status.podIP: item.spec.nodeName}) }}"
+    with_items: "{{ server_pods.resources }}"
+
+  # can perhaps optimize here, by adding to list in above loop
+  - name: Create IP list
+    set_fact:
+      fio_hosts: |
+         {% for ip, node in pod_details.iteritems() %}
+         {{ ip }}
+         {% endfor %}
+
+  - name: Generate fio hosts
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: fio-hosts-{{ trunc_uuid }}
+          namespace: '{{ operator_namespace }}'
+        data:
+          hosts: |
+            {{ fio_hosts }}
+
+  - name: Start FIO Client
+    k8s:
+      definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Running
+        complete: false
+
+  when: resource_state.resources[0].status.state == "StartingClient"
+
+- block:
+  - name: Capture Client pod list
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = fiod-client-{{ trunc_uuid }}
+    register: client_pods
+
+  - k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
+    when : "client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length > 0 "
+
+  when: resource_state.resources[0].status.state == "Running"

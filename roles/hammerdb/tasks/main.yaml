@@ -27,7 +27,7 @@
   k8s:
     state: present
     definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
-  when: hammerdb.db_init is defined and hammerdb.db_init
+  when: workload_args.db_init is defined and workload_args.db_init
 
 - name: wait for db creation job to finish
   k8s_facts:
@@ -39,13 +39,13 @@
   until: "hammerdb_creator_pod | json_query('resources[].status.succeeded')"
   retries: 40
   delay: 15
-  when: hammerdb.db_init is defined and hammerdb.db_init
+  when: workload_args.db_init is defined and workload_args.db_init
   
 - name: start db workload job
   k8s:
     state: present
     definition: "{{ lookup('template', 'db_workload.yml.j2') | from_yaml }}"
-  when: hammerdb.db_benchmark is defined and hammerdb.db_benchmark
+  when: workload_args.db_benchmark is defined and workload_args.db_benchmark
 
 - name: wait for db workload job to finish
   k8s_facts:
@@ -57,4 +57,4 @@
   until: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
   retries: 200
   delay: 30
-  when: hammerdb.db_benchmark is defined and hammerdb.db_benchmark
+  when: workload_args.db_benchmark is defined and workload_args.db_benchmark
