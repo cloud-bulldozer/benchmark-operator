@@ -3,7 +3,7 @@
   shell: "redis-cli --raw llen pgb_client_ready"
   register: client_ready
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"

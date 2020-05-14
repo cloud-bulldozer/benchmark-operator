@@ -8,7 +8,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -116,7 +116,7 @@
     with_sequence: start=1 count={{workload_args.worker_pods|default('1')|int}}
     when: workload_args.worker_pods|default('1')|int > 0
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -138,7 +138,7 @@
         - app = fs-drift-benchmark-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

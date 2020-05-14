@@ -6,7 +6,7 @@
   register: result
 
 - name: Update status if unhealthy
-  k8s_status:
+  operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -17,7 +17,7 @@
   when: result.content == "False"
 
 - name: Update status if healthy
-  k8s_status:
+  operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"

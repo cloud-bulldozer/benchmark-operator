@@ -8,7 +8,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -34,7 +34,7 @@
       definition: "{{ lookup('template', 'workload.yml') | from_yaml }}"
     when: workload_args.kind is not defined
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -56,7 +56,7 @@
         - app = byowl-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

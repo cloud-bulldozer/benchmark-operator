@@ -1,7 +1,7 @@
 #!/bin/bash
 {% for test in workload_args.tests %}
 {% if test.name == "cpu" or test.name == "memory" %}
-sysbench --test={{test.name}} {% for opt,value in test.parameters.iteritems() %} --{{opt}}={{value}} {% endfor %} run
+sysbench --test={{test.name}} {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} run
 {% elif test.name == "fileio" %}
 {% if 'file-total-size' not in test.parameters %}
 {% set dummy = test['parameters'].__setitem__("file-total-size", "1G") %}

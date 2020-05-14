@@ -8,7 +8,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -69,7 +69,7 @@
     register: server_pods
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -97,7 +97,7 @@
     register: server_vms
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -119,7 +119,7 @@
     register: server_pods
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -143,7 +143,7 @@
     register: server_vms
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -214,7 +214,7 @@
 
     when: resource_kind == "vm"
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -237,7 +237,7 @@
       register: client_pods
 
     - name: Update resource state
-      k8s_status:
+      operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
@@ -263,7 +263,7 @@
       register: client_vms
 
     - name: Update resource state
-      k8s_status:
+      operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
@@ -282,7 +282,7 @@
     command: "redis-cli set start true"
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -303,7 +303,7 @@
           - app = uperf-bench-client-{{ trunc_uuid }}
       register: client_pods
 
-    - k8s_status:
+    - operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
@@ -320,7 +320,7 @@
       command: "redis-cli get complete"
       register: complete_status
 
-    - k8s_status:
+    - operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
@@ -365,7 +365,7 @@
       when: cleanup
     when: resource_kind == "pod"
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
