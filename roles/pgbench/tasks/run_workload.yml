@@ -15,7 +15,7 @@
   command: "redis-cli incr dbnum_item"
   when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase'))"
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -25,7 +25,7 @@
       complete: false
   when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase')) and dbnum_item|int < (num_databases|length - 1)"
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"

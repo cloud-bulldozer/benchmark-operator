@@ -7,7 +7,7 @@
     namespace: "{{ operator_namespace }}"
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -41,7 +41,7 @@
     when: workload_args.loaded is undefined or not workload_args.loaded
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -51,7 +51,7 @@
     when: workload_args.loaded is undefined or not workload_args.loaded|default('false')
   
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -79,7 +79,7 @@
     register: ycsb_load_pod
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -89,7 +89,7 @@
     when: "ycsb_load_pod | json_query('resources[].status.succeeded')"
  
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -109,7 +109,7 @@
     command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current 0"
     
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -138,7 +138,7 @@
       definition: "{{ lookup('template', 'ycsb_run.yaml') | from_yaml }}"
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -169,7 +169,7 @@
     register: ycsb_bench
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -198,7 +198,7 @@
     command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current {{ new_workload_index }}"
   
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -208,7 +208,7 @@
     when: workload_list.stdout != new_workload_index
 
   - name: Update resource state
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

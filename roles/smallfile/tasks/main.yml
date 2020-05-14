@@ -8,7 +8,7 @@
   register: resource_state
 
 - name: Update current state
-  k8s_status:
+  operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -117,7 +117,7 @@
     with_sequence: start=1 count={{ workload_args.clients|default('1')|int }}
     when: workload_args.clients|default('1')|int > 0
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -139,7 +139,7 @@
         - app = smallfile-benchmark-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

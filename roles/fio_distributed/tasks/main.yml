@@ -7,7 +7,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -59,7 +59,7 @@
     with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
     when: workload_args.storageclass is defined
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -87,7 +87,7 @@
         - app = fio-benchmark-{{ trunc_uuid }}
     register: server_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -119,7 +119,7 @@
   - name: Create IP list
     set_fact:
       fio_hosts: |
-         {% for ip, node in pod_details.iteritems() %}
+         {% for ip, node in pod_details.items() %}
          {{ ip }}
          {% endfor %}
 
@@ -139,7 +139,7 @@
     k8s:
       definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -160,7 +160,7 @@
         - app = fiod-client-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

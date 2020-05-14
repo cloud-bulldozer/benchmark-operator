@@ -8,7 +8,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -50,7 +50,7 @@
       definition: "{{ lookup('template', 'workload_vm.yml') | from_yaml }}"
     when:  workload_args.kind is defined and workload_args.kind == "vm"
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -72,7 +72,7 @@
         - app = sysbench-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

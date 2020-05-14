@@ -36,7 +36,7 @@
         name: "uuid"
 
     - name: Setting the uuid for the benchmark
-      k8s_status:
+      operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
         name: "{{ meta.name }}"
@@ -63,7 +63,7 @@
           name: backpack
         when: metadata is defined and not metadata.targeted | default('true') | bool
 
-      - k8s_status:
+      - operator_sdk.util.k8s_status:
           api_version: ripsaw.cloudbulldozer.io/v1alpha1
           kind: Benchmark
           name: "{{ meta.name }}"

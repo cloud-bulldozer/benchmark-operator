@@ -7,7 +7,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -33,7 +33,7 @@
     with_sequence: start=1 count={{ workload_args.pairs|default('1')|int }}
 
   - name: Update state to Starting Server
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -55,7 +55,7 @@
     register: server_pods
 
   - name: Update state to Starting Clients
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -83,7 +83,7 @@
     with_items: "{{ server_pods.resources }}"
 
   - name: Update state to Waiting for Clients
-    k8s_status:
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -104,7 +104,7 @@
         - app = iperf3-bench-client-{{ trunc_uuid }}
     register: client_pods
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -126,7 +126,7 @@
         - app = iperf3-bench-client-{{ trunc_uuid }}
     register: client_jobs
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"

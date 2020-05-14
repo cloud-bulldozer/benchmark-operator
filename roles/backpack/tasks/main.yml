@@ -7,7 +7,7 @@
     namespace: "{{ operator_namespace }}"
   register: benchmark_state
 
-- k8s_status:
+- operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
@@ -58,7 +58,7 @@
     set_fact:
       backpack_cur_gen: "{{ my_daemonset | json_query('resources[].metadata.generation')|first }}"
 
-  - k8s_status:
+  - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -89,7 +89,7 @@
     
     - block:
 
-      - k8s_status:
+      - operator_sdk.util.k8s_status:
           api_version: ripsaw.cloudbulldozer.io/v1alpha1
           kind: Benchmark
           name: "{{ meta.name }}"
