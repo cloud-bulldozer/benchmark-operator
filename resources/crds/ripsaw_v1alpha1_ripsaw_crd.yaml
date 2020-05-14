@@ -33,10 +33,10 @@ spec:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
               job_params:
-                x-kubernetes-preserve-unknown-fields: true
                 type: array
                 items:
                   type: object
+                  x-kubernetes-preserve-unknown-fields: true
               metadata:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
@@ -50,6 +50,8 @@ spec:
                 type: string
               es_index: 
                 type: string 
+              hostpath:
+                type: string
           status:
             type: object
             properties:
