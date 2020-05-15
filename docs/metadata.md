@@ -25,7 +25,7 @@ the workload template with an init container section that looks like:
 {% if metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
-        image: quay.io/cloud-bulldozer/backpack:latest
+        image: quay.io/cloud-bulldozer/backpack@sha256:a39d536850142075a4a461bb2c978615072080ff1e9a91a64a542a87648b5e18
         command: ["/bin/sh", "-c"]
 {% if metadata is defined and metadata.force|default(false) is sameas true %}
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]

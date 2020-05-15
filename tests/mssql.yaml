@@ -24,7 +24,7 @@ spec:
         runAsUser: 10001
       containers:
       - name: mssql
-        image: quay.io/cloud-bulldozer/mssql:latest
+        image: quay.io/cloud-bulldozer/mssql@sha256:c40032597467c4c775e4f8e9c68aae89653e0c58fb489f214bdec6966cd25880
         ports:
         - containerPort: 1433
         resources:

@@ -25,7 +25,7 @@
           spec:
             containers:
             - name: ycsb
-              image: "quay.io/cloud-bulldozer/ycsb-server:latest"
+              image: "quay.io/cloud-bulldozer/ycsb-server@sha256:140f1f03be09314a5da547832f9310cd5f77f4d37e72d039bca1d408d5ce8725"
               imagePullPolicy: Always
               env:
               - name: clustername

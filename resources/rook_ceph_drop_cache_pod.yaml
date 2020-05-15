@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
   - name: rook-ceph-osd-cache-drop
-    image: quay.io/cloud-bulldozer/ceph-cache-dropper:latest
+    image: quay.io/cloud-bulldozer/ceph-cache-dropper@sha256:51defe52a9a1cce365b52cc5b3f3df9836afbd9ee5a9ee929dfc289f65e37a97
     imagePullPolicy: Always
     command: [/bin/sh, -c]
     args:

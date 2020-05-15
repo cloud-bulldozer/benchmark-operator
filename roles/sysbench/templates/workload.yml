@@ -16,7 +16,7 @@ spec:
       - name: sysbench
         command: ["/bin/sh", "-c"]
         args: ["/tmp/sysbenchScript"]
-        image: {{ sysbench.image | default('quay.io/cloud-bulldozer/sysbench:latest') }}
+        image: {{ sysbench.image | default('quay.io/cloud-bulldozer/sysbench@sha256:00f5f354f36ec5d8a1113db9202d0c1645550b629ee290ae05a6342c50da8488') }}
         imagePullPolicy: Always
         wait: true
         volumeMounts:
@@ -31,7 +31,7 @@ spec:
 {% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
-        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack@sha256:a39d536850142075a4a461bb2c978615072080ff1e9a91a64a542a87648b5e18') }}
         command: ["/bin/sh", "-c"]
 {% if metadata is defined and metadata.force|default(false) is sameas true %}
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
