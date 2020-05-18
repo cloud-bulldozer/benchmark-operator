@@ -24,7 +24,7 @@ spec:
         - name: es_port
           value: "{{elasticsearch.port | default()}}"
         - name: es_index
-          value: "{{ es_index }}"
+          value: "{{elasticsearch.index_name | default('ripsaw-ycsb')}}"
         - name: user
           value: "{{test_user | default()}}"
         - name: workload

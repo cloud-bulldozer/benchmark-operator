@@ -43,9 +43,9 @@ spec:
 {% endif %}
       restartPolicy: Never
       serviceAccountName: benchmark-operator
-{% if fiod.pin_server|default() %}
+{% if workload_args.pin_server|default('') %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ pin_server }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
 {% if workload_args.storageclass is defined %}
       volumes:
