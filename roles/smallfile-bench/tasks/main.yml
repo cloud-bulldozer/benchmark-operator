@@ -94,7 +94,7 @@
             spec:
               containers:
                 - name: publisher-container
-                  image: "quay.io/cloud-bulldozer/smallfile:master"
+                  image: "{{ smallfile.image | default('quay.io/cloud-bulldozer/smallfile:master') }}"
                   tty: true
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/smallfile-master/
