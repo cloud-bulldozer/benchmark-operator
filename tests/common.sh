@@ -169,8 +169,11 @@ function backpack_requirements {
   kubectl apply -f resources/backpack_role.yaml
   if [[ `command -v oc` ]]
   then
-    oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator
-    oc adm policy -n my-ripsaw add-scc-to-user privileged -z backpack-view
+    if [[ `oc get securitycontextconstraints.security.openshift.io` ]]
+    then
+      oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator
+      oc adm policy -n my-ripsaw add-scc-to-user privileged -z backpack-view
+    fi
   fi
 }
 
