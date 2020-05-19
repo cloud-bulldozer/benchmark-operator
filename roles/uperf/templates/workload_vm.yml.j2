@@ -78,7 +78,6 @@ spec:
           - pip install --upgrade pip
           - pip install "elasticsearch>=6.0.0,<=7.0.2"
           - git clone https://github.com/cloud-bulldozer/snafu /opt/snafu
-          - pip install -e /opt/snafu/
           - bash /tmp/uperf_script/run_script.sh
     name: cloudinitdisk
   - configMap:

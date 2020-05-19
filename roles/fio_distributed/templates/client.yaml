@@ -47,17 +47,10 @@ spec:
 {% endif %}
              echo ***********End of Prefill*************;
 {% endif %}
-<<<<<<< HEAD:roles/fio_distributed/templates/client.yaml
 {% for numjobs in workload_args.numjobs %}
 {% for bs in workload_args.bs %}
 {% for job in workload_args.jobs %}
              cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{bs}}-{{numjobs}}; python /opt/snafu/run_snafu.py -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
-=======
-{% for numjobs in fiod.numjobs %}
-{% for bs in fiod.bs %}
-{% for job in fiod.jobs %}
-             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}}; run_snafu -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{fiod.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
->>>>>>> install snafu as package:roles/fio-distributed/templates/client.yaml
 {% endfor %}
 {% endfor %}
 {% endfor %}

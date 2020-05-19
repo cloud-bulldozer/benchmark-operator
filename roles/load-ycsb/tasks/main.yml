@@ -7,10 +7,6 @@
   k8s:
     definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
-- name: Install run_snafu package
-  command: ["/bin/sh", "-c"]
-  args: ["pip install -e /opt/snafu/"]
-
 - name: Load Data Into Database
   k8s:
     definition:
