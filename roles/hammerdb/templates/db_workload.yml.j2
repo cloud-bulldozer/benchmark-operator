@@ -45,8 +45,8 @@ spec:
              export rampup={{workload_args.rampup}};
              export samples={{workload_args.samples}};
              export timed_test={{workload_args.timed_test}};
-             cd /hammer; 
-             python /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
+             cd /hammer;
+             run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"

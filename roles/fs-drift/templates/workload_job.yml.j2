@@ -61,7 +61,8 @@ spec:
               mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
               python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}};
               cat /tmp/fs-drift/params;
-              python run_snafu.py
+              pip install -e .;
+              run_snafu
               --tool fs-drift
               --top {{fs_drift_path}}/fs_drift_test_data
               --dir ${TMPDIR}/RESULTS
