@@ -75,4 +75,4 @@ spec:
 ## Community
 Key Members(slack_usernames): aakarsh, dry923, rsevilla or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
-* [**#forum-kni-perfscale on CoreOS Slack**](https://coreos.slack.com)
+* [**#forum-perfscale on CoreOS Slack**](https://coreos.slack.com)
