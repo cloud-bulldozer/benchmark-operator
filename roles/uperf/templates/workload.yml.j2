@@ -84,9 +84,7 @@ spec:
 {% for size in workload_args.sizes %}
 {% for nthr in workload_args.nthrs %}
                  cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
-                 for i in `seq 1 {{workload_args.samples}}`; do
-                   python /opt/snafu/run_snafu.py --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -r $i --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
-                 done;
+                 python /opt/snafu/run_snafu.py --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
 {% endfor %}
 {% endfor %}
 {% endfor %}
