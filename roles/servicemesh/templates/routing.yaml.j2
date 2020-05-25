@@ -1,0 +1,162 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: networking.istio.io/v1alpha3
+  kind: Gateway
+  metadata:
+    name: app-gateway
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    selector:
+      istio: ingressgateway # use Istio default gateway implementation
+    servers:
+    - hosts:
+      - "{{ app_route }}"
+      port:
+        name: https
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        # These keys are mounted from the secret istio-system/istio-ingressgateway-certs
+        privateKey: /etc/istio/ingressgateway-certs/tls.key
+        serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+    # Redirect non-encrypted traffic to port 443
+    - hosts:
+      - "{{ app_route }}"
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+      tls:
+        httpsRedirect: true
+# This virtual service requires any request to have x-variant set to either
+# 'stable', 'canary' or 'mirror' (otherwise the request raturns 404)
+- apiVersion: networking.istio.io/v1alpha3
+  kind: VirtualService
+  metadata:
+    name: variant
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    hosts:
+    - "{{ app_route }}" # for external routing
+    - app # for internal routing within NAMESPACE
+    gateways:
+    - app-gateway # for external routing
+    - mesh # for internal routing
+    http:
+    - match:
+      - headers:
+          x-variant:
+            exact: stable
+      route:
+      - destination:
+          host: app
+          port:
+            number: 8080
+          subset: stable
+    - match:
+      - headers:
+          x-variant:
+            exact: canary
+      route:
+      - destination:
+          host: app
+          port:
+            number: 8080
+          subset: canary
+    - match:
+      - headers:
+          x-variant:
+            exact: mirror
+      route:
+      - destination:
+          host: app
+          port:
+            number: 8080
+          subset: stable
+      mirror:
+        host: app
+        port:
+          number: 8080
+        subset: canary
+- apiVersion: networking.istio.io/v1alpha3
+  kind: DestinationRule
+  metadata:
+    name: variant
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    host: app.{{ workload_namespace }}.svc.cluster.local
+    trafficPolicy:
+      loadBalancer:
+        simple: RANDOM
+      connectionPool:
+        http:
+          http1MaxPendingRequests: 10000
+          http2MaxRequests: 10000
+        tcp:
+          maxConnections: 10000
+      portLevelSettings:
+      - port:
+          number: 8080
+        tls:
+          mode: ISTIO_MUTUAL
+        # It seems that defining port-level settings sets the connection pool
+        # settings to default values, so we need to repeat it here.
+        connectionPool:
+          http:
+            http1MaxPendingRequests: 10000
+            http2MaxRequests: 10000
+          tcp:
+            maxConnections: 10000
+    subsets:
+    - name: stable
+      labels:
+        app.variant: stable
+    - name: canary
+      labels:
+        app.variant: canary
+# Global policy requiring communication to be TLS-encrypted
+- apiVersion: authentication.istio.io/v1alpha1
+  kind: Policy
+  metadata:
+    name: default
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    peers:
+    - mtls: {}
+# Exception for the policy above on DB port
+- apiVersion: authentication.istio.io/v1alpha1
+  kind: Policy
+  metadata:
+    name: app-db
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    peers: []
+    targets:
+    - name: app
+      ports:
+      - number: 5432
+# IOR does not create the route for some reason even if enabled in SMCP
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    name: app
+    namespace: "{{ controlplane_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    host: {{ app_route }}
+    port:
+      targetPort: 8443
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: istio-ingressgateway
+      weight: 100
+    wildcardPolicy: None

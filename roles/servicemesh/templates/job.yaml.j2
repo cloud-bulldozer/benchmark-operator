@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ meta.name }}-{{ trunc_uuid }}"
+  namespace: '{{ operator_namespace }}'
+  ownerReferences: "{{ owner }}"
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+      app: "{{ meta.name }}-{{ trunc_uuid }}"
+    spec:
+      containers:
+      - name: command
+        image: "{{ hf_pod.resources[0].spec.containers[0].image }}"
+        command: [ "bash", "/tmp/files/run.sh" ]
+        volumeMounts:
+        - name: files
+          mountPath: /tmp/files
+        env:
+        - name: HYPERFOIL_IP
+          value: "{{ hf_pod.resources[0].status.podIP }}"
+        - name: TEST_NAME
+          value: "{{ servicemesh.test_name }}"
+      restartPolicy: Never
+      volumes:
+      - name: files
+        configMap:
+          defaultMode: 493
+          name: "{{ meta.name }}-test-{{ trunc_uuid }}"

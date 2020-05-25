@@ -1,0 +1,123 @@
+name: openmodel
+agents:
+  default:
+    extras: -XX:ParallelGCThreads=8 -XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -Xmx4G -Xms4G
+# -Xlog:gc*
+#    log: logs/log4j2-debug.xml
+{% if servicemesh.hyperfoil_agents is defined and (servicemesh.hyperfoil_agents | length) > 0 %}
+  {% for agent in servicemesh.hyperfoil_agents %}
+{{ agent }}:
+    node: {{ agent }}
+  {% endfor %}
+{% else %}
+  agent: {}
+{% endif %}
+
+threads: {{ servicemesh.hyperfoil_threads }}
+http:
+  host: https://{{ app_route }}
+# Bypass Openshift routers
+  addresses:
+  - istio-ingressgateway.{{ controlplane_namespace }}.svc
+  sharedConnections: {{ servicemesh.openmodel.shared_connections }}
+staircase:
+  initialRampUpDuration: {{ servicemesh.openmodel.initial_rampup_duration }}
+  steadyStateDuration: {{ servicemesh.openmodel.steadystate_duration }}
+  rampUpDuration: {{ servicemesh.openmodel.rampup_duration }}
+  initialUsersPerSec: {{ servicemesh.openmodel.initial_users_per_sec }}
+  incrementUsersPerSec: {{ servicemesh.openmodel.increment_users_per_sec }}
+  maxIterations: {{ servicemesh.openmodel.max_iterations }}
+  maxSessions: {{ servicemesh.openmodel.max_sessions }}
+  forks:
+    simple: &simple
+      weight: {{ servicemesh.openmodel.weight_simple }}
+      scenario:
+      - params: &params
+        - randomInt:
+            toVar: p
+            min: 200
+            max: 300
+        - randomItem:
+            list:
+              stable: 0.8
+              canary: 0.1
+              mirror: 0.1
+            toVar: variant
+      - test:
+        - httpRequest:
+            GET:
+              pattern: /mersennePrime?p=${p}
+            headers:
+              x-variant:
+                fromVar: variant
+            sla:
+              meanResponseTime: 200ms
+              errorRatio: 0.1
+              blockedRatio: 0
+            handler:
+              header:
+              - recordHeaderTime:
+                  header: x-envoy-upstream-service-time
+                  metric: simple-upstream
+                  unit: ms
+              - countHeaders: {}
+              body:
+              - logInvalid: {}
+    proxy: &proxy
+      weight: {{ servicemesh.openmodel.weight_proxy }}
+      scenario:
+      - params: *params
+      - test:
+        - httpRequest:
+            GET:
+              pattern: /proxy?p=${p}&url=http://app:8080/mersennePrime?p=${p}
+            headers:
+              x-variant:
+                fromVar: variant
+            sla:
+              meanResponseTime: 200ms
+              errorRatio: 0.1
+              blockedRatio: 0
+            handler:
+              header:
+              - recordHeaderTime:
+                  header: x-envoy-upstream-service-time
+                  metric: proxy-upstream
+                  unit: ms
+              - recordHeaderTime:
+                  header: x-proxy-service-time
+                  metric: proxy-downstream
+              - countHeaders: {}
+              body:
+              - logInvalid: {}
+    db: &db
+      weight: {{ servicemesh.openmodel.weight_db }}
+      scenario:
+      - params: *params
+      - test:
+        - randomInt:
+            toVar: size
+            min: 5
+            max: 20
+        - httpRequest:
+            GET:
+              pattern: /db?p=${p}&host=app&size=${size}
+            headers:
+              x-variant:
+                fromVar: variant
+            sla:
+              meanResponseTime: 200ms
+              errorRatio: 0.1
+              blockedRatio: 0
+            handler:
+              header:
+              - recordHeaderTime:
+                  header: x-envoy-upstream-service-time
+                  metric: db-upstream
+                  unit: ms
+              - recordHeaderTime:
+                  header: x-db-service-time
+                  metric: db-downstream
+              - countHeaders: {}
+              body:
+              - logInvalid: {}

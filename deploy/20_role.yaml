@@ -83,3 +83,9 @@ rules:
   - securitycontextconstraints
   verbs:
   - use
+- apiGroups:
+  - hyperfoil.io
+  resources:
+  - hyperfoils
+  verbs:
+  - '*'

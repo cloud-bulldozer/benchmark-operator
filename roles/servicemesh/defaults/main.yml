@@ -1,0 +1,31 @@
+---
+# Since defining the servicemesh var would override all defaults rather than
+# merge the two dictionaries we need to combine them explicitly.
+servicemesh_defaults:
+  test_name: closedmodel
+  deployments: 3
+  pods_per_deployment: 1
+  workload_cpu: 4
+  hyperfoil_version: latest
+  hyperfoil_threads: 8
+  closedmodel:
+    shared_connections: 300
+    users: 1050
+    warmup_duration: 10s
+    steadystate_duration: 10s
+    weight_simple: 10
+    weight_db: 10
+    weight_proxy: 1
+  openmodel:
+    shared_connections: 2000
+    initial_users_per_sec: 4200
+    increment_users_per_sec: 1050
+    initial_rampup_duration: 60s
+    steadystate_duration: 60s
+    rampup_duration: 20s
+    max_iterations: 50
+    max_sessions: 90000
+    weight_simple: 10
+    weight_db: 10
+    weight_proxy: 1
+cleanup: true
