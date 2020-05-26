@@ -64,10 +64,18 @@ spec:
       - name: backpack-{{ trunc_uuid }}
         image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
         command: ["/bin/sh", "-c"]
+        args: 
+          - python3
+          - stockpile-wrapper.py
+          - -s {{ elasticsearch.server }}
+          - -p {{ elasticsearch.port }}
+          - -u {{ uuid }}
+          - -n $my_node_name
+          - -N $my_pod_name
+          - --redisip {{ bo.resources[0].status.podIP }}
+          - --redisport 6379
 {% if metadata is defined and metadata.force|default(false) is sameas true %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
-{% else %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+          - --force
 {% endif %}
         imagePullPolicy: Always
         securityContext:
