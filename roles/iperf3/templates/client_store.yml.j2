@@ -11,18 +11,15 @@ spec:
       labels:
         app: iperf3-bench-client-{{ trunc_uuid }}
     spec:
-{% if workload_args.hostnetwork is defined %}
-{% if workload_args.hostnetwork %}
+{% if workload_args.hostnetwork is defined and workload_args.hostnetwork %}
       hostNetwork: true
       serviceAccountName: benchmark-operator
       serviceAccount: benchmark-operator
-{% endif %}
 {% endif %}
       containers:
       - name: benchmark
         image: "quay.io/cloud-bulldozer/iperf3:latest"
         imagePullPolicy: Always
-        wait: true
         command: ["/bin/sh", "-c"]
         args:
           - "mkdir -p {{results.path}}/iperf3-{{ uuid }};

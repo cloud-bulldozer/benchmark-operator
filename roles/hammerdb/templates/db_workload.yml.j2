@@ -15,30 +15,36 @@ spec:
       - name: hammerdb
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:master') }}
         imagePullPolicy: Always
-        wait: true
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-hammerdb") }}"
+{% endif %}
         command: ["/bin/sh", "-c"]
         args: 
           - "/usr/local/bin/uid_entrypoint; 
-             {% if elasticsearch is defined %}
-             {% if elasticsearch.server is defined %}
-             export es={{elasticsearch.server}};
-             export es_port={{elasticsearch.port}};
-             export uuid={{uuid}};
-             export es_index={{es_index}};
-             {% endif %}
-             {% endif %}
              export db_server={{workload_args.db_server}};
              export db_port={{workload_args.db_port}};
              export db_warehouses={{workload_args.db_warehouses}};
              export db_num_workers={{workload_args.db_num_workers}};
-	     export db_tcp={{workload_args.db_tcp}};
+             export db_tcp={{workload_args.db_tcp}};
              export db_user={{workload_args.db_user}};
              export transactions={{workload_args.transactions}};
-	     export test_type={{workload_args.test_type}};
+             export test_type={{workload_args.test_type}};
              export runtime={{workload_args.runtime}};
              export rampup={{workload_args.rampup}};
              export samples={{workload_args.samples}};
-	     export timed_test={{workload_args.timed_test}};
+             export timed_test={{workload_args.timed_test}};
              cd /hammer; 
              python /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
         volumeMounts:
@@ -62,7 +68,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}        
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

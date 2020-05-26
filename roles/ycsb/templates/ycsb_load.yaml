@@ -24,7 +24,7 @@ spec:
         - name: es_port
           value: "{{elasticsearch.port | default()}}"
         - name: es_index
-          value: "{{ es_index }}"
+          value: "{{elasticsearch.index_name | default('ripsaw-ycsb')}}"
         - name: user
           value: "{{test_user | default()}}"
         - name: workload
@@ -61,7 +61,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:

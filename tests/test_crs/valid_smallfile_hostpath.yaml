@@ -8,11 +8,10 @@ spec:
   test_user: homer_simpson
   # to separate this test run from everyone else's
   clustername: test_ci
-  # where elastic search is running
-  es_index: ripsaw-smallfile
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
+    index_name: ripsaw-smallfile
   metadata:
     collection: true
   hostpath: /mnt/vda1/smallfile

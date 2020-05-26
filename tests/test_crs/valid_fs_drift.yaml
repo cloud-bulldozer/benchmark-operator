@@ -11,7 +11,7 @@ spec:
   elasticsearch:
     server: "marquez.perf.lab.eng.rdu2.redhat.com"
     port: 9200
-  es_index: ripsaw-fs-drift
+    index_name: ripsaw-fs-drift
   metadata:
     collection: true
   workload:

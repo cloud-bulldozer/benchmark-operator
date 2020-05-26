@@ -7,8 +7,3 @@ num_databases_pattern: "{{ workload_args.num_databases_pattern|default('all') }}
 run_time: "{{ workload_args.run_time|default('') }}"
 cmd_flags: "{{ workload_args.cmd_flags|default('') }}"
 init_cmd_flags: "{{ workload_args.init_cmd_flags|default('') }}"
-es: "{{ elasticsearch|default([]) }}"
-es_server: "{{ es.server|default('') }}"
-es_port: "{{ es.port|default(9200) }}"
-es_index_prefix: "ripsaw-pgbench"
-test_user: "ripsaw"

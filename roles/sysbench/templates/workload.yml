@@ -18,7 +18,6 @@ spec:
         args: ["/tmp/sysbenchScript"]
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/sysbench:latest') }}
         imagePullPolicy: Always
-        wait: true
         volumeMounts:
         - name: sysbench-volume
           mountPath: "/tmp/"
@@ -39,7 +38,6 @@ spec:
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
 {% endif %}        
         imagePullPolicy: Always
-        wait: true
         securityContext:
           privileged: {{ metadata.privileged | default(false) | bool }}
         env:
