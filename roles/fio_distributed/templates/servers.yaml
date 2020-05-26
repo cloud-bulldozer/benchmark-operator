@@ -59,7 +59,7 @@ spec:
           path: {{ hostpath }}
           type: DirectoryOrCreate
 {% endif %}
-{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+{% if metadata is defined and (metadata.collection|default(false)) and (metadata.targeted|default(true)) %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
         image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
@@ -74,7 +74,7 @@ spec:
           - -N $my_pod_name
           - --redisip {{ bo.resources[0].status.podIP }}
           - --redisport 6379
-{% if metadata is defined and metadata.force|default(false) is sameas true %}
+{% if metadata is defined and (metadata.force|default(false)) %}
           - --force
 {% endif %}
         imagePullPolicy: Always
