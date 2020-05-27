@@ -63,7 +63,7 @@ spec:
               rm -rf {{smallfile_path}}/RESULTS ;
               mkdir -p {{smallfile_path}}/RESULTS;
               mkdir -p {{smallfile_path}}/smallfile_test_data;
-              python /opt/snafu/run_snafu.py
+              run_snafu
 {% if workload_args.samples is defined %}
               --samples {{workload_args.samples}}
 {% endif %}
