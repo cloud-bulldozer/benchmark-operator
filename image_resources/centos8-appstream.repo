@@ -1,5 +1,0 @@
-[centos8-appstream]
-name=CentOS-8-Appstream
-baseurl=http://mirror.centos.org/centos/8/AppStream/x86_64/os/
-enabled=0
-gpgcheck=0
