@@ -1,6 +1,6 @@
 ---
 - name: Get current state
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ meta.name }}'
@@ -18,7 +18,7 @@
   when: resource_state.resources[0].status.state is not defined
 
 - name: Get current state - If it has changed
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ meta.name }}'
@@ -59,6 +59,18 @@
     with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
     when: workload_args.storageclass is defined
 
+  - name: Start FIO Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
+    when: workload_args.servers|default('1')|int > 0 and (workload.args.kind | default('pod')) == "pod"
+    with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
+
+  - name: Start FIO Server(s) VM
+    k8s:
+      definition: "{{ lookup('template', 'server_vm.yml.j2') | from_yaml }}"
+    when: workload_args.servers|default('1')|int > 0 and (workload.args.kind | default('pod')) == "vm"
+    with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
+
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -68,18 +80,12 @@
         state: StartingServers
         complete: false
 
-  - name: Start FIO Server(s)
-    k8s:
-      definition: "{{ lookup('template', 'servers.yaml') | from_yaml }}"
-    when: workload_args.servers|default('1')|int > 0
-    with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
-
   when: resource_state.resources[0].status.state == "Building"
 
 - block :
 
   - name: Capture pod list
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -95,33 +101,44 @@
       status:
         state: StartingClient
         complete: false
-    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length)"
-
-  when: resource_state.resources[0].status.state == "StartingServers"
-
-- block:
-
-  - name: Capture updated pod list
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = fio-benchmark-{{ trunc_uuid }}
-    register: server_pods
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
       pod_details: "{{ pod_details|default({}) | combine({item.status.podIP: item.spec.nodeName}) }}"
     with_items: "{{ server_pods.resources }}"
 
-  # can perhaps optimize here, by adding to list in above loop
-  - name: Create IP list
+  when: (workload.args.kind | default('pod')) == "pod"
+
+- block :
+
+  - name: Capture pod list
+    k8s_info:
+      kind: VirtualMachineInstance
+      api_version: kubevirt.io/v1alpha3
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = fio-benchmark-{{ trunc_uuid }}
+    register: server_pods
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: StartingClient
+        complete: false
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.interfaces[].ipAddress')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
+
+  - name: Create IP list and nodes
     set_fact:
-      fio_hosts: |
-         {% for ip, node in pod_details.items() %}
-         {{ ip }}
-         {% endfor %}
+      pod_details: "{{ pod_details|default({}) | combine({item.status.interfaces[0].ipAddress: item.status.nodeName}) }}"
+    with_items: "{{ server_pods.resources }}"
+
+  when: (workload.args.kind | default('pod')) == "vm"
+
+- block:
 
   - name: Generate fio hosts
     k8s:
@@ -133,7 +150,9 @@
           namespace: '{{ operator_namespace }}'
         data:
           hosts: |
-            {{ fio_hosts }}
+            {% for ip in pod_details.keys() %}
+            {{ ip }}
+            {% endfor %}
 
   - name: Start FIO Client
     k8s:
@@ -152,7 +171,7 @@
 
 - block:
   - name: Capture Client pod list
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
