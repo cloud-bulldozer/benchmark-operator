@@ -26,9 +26,6 @@ function functional_test_backpack {
 
   wait_for_backpack $uuid
   
-  echo "Waiting 2 minutes to ensure data is in ES"
-  sleep 120
-
   indexes="cpu_vulnerabilities-metadata cpuinfo-metadata dmidecode-metadata k8s_configmaps-metadata k8s_namespaces-metadata k8s_nodes-metadata k8s_pods-metadata lspci-metadata meminfo-metadata sysctl-metadata"
   if check_es "${long_uuid}" "${indexes}"
   then
