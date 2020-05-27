@@ -1,0 +1,2 @@
+---
+resource_kind: "{{ workload.args.kind | default('pod') }}"
