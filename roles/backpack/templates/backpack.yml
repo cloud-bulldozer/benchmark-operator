@@ -38,9 +38,9 @@ spec:
         image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
         command: ["/bin/sh", "-c"]
 {% if metadata is defined and metadata.force|default(false) is sameas true %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force; sleep infinity"]
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force && touch /tmp/indexed; sleep infinity"]
 {% else %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379; sleep infinity"]
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 && touch /tmp/indexed; sleep infinity"]
 {% endif %}
         imagePullPolicy: Always
 {% if metadata is defined and metadata.privileged is defined %}
@@ -51,7 +51,7 @@ spec:
           exec:
             command:
               - ls
-              - /tmp/stockpile.json
+              - /tmp/indexed
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 120
