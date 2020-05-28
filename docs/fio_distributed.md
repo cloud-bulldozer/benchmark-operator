@@ -64,20 +64,20 @@ spec:
     - jobname_match: read
       params:
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: rw
       params:
         - rwmixread=50
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
     - jobname_match: readwrite
       params:
         - rwmixread=50
         - time_based=1
-        - runtime={{ fiod.read_runtime }}
-        - ramp_time={{ fiod.read_ramp_time }}
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
 #    - jobname_match: <search_string>
 #      params:
 #        - key=value
