@@ -19,12 +19,6 @@ spec:
         env:
         - name: clustername
           value: "{{ clustername }}"
-        - name: es
-          value: "{{elasticsearch.server | default()}}"
-        - name: es_port
-          value: "{{elasticsearch.port | default()}}"
-        - name: es_index
-          value: "{{elasticsearch.index_name | default('ripsaw-ycsb')}}"
         - name: user
           value: "{{test_user | default()}}"
         - name: workload
@@ -35,6 +29,28 @@ spec:
           value: "{{workload_args.operationcount}}"
         - name: uuid
           value: "{{uuid}}"
+{% if elasticsearch is defined %}
+        - name: es
+          value: "{{ elasticsearch.server }}"
+        - name: es_port
+          value: "{{ elasticsearch.port }}"
+        - name: es_index
+          value: "{{ elasticsearch.index_name | default("ripsaw-fio") }}"
+        - name: parallel
+          value: "{{ elasticsearch.parallel | default("false") }}"
+{% endif %}
+{% if prometheus is defined %}
+        - name: prom_es
+          value: "{{ prometheus.server }}"
+        - name: prom_port
+          value: "{{ prometheus.port }}"
+        - name: prom_parallel
+          value: "{{ prometheus.parallel | default("false") }}"
+        - name: prom_token
+          value: "{{ prometheus.prom_token | default() }}"
+        - name: prom_url
+          value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args: ['run_snafu --tool ycsb -r 1 -d {{ workload_args.driver }} -w {{ ycsb_workload }} -u {{ uuid }} --user {{ test_user | default("ripsaw") }} -x "{{ workload_args.options_run }}"']
