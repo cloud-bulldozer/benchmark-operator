@@ -35,7 +35,7 @@ Optional locations for workload images can now be added easily without the need 
 To do so in the workload args section of the CR add image: [location]
 
 NOTE: This is not a required arguement. If omitted it will default to the currently verified workload image.
-Additionally, this is not enabled for YCSB
+Additionally, this is *NOT* enabled for YCSB
 
 For Example:
 
@@ -68,6 +68,12 @@ spec:
 
 ## Cerberus Integration
 [Cerberus Integration](docs/cerberus.md)
+
+## Indexing to Elasticsearch
+[Indexing to Elasticsearch](docs/elastic.md)
+
+## Capturing Prometheus Data
+[Capturing Prometheus Data](docs/prometheus.md)
 
 ## Community
 Key Members(slack_usernames): aakarsh, dry923, rsevilla or rook

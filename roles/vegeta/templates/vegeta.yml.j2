@@ -44,6 +44,22 @@ spec:
             value: "{{ elasticsearch.port }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-vegeta") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default("false") }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.server }}"
+          - name: prom_port
+            value: "{{ prometheus.port }}"
+          - name: prom_parallel
+            value: "{{ prometheus.parallel | default("false") }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         imagePullPolicy: Always
         workingDir: /tmp
