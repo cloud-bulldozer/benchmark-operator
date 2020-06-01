@@ -30,7 +30,6 @@ function functional_test_hammerdb {
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
   kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=400s
   kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace my-ripsaw jobs --timeout=500s
-  kubectl logs "$hammerdb_workload_pod" --namespace my-ripsaw | grep "Timestamp"
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"

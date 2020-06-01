@@ -40,9 +40,6 @@ function functional_test_fs_drift {
   echo fsdrift_pod $fs_drift_pod
   wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n my-ripsaw --timeout=500s" "500s" $fsdrift_pod
   wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n my-ripsaw --timeout=100s" "200s" $fsdrift_pod
-  # Print logs and check status
-  kubectl logs "$fsdrift_pod" -n my-ripsaw
-  kubectl logs "$fsdrift_pod" -n my-ripsaw | grep "RUN STATUS"
 
   indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
   if check_es "${long_uuid}" "${indexes}"

@@ -85,7 +85,6 @@ EOF
   wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n my-ripsaw --timeout=360s" "360s" $pgbench_pod
   wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n my-ripsaw --timeout=60s" "60s" $pgbench_pod
   wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client-$uuid -n my-ripsaw --timeout=300s" "300s" $pgbench_pod
-  kubectl logs -n my-ripsaw $pgbench_pod | grep 'tps ='
 
   index="ripsaw-pgbench-summary ripsaw-pgbench-raw"
   if check_es "${long_uuid}" "${index}"

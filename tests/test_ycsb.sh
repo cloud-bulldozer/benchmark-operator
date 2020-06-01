@@ -76,7 +76,6 @@ EOF
   ycsb_load_pod=$(get_pod "name=ycsb-load-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n my-ripsaw --timeout=500s" "500s" $ycsb_load_pod
   wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load-$uuid -n my-ripsaw --timeout=300s" "300s" $ycsb_load_pod
-  kubectl logs -n my-ripsaw $ycsb_load_pod | grep 'Starting test'
 
   index="ripsaw-ycsb-summary ripsaw-ycsb-results"
   if check_es "${long_uuid}" "${index}"

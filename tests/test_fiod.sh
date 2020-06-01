@@ -30,9 +30,6 @@ function functional_test_fio {
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=500s" "500s" $fio_pod
   wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=500s" "500s" $fio_pod
-  # ensuring the run has actually happened
-  kubectl logs "$fio_pod" -n my-ripsaw
-  kubectl logs "$fio_pod" -n my-ripsaw | grep "fio has successfully finished sample"
 
   index="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${index}"
