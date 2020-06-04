@@ -18,7 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_sysbench {
-  figlet $(basename $0)
+  wait_clean
   apply_operator
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
   long_uuid=$(get_uuid 20)
@@ -34,4 +34,5 @@ function functional_test_sysbench {
   echo "Sysbench test: Success"
 }
 
+figlet $(basename $0)
 functional_test_sysbench

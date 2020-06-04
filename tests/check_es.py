@@ -28,6 +28,7 @@ def _check_index(server,port,uuid,index,es_ssl):
                                                  ssl_context=ssl_ctx, use_ssl=True)
     else:
         es = elasticsearch.Elasticsearch([_es_connection_string], send_get_body_as='POST')
+    es.indices.refresh(index=index)
     results = es.search(index=index, body={'query': {'term': {'uuid.keyword': uuid}}}, size=1)
     if results['hits']['total']['value'] > 0:
         return 0

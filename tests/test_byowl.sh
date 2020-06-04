@@ -18,7 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_byowl {
-  figlet $(basename $0)
+  wait_clean
   apply_operator
   kubectl apply -f tests/test_crs/valid_byowl.yaml
   long_uuid=$(get_uuid 20)
@@ -31,4 +31,5 @@ function functional_test_byowl {
   echo "BYOWL test: Success"
 }
 
+figlet $(basename $0)
 functional_test_byowl

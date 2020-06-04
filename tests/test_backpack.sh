@@ -18,7 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_backpack {
-  figlet $(basename $0)
+  wait_clean
   apply_operator
   kubectl apply -f tests/test_crs/valid_backpack.yaml
   long_uuid=$(get_uuid 20)
@@ -31,9 +31,10 @@ function functional_test_backpack {
   then
     echo "Backpack test: Success"
   else
+    echo "Failed to find data in ES"
     exit 1
-    echo "Faled to find data in ES"
   fi
 }
 
+figlet $(basename $0)
 functional_test_backpack

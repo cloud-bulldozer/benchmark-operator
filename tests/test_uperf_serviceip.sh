@@ -18,7 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_uperf_serviceip {
-  figlet $(basename $0)
+  wait_clean
   apply_operator
   kubectl apply -f tests/test_crs/valid_uperf_serviceip.yaml
   uuid=$(get_uuid 20)
@@ -36,4 +36,6 @@ function functional_test_uperf_serviceip {
   kubectl logs "$uperf_client_pod" --namespace my-ripsaw | grep Success
   echo "Uperf test: Success"
 }
+
+figlet $(basename $0)
 functional_test_uperf_serviceip

@@ -20,8 +20,9 @@ function finish {
 trap finish EXIT
 
 function functional_test_hammerdb {
-  initdb_pod
+  wait_clean
   apply_operator
+  initdb_pod
   kubectl apply -f tests/test_crs/valid_hammerdb.yaml
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
@@ -30,16 +31,17 @@ function functional_test_hammerdb {
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
   kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=400s
   kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace my-ripsaw jobs --timeout=500s
-  kubectl logs "$hammerdb_workload_pod" --namespace my-ripsaw | grep "Timestamp"
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"
   then
     echo "Hammerdb test: Success"
   else
-    echo "Failed to find data for ${test_name} in ES"
+    echo "Failed to find data for HammerDB test in ES"
+    kubectl logs "$hammerdb_workload_pod" --namespace my-ripsaw
     exit 1
   fi
 }
 
+figlet $(basename $0)
 functional_test_hammerdb

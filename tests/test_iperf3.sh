@@ -18,7 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_iperf {
-  figlet $(basename $0)
+  wait_clean
   apply_operator
   kubectl apply -f tests/test_crs/valid_iperf3.yaml
   long_uuid=$(get_uuid 20)
@@ -35,4 +35,5 @@ function functional_test_iperf {
   echo "iperf test: Success"
 }
 
+figlet $(basename $0)
 functional_test_iperf

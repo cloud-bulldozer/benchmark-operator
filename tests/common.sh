@@ -46,18 +46,7 @@ function populate_test_list {
 }
 
 function wait_clean {
-  kubectl delete benchmark --all -n my-ripsaw
-  kubectl delete all --all -n my-ripsaw
-  for i in {1..30}; do
-    if [ `kubectl get pods --namespace my-ripsaw | grep bench | wc -l` -ge 1 ]; then
-      sleep 5
-    else
-      break
-    fi
-  done
-  if [[ `kubectl get namespace my-ripsaw` ]]; then
-    kubectl delete namespace my-ripsaw
-  fi
+  kubectl delete namespace my-ripsaw --ignore-not-found
 }
 
 # The argument is 'timeout in seconds'

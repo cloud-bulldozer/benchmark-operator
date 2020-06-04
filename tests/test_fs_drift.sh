@@ -18,6 +18,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_fs_drift {
+  wait_clean
   apply_operator
   test_name=$1
   cr=$2
@@ -40,9 +41,6 @@ function functional_test_fs_drift {
   echo fsdrift_pod $fs_drift_pod
   wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n my-ripsaw --timeout=500s" "500s" $fsdrift_pod
   wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n my-ripsaw --timeout=100s" "200s" $fsdrift_pod
-  # Print logs and check status
-  kubectl logs "$fsdrift_pod" -n my-ripsaw
-  kubectl logs "$fsdrift_pod" -n my-ripsaw | grep "RUN STATUS"
 
   indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
   if check_es "${long_uuid}" "${indexes}"
@@ -50,11 +48,11 @@ function functional_test_fs_drift {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
+    kubectl logs "$fsdrift_pod" -n my-ripsaw
     exit 1
   fi
 }
 
 figlet $(basename $0)
 functional_test_fs_drift "fs-drift" tests/test_crs/valid_fs_drift.yaml
-wait_clean
 functional_test_fs_drift "fs-drift hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml
