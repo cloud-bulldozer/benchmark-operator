@@ -1,4 +1,6 @@
 - hosts: localhost
+  collections:
+   - operator_sdk.util
   gather_facts: no
   tasks:
 
