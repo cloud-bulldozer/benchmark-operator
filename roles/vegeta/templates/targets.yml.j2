@@ -6,7 +6,7 @@ metadata:
   namespace: {{ operator_namespace }}
 data:
 {% for target in workload_args.targets %}
-  {{ target.name }}: |
+  {{ target.name|replace(" ","") }}: |
 {% for u in target.urls %}
     {{ u }}
 {% endfor %}

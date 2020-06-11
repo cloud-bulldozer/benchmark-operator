@@ -8,6 +8,8 @@ spec:
 #   server: <es_instance>
 #   port: 9200
 #   index_name: ripsaw-vegeta
+# test_user: username_to_attach_to_metadata
+  clustername: myk8scluster
   workload:
     name: vegeta
     args:

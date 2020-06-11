@@ -1,0 +1,25 @@
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vegeta-benchmark-hostnetwork
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: marquez.perf.lab.eng.rdu2.redhat.com
+    port: 9200
+    index_name: ripsaw-vegeta
+  workload:
+    name: vegeta
+    args:
+      image: quay.io/cloud-bulldozer/vegeta:latest
+      hostnetwork: true
+      clients: 2
+      targets:
+        - name: 2w-ka
+          urls:
+            - GET https://1.1.1.1
+          samples: 1
+          workers: 2
+          duration: 5
+          keepalive: true

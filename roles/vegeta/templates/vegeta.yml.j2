@@ -60,8 +60,8 @@ spec:
               done
             done
             sleep 0.1
-            redis-cli -h {{bo.resources[0].status.podIP}} set vegeta-{{ item }}-{{ trunc_uuid }} notready
-            /opt/snafu/run_snafu.py -t vegeta --targets /tmp/vegeta/{{ t.name }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
+            redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} notready
+            /opt/snafu/run_snafu.py -t vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
 {% endfor %}
         volumeMounts:
           - name: targets-volume
@@ -71,7 +71,6 @@ spec:
           configMap:
             name: vegeta-targets-{{ trunc_uuid }}
       restartPolicy: OnFailure
-{% if workload_args.pin is sameas true %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% if workload_args.nodeselector is defined %}
+      nodeSelector: {{ nodeselector|to_json }} 
 {% endif %}
