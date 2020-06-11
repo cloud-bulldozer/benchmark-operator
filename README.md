@@ -28,11 +28,6 @@ Why did we decide to switch to this? Our operator would implement long running t
 However, long running tasks blocks the Operator, causing us to delete the Operator and re-create the operator to
 un-block it. The benchmarks mentioned above that state `Used` for Reconciliation, no longer have this issue.
 
-### Reconciliation issue with YCSB and PGBench
-
-These two bencharmks are written in a way that doesn't allow for reconciliation to be implemented. To take
-advantage of the reconciliation loop, these two benchmarks need to be rewritten.
-
 ## Optional workload images
 Optional locations for workload images can now be added easily without the need to rebuild the operator.
 To do so in the workload args section of the CR add image: [location]
