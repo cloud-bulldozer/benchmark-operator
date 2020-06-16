@@ -14,7 +14,6 @@ spec:
     name: vegeta
     args:
       hostnetwork: false
-      image: quay.io/cloud-bulldozer/vegeta:latest
       clients: 2
       targets:
         - name: 100w-ka

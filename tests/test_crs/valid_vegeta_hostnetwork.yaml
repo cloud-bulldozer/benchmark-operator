@@ -6,13 +6,15 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: marquez.perf.lab.eng.rdu2.redhat.com
-    port: 9200
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-vegeta
+  metadata:
+    collection: true
+    serviceaccount: benchmark-operator
   workload:
     name: vegeta
     args:
-      image: quay.io/cloud-bulldozer/vegeta:latest
       hostnetwork: true
       clients: 2
       targets:

@@ -39,6 +39,7 @@ function functional_test_vegeta {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
+    exit 1
   fi
 }
 

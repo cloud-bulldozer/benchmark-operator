@@ -138,3 +138,7 @@ The following metrics are indexed at one second intervals:
 
 Using the Elasticsearch storage described above, we can build dashboards like the below.
 
+![Vegeta dashboard](https://i.imgur.com/YWophlP.png)
+
+The previous dashboard is available at [arsenal](https://github.com/cloud-bulldozer/arsenal/)
+
