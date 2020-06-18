@@ -33,7 +33,7 @@ spec:
   securityContext:
     sysctls:
     - name: net.ipv4.ip_local_port_range
-      value: 20000 20011
+      value: 20000 {{ 20000 + workload_args.nthrs[0] }}
 {% endif %}
 {% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
   initContainers:

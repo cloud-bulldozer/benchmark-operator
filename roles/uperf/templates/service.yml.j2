@@ -15,7 +15,7 @@ spec:
     port: 20000
     targetPort: 20000
     protocol: TCP
-{% for num in range(20001,20012,1) %}
+{% for num in range(20001,workload_args.nthrs[0] + 20001,1) %}
   - name: uperf-control-tcp-{{num}}
     port: {{num}}
     targetPort: {{num}}
