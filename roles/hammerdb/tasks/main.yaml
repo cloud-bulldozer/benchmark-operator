@@ -1,60 +1,169 @@
 ---
-
-- name: template db creation script
-  k8s: 
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata: 
-        name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
-        namespace: '{{ operator_namespace }}'
-      data: 
-        createdb.tcl: "{{ lookup('template', 'createdb.tcl.j2') }}"
-
-
-- name: template db workload script
-  k8s:
-    definition:
-      apiVersion: v1
-      kind: ConfigMap
-      metadata:
-        name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
-        namespace: '{{ operator_namespace }}'
-      data:
-        tpcc-workload.tcl: "{{ lookup('template', 'tpcc-workload.tcl.j2') }}"
-
-- name: start db creation job
-  k8s:
-    state: present
-    definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
-  when: workload_args.db_init is defined and workload_args.db_init
-
-- name: wait for db creation job to finish
+- name: Get current state
   k8s_facts:
-    kind: Job
-    api_version: batch/v1
-    name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
     namespace: "{{ operator_namespace }}"
-  register: hammerdb_creator_pod
-  until: "hammerdb_creator_pod | json_query('resources[].status.succeeded')"
-  retries: 40
-  delay: 15
-  when: workload_args.db_init is defined and workload_args.db_init
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get current state - If it has changed
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+
+- block:
+  - name: template db creation script
+    k8s: 
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata: 
+          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data: 
+          createdb.tcl: "{{ lookup('template', 'createdb.tcl.j2') }}"
+
+  - name: template db workload script
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          tpcc-workload.tcl: "{{ lookup('template', 'tpcc-workload.tcl.j2') }}"
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Starting DB
+        complete: false
+    when: workload_args.db_init is defined and workload_args.db_init
+    
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Starting DB Workload
+        complete: false
+    when: workload_args.db_benchmark is defined and workload_args.db_benchmark and (workload_args.db_init is not defined or not workload_args.db_init)
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: ConfigMaps Created
+        complete: true
+    when: (workload_args.db_benchmark is not defined or not workload_args.db_benchmark) and (workload_args.db_init is not defined or not workload_args.db_init)
+
+  when: resource_state.resources[0].status.state == "Building"
+
+- block:
+  - name: start db creation job
+    k8s:
+      state: present
+      definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
   
-- name: start db workload job
-  k8s:
-    state: present
-    definition: "{{ lookup('template', 'db_workload.yml.j2') | from_yaml }}"
-  when: workload_args.db_benchmark is defined and workload_args.db_benchmark
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: DB Creating
+        complete: false
 
-- name: wait for db workload job to finish
-  k8s_facts:
-    kind: Job
-    api_version: batch/v1
-    name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
-    namespace: "{{ operator_namespace }}"
-  register: hammerdb_workload_pod
-  until: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
-  retries: 200
-  delay: 30
-  when: workload_args.db_benchmark is defined and workload_args.db_benchmark
+  when: resource_state.resources[0].status.state == "Starting DB"
+
+
+- block:
+  - name: wait for db creation job to finish
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+    register: hammerdb_creator_pod
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Starting DB Workload
+        complete: false
+    when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and workload_args.db_benchmark is defined and workload_args.db_benchmark
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: DB Created
+        complete: true
+    when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and (workload_args.db_benchmark is not defined or not workload_args.db_benchmark)
+
+  when: resource_state.resources[0].status.state == "DB Creating"
+  
+- block:
+  - name: start db workload job
+    k8s:
+      state: present
+      definition: "{{ lookup('template', 'db_workload.yml.j2') | from_yaml }}"
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: DB workload running
+        complete: false
+
+  when: resource_state.resources[0].status.state == "Starting DB Workload"
+
+- block:
+  - name: wait for db workload job to finish
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+    register: hammerdb_workload_pod
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: DB Workload Complete
+        complete: true
+    when: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
+
+  when: resource_state.resources[0].status.state == "DB workload running"
