@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: uperf-bench-client-{{ trunc_uuid }}
+        clientfor: {{ item.metadata.labels.app }}
 {% if workload_args.multus.enabled is sameas true %}
       annotations:
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
@@ -30,10 +31,10 @@ spec:
             podAffinityTerm:
               labelSelector:
                 matchExpressions:
-                - key: type
+                - key: app
                   operator: In
                   values:
-                  - uperf-bench-server-{{ trunc_uuid }}
+                  - {{ item.metadata.labels.app }}
               topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
