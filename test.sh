@@ -50,7 +50,14 @@ update_operator_image
 
 # Create a "gold" directory based off the current branch
 mkdir gold
+
+sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
+sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
+
 cp -pr * gold/
+
+# Generate uuid
+UUID=$(uuidgen)
 
 # Create individual directories for each test
 for ci_dir in `cat tests/my_tests`
@@ -59,7 +66,8 @@ do
   cp -pr gold/* $ci_dir/
   cd $ci_dir/
   # Edit the namespaces so we can run in parallel
-  sed -i "s/my-ripsaw/my-ripsaw-$ci_dir/g" `grep -Rl my-ripsaw`
+  sed -i "s/my-ripsaw/my-ripsaw-$UUID-$ci_dir/g" `grep -Rl my-ripsaw`
+  sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
   cd ..
 done
 

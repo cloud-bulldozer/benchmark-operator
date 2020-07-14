@@ -5,8 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: <es_server>
-    port: 9200
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-uperf
   test_name: uperf_rht_perf_ci
   workload:
