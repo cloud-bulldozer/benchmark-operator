@@ -185,6 +185,9 @@ The workload loops are nested as such from the CR options:
 - **filesize**: The size of the file used for each job in the workload (per `numjobs * servers` as described above)
 - **log_sample_rate**: Applied to fio options `log_avg_msec` and `log_hist_msec` in the jobfile configmap; see `fio(1)`
 - **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
+- **pvcaccessmode**: (optional) The AccessMode to request with the persistent volume claim (PVC) for the fio server. Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+- **pvcvolumemode**: (optional) The volmeMode to request with the persistent volume claim (PVC) for the fio server. Can be one of Filesystem,Block Default: Filesystem
+  > Note: It is recommended to change this to `Block` for VM tests
 - **storagesize**: (optional) The size of the PVCs to request from the StorageClass ([note units quirk per above](#understanding-the-cr-options))
 - **rook_ceph_drop_caches**: (optional) If set to `True`, the Rook-Ceph OSD caches will be dropped prior to each sample
 - **rook_ceph_drop_cache_pod_ip**: (optional) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [cache drop pod instructions](#dropping-rook-ceph-osd-caches) below

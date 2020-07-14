@@ -60,6 +60,10 @@ spec:
       # interval between i/o stat samples in milliseconds
       log_sample_rate: 3000
       storageclass: ocs-storagecluster-ceph-rbd
+      # Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+      pvcaccessmode: ReadWriteMany
+      # Can be one of Filesystem,Block Default: Filesystem
+      pvcvolumemode: Block
       storagesize: 5Gi
       #rook_ceph_drop_caches: True
       #rook_ceph_drop_cache_pod_ip: 192.168.111.20
