@@ -1,23 +1,39 @@
 #!/usr/bin/env bash
 set -x
 
+# The maximum number of concurrent tests to run at one time (0 for unlimited). This can be overriden with -p
+max_concurrent=3
+
+# Presetting test_choice to be blank. 
+test_choice=''
+
+while getopts p:t:s:x: flag
+do
+    case "${flag}" in
+        p) max_concurrent=${OPTARG};;
+        t) test_choice=${OPTARG};;
+        s) ES_SERVER=${OPTARG};;
+        x) ES_PORT=${OPTARG};;
+    esac
+done
+
 source tests/common.sh
 
 cleanup_operator_resources
-
-# The maximum number of concurrent tests to run at one time (0 for unlimited)
-max_concurrent=3
 
 eStatus=0
 
 git_diff_files="$(git diff remotes/origin/master --name-only)"
 
-if [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "(build/|deploy/|group_vars/|resources/|/common.sh|/uuid)"` ]]; then
-        echo "Running full test"
-        cp tests/test_list tests/iterate_tests
+if [[ $test_choice != '' ]]; then
+  echo "Running for requested tests"
+  populate_test_list "${test_choice}"
+elif [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "(build/|deploy/|group_vars/|resources/|/common.sh|/uuid)"` ]]; then
+  echo "Running full test"
+  cp tests/test_list tests/iterate_tests
 else
-        echo "Running specific tests"
-        populate_test_list "${git_diff_files}"
+  echo "Running specific tests"
+  populate_test_list "${git_diff_files}"
 fi
 
 test_list="$(cat tests/iterate_tests)"
