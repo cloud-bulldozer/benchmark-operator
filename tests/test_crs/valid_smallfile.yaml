@@ -9,8 +9,8 @@ spec:
   clustername: test_ci
   # where elastic search is running
   elasticsearch:
-    server: "marquez.perf.lab.eng.rdu2.redhat.com"
-    port: 9200
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-smallfile
   metadata:
     collection: true

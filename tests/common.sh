@@ -3,8 +3,8 @@
 ERRORED=false
 image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
-es_server=${ES_SERVER:-marquez.perf.lab.eng.rdu2.redhat.com}
-es_port=${ES_PORT:-9200}
+es_server=${ES_SERVER:-foo.esserver.com}
+es_port=${ES_PORT:-80}
 echo "using container image location $image_location and account $image_account"
 
 function populate_test_list {
@@ -46,6 +46,10 @@ function populate_test_list {
 }
 
 function wait_clean {
+  if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
+  then
+    kubectl delete benchmarks -n my-ripsaw --all --ignore-not-found
+  fi
   kubectl delete namespace my-ripsaw --ignore-not-found
 }
 
