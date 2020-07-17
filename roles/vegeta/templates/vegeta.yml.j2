@@ -1,0 +1,100 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: vegeta-{{ item }}-{{ trunc_uuid }}
+  namespace: {{ operator_namespace }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: vegeta-benchmark-{{ trunc_uuid }}
+    spec:
+{% if workload_args.hostnetwork is sameas true %}
+      hostNetwork : true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app 
+                  operator: In
+                  values:
+                  - vegeta-benchmark-{{ trunc_uuid }}
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: vegeta
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/vegeta:latest') }}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-vegeta") }}"
+{% endif %}
+        imagePullPolicy: Always
+        workingDir: /tmp
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+{% for t in workload_args.targets %}
+            redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} ready
+            ready=0
+            while [[ ${ready} == 0 ]]; do
+              for client in $(seq 0 {{ workload_args.clients-1 }}); do
+                [[ `redis-cli -h {{ bo.resources[0].status.podIP }} get vegeta-${client}-{{ trunc_uuid }}` != "ready" ]] && ready=0 && break
+                ready=1
+              done
+            done
+            sleep 0.1
+            redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} notready
+            /opt/snafu/run_snafu.py -t vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
+{% endfor %}
+        volumeMounts:
+          - name: targets-volume
+            mountPath: /tmp/vegeta
+      volumes:
+        - name: targets-volume 
+          configMap:
+            name: vegeta-targets-{{ trunc_uuid }}
+      restartPolicy: OnFailure
+{% if workload_args.nodeselector is defined %}
+      nodeSelector: {{ nodeselector|to_json }} 
+{% endif %}
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+{% endif %}

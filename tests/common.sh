@@ -24,6 +24,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/backpack') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/smallfile') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
 
     # Check for changes in cr files
     if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
@@ -37,6 +38,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'valid_sysbench*') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_uperf*') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
 
     # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
@@ -279,12 +281,12 @@ function wait_for_backpack() {
 function check_es() {
   if [[ ${#} != 2 ]]; then
     echo "Wrong number of arguments: ${#}"
-    exit $NOTOK
+    return 1
   fi
-  uuid=$1
-  index=${@:2}
+  local uuid=$1
+  local index=${@:2}
   for my_index in $index; do
     python3 tests/check_es.py -s $es_server -p $es_port -u $uuid -i $my_index \
-      || exit $NOTOK
+      || return 1
   done
 }
