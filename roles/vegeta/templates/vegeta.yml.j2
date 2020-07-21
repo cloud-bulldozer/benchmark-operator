@@ -22,7 +22,7 @@ spec:
             podAffinityTerm:
               labelSelector:
                 matchExpressions:
-                - key: app 
+                - key: app
                   operator: In
                   values:
                   - vegeta-benchmark-{{ trunc_uuid }}
@@ -61,18 +61,18 @@ spec:
             done
             sleep 0.1
             redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} notready
-            /opt/snafu/run_snafu.py -t vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
+            run_snafu --tool vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
 {% endfor %}
         volumeMounts:
           - name: targets-volume
             mountPath: /tmp/vegeta
       volumes:
-        - name: targets-volume 
+        - name: targets-volume
           configMap:
             name: vegeta-targets-{{ trunc_uuid }}
       restartPolicy: OnFailure
 {% if workload_args.nodeselector is defined %}
-      nodeSelector: {{ nodeselector|to_json }} 
+      nodeSelector: {{ nodeselector|to_json }}
 {% endif %}
 {% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
