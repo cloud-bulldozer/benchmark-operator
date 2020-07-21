@@ -10,10 +10,7 @@ function finish {
   fi
 
   echo "Cleaning up pgbench"
-  kubectl delete -n my-ripsaw benchmark/pgbench-benchmark
-  kubectl delete -n my-ripsaw deployment/postgres
-  kubectl delete -n my-ripsaw configmap/postgres-config
-  delete_operator
+  wait_clean
 }
 
 trap error ERR
