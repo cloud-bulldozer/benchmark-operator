@@ -19,8 +19,6 @@ done
 
 source tests/common.sh
 
-cleanup_operator_resources
-
 eStatus=0
 
 git_diff_files="$(git diff remotes/origin/master --name-only)"
@@ -61,19 +59,30 @@ echo "" >> results.markdown
 echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
 echo '-----|--------|--------|---------' >> results.markdown
 
-# Update the operator image
-update_operator_image
-
 # Create a "gold" directory based off the current branch
 mkdir gold
 
-sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
-sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
-
-cp -pr * gold/
-
 # Generate uuid
 UUID=$(uuidgen)
+
+sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
+sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
+sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
+sed -i "s/benchmarks.ripsaw.cloudbulldozer.io/benchmarks-$UUID.ripsaw.cloudbulldozer.io/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+sed -i "s/listKind: BenchmarkList/listKind: BenchmarkList-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+sed -i "s/plural: benchmarks/plural: benchmarks-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+sed -i "s/singular: benchmark/singular: benchmark-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+sed -i "s/benchmarks/benchmarks-$UUID/g" tests/common.sh
+sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" tests/test_crs/*.yaml
+sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" playbook.yml
+sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" watches.yaml
+grep -Rl "kind: Benchmark" roles/ | xargs sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g"
+
+# Update the operator image
+update_operator_image
+
+cp -pr * gold/
 
 # Create individual directories for each test
 for ci_dir in `cat tests/my_tests`
@@ -83,7 +92,6 @@ do
   cd $ci_dir/
   # Edit the namespaces so we can run in parallel
   sed -i "s/my-ripsaw/my-ripsaw-$UUID-$ci_dir/g" `grep -Rl my-ripsaw`
-  sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
   cd ..
 done
 
