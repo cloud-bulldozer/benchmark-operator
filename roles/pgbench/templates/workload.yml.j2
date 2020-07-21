@@ -58,7 +58,7 @@ spec:
                      export sample_start_timestamp=$(date +%s.%3N);
                      echo \"Begin test sample $i of {{ workload_args.samples }}...\";
                      export pgbench_opts=\"$pgbench_auth -c {{ clients }} -j {{ workload_args.threads }} {% if workload_args.transactions is defined and workload_args.transactions|int > 0 %} -t {{ workload_args.transactions }} {% elif run_time|int > 0 %} -T {{ run_time }} {% endif %} -s {{ workload_args.scaling_factor }} {{ cmd_flags }} {{ item.1.db_name }}\";
-                     python /opt/snafu/run_snafu.py --tool pgbench -r $i;
+                     run_snafu --tool pgbench -r $i;
                    done;
                  {% endfor %}
                  else
