@@ -27,6 +27,8 @@ spec:
             value: "{{ clustername }}"
           - name: ceph_cache_drop_pod_ip
             value: "{{ workload_args.rook_ceph_drop_cache_pod_ip | default() }}"
+          - name: kcache_drop_pod_ips
+            value: "{{ kcache_drop_pod_ips | default() }}"
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
