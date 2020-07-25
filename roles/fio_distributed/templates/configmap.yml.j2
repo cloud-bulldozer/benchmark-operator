@@ -9,7 +9,7 @@ data:
   fiojob-prefill: |
     [global]
     directory={{fio_path}}
-    filename_format=f.\$jobnum.\$filenum
+    filename_format=f.$jobnum.$filenum
     clocksource=clock_gettime
     kb_base=1000
     unit_base=8
@@ -31,7 +31,7 @@ data:
   fiojob-{{job}}-{{bs}}-{{numjobs}}: |
     [global]
     directory={{fio_path}}
-    filename_format=f.\$jobnum.\$filenum
+    filename_format=f.$jobnum.$filenum
     write_bw_log=fio
     write_iops_log=fio
     write_lat_log=fio
