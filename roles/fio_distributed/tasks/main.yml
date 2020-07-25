@@ -155,6 +155,13 @@
             {{ ip }}
             {% endfor %}
 
+  - name: (VM) Wait for fio server port to be open - signaling fio server boot up
+    wait_for:
+      host: "{{ item }}"
+      port: 8765
+    when: (workload.args.kind | default('pod')) == "vm"
+    with_items: "[{% for ip in pod_details.keys() %}'{{ ip }}', {% endfor %}]"
+
   - name: Start FIO Client
     k8s:
       definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
