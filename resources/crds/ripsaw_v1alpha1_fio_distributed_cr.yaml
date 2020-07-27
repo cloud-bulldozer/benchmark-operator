@@ -28,8 +28,8 @@ spec:
         - randread
       # I/O request sizes (also called block size)
       bs:
-        - 4k
-        - 64k
+        - 4KiB
+        - 64KiB
       # how many fio processes per pod
       numjobs:
         - 1
@@ -43,7 +43,7 @@ spec:
       read_ramp_time: 5
       # don't start measuring until this many seconds pass, for writes
       write_ramp_time: 5
-      # size of file to access 
+      # size of file to access
       filesize: 2GiB
       # interval between i/o stat samples in milliseconds
       log_sample_rate: 3000
