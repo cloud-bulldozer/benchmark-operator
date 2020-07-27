@@ -40,8 +40,8 @@ spec:
         - randread
       # I/O request sizes (also called block size)
       bs:
-        - 4k
-        - 64k
+        - 4KiB
+        - 64KiB
       # how many fio processes per pod
       numjobs:
         - 1
