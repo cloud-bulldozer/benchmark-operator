@@ -77,7 +77,7 @@ spec:
 {% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
-        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        image: {{ metadata_image | default('quay.io/rsevilla/backpack:latest') }}
         command: ["/bin/sh", "-c"]
 {% if metadata is defined and metadata.force|default(false) is sameas true %}
         args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
