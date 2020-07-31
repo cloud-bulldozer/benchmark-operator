@@ -22,10 +22,10 @@ spec:
         image: quay.io/cloud_bulldozer/kernel_cache_dropper:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 9435
+        - containerPort: {{ kernel_cache_drop_svc_port }}
         env:
-            - name: websvc_port
-              value: "9435"
+            - name: KCACHE_DROP_PORT_NUM
+              value: "{{ kernel_cache_drop_svc_port }}"
         command: ["/usr/bin/python3"]
         args: ["/opt/kernel_cache_drop/kernel-cache-drop-websvc.py"]
         imagePullPolicy: Always
