@@ -29,6 +29,8 @@ spec:
             value: "{{ workload_args.rook_ceph_drop_cache_pod_ip | default() }}"
           - name: kcache_drop_pod_ips
             value: "{{ kcache_drop_pod_ips | default() }}"
+          - name: KCACHE_DROP_PORT_NUM
+            value: "{{ kernel_cache_drop_svc_port }}"
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
