@@ -10,10 +10,7 @@ function finish {
   fi
 
   echo "Cleaning up ycsb"
-  kubectl delete -n my-ripsaw benchmark/ycsb-mongo-benchmark
-  kubectl delete -n my-ripsaw statefulset/mongo
-  kubectl delete -n my-ripsaw service/mongo
-  delete_operator
+  wait_clean
 }
 
 trap error ERR

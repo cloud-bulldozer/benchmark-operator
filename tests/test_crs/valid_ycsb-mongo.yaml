@@ -5,8 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "marquez.perf.lab.eng.rdu2.redhat.com"
-    port: 9200
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-ycsb
   metadata:
     collection: true

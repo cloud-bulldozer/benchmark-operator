@@ -3,8 +3,8 @@
 ERRORED=false
 image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
-es_server=${ES_SERVER:-marquez.perf.lab.eng.rdu2.redhat.com}
-es_port=${ES_PORT:-9200}
+es_server=${ES_SERVER:-foo.esserver.com}
+es_port=${ES_PORT:-80}
 echo "using container image location $image_location and account $image_account"
 
 function populate_test_list {
@@ -24,6 +24,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/backpack') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/smallfile') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
 
     # Check for changes in cr files
     if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
@@ -37,6 +38,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'valid_sysbench*') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_uperf*') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
 
     # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
@@ -46,6 +48,10 @@ function populate_test_list {
 }
 
 function wait_clean {
+  if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
+  then
+    kubectl delete benchmarks -n my-ripsaw --all --ignore-not-found
+  fi
   kubectl delete namespace my-ripsaw --ignore-not-found
 }
 
@@ -278,12 +284,12 @@ function wait_for_backpack() {
 function check_es() {
   if [[ ${#} != 2 ]]; then
     echo "Wrong number of arguments: ${#}"
-    exit $NOTOK
+    return 1
   fi
-  uuid=$1
-  index=${@:2}
+  local uuid=$1
+  local index=${@:2}
   for my_index in $index; do
     python3 tests/check_es.py -s $es_server -p $es_port -u $uuid -i $my_index \
-      || exit $NOTOK
+      || return 1
   done
 }

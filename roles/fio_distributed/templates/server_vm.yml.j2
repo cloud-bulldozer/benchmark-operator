@@ -1,0 +1,70 @@
+---
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstance
+metadata:
+  name: 'fio-server-{{item | string}}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+  labels:
+    app: fio-benchmark-{{ trunc_uuid }}
+spec:
+  domain:
+    cpu:
+      cores: {{ workload_args.vm_cores | default(1) }}
+    devices:
+      disks:
+        - name: registrydisk
+        - name: cloudinitdisk
+{% if workload_args.storageclass is defined
+    or workload_args.hostpath is defined %}
+        - name: data-volume
+          serial: data
+{% endif %}
+    resources:
+      requests:
+        memory: {{ workload_args.vm_memory | default('5G') }}
+  volumes:
+    - name: registrydisk
+      containerDisk:
+        image: {{ workload_args.vm_image | default('kubevirt/fedora-cloud-container-disk-demo:latest') }}
+    - name: cloudinitdisk
+      cloudInitNoCloud:
+        userData: |-
+          #cloud-config
+          password: fedora
+          chpasswd: { expire: False }
+          bootcmd:
+{% if workload_args.storageclass is defined
+    or workload_args.hostpath is defined %}
+            - "mkdir -p {{ fio_path }} || true"
+            - mkfs.ext4 /dev/disk/by-id/ata-QEMU_HARDDISK_data
+            - "mount /dev/disk/by-id/ata-QEMU_HARDDISK_data {{ fio_path }}"
+{% endif %}
+          runcmd:
+{% if workload_args.vm_image is undefined %}
+            - dnf install -y fio wget curl python3 python3-pip
+{% endif %}
+            - cd /tmp
+{% if workload_args.metadata is defined
+    and (workload_args.metadata.collection|default(false))
+    and (workload_args.metadata.targeted|default(true)) %}
+            - export ES_SERVER={{ elasticsearch.server }}
+            - export ES_PORT={{ elasticsearch.port }}
+{% if workload_args.vm_image is undefined %}
+            - wget https://raw.githubusercontent.com/cloud-bulldozer/bohica/master/stockpile-wrapper/stockpile-wrapper.py
+            - pip3 install elasticsearch-dsl openshift kubernetes redis
+{% endif %}
+            # TODO: start stockpile-wrapper script
+            python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n "$my_node_name" -N "$my_pod_name" --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force
+{% endif %}
+            - fio --server
+{% if workload_args.storageclass is defined %}
+    - name: data-volume
+      persistentVolumeClaim:
+        claimName: claim-{{ item }}-{{ trunc_uuid }}
+{% elif workload_args.hostpath is defined %}
+    - name: data-volume
+      hostDisk:
+        path: {{ workload_args.hostpath }}
+        capacity: {{ workload_args.storagesize | default("5Gi") }}
+        type: DiskOrCreate
+{% endif %}

@@ -31,6 +31,8 @@ spec:
             value: "{{ elasticsearch.port }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-fio") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
         args:
@@ -48,7 +50,7 @@ spec:
 {% for numjobs in workload_args.numjobs %}
 {% for bs in workload_args.bs %}
 {% for job in workload_args.jobs %}
-             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{bs}}-{{numjobs}}; python /opt/snafu/run_snafu.py -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
+             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{bs}}-{{numjobs}}; run_snafu -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
 {% endfor %}
 {% endfor %}
 {% endfor %}
