@@ -42,7 +42,7 @@ function populate_test_list {
 
     # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
-    
+
     if [[ $(echo ${test_check} | grep 'test_.*.sh') ]]; then echo ${test_check} >> tests/iterate_tests; fi
   done
 }
@@ -123,7 +123,10 @@ function pod_count () {
 
 function apply_operator {
   operator_requirements
-  kubectl apply -f resources/operator.yaml
+  BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/benchmark-operator/benchmark-operator:master"}
+  cat resources/operator.yaml | \
+    sed 's#quay.io/benchmark-operator/benchmark-operator:master#'$BENCHMARK_OPERATOR_IMAGE'#' | \
+    kubectl apply -f -
   kubectl wait --for=condition=available "deployment/benchmark-operator" -n my-ripsaw --timeout=300s
   backpack_requirements
 }
@@ -251,7 +254,7 @@ function error {
 
 function wait_for_backpack() {
   echo "Waiting for backpack to complete before starting benchmark test"
-  
+
   uuid=$1
   count=0
   max_count=60

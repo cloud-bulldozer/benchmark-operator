@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: app
+    name: app
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    ports:
+    - name: http-8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    - name: db-5432
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: app
+    sessionAffinity: None
+    type: ClusterIP
+{% for index in range(1, servicemesh.deployments + 1) %}
+{%   if index % 5 == 1 %}
+{%     set app_variant = "canary" %}
+{%   else %}
+{%     set app_variant = "stable" %}
+{%   endif %}
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: app
+    name: "app-{{ index }}"
+    namespace: "{{ workload_namespace }}"
+    ownerReferences: {{ owner }}
+  spec:
+    replicas: {{ servicemesh.pods_per_deployment }}
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "true"
+        labels:
+          app: app
+          deploymentconfig: app-{{ index }}
+          app.variant: {{ app_variant }}
+      spec:
+# TODO: specify anti-affinity with driver and gateway
+        containers:
+        - image: quay.io/rvansa/mannequin:jvm-latest
+          imagePullPolicy: Always
+          name: mannequin
+          env:
+          - name: NAME
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.name
+          - name: VARIANT
+            value: {{ app_variant }}
+          - name: JAVA_OPTIONS
+            value: >
+              -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.JULLogDelegateFactory
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - curl
+                - 127.0.0.1:8080/
+              initialDelaySeconds: 5
+          resources:
+            requests:
+              cpu: "{{ servicemesh.workload_cpu }}"
+            limits:
+              cpu: "{{ servicemesh.workload_cpu }}"
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+    triggers:
+    - type: ConfigChange
+{% endfor %}
