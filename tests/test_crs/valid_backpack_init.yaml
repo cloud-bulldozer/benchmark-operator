@@ -9,7 +9,6 @@ spec:
     port: ES_PORT
   metadata:
     collection: true
-    targeted: false
     privileged: true
     serviceaccount: backpack-view
   workload:
