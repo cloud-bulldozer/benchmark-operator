@@ -14,7 +14,6 @@ spec:
     index_name: ripsaw-fs-drift
   metadata:
     collection: true
-    stockpileTags: ["common", "k8s", "openshift"]
   hostpath: /mnt/vda1/fs_drift
   workload:
     name: fs-drift

@@ -10,7 +10,6 @@ spec:
     index_name: ripsaw-hammerdb
   metadata:
     collection: true
-    stockpileTags: ["common", "k8s", "openshift"]
   workload:
     name: "hammerdb"
     args:

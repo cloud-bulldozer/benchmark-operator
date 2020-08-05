@@ -12,32 +12,32 @@ spec:
       labels:
         app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
         type: uperf-bench-server-{{ trunc_uuid }}
-    {% if workload_args.multus.enabled is sameas true %}
+{% if workload_args.multus.enabled is sameas true %}
       annotations:
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
-    {% endif %}
+{% endif %}
     spec:
-    {% if workload_args.hostnetwork is sameas true %}
+{% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
-    {% endif %}
+{% endif %}
       containers:
       - name: benchmark
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
-    {% if workload_args.server_resources is defined %}
+{% if workload_args.server_resources is defined %}
         resources: {{ workload_args.server_resources | to_json }}
-    {% endif %}
+{% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh","-c"]
         args: ["uperf -s -v -P 20000"]
       restartPolicy: OnFailure
-    {% if workload_args.pin is sameas true %}
+{% if workload_args.pin is sameas true %}
       nodeSelector:
         kubernetes.io/hostname: '{{ workload_args.pin_server }}'
-    {% endif %}
-    {% if workload_args.serviceip is sameas true %}
+{% endif %}
+{% if workload_args.serviceip is sameas true %}
       securityContext:
         sysctls:
         - name: net.ipv4.ip_local_port_range
           value: 20000 20011
-    {% endif %}
+{% endif %}
 {% include "metadata.yml.j2" %}

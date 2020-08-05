@@ -10,7 +10,6 @@ spec:
     index_name: ripsaw-fio
   metadata:
     collection: true
-    stockpileTags: ["common", "k8s", "openshift"]
   cleanup: false
   hostpath: /mnt/vda1/workload_args/
   workload:

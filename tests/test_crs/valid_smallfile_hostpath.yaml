@@ -14,7 +14,6 @@ spec:
     index_name: ripsaw-smallfile
   metadata:
     collection: true
-    stockpileTags: ["common", "k8s", "openshift"]
   hostpath: /mnt/vda1/smallfile
   workload:
     name: smallfile
