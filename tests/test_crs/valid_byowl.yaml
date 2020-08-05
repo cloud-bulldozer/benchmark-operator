@@ -9,7 +9,6 @@ spec:
     port: ES_PORT
   metadata:
     collection: true
-    stockpileTags: ["common", "k8s", "openshift"]
   workload:
     name: byowl
     args:

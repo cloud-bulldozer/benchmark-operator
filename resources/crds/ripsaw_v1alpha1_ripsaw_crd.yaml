@@ -27,7 +27,7 @@ spec:
                 properties:
                   server:
                     type: string
-                  port: 
+                  port:
                     type: integer
                   index_name:
                     type: string
@@ -40,15 +40,43 @@ spec:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
               metadata:
-                x-kubernetes-preserve-unknown-fields: true
+                default: {}
+                properties:
+                  collection:
+                    default: false
+                    type: boolean
+                  force:
+                    type: boolean
+                  label:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  privileged:
+                    default: false
+                    type: boolean
+                  serviceaccount:
+                    default: default
+                    type: string
+                  stockpileSkipTags:
+                    default: []
+                    items:
+                      type: string
+                    type: array
+                  stockpileTags:
+                    default: []
+                    items:
+                      type: string
+                    type: array
+                  targeted:
+                    default: true
+                    type: boolean
                 type: object
               cerberus_url:
                 type: string
               cleanup:
                 type: boolean
-              test_user: 
+              test_user:
                 type: string
-              clustername: 
+              clustername:
                 type: string
               hostpath:
                 type: string

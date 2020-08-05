@@ -11,7 +11,6 @@ spec:
     collection: true
     privileged: true
     serviceaccount: backpack-view
-    stockpileTags: ["common", "k8s", "openshift"]
   workload:
     name: byowl
     args:

@@ -12,7 +12,6 @@ spec:
   metadata:
     collection: true
     serviceaccount: benchmark-operator
-    stockpileTags: ["common", "k8s", "openshift"]
   workload:
     name: vegeta
     args:
