@@ -10,6 +10,7 @@ spec:
     index_name: ripsaw-fio
   metadata:
     collection: true
+    stockpileTags: ["common", "k8s", "openshift"]
   cleanup: false
   workload:
     name: "fio_distributed"
