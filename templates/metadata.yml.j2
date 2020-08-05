@@ -1,0 +1,36 @@
+{% if metadata is defined and metadata.collection is sameas true and metadata.targeted is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image|default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["python3", "stockpile-wrapper.py"]
+        args:
+          - -s={{ elasticsearch.server }}
+          - -p={{ elasticsearch.port }}
+          - -u={{ uuid }}
+          - -n=${my_node_name}
+          - -N=${my_pod_name}
+          - --redisip={{ bo.resources[0].status.podIP }}
+          - --redisport=6379
+{% if metadata.force is sameas true %}
+          - --force
+{% endif %}
+{% if metadata.stockpile_tags|length > 0 %}
+          - --tags={{ metadata.stockpile_tags|join(",") }}
+{% endif %}
+{% if metadata.stockpile_skip_tags|length > 0 %}
+          - --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+{% endif %}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: {{ metadata.privileged }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount }}
+{% endif %}

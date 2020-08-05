@@ -1,61 +1,43 @@
 ---
-kind: Pod
-apiVersion: v1
+kind: Job
+apiVersion: batch/v1
 metadata:
   name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
-  namespace: '{{ operator_namespace }}'
-  labels:
-    app : uperf-bench-server-{{item}}-{{ trunc_uuid }}
-    type : uperf-bench-server-{{ trunc_uuid }}
-{% if workload_args.multus.enabled is sameas true %}
-  annotations:
-    k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
-{% endif %}
+  namespace: "{{ operator_namespace }}"
 spec:
-{% if workload_args.hostnetwork is sameas true %}
-  hostNetwork : true
-{% endif %}
-  containers:
-  - name: benchmark
-    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
-{% if workload_args.server_resources is defined %}
-    resources: {{ workload_args.server_resources | to_json }}
-{% endif %}
-    imagePullPolicy: Always
-    command: ["/bin/sh","-c"]
-    args: ["uperf -s -v -P 20000"]
-  restartPolicy: OnFailure
-{% if workload_args.pin is sameas true %}
-  nodeSelector:
-    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
-{% endif %}
-{% if workload_args.serviceip is sameas true %}
-  securityContext:
-    sysctls:
-    - name: net.ipv4.ip_local_port_range
-      value: 20000 20011
-{% endif %}
-{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
-  initContainers:
-  - name: backpack-{{ trunc_uuid }}
-    image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
-    command: ["/bin/sh", "-c"]
-{% if metadata is defined and metadata.force|default(false) is sameas true %}
-    args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
-{% else %}
-    args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
-{% endif %}
-    imagePullPolicy: Always
-    securityContext:
-      privileged: {{ metadata.privileged | default(false) | bool }}
-    env:
-      - name: my_node_name
-        valueFrom:
-          fieldRef:
-            fieldPath: spec.nodeName
-      - name: my_pod_name
-        valueFrom:
-          fieldRef:
-            fieldPath: metadata.name
-  serviceAccountName: {{ metadata.serviceaccount | default('default') }}
-{% endif %}
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
+        type: uperf-bench-server-{{ trunc_uuid }}
+    {% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+    {% endif %}
+    spec:
+    {% if workload_args.hostnetwork is sameas true %}
+      hostNetwork: true
+    {% endif %}
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+    {% if workload_args.server_resources is defined %}
+        resources: {{ workload_args.server_resources | to_json }}
+    {% endif %}
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["uperf -s -v -P 20000"]
+      restartPolicy: OnFailure
+    {% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+    {% endif %}
+    {% if workload_args.serviceip is sameas true %}
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_local_port_range
+          value: 20000 20011
+    {% endif %}
+{% include "metadata.yml.j2" %}

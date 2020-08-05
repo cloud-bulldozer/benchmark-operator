@@ -10,6 +10,7 @@ spec:
     index_name: ripsaw-ycsb
   metadata:
     collection: true
+    stockpileTags: ["common", "k8s", "openshift"]
   workload:
     name: ycsb
     args:

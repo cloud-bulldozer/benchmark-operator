@@ -10,6 +10,7 @@ RUN dnf install -y --nodocs redis openssl --enablerepo=centos8-appstream && dnf 
 
 COPY group_vars/ ${HOME}/group_vars/
 COPY roles/ ${HOME}/roles/
+COPY templates/ ${HOME}/templates/
 COPY meta/ ${HOME}/meta/
 COPY watches.yaml ${HOME}/watches.yaml
 COPY playbook.yml ${HOME}/playbook.yml

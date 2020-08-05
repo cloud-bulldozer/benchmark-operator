@@ -10,6 +10,7 @@ spec:
     index_name: ripsaw-uperf
   metadata:
     collection: true
+    stockpileTags: ["common", "k8s", "openshift"]
   cleanup: false
   workload:
     name: uperf

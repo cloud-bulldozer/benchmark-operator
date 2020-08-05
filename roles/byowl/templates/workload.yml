@@ -18,27 +18,4 @@ spec:
         image: "{{ workload_args.image }}"
         imagePullPolicy: Always
       restartPolicy: OnFailure
-{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
-      initContainers:
-      - name: backpack-{{ trunc_uuid }}
-        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
-        command: ["/bin/sh", "-c"]
-{% if metadata is defined and metadata.force|default(false) is sameas true %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
-{% else %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
-{% endif %}        
-        imagePullPolicy: Always
-        securityContext:
-          privileged: {{ metadata.privileged | default(false) | bool }}
-        env:
-          - name: my_node_name
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: my_pod_name
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
-{% endif %}
+{% include "metadata.yml.j2" %}
