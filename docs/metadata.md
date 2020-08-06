@@ -9,32 +9,51 @@ How To:
 * [Additional Options](#additional-options)
 * [Running Additional Collections](#running-additional-collections)
 
-# How it Works
+## How it Works
 
 The metadata collection is done through the use of [Stockpile](https://github.com/cloud-bulldozer/stockpile), [Backpack](https://github.com/cloud-bulldozer/backpack) and [Scribe](https://github.com/cloud-bulldozer/scribe).
 The data is then uploaded to a defined Elasticsearch instance.
 
+Metadata collection is enabled by default, it can be disabled setting collection to false in the metadata section:
+
+```yaml
+metadata:
+  collection: false
+```
+
 There are two ways to launch metadata collection from a workload.
 
-# Targeted Init Containers
+## Targeted Init Containers
 
 The first, and default behavior, is through init containers. These are defined in
 the workload template with an init container section that looks like:
 
-```
-{% if metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+```jinja
+{% if metadata.collection is sameas true and metadata.targeted is sameas true %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
-        image: quay.io/cloud-bulldozer/backpack:latest
-        command: ["/bin/sh", "-c"]
-{% if metadata is defined and metadata.force|default(false) is sameas true %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
-{% else %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+        image: {{ metadata.image }}
+        command: ["python3", "stockpile-wrapper.py"]
+        args:
+          - -s={{ elasticsearch.server }}
+          - -p={{ elasticsearch.port }}
+          - -u={{ uuid }}
+          - -n=${my_node_name}
+          - -N=${my_pod_name}
+          - --redisip={{ bo.resources[0].status.podIP }}
+          - --redisport=6379
+{% if metadata.force is sameas true %}
+          - --force
+{% endif %}
+{% if metadata.stockpile_tags|length > 0 %}
+          - --tags={{ metadata.stockpile_tags|join(",") }}
+{% endif %}
+{% if metadata.stockpile_skip_tags|length > 0 %}
+          - --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
         imagePullPolicy: Always
         securityContext:
-          privileged: {{ metadata.privileged | default(false) | bool }}
+          privileged: {{ metadata.privileged }}
         env:
           - name: my_node_name
             valueFrom:
@@ -44,7 +63,7 @@ the workload template with an init container section that looks like:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+        serviceAccountName: {{ metadata.serviceaccount }}
 {% endif %}
 ```
 
@@ -54,7 +73,7 @@ container will run stockpile to gather data and then push that information into
 Elasticsearch. Once complete the init container will terminate and the workload will 
 launch and continue as normal.
 
-# DaemonSet
+## DaemonSet
 
 If it is desired to run the metadata collection in the "classic" way (i.e. as a DaemonSet),
 then you will need to set ```metadata.targeted: false``` in your cr file.
@@ -75,7 +94,7 @@ will have the DaemonSet only run on nodes that match any of the labels provided.
 In the below example the metadata DaemonSet will only run on nodes labeled with foo=bar 
 OR awesome=sauce. It can match either provided label.
 
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -99,7 +118,7 @@ spec:
       commands: "echo Test"
 ```
 
-# Differences between targeted and daemonset
+## Differences between targeted and daemonset
 
 There are a few notable differences between the DaemonSet and targeted options:
 
@@ -129,7 +148,7 @@ By default metadata collection is turned off.
 To enable collection:
 
 - Open the benchmark yaml that you will be running (for example byowl below)
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -145,7 +164,7 @@ spec:
 ```
 
 - Add ```metadata.collection: true``` to the spec section of the yaml
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -166,7 +185,7 @@ The metadata collection will now be enabled however as there is no Elasticsearch
 defined it will fail.
 
 - Add the Elasticsearch server and Port information
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -188,26 +207,38 @@ spec:
 
 The metadata collection will now run as defined.
 
-# Additional Options
+## Additional Options
 
-There are a few additional options that can be enabled to enahnce the amount
+There are a few additional options that can be enabled to enhance the amount
 of data collected as well as reduce redundancy.
 
-## Privleged Pods
+
+### Customizing backpack image
+
+By default backpack uses `quay.io/cloud-bulldozer/backpack:latest`, however it's possible to customize this image 
+setting the image parameter from the metadata section:
+
+```yaml
+metadata:
+  image: quay.io/myorg/custom-backpack:latest
+```
+
+### Privileged Pods
 
 By default, pods are run in an unprivledged state. While this makes permissions
 a lesser issue, it does limit the amount of data collected. For example, dmidecode
 requires privileges to read the memory information and generate the data.
 
 To enable privileged pods set:
-```
+
+```yaml
 metadata:
   privileged: true
 ```
 
 In the spec section of the benchmark yaml as outlined for the other variables.
 
-## Additional k8s Information
+### Additional k8s Information
 
 There are multiple kubernetes (k8s) based modules that are run in stockpile.
 These modules are not accessable by default as the default service account
@@ -217,10 +248,10 @@ To allow the pods view permissions on the cluster you can apply
 the following yaml to create a service account with the appropriate 
 privileges.
 
-You will need to change the name and operator namespace to fit with your environment
-Note: You can also find this yaml in resources/backpack_role.yaml
+You will need to change the namespace to fit with your environment
+Note: You can also find this yaml in [backpack_role.yaml](../resources/backpack_role.yaml)
 
-```
+```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -361,7 +392,33 @@ subjects:
   namespace: my-ripsaw
 ```
 
-## Redis integration
+Once the `backpack-view` service account is created you can modify the default backpack service account setting:
+
+```yaml
+metadata:
+  serviceaccount: backpack-view
+```
+
+### Stockpile tags
+
+Backpack leverages [stockpile](https://github.com/cloud-bulldozer/stockpile/) to collect metadata. Stockpile is basically a set of Ansible roles, these roles have different tags. It's possible to pass custom tags to the inner `ansible-playbook` command through the parameters `stockpileSkipTags` and `stockpileTags` from the metadata section. These parameters are translated to the Ansible's flags _--tags_ and _--skip-tags_ respectively.
+By default `stockpileTags` has the value `["common", "k8s", "openshift"]`.
+
+An example to only collect metadata from the roles tagged with memory and cpu would be:
+
+```yaml
+metadata:
+  stockpileTags: ["memory", "cpu"]
+```
+
+An example to skip these tags would be:
+```yaml
+metadata:
+  stockpileSkipTags: ["memory", "cpu"]
+```
+
+
+### Redis integration
 
 When the stockpile-wrapper.py script is passed --redisip [ip of redis] and --redisport [redis port]
 it will attempt to check Redis to see if the host has had its metadata collected for the current uuid.
@@ -375,12 +432,12 @@ passing the script the --force option will force the metadata collection to occu
 done to enable it. However, if you wish to use the --force option you will need to add ```force: true```
 to the metadata section of your workload cr file.
 
-```
+```yaml
 metadata:
   force: true
 ```
 
-# Running Additional Collections
+## Running Additional Collections
 
 *NOTE* This is only applicable to the DaemonSet collection method
 
