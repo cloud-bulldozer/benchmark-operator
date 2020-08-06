@@ -46,7 +46,11 @@ spec:
                     default: false
                     type: boolean
                   force:
+                    default: false
                     type: boolean
+                  image:
+                    default: "quay.io/cloud-bulldozer/backpack:latest"
+                    type: string
                   label:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
@@ -62,7 +66,7 @@ spec:
                       type: string
                     type: array
                   stockpileTags:
-                    default: []
+                    default: ["common", "k8s", "openshift"]
                     items:
                       type: string
                     type: array

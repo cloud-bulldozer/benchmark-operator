@@ -273,7 +273,7 @@ function wait_for_backpack() {
     count=$((count + 1))
     if [[ $count -ne $max_count ]]
     then
-      sleep 5
+      sleep 6
     else
       echo "Backpack failed to complete. Exiting"
       exit 1
