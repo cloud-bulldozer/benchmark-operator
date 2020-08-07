@@ -35,9 +35,9 @@ spec:
         - 1
       # with libaio ioengine, number of in-flight requests per process
       iodepth: 4
-      # how long to run write tests, this is TOO SHORT DURATION
-      read_runtime: 15
       # how long to run read tests, this is TOO SHORT DURATION
+      read_runtime: 15
+      # how long to run write tests, this is TOO SHORT DURATION
       write_runtime: 15
       # don't start measuring until this many seconds pass, for reads
       read_ramp_time: 5
