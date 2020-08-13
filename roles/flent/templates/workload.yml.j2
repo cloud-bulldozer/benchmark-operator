@@ -1,0 +1,123 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'flent-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  template:
+    metadata:
+      labels:
+        app: flent-bench-client-{{ trunc_uuid }}
+        clientfor: {{ item.metadata.labels.app }}
+{% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% endif %}
+    spec:
+{% if workload_args.hostnetwork is sameas true %}
+      hostNetwork : true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
+{% endif %}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ item.metadata.labels.app }}
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/flent:latest') }}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-flent") }}"
+{% endif %}
+#{% if flent.pin is sameas true %}
+#          - name: client_node
+#            client_node: {{ flent.pin_client }}
+#          - name: client_node
+#            server_node: {{ flent.pin_server }}
+#{% endif %}
+{% if workload_args.client_resources is defined %}
+        resources: {{ workload_args.client_resources | to_json }}
+{% endif %}
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+{% if workload_args.serviceip is sameas true %}
+          - "export serviceip=true;
+            export h={{item.spec.clusterIP}};
+{% else %}
+{% if workload_args.multus.client is defined %}
+          - "export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+{% else %}
+          - "export h={{item.status.podIP}};
+{% endif %}
+{% endif %}
+             export hostnet={{workload_args.hostnetwork}};
+             export ips=$(hostname -I);
+             while true; do
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+{% for test in workload_args.test_types %}
+                 run_snafu --tool flent -ftest {{test}} -u {{ uuid }} -r $h --user {{test_user | default("ripsaw")}};
+{% endfor %}
+               else
+                 continue;
+               fi;
+               break;
+             done;
+             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
+        volumeMounts:
+          - name: config-volume
+            mountPath: "/tmp/flent-test"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: flent-test-{{ trunc_uuid }}
+      restartPolicy: OnFailure
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
+{% if metadata is defined and metadata.collection|default(false) is sameas true and metadata.targeted|default(true) is sameas true %}
+      initContainers:
+      - name: backpack-{{ trunc_uuid }}
+        image: {{ metadata_image | default('quay.io/cloud-bulldozer/backpack:latest') }}
+        command: ["/bin/sh", "-c"]
+{% if metadata is defined and metadata.force|default(false) is sameas true %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force"]
+{% else %}
+        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379"]
+{% endif %}
+        imagePullPolicy: Always
+        securityContext:
+          privileged: {{ metadata.privileged | default(false) | bool }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      serviceAccountName: {{ metadata.serviceaccount | default('default') }}
+{% endif %}
