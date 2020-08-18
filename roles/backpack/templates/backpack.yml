@@ -37,11 +37,27 @@ spec:
       - name: backpack
         image: {{ metadata.image }}
         command: ["/bin/sh", "-c"]
+        args:
+          - >
+            python3
+            stockpile-wrapper.py
+            -s={{ elasticsearch.server }}
+            -p={{ elasticsearch.port }}
+            -u={{ uuid }}
+            -n=${my_node_name}
+            -N=${my_pod_name}
+            --redisip={{ bo.resources[0].status.podIP }}
+            --redisport=6379
 {% if metadata.force is sameas true %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force && touch /tmp/indexed; sleep infinity"]
-{% else %}
-        args: ["python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -p {{ elasticsearch.port }} -u {{ uuid }} -n $my_node_name -N $my_pod_name --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 && touch /tmp/indexed; sleep infinity"]
+            --force
 {% endif %}
+{% if metadata.stockpile_tags|length > 0 %}
+            --tags={{ metadata.stockpile_tags|join(",") }}
+{% endif %}
+{% if metadata.stockpile_skip_tags|length > 0 %}
+            --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+{% endif %}
+            && touch /tmp/indexed; sleep infinity
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}

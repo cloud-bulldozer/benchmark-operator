@@ -10,6 +10,7 @@ function finish {
   fi
 
   echo "Cleaning up backpack"
+  kubectl delete -f resources/backpack_role.yaml
   wait_clean
 }
 
@@ -19,6 +20,7 @@ trap finish EXIT
 function functional_test_backpack {
   wait_clean
   apply_operator
+  backpack_requirements
   kubectl apply -f $1
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
