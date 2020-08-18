@@ -77,6 +77,7 @@ sed -i "s/benchmarks/benchmarks-$UUID/g" tests/common.sh
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" tests/test_crs/*.yaml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" playbook.yml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" watches.yaml
+sed -i "s/backpack_role/backpack_role-$UUID/g" resources/backpack_role.yaml
 grep -Rl "kind: Benchmark" roles/ | xargs sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g"
 
 # Update the operator image
