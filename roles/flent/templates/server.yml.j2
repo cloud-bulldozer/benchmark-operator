@@ -23,7 +23,7 @@ spec:
 {% endif %}
     imagePullPolicy: Always
     command: ["/bin/sh","-c"]
-    args: ["netserver"]
+    args: ["netserver -D"]
   restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
   nodeSelector:
