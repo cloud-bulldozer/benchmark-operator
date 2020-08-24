@@ -14,8 +14,14 @@ spec:
     name: flent
     args:
       image: quay.io/joconnel/flent:latest
+      serviceip: false
+      hostnetwork: false
+      multus:
+        enabled: false
+      pin: false
       pin_server: "node-0"
       pin_client: "node-1"
+      pair: 1
       test_types:
         - tcp_download
       runtime: 30

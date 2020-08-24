@@ -1,7 +1,7 @@
 ---
 
 - name: Get current state
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ meta.name }}'
@@ -19,7 +19,7 @@
   when: resource_state.resources[0].status.state is not defined
 
 - name: Get current state - If it has changed
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ meta.name }}'
@@ -27,7 +27,7 @@
   register: resource_state
 
 - name: Capture operator information
-  k8s_facts:
+  k8s_info:
     kind: Pod
     api_version: v1
     namespace: '{{ operator_namespace }}'
@@ -35,15 +35,15 @@
       - name = benchmark-operator
   register: bo
 
-#- name: Capture ServiceIP
-#  k8s_facts:
-#    kind: Service
-#    api_version: v1
-#    namespace: '{{ operator_namespace }}'
-#    label_selectors:
-#      - type = flent-bench-server-{{ trunc_uuid }}
-#  register: serviceip
-#  when: workload_args.serviceip is defined and workload_args.serviceip
+- name: Capture ServiceIP
+  k8s_info:
+    kind: Service
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - type = flent-bench-server-{{ trunc_uuid }}
+  register: serviceip
+  when: workload_args.serviceip is defined and workload_args.serviceip
 
 - block:
 
@@ -60,7 +60,7 @@
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -68,7 +68,7 @@
         - type = flent-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: Update resource state
+  - name: Update resource state to starting servers
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -77,12 +77,12 @@
       status:
         state: "Starting Servers"
 
-  when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
+  when: resource_state.resources[0].status.state == "Building"
 
 - block:
 
   - name: Get server pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -90,7 +90,7 @@
         - type = flent-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: Update resource state
+  - name: Update resource state to starting clients
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -101,12 +101,12 @@
     when: "workload_args.pair|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
 
 
-  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
+  when: resource_state.resources[0].status.state == "Starting Servers"
 
 - block:
 
   - name: Get pod info
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -127,7 +127,11 @@
       with_items: "{{ serviceip.resources }}"
       when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
 
-    when: resource_kind == "pod"
+    - name: Validate input
+      fail:
+        msg: 'ServiceIP setting not defined'
+      ignore_errors: yes
+      when: workload_args.serviceip is not defined
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -143,7 +147,7 @@
 
   - block:
     - name: Get client pod status
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -161,8 +165,6 @@
           state: Clients Running
       when: "workload_args.pair|default('1')|int == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (client_pods | json_query('resources[].status.podIP')|length)"
 
-    when: resource_kind == "pod"
-
   when: resource_state.resources[0].status.state == "Waiting for Clients"
 
 - block:
@@ -170,7 +172,7 @@
   - name: Signal workload
     command: "redis-cli set start true"
 
-  - name: Update resource state
+  - name: Update resource state to Running
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -184,7 +186,7 @@
 - block:
   - block:
     - name: Waiting for pods to complete....
-      k8s_facts:
+      k8s_info:
         kind: pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -209,7 +211,7 @@
 
   - block:
     - name: Get Server Pods
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
