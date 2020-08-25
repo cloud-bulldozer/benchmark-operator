@@ -1,0 +1,24 @@
+puts "SETTING CONFIGURATION"
+global complete
+proc wait_to_complete {} {
+        global complete
+        set complete [vucomplete]
+        if {!$complete} { after 5000 wait_to_complete } else { exit }
+}
+
+puts "SETTING CONFIGURATION"
+dbset db pg
+dbset bm TPC-C
+diset connection pg_host {{workload_args.db_server}}
+diset connection pg_port {{workload_args.db_port}}
+diset tpcc pg_user {{workload_args.db_user}}
+diset tpcc pg_pass {{workload_args.db_pass}} 
+diset tpcc pg_dbase {{workload_args.db_postgresql_defaultdbase}}
+diset tpcc pg_count_ware {{workload_args.db_warehouses}}
+diset tpcc pg_num_vu {{workload_args.db_num_workers}}
+
+puts "CREATING SCHEMA"
+buildschema
+wait_to_complete
+vwait forever
+

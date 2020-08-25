@@ -27,7 +27,7 @@
 
 
 - block:
-  - name: template db creation script
+  - name: template mysql db creation script
     k8s: 
       definition:
         apiVersion: v1
@@ -36,9 +36,34 @@
           name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data: 
-          createdb.tcl: "{{ lookup('template', 'createdb.tcl.j2') }}"
+          createdb.tcl: "{{ lookup('template', 'createdb_mysql.tcl.j2') }}"
+    when: (workload_args.db_type == "mysql") and (workload_args.db_init == "true")  
 
-  - name: template db workload script
+  - name: template mssql db creation script
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          createdb.tcl: "{{ lookup('template', 'createdb_mssql.tcl.j2') }}"
+    when: (workload_args.db_type == "mssql") and (workload_args.db_init == "true")
+
+  - name: template postgresql db creation script
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          createdb.tcl: "{{ lookup('template', 'createdb_pg.tcl.j2') }}"
+    when: (workload_args.db_type == "pg") and (workload_args.db_init == "true")
+
+  - name: template mysql db workload script
     k8s:
       definition:
         apiVersion: v1
@@ -47,7 +72,32 @@
           name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
-          tpcc-workload.tcl: "{{ lookup('template', 'tpcc-workload.tcl.j2') }}"
+          tpcc-workload-mysql.tcl: "{{ lookup('template', 'tpcc-workload-mysql.tcl.j2') }}"
+    when: (workload_args.db_type == "mysql") 
+
+  - name: template mssql db workload script
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          tpcc-workload-mssql.tcl: "{{ lookup('template', 'tpcc-workload-mssql.tcl.j2') }}"
+    when: (workload_args.db_type == "mssql") and (workload_args.db_benchmark == "true")
+
+  - name: template postgresql db workload script
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          tpcc-workload-pg.tcl: "{{ lookup('template', 'tpcc-workload-pg.tcl.j2') }}"
+    when: workload_args.db_type == "pg" 
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -131,10 +181,23 @@
   when: resource_state.resources[0].status.state == "DB Creating"
   
 - block:
-  - name: start db workload job
+  - name: start mssql db workload job
     k8s:
       state: present
-      definition: "{{ lookup('template', 'db_workload.yml.j2') | from_yaml }}"
+      definition: "{{ lookup('template', 'db_mssql_workload.yml.j2') | from_yaml }}"
+    when: (workload_args.db_type == "mssql")
+
+  - name: start mysql db workload job
+    k8s:
+      state: present
+      definition: "{{ lookup('template', 'db_mysql_workload.yml.j2') | from_yaml }}"
+    when: (workload_args.db_type == "mysql")
+
+  - name: start postgresql db workload job
+    k8s:
+      state: present
+      definition: "{{ lookup ('template', 'db_postgres_workload.yml.j2') | from_yaml }}"
+    when: (workload_args.db_type == "pg")
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
