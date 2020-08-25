@@ -85,7 +85,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-mssql.tcl: "{{ lookup('template', 'tpcc-workload-mssql.tcl.j2') }}"
-    when: (workload_args.db_type == "mssql") and (workload_args.db_benchmark == "true")
+    when: (workload_args.db_type == "mssql") 
 
   - name: template postgresql db workload script
     k8s:
@@ -97,7 +97,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-pg.tcl: "{{ lookup('template', 'tpcc-workload-pg.tcl.j2') }}"
-    when: workload_args.db_type == "pg" 
+    when: (workload_args.db_type == "pg") 
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
