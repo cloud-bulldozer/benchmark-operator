@@ -25,10 +25,17 @@ data:
     create_on_open=1
     fsync_on_close=1
 {% endif %}
+{% if workload_args.bsrange is defined %}
+{% set loopvar = workload_args.bsrange %}
+{% set loopvar_str = 'bsrange' %}
+{% elif workload_args.bs is defined %}
+{% set loopvar = workload_args.bs %}
+{% set loopvar_str = 'bs' %}
+{% endif %}
 {% for numjobs in workload_args.numjobs %}
-{% for bs in workload_args.bs %}
+{% for i in loopvar %}
 {% for job in workload_args.jobs %}
-  fiojob-{{job}}-{{bs}}-{{numjobs}}: |
+  fiojob-{{job}}-{{i}}-{{numjobs}}: |
     [global]
     directory={{fio_path}}
     filename_format=f.\$jobnum.\$filenum
@@ -43,7 +50,7 @@ data:
     unit_base=8
     ioengine=libaio
     size={{workload_args.filesize}}
-    bs={{bs}}
+    {{loopvar_str}}={{i}}
     iodepth={{workload_args.iodepth}}
     direct=1
     numjobs={{numjobs}}
