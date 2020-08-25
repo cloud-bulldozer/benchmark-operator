@@ -1,4 +1,4 @@
-piVersion: batch/v1
+apiVersion: batch/v1
 kind: "job"
 metadata:
   name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
