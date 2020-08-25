@@ -5,28 +5,27 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ""
-    port: 9200
-    index_name: ""
+    server: ES_SERVER
+    port: ES_PORT
+    index_name: ripsaw-hammerdb
   metadata:
-    collection: false
+    collection: true
   workload:
     name: "hammerdb"
     args:
-      image: "quay.io/mkarg/hammerdb:latest"
-      db_type: "mysql"
+      db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
       db_init: false
       db_benchmark: true
-      db_server: "mysql.mysql-server"
-      db_port: "3306"
+      db_server: "mssql-deployment.sql-server"
+      db_port: "1443"
       db_warehouses: 1
       db_num_workers: 2
       db_user: "root"
       db_pass: "s3curePasswordString"
       db_name: "tpcc"
-      transactions: 100000
+      transactions: 1000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"
@@ -38,7 +37,7 @@ spec:
       async_client: 10
       async_verbose: false
       async_delay: 1000
-      samples: 2
+      samples: 1
       # database specific variables
       # mssql:
       db_mssql_tcp: "true"
