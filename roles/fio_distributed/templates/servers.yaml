@@ -23,6 +23,9 @@ spec:
                   values:
                   - fio-benchmark-{{ trunc_uuid }}
               topologyKey: "kubernetes.io/hostname"
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: fio-server
 {% if hostpath is defined %}

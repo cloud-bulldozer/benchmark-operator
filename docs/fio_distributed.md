@@ -37,6 +37,7 @@ spec:
       # 'vm' needs kubevirt to be available
       # Default: pod
       kind: pod
+      runtime_class: class_name
       jobs:
         - write
         - read
@@ -161,6 +162,8 @@ The workload loops are nested as such from the CR options:
   > Note: Under most circumstances, a `write` job should be provided as the first list item for `jobs`. This will
   > ensure that subsequent jobs in the list can use the files created by the `write` job instead of needing
   > to instantiate the files themselves prior to beginning the benchmark workload.
+- **runtime_class** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+  > Note: For Kata containers
 - **kind**: Can either be `pod` or `vm` to determine if the fio workload is run in a Pod or in a VM
   > Note: For VM workloads, you need to install Openshift Virtualization first
 - **vm_image**: Whether to use a pre-defined VM image with pre-installed requirements. Necessary for disconnected installs.

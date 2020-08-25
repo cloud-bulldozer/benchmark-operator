@@ -32,6 +32,7 @@ spec:
           cpu: 500m
           memory: 500Mi
       serviceip: false
+      runtime_class: class_name
       hostnetwork: false
       pin: false
       kind: pod
@@ -55,6 +56,10 @@ spec:
 `client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
 `serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
+
+`runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+
+*Note:* runtime_class has been tested with Kata containers, no other runtime.
 
 `hostnetwork` will test the performance of the node the pod will run on.
 

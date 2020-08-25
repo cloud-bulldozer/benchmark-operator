@@ -19,6 +19,9 @@ spec:
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
 {% endif %}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
 {% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
       serviceAccountName: benchmark-operator
