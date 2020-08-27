@@ -16,9 +16,10 @@ spec:
         - name: cloudinitdisk
 {% if workload_args.storageclass is defined
     or workload_args.hostpath is defined %}
-        - name: data-volume
-          bus: virtio
-          serial: data
+        - disk:
+            bus: virtio 
+          name: data-volume
+#          serial: data
 {% endif %}
     resources:
       requests:
