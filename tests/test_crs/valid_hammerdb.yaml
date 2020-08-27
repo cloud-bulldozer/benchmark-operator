@@ -5,9 +5,9 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ""
-    port: 9200
-    index_name: ""
+    server: ES_SERVER
+    port: ES_PORT
+    index_name: ripsaw-hammerdb
   metadata:
     collection: true
   workload:
