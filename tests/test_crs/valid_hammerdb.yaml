@@ -9,7 +9,7 @@ spec:
     port: 9200
     index_name: ""
   metadata:
-    collection: false
+    collection: true
   workload:
     name: "hammerdb"
     args:
