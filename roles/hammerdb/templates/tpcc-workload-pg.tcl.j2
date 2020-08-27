@@ -60,9 +60,8 @@ set samples {{workload_args.samples}}
 # So we are increasing the number of workers in the outer loop while
 # we run the samples in the inner loop
 
-for {set w 1} { $w <= $workers } { incr w } {
+for {set w 1} { $w <= $workers } { set w [expr {$w*2}] } {
 puts "$w VU TEST"
-# the next loop needs to be turned into a while loop, since we can't double the loop variable
 for {set i 1} {$i <= $samples} {incr i} {
         puts "============ RUNNING SAMPLE $i: $w WORKERS ============"
         vuset vu $w

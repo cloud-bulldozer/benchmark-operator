@@ -37,7 +37,7 @@
           namespace: '{{ operator_namespace }}'
         data: 
           createdb.tcl: "{{ lookup('template', 'createdb_mysql.tcl.j2') }}"
-    when: (workload_args.db_type == "mysql") and (workload_args.db_init == "true")  
+    when: (workload_args.db_type == "mysql") 
 
   - name: template mssql db creation script
     k8s:
@@ -49,7 +49,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_mssql.tcl.j2') }}"
-    when: (workload_args.db_type == "mssql") and (workload_args.db_init == "true")
+    when: (workload_args.db_type == "mssql") 
 
   - name: template postgresql db creation script
     k8s:
@@ -61,7 +61,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_pg.tcl.j2') }}"
-    when: (workload_args.db_type == "pg") and (workload_args.db_init == "true")
+    when: (workload_args.db_type == "pg") 
 
   - name: template mysql db workload script
     k8s:

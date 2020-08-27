@@ -14,10 +14,10 @@ diset connection mssqls_linux_server {{workload_args.db_server}}
 diset connection mssqls_tcp {{workload_args.db_mssql_tcp}}
 diset connection mssqls_port {{workload_args.db_port}}
 diset connection mssqls_azure {{workload_args.db_mssql_azure}}
-diset connection mssqls_authentication {{db_mssql_authentication}}
-diset connection mssqls_linux_authent {{db_mssql_linux_authent}}
-diset connection mssqls_odbc_driver {{db_mssql_odbc_driver}}
-diset connection mssqls_linux_odbc {{db_mssql_linux_odbc}}
+diset connection mssqls_authentication {{workload_args.db_mssql_authentication}}
+diset connection mssqls_linux_authent {{workload_args.db_mssql_linux_authent}}
+diset connection mssqls_odbc_driver {{workload_args.db_mssql_odbc_driver}}
+diset connection mssqls_linux_odbc {{workload_args.db_mssql_linux_odbc}}
 diset connection mssqls_uid {{workload_args.db_user}}
 diset connection mssqls_pass {{workload_args.db_pass}} 
 

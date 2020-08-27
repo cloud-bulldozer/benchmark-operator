@@ -48,11 +48,26 @@ spec:
         args: 
           - "/usr/local/bin/uid_entrypoint; 
              export db_type={{workload_args.db_type}};
+             export timed_test={{workload_args.timed_test}};
              export db_server={{workload_args.db_server}};
              export db_port={{workload_args.db_port}};
              export db_warehouses={{workload_args.db_warehouses}};
              export db_num_workers={{workload_args.db_num_workers}};
              export db_user={{workload_args.db_user}};
+             export db_name={{workload_args.db_user}};
+             export transactions={{workload_args.transactions}};
+             export raiseerror={{workload_args.raiseerror}};
+             export keyandthink={{workload_args.keyandthink}};
+             export driver={{workload_args.driver}};
+             export rampup={{workload_args.rampup}};
+             export runtime={{workload_args.runtime}};
+             export allwarehouse={{workload_args.allwarehouse}};
+             export timeprofile={{workload_args.timeprofile}};
+             export async_scale={{workload_args.async_scale}};
+             export async_client={{workload_args.async_client}};
+             export async_verbose={{workload_args.async_verbose}};
+             export async_delay={{workload_args.async_delay}};
+             export samples={{workload_args.samples}};
              export db_postgresql_defaultdbase={{workload_args.db_postgresql_defaultdbase}};
              export db_postgresql_superuser={{workload_args.db_postgresql_superuser}};
              export db_postgresql_superuser_pass={{workload_args.db_postgresql_superuser_pass}};
@@ -60,14 +75,8 @@ spec:
              export db_postgresql_dritasnap={{workload_args.db_postgresql_dritasnap}};
              export db_postgresql_oracompat={{workload_args.db_postgresql_oracompat}};
              export db_postgresql_storedprocs={{workload_args.db_postgresql_storedprocs}};
-             export transactions={{workload_args.transactions}};
-             export driver={{workload_args.driver}};
-             export runtime={{workload_args.runtime}};
-             export rampup={{workload_args.rampup}};
-             export samples={{workload_args.samples}};
-             export timed_test={{workload_args.timed_test}};
              cd /hammer; 
-             python /opt/snafu/run_snafu.py --tool hammerdb -u {{ uuid }}"
+             run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
