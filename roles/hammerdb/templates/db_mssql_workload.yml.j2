@@ -71,8 +71,8 @@ spec:
              export db_mssql_azure={{workload_args.db_mssql_azure}};
              export db_mssql_authentication={{workload_args.db_mssql_authentication}};
              export db_mssql_linux_authent={{workload_args.db_mssql_linux_authent}};
-             export db_mssql_odbc_driver={{workload_args.db_mssql_odbc_driver}};
-             export db_mssql_linux_odbc={{workload_args.db_mssql_linux_odbc}};
+             export db_mssql_odbc_driver=\"{{workload_args.db_mssql_odbc_driver}}\";
+             export db_mssql_linux_odbc=\"{{workload_args.db_mssql_linux_odbc}}\";
              export db_mssql_imdb={{workload_args.db_mssql_imdb}};
              export db_mssql_bucket={{workload_args.db_mssql_bucket}};
              export db_mssql_durability={{workload_args.db_mssql_durability}};
