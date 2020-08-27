@@ -17,7 +17,7 @@ spec:
 {% if workload_args.storageclass is defined
     or workload_args.hostpath is defined %}
         - name: data-volume
-            bus: virtio
+          bus: virtio
           serial: data
 {% endif %}
     resources:
