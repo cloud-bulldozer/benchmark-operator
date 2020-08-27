@@ -1,0 +1,32 @@
+---
+- debug:
+    msg: "in cache dropper role"
+
+- name: start kernel cache dropper
+  k8s:
+    definition: "{{ lookup('template', '/opt/kernel_cache_dropper/kernel-cache-drop-daemonset.yaml') | from_yaml }}"
+
+- name: get pod IPs of running DaemonSet
+  shell: "python3 /opt/kernel_cache_dropper/wait_for_daemonset.py 30 {{ operator_namespace }} kernel-cache-dropper"
+
+- name: get kernel cache dropper pods
+  k8s_facts:
+    kind: Pod
+    label_selectors:
+      - name = kernel-cache-dropper
+    namespace: "{{ operator_namespace }}"
+  register: kcache_drop_pod_list
+
+- debug:
+    var: kcache_drop_pod_list
+
+- name: put ip list into a var
+  set_fact:
+    kcache_drop_pod_ips: |
+       {% for item in kcache_drop_pod_list.resources %}
+       {{ item.status.podIP }}
+       {% endfor %}
+
+- debug:
+    var: kcache_drop_pod_ips
+
