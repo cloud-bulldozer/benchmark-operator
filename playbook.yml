@@ -6,6 +6,7 @@
 
   - include_role:
       name: "kernel_cache_drop"
+    when: workload.args.drop_cache_kernel is defined
 
   - name: Get update from Cerberus if connected
     block:
