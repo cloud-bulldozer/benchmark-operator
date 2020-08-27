@@ -4,6 +4,9 @@
   gather_facts: no
   tasks:
 
+  - include_role:
+      name: "kernel_cache_drop"
+
   - name: Get update from Cerberus if connected
     block:
     - include_role:
