@@ -128,7 +128,6 @@ function apply_operator {
     sed 's#quay.io/benchmark-operator/benchmark-operator:master#'$BENCHMARK_OPERATOR_IMAGE'#' | \
     kubectl apply -f -
   kubectl wait --for=condition=available "deployment/benchmark-operator" -n my-ripsaw --timeout=300s
-  backpack_requirements
 }
 
 function delete_operator {
