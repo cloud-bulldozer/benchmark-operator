@@ -13,7 +13,7 @@ poll_interval = 2.0
 
 def usage(msg):
     print('ERROR: %s' % msg)
-    print('usage: wait_for_daemonset.py timeout namespace node-label pod-app')
+    print('usage: wait_for_daemonset.py timeout namespace node-label')
     exit(NOTOK)
 
 # parse command line
@@ -54,6 +54,7 @@ print('expecting %d nodes to have this pod' % matching_nodes)
 if matching_nodes == 0:
     usage('at least 1 node must have the %s label')
 
+print('waiting for daemonset...')
 start_time = time.time()
 matching_pods = 0
 generate_name = label + '-'
@@ -65,12 +66,10 @@ while True:
     if delta_time > timeout:
         break
 
-    print("Listing pods in namespace %s with their IPs:" % ns)
     ret = v1.list_pod_for_all_namespaces(watch=False)
     matching_pods = 0
     for i in ret.items:
         if i.metadata.namespace == ns:
-            print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
             if i.metadata.generate_name == generate_name:
                 if i.status.phase == 'Running':
                     matching_pods += 1
