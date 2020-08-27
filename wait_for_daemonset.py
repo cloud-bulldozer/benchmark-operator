@@ -52,7 +52,7 @@ for n in nodes:
 
 print('expecting %d nodes to have this pod' % matching_nodes)
 if matching_nodes == 0:
-    usage('at least 1 node must have the %s label')
+    usage('at least 1 node must have the %s label' % label)
 
 print('waiting for daemonset...')
 start_time = time.time()
