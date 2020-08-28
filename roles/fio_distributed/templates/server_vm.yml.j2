@@ -19,6 +19,7 @@ spec:
         - disk:
             bus: virtio 
           name: data-volume
+          serial: data
 {% endif %}
     resources:
       requests:
@@ -37,8 +38,8 @@ spec:
 {% if workload_args.storageclass is defined
     or workload_args.hostpath is defined %}
             - "mkdir -p {{ fio_path }} || true"
-            - mkfs.ext4 /dev/disk/by-id/ata-QEMU_HARDDISK_data
-            - "mount /dev/disk/by-id/ata-QEMU_HARDDISK_data {{ fio_path }}"
+            - mkfs.ext4 /dev/disk/by-id/virtio-data
+            - "mount /dev/disk/by-id/virtio-data {{ fio_path }}"
 {% endif %}
           runcmd:
 {% if workload_args.vm_image is undefined %}
