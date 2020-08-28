@@ -1,0 +1,30 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: flent-benchmark
+  namespace: my-ripsaw
+spec:
+  clustername: myk8scluster
+  workload:
+    # cleanup: true
+    name: flent
+    args:
+      client_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      server_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      serviceip: false
+      hostnetwork: false
+      multus:
+        enabled: false
+      pair: 1
+      test_types:
+        - tcp_download
+      runtime: 2
