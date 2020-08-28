@@ -15,23 +15,44 @@ if {  [ vucomplete ] || $x eq $seconds } { set timerstop 1 }
 return
 }
 
-puts "SETTING CONFIGURATION"
+puts "SETTING DB CONFIGURATION"
 dbset db mssqls
 dbset bm TPC-C
+
+puts "SETTING CONNECTION OPTIONS"
 diset connection mssqls_server {{workload_args.db_server}}
 diset connection mssqls_linux_server {{workload_args.db_server}}
+diset connection mssqls_tcp {{workload_args.db_mssql_tcp}}
 diset connection mssqls_port {{workload_args.db_port}}
+diset connection mssqls_azure {{workload_args.db_mssql_azure}}
+diset connection mssqls_authentication {{workload_args.db_mssql_authentication}}
+diset connection mssqls_linux_authent {{workload_args.db_mssql_linux_authent}}
+diset connection mssqls_odbc_driver {{workload_args.db_mssql_odbc_driver}}
+diset connection mssqls_linux_odbc {{workload_args.db_mssql_linux_odbc}}
 diset connection mssqls_uid {{workload_args.db_user}}
 diset connection mssqls_pass {{workload_args.db_pass}}
-diset connection mssqls_tcp {{workload_args.db_tcp}}
-diset tpcc mssqls_count_ware {{workload_args.db_warehouses}}
-diset tpcc mssqls_num_vu {{workload_args.db_num_workers}}
 
 puts "SETTING BENCHMARK OPTIONS"
-diset tpcc mssqls_driver timed
+diset tpcc mssqls_count_ware {{workload_args.db_warehouses}}
+diset tpcc mssqls_num_vu {{workload_args.db_num_workers}}
+diset tpcc mssqls_dbase {{workload_args.db_name}}
+diset tpcc mssqls_imdb {{workload_args.db_mssql_imdb}}
+diset tpcc mssqls_bucket {{workload_args.db_mssql_bucket}}
+diset tpcc mssqls_durability {{workload_args.db_mssql_durability}}
+diset tpcc mssqls_total_iterations {{workload_args.transactions}}
+diset tpcc mssqls_raiseerror {{workload_args.raiseerror}}
+diset tpcc mssqls_keyandthink {{workload_args.keyandthink}}
+diset tpcc mssqls_checkpoint {{workload_args.db_mssql_checkpoint}}
+diset tpcc mssqls_driver {{workload_args.driver}}
 diset tpcc mssqls_rampup {{workload_args.rampup}}
 diset tpcc mssqls_duration {{workload_args.runtime}}
-diset tpcc mssqls_total_iterations {{workload_args.transactions}}
+diset tpcc mssqls_allwarehouse {{workload_args.allwarehouse}}
+diset tpcc mssqls_timeprofile {{workload_args.timeprofile}}
+diset tpcc mssqls_async_scale {{workload_args.async_scale}}
+diset tpcc mssqls_async_client {{workload_args.async_client}}
+diset tpcc mssqls_async_verbose {{workload_args.async_verbose}}
+diset tpcc mssqls_async_delay {{workload_args.async_delay}}
+
 vuset logtotemp 1
 
 loadscript
@@ -44,9 +65,8 @@ set samples {{workload_args.samples}}
 # So we are increasing the number of workers in the outer loop while
 # we run the samples in the inner loop
 
-for {set w 1} { $w <= $workers } { incr w } {
+for {set w 1} { $w <= $workers } { set w [expr {$w*2}] } {
 puts "$w VU TEST"
-# the next loop needs to be turned into a while loop, since we can't double the loop variable
 for {set i 1} {$i <= $samples} {incr i} {
         puts "============ RUNNING SAMPLE $i: $w WORKERS ============"
         vuset vu $w
