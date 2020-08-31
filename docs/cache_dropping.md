@@ -1,7 +1,7 @@
 This page describes how to use cache-dropping features of benchmark-operator.   
 This feature is totally optional and if you do not specify it in the CR, then it will not happen.
 
-* why drop cache?
+# why drop cache
 
 Cache-dropping prevents previous state of system from affecting performance results, and this helps you
 to achieve repeatable, accurate results with low variance.
@@ -15,7 +15,7 @@ a sample.
 If you want to ensure that caching will not happen during your test, you can create a data set that
 is much bigger than the amount of memory available for caching, and use a uniform random access pattern.
 
-* how to drop cache
+# how to drop cache
 
 There are different types of caching that occur in the system 
 
@@ -28,4 +28,26 @@ is done using these CR fields in the workload args section:
 ```
 drop_cache_kernel: true
 ```
+
+For this to work, you must **label** the nodes that you want to drop kernel cache, for example:
+
+```
+# kubectl label node minikube kernel-cache-dropper=yes
+```
+If you do not do this, ripsaw will timeout waiting for cache dropper pods to deploy.
+
+
+# implementation notes
+
+kernel cache dropping is done by a daemonset run on nodes with the above label.   See roles/kernel_cache_drop
+for details on how this is done.  Each pod started by this daemonset is running a CherryPy web service that
+responds to a GET URL by dropping kernel cache using equivalent of shell commnand:
+
+```
+sync 
+echo 3 > /proc/sys/vm/drop_caches
+```
+
+The sync is required because the kernel cannot drop cache on dirty pages.  
+A logfile named /tmp/dropcache.log is visible on every cache dropper pod so you can see what it's doing
 
