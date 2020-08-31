@@ -19,6 +19,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [Service Mesh](docs/servicemesh.md) | Microservices     | Working            |  Used, default : 3second   | Not Supported         | Not Supported   |
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
+| [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Not Supported  |
 
 
 ### Reconciliation
@@ -103,6 +104,6 @@ spec:
 [Capturing Prometheus Data](docs/prometheus.md)
 
 ## Community
-Key Members(slack_usernames): aakarsh, dry923, rsevilla or rook
+Key Members(slack_usernames): ravi, mohit, dry923, rsevilla or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
 * [**#forum-perfscale on CoreOS Slack**](https://coreos.slack.com)
