@@ -5,13 +5,14 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
-    port: ES_PORT
+    server: "snafu:passwd@ec2-54-201-210-248.us-west-2.compute.amazonaws.com"
+    port: 9200
     index_name: ripsaw-fio
   metadata:
     collection: true
   cleanup: false
   hostpath: /mnt/vda1/workload_args/
+  drop_cache_kernel: true
   workload:
     name: "fio_distributed"
     args:
