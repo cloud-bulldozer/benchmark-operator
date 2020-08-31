@@ -7,14 +7,16 @@ from kubernetes import client, config
 from sys import argv, exit
 import time
 
-NOTOK=1
+NOTOK = 1
 # may have to adjust this based on number of pods
 poll_interval = 2.0
+
 
 def usage(msg):
     print('ERROR: %s' % msg)
     print('usage: wait_for_daemonset.py timeout namespace node-label')
     exit(NOTOK)
+
 
 # parse command line
 
@@ -33,8 +35,8 @@ print('node label: %s' % label)
 
 timeout = int(timeout_str)
 if timeout <= poll_interval:
-    usage('timeout %d must be greater than poll interval %d' % 
-            (timeout, poll_interval))
+    usage('timeout %d must be greater than poll interval %d' %
+          (timeout, poll_interval))
 
 # wait for pods
 
@@ -69,10 +71,10 @@ while True:
     ret = v1.list_pod_for_all_namespaces(watch=False)
     matching_pods = 0
     for i in ret.items:
-        if i.metadata.namespace == ns:
-            if i.metadata.generate_name == generate_name:
-                if i.status.phase == 'Running':
-                    matching_pods += 1
+        if (i.metadata.namespace == ns and
+           i.metadata.generate_name == generate_name and
+           i.status.phase == 'Running'):
+            matching_pods += 1
     if matching_pods >= matching_nodes:
         break
 
@@ -81,4 +83,3 @@ if delta_time > timeout:
 
 if matching_pods != matching_nodes:
     usage('expected %d pods, found %d pods' % (matching_nodes, matching_pods))
-
