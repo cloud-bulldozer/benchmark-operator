@@ -7,7 +7,7 @@
     definition: "{{ lookup('template', '/opt/kernel_cache_dropper/kernel-cache-drop-daemonset.yaml') | from_yaml }}"
 
 - name: get pod IPs of running DaemonSet
-  shell: "python3 /opt/kernel_cache_dropper/wait_for_daemonset.py 30 {{ operator_namespace }} kernel-cache-dropper"
+  shell: "python3 /opt/ansible/roles/kernel_cache_drop/wait_for_daemonset.py 30 {{ operator_namespace }} kernel-cache-dropper"
 
 - name: get kernel cache dropper pods
   k8s_facts:
