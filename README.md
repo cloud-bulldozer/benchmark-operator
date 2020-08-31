@@ -103,6 +103,9 @@ spec:
 ## Capturing Prometheus Data
 [Capturing Prometheus Data](docs/prometheus.md)
 
+## Cache dropping
+[Cache dropping](docs/cache_dropping.md)
+
 ## Community
 Key Members(slack_usernames): ravi, mohit, dry923, rsevilla or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
