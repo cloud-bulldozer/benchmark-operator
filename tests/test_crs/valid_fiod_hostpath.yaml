@@ -5,8 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "snafu:passwd@ec2-54-201-210-248.us-west-2.compute.amazonaws.com"
-    port: 9200
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-fio
   metadata:
     collection: true
