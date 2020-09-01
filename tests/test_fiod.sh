@@ -44,7 +44,7 @@ function functional_test_fio {
 }
 
 figlet $(basename $0)
-nodelist="$(kubectl get nodes | awk '/Ready/{print $1}')"
+nodelist="$(kubectl get nodes --show-labels | grep -v kernel-cache-dropper | awk '/Ready/{print $1}')"
 for n in $nodelist ; do
     kubectl label node $n kernel-cache-dropper=yes
 done
