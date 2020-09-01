@@ -12,10 +12,10 @@ spec:
     collection: true
   cleanup: false
   hostpath: /mnt/vda1/workload_args/
-  drop_cache_kernel: true
   workload:
     name: "fio_distributed"
     args:
+      drop_cache_kernel: true
       samples: 1
       servers: 2
       prefill: true
