@@ -13,6 +13,13 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+- apiGroups:
   - rbac.authorization.k8s.io
   resources:
   - nodes
