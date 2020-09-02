@@ -1,0 +1,37 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: kube-burner-{{ trunc_uuid }}
+  namespace: {{ operator_namespace }}
+spec:
+  template:
+    metadata:
+      labels:
+        app: kube-burner-benchmark-{{ trunc_uuid }}
+    spec:
+      serviceAccountName: kube-burner
+      containers:
+      - name: kube-burner
+        image: {{ workload_args.image | default('quay.io/rsevilla/kube-burner:latest') }}
+        imagePullPolicy: Always
+        workingDir: /tmp/kube-burner
+        command: ["/bin/sh", "-c"]
+        args:
+{% if prometheus is defined and prometheus.prom_url is defined %}
+          - kube-burner init -c config.yml -m metrics.yml -u {{ prometheus.prom_url }} -t {{ prometheus.prom_token }} --uuid {{ uuid }}
+{% else %}
+          - kube-burner init -c config.yml --uuid {{ uuid }}
+{% endif %}
+        volumeMounts:
+          - name: kube-burner-config
+            mountPath: /tmp/kube-burner
+      volumes:
+        - name: kube-burner-config
+          configMap:
+            name: kube-burner-config-{{ trunc_uuid }}
+      restartPolicy: OnFailure
+{% if workload_args.nodeselector is defined %}
+      nodeSelector: {{ nodeselector|to_json }}
+{% endif %}
+{% include "metadata.yml.j2" %}

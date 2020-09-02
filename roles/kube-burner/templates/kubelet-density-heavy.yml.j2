@@ -1,0 +1,36 @@
+---
+global:
+  writeToFile: false
+{% if prometheus is defined and prometheus.prom_url is defined %}
+  indexerConfig:
+    enabled: true
+    esServers: [{{ prometheus.server }}:{{ prometheus.port }}]
+    insecureSkipVerify: true
+    defaultIndex: {{ workload_args.default_index|default("kube-burner") }}
+    type: elastic
+{% endif %}
+  measurements:
+    - name: podLatency
+      esIndex: kubelet-density-heavy-podlatency
+
+jobs:
+  - name: kubelet-density-heavy
+    jobIterations: {{ workload_args.job_iterations }}
+    qps: {{ workload_args.qps|default(5) }}
+    burst: {{ workload_args.burst|default(10) }}
+    namespacedIterations: false
+    namespace: kubelet-density-heavy
+    waitWhenFinished: true
+    podWait: false
+    objects:
+
+      - objectTemplate: postgres-deployment.yml
+        replicas: 1
+
+      - objectTemplate: app-deployment.yml
+        replicas: 1
+        inputVars:
+          readinessPeriod: 10
+
+      - objectTemplate: postgres-service.yml
+        replicas: 1

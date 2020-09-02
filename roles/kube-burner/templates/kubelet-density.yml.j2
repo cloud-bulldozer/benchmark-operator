@@ -1,0 +1,30 @@
+---
+global:
+  writeToFile: false
+{% if prometheus is defined and prometheus.prom_url is defined %}
+  indexerConfig:
+    enabled: true
+    esServers: [{{ prometheus.server }}:{{ prometheus.port }}]
+    insecureSkipVerify: true
+    defaultIndex: {{ workload_args.defaultIndex|default("kubelet-density") }}
+    type: elastic
+{% endif %}
+  measurements:
+    - name: podLatency
+      esIndex: kubelet-density-podlatency
+
+jobs:
+  - name: kubelet-density
+    jobIterations: {{ workload_args.job_iterations }}
+    qps: {{ workload_args.qps|default(5) }}
+    burst: {{ workload_args.burst|default(10) }}
+    namespacedIterations: false
+    namespace: kubelet-density
+    podWait: false
+    waitWhenFinished: true
+    objects:
+
+      - objectTemplate: pod.yml
+        replicas: 1
+        inputVars:
+          containerImage: gcr.io/google_containers/pause-amd64:3.0
