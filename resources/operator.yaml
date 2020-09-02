@@ -13,6 +13,20 @@ spec:
       labels:
         name: benchmark-operator
     spec:
+      tolerations:
+      - key: role
+        value: workload
+        effect: NoSchedule
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node-role.kubernetes.io/workload
+                operator: In
+                values:
+                - ""
       serviceAccountName: benchmark-operator
       containers:
         - name: ansible
