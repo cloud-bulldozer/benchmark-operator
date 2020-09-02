@@ -1,0 +1,92 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-cluster-density
+  namespace: my-ripsaw
+spec:
+  prometheus: 
+    server: <ES_URL>
+    prom_token: <PROMETHEUS_BEARER_TOKEN> 
+    port: <ES_PORT>
+    prom_url: <PROMETHEUS_URL>
+  workload:
+    name: kube-burner
+    args:
+      nodeSelector: 
+      workload: kubelet-density
+      image: quay.io/rsevilla/kube-burner:latest
+      qps: 25
+      burst: 25
+      job_iterations: 10
+      metrics:
+      - query: sum(irate(container_cpu_usage_seconds_total{name!="",namespace!=""}[2m]) * 100) by (pod, namespace, node)
+        metric_name: podCPU
+      
+      - query: sum(container_memory_usage_bytes{name!="",namespace!=""}) by (pod, namespace, node)
+        metric_name: podMemory
+      
+      - query: sum(irate(node_cpu_seconds_total[2m])) by (mode,instance)
+        metric_name: nodeCPU
+      
+      - query: avg(node_memory_MemAvailable_bytes) by (instance) - (avg(node_memory_Cached_bytes) by (instance) + avg(node_memory_Buffers_bytes) by (instance))
+        metric_name: nodeMemoryAvailable
+      
+      - query: avg(node_memory_Active_bytes) by (instance)
+        metric_name: nodeMemoryActive
+      
+      - query: avg(node_memory_Cached_bytes) by (instance) + avg(node_memory_Buffers_bytes) by (instance)
+        metric_name: nodeMemoryCached+nodeMemoryBuffers
+      
+      - query: irate(node_network_receive_bytes_total{device=~"^(ens|eth|bond|team).*"}[2m])
+        metric_name: rxNetworkBytes
+      
+      - query: irate(node_network_transmit_bytes_total{device=~"^(ens|eth|bond|team).*"}[2m])
+        metric_name: txNetworkBytes
+      
+      - query: irate(node_network_receive_drop_total{device=~"^(ens|eth|bond|team).*"}[2m])
+        metric_name: rxDroppedPackets
+      
+      - query: irate(node_network_transmit_drop_total{device=~"^(ens|eth|bond|team).*"}[2m])
+        metric_name: txDroppedPackets
+      
+      - query: rate(node_disk_written_bytes_total{device!~"^(dm|rb).*"}[2m])
+        metric_name: nodeDiskWrittenBytes
+      
+      - query: rate(node_disk_read_bytes_total{device!~"^(dm|rb).*"}[2m])
+        metric_name: nodeDiskReadBytes
+      
+      - query: node_nf_conntrack_entries
+        metric_name: nodeConntrackEntries
+      
+      - query: etcd_server_has_leader
+        metric_name: etcdServerHasLeader
+      
+      - query: rate(etcd_server_leader_changes_seen_total[2m])
+        metric_name: etcdLeaderChangesRate
+      
+      - query: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket[2m]))
+        metric_name: 99thEtcdDiskBackendCommitDurationSeconds
+      
+      - query: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[2m]))
+        metric_name: 99thEtcdDiskWalFsyncDurationSeconds
+      
+      - query: count(kube_namespace_created)
+        metric_name: namespaceCount
+      
+      - query: sum(kube_pod_status_phase{}) by (phase)
+        metric_name: podStatusCount
+      
+      - query: count(kube_secret_info{})
+        metric_name: secretCount
+      
+      - query: count(kube_deployment_labels{})
+        metric_name: deploymentCount
+      
+      - query: count(kube_configmap_info{})
+        metric_name: configmapCount
+      
+      - query: kube_node_role
+        metric_name: nodeRoles
+      
+      - query: sum(kube_node_status_condition{status="true"}) by (condition)
+        metric_name: nodeStatus
