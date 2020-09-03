@@ -57,6 +57,33 @@ spec:
       image: my.location/foo:latest
 ```
 
+## User Provided UUID
+All benchmarks in the benchmark-operator utilize a UUID for tracking and indexing purposes. This UUID is,
+by default, generated when the workload is first started. However, if desired, a user provided UUID can
+be added to the workload cr.
+
+*NOTE: The provided UUID must be in format XXXXX-XXXXX-XXXXX*
+
+For Example:
+```
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  uuid: 6060004a-7515-424e-93bb-c49844600dde
+  elasticsearch:
+    server: "my-es.foo.bar"
+    port: 9200
+  metadata_collection: true
+  cleanup: false
+  workload:
+    name: "foo"
+    args:
+      image: my.location/foo:latest
+```
+
 ## Installation
 [Installation](docs/installation.md)
 

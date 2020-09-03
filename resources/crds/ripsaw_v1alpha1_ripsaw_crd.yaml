@@ -22,6 +22,8 @@ spec:
           spec:
             type: object
             properties:
+              uuid: 
+                type: string
               elasticsearch:
                 type: object
                 properties:
