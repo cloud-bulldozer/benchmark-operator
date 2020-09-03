@@ -47,7 +47,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
-          metrics.yml: "{{ lookup('template', 'metrics.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
           build.yml: "{{ lookup('file', 'build.yml')}}"
           buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
           deployment.yml: "{{ lookup('file', 'deployment.yml')}}"
@@ -67,7 +67,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           config.yml: "{{ lookup('template', 'kubelet-density.yml.j2')}}"
-          metrics.yml: "{{ lookup('template', 'metrics.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
           pod.yml: "{{ lookup('file', 'pod.yml')}}"
     when: workload_args.workload == "kubelet-density"
 
@@ -81,7 +81,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           config.yml: "{{ lookup('template', 'kubelet-density-heavy.yml.j2')}}"
-          metrics.yml: "{{ lookup('template', 'metrics.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
           app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
           postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
           postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"

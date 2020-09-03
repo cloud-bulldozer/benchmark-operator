@@ -1,7 +1,0 @@
-metrics:
-{% if workload_args.metrics is defined %}
-{% for metric in workload_args.metrics %}
-- metricName: {{ metric.metric_name }}
-  query: {{ metric.query }}
-{% endfor %}
-{% endif %}
