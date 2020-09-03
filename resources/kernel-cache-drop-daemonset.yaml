@@ -14,6 +14,7 @@ spec:
       labels:
         name: kernel-cache-dropper
     spec:
+      serviceAccountName: benchmark-operator
       #tolerations:
       #- key: node-role.kubernetes.io/master
       #  effect: NoSchedule
