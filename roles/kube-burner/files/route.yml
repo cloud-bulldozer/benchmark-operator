@@ -4,7 +4,7 @@ apiVersion: route.openshift.io/v1
 metadata:
   name: {{.name}}-{{.Replica}}
 spec:
-  host: www.{{.name}}.example{{.Replica}}.com
+  host: www.{{.name}}.example-{{.Iteration}}-{{.Replica}}.com
   to:
     kind: Service
     name: {{.name}}-{{.Replica}}

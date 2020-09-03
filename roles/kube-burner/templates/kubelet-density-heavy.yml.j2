@@ -4,14 +4,11 @@ global:
 {% if prometheus is defined and prometheus.prom_url is defined %}
   indexerConfig:
     enabled: true
-    esServers: [{{ prometheus.server }}:{{ prometheus.port }}]
+    esServers: [{{ prometheus.server }}]
     insecureSkipVerify: true
     defaultIndex: {{ workload_args.default_index|default("kube-burner") }}
     type: elastic
 {% endif %}
-  measurements:
-    - name: podLatency
-      esIndex: kubelet-density-heavy-podlatency
 
 jobs:
   - name: kubelet-density-heavy
@@ -20,8 +17,8 @@ jobs:
     burst: {{ workload_args.burst|default(10) }}
     namespacedIterations: false
     namespace: kubelet-density-heavy
-    waitWhenFinished: true
     podWait: false
+    waitWhenFinished: {{ wait_when_finished|default(true) }}
     objects:
 
       - objectTemplate: postgres-deployment.yml
