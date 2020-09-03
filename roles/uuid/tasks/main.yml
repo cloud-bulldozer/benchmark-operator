@@ -1,6 +1,7 @@
 ---
-- name: Get files
+- name: Generate UUID
   set_fact: uuid={{ (999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N'))) | to_uuid() | string }}
+  when: uuid is not defined 
 
 - name: set the truncated uuid
   set_fact: trunc_uuid={{ uuid.split("-")[0] }}
