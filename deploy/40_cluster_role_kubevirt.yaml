@@ -10,6 +10,7 @@ rules:
   - rolebindings
   - clusterroles
   - clusterrolebindings
+  - daemonsets
   verbs:
   - '*'
 - apiGroups:
