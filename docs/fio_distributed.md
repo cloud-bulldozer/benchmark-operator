@@ -178,6 +178,12 @@ The workload loops are nested as such from the CR options:
   > Note: We set the `direct=1` fio option in the jobfile configmap. In order to avoid errors, the `bsrange` values
   > provided here should be a multiple of the filesystem blocksize (typically 1KiB - 4KiB). The [note above about units](#understanding-the-cr-options)
   >  applies here.
+  ```
+  bsrange:
+    - 1KiB-4KiB
+    - 16KiB-64KiB
+    - 256KiB-4096KiB
+  ```
 - **numjobs**: (list) Number of clones of the job to run on each server -- Total jobs will be `numjobs * servers`
 - **iodepth**: Number of I/O units to keep in flight against a file; see `fio(1)`
 - **read_runtime**: Amount of time in seconds to run `read` workloads (including `readwrite` workloads)
