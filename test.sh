@@ -82,6 +82,7 @@ sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" tests/test_crs/*.yaml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" playbook.yml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" watches.yaml
 sed -i "s/backpack_role/backpack_role-$UUID/g" resources/backpack_role.yaml
+sed -i "s/my-ripsaw/my-ripsaw-$UUID-test-fiod/g" resources/kernel-cache-drop-daemonset.yaml
 grep -Rl "kind: Benchmark" roles/ | xargs sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g"
 sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 
@@ -95,6 +96,7 @@ do
   cd $ci_dir/
   # Edit the namespaces so we can run in parallel
   sed -i "s/my-ripsaw/my-ripsaw-$UUID-$ci_dir/g" `grep -Rl my-ripsaw`
+  sed -i "s/benchmark-operator-role/benchmark-operator-role-$UUID-$ci_dir/g" `grep -Rl benchmark-operator-role`
   cd ..
 done
 
