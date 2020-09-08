@@ -40,7 +40,8 @@ if timeout <= poll_interval:
 
 # wait for pods
 
-config.load_kube_config()
+# cannot do this from inside cluster pod: config.load_kube_config()
+config.load_incluster_config()
 v1 = client.CoreV1Api()
 
 nodes = v1.list_node().items
