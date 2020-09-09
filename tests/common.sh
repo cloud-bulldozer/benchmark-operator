@@ -52,6 +52,7 @@ function wait_clean {
   then
     kubectl delete benchmarks -n my-ripsaw --all --ignore-not-found
   fi
+  kubectl delete -f deploy/ --ignore-not-found
   kubectl delete namespace my-ripsaw --ignore-not-found
 }
 
