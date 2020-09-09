@@ -12,3 +12,12 @@ rules:
   verbs:
   - get
   - list
+- apiGroups:
+  - apps
+  resources:
+  - nodes
+  - daemonsets
+  - pods
+  verbs:
+  - get
+  - list
