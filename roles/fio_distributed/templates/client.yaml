@@ -64,10 +64,15 @@ spec:
 {% endif %}
              echo ***********End of Prefill*************;
 {% endif %}
+{% if workload_args.bsrange is defined %}
+{% set loopvar = workload_args.bsrange %}
+{% elif workload_args.bs is defined %}
+{% set loopvar = workload_args.bs %}
+{% endif %}
 {% for numjobs in workload_args.numjobs %}
-{% for bs in workload_args.bs %}
+{% for i in loopvar %}
 {% for job in workload_args.jobs %}
-             cat /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{bs}}-{{numjobs}}; run_snafu -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{bs}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{bs}}-{{numjobs}};
+             cat /tmp/fio/fiojob-{{job}}-{{i}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{i}}-{{numjobs}}; run_snafu -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{i}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{i}}-{{numjobs}};
 {% endfor %}
 {% endfor %}
 {% endfor %}
