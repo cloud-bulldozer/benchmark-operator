@@ -1,4 +1,4 @@
-# Uperf
+# Flent
 
 [Flent](https://flent.org/) is a network performance tool
 
@@ -123,9 +123,9 @@ As of flent 1.3.2, the following tests are available:
   voip-rrul                  :  VoIP one-way stream test with competing RRUL test
 ```
 
-`client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
+`client_resources` and `server_resources` will create flent client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
-`serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
+`serviceip` will place the flent server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
 
 `hostnetwork` will test the performance of the node the pod will run on.
 
@@ -250,7 +250,7 @@ spec:
     server: <es_host>
     port: <es_port>
   workload:
-    name: uperf
+    name: flent
     args:
       serviceip: false
       hostnetwork: false
@@ -273,7 +273,7 @@ The new fields :
 
 `user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
 
-By default we will utilize the `uperf-results` index for Elasticsearch.
+By default we will utilize the `flent-results` index for Elasticsearch.
 
 Deploying the above(assuming pairs is set to 1) would result in
 
@@ -287,7 +287,7 @@ flent-bench-client-10.116.0.54-533b6892-dc5cd   0/1     Completed   0          3
 The first pod is our Operator orchestrating the Flent workload.
 
 To review the results, `oc logs <client>`, the top of the output is
-the actual workload that was passed to UPerf (From the values in the custom resource).
+the actual workload that was passed to flent (From the values in the custom resource).
 
 Note: If cleanup is not set in the spec file then the client pods will be killed after
 600 seconds from it's completion. The server pods will be cleaned up immediately
@@ -295,7 +295,7 @@ after client job completes
 
 ```
 ... Trimmed output ...
-+-------------------------------------------------- UPerf Results --------------------------------------------------+
++-------------------------------------------------- flent Results --------------------------------------------------+
 Run : 1
 Flent options:
 
@@ -316,14 +316,3 @@ Flent results:
 ```
 +-------------------------------------------------------------------------------------------------------------------+
 
-```
-
-### Dashboard example
-
-Using the Elasticsearch storage describe above, we can build dashboards like the below.
-
-![UPerf Dashboard](https://i.imgur.com/gSVZ9MX.png)
-
-To reuse the dashboard above, use the json [here](https://github.com/cloud-bulldozer/arsenal/tree/master/uperf/grafana)
-
-Additionally, by default we will utilize the `uperf-results` index for Elasticsearch.
