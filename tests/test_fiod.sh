@@ -30,7 +30,7 @@ function functional_test_fio {
   wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=500s" "500s" $fio_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=500s" "500s" $fio_pod
+  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=700s" "700s" $fio_pod
 
   indexes="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${indexes}"
