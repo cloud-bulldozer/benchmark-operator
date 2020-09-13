@@ -11,6 +11,7 @@ function finish {
 
   [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n my-ripsaw
   echo "Cleaning up kube-burner"
+  kubectl delete -f resources/kube-burner-role.yml
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
   wait_clean
 }
@@ -26,6 +27,7 @@ function functional_test_kubeburner {
   check_logs=0
   wait_clean
   apply_operator
+  kubectl apply -f resources/kube-burner-role.yml
   echo "Performing kube-burner: ${workload_name}"
   sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)
@@ -33,7 +35,6 @@ function functional_test_kubeburner {
 
   pod_count "app=kube-burner-benchmark-$uuid" 1 900
   wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
-  check_logs=1
 
   index="ripsaw-kube-burner"
   if check_es "${long_uuid}" "${index}"
@@ -41,6 +42,7 @@ function functional_test_kubeburner {
     echo "kube-burner ${workload_name}: Success"
   else
     echo "Failed to find data for kube-burner ${workload_name} in ES"
+    check_logs=1
     exit 1
   fi
   kubectl delete ns -l kube-burner-uuid=${long_uuid}

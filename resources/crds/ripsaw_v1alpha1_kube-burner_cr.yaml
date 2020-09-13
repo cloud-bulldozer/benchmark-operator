@@ -11,8 +11,6 @@ spec:
   prometheus:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
     server: <ES_URL>
-    # ES index name
-    default_index: ripsaw-kube-burner
     # Prometheus bearer token
     prom_token: <PROMETHEUS_BEARER_TOKEN>
     # Prometheus URL with full URL format. https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
@@ -22,6 +20,8 @@ spec:
     args:
       # Workload name
       workload: cluster-density
+      # ES index name
+      default_index: ripsaw-kube-burner
       # Number of job iterations
       job_iterations: 100
       # Pin kube-burner to a node using the value of the label kubernetes.io/hostname

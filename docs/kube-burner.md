@@ -27,10 +27,10 @@ The workload is specified by the parameter `workload` from the `args` object of 
 All kube-burner's workloads support the following parameters:
 
 - workload: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
+- default_index: Elasticsearch index name. Defaults to `ripsaw-kube-burner`
 - job_iterations: How many iterations to execute of the specified kube-burner workload
 - qps: Limit object creation queries per second. Defaults to 5
 - burst: Maximum burst for throttle. Defaults to 10
-- default_index: Elasticsearch index name. Defaults to `ripsaw-kube-burner`
 - image: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
 - wait_when_finished: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to true
 - log_level: Kube-burner log level. Allowed info and debug. Defaults to info
@@ -41,7 +41,6 @@ kube-burner is able to collect complex prometheus metrics and index them in a El
 spec:
   prometheus:
     server: https://search-cloud-perf-lqrf3jjtaqo7727m7ynd2xyt4y.us-west-2.es.amazonaws.com:443
-    default_index: ripsaw-kube-burner
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     prom_token: prometheusToken
   workload:
@@ -49,7 +48,7 @@ spec:
 
 Where:
 - server: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
-- prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus.instance.apps.com
+- prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
 - prom_token: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
 
 ## Metrics

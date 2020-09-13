@@ -11,17 +11,17 @@ spec:
   metadata:
     collection: true
   prometheus:
-    server: ES_SERVER
+    server: http://ES_SERVER
     prom_token: PROMETHEUS_TOKEN
-    default_index: ripsaw-kube-burner
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
   workload:
     name: kube-burner
     args:
       workload: WORKLOAD
+      default_index: ripsaw-kube-burner
       job_iterations: 1
       pin_server: ""
-      wait_when_finished: true
+      wait_when_finished: false
       image: quay.io/cloud-bulldozer/kube-burner:latest
       qps: 25
       burst: 50
