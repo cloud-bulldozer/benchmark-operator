@@ -1,6 +1,9 @@
 # Kube-burner
 
-[kube-burner](https://github.com/cloud-bulldozer/kube-burner)
+## What is kube-burner?
+
+kube-burner is a tool that allows a user to perform scalability tests across Kubernetes and OpenShift clusters by creating thousands of objects. Kube-burner is developed in it's own repository at https://github.com/cloud-bulldozer/kube-burner
+This ripsaw integration is meant to run certain workloads useful to measure certain performance KPIs of a cluster.
 
 ## Running kube-burner
 
@@ -11,9 +14,11 @@ You can modify kube-burner's [cr.yaml](../resources/crds/ripsaw_v1alpha1_kube-bu
 
 Ripsaw's kube-burner integration supports the following workloads:
 
-- cluster-density: This workload is a cluster density focused test that creates a set of Deployments, Builds, Secret, Services and Routes across the cluster. This is a namespaced workload, meaning that kube-burner **will create as many namespaces with these objects as the configured job_iterations**.
-- kubelet-density: This workload creates a single namespace with a number of Deployments equal to **job_iterations**
-- kubelet-density-heavy. This workload creates a **single namespace with a number of application equals to job_iterations**. This application consists on two deployments (a postgresql database and a simple client that generates some CPU load) and a service that is used by the client to reach the database.
+- **cluster-density**: This workload is a cluster density focused test that creates a set of Deployments, Builds, Secret, Services and Routes across the cluster. This is a namespaced workload, meaning that kube-burner **will create as many namespaces with these objects as the configured job_iterations**. 
+
+**Note**: This workload uses the kube-burner's parameter _*waitFor: ["Deployment"]*_ in order to wait only for deployments in case of using `wait_when_finished`
+- **kubelet-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**
+- **kubelet-density-heavy**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a postgresql database and a simple client that generates some CPU load) and a service that is used by the client to reach the database.
 
 The workload is specified by the parameter `workload` from the `args` object of the configuration.
 
@@ -28,6 +33,7 @@ All kube-burner's workloads support the following parameters:
 - default_index: Elasticsearch index name. Defaults to `kube-burner`
 - image: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
 - wait_when_finished: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to true
+- log_level: Kube-burner log level. Allowed info and debug. Defaults to info
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
@@ -35,16 +41,15 @@ kube-burner is able to collect complex prometheus metrics and index them in a El
 spec:
   prometheus:
     server: https://search-cloud-perf-lqrf3jjtaqo7727m7ynd2xyt4y.us-west-2.es.amazonaws.com:443
-    prom_url: https://prometheus.apps.mydomain.com
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     prom_token: prometheusToken
   workload:
 ```
 
 Where:
-- server: Points to a valid ElasticSearch endpoint.
-- prom_url: Points to a valid Prometheus endpoint.
+- server: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
+- prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus.instance.apps.com
 - prom_token: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
-
 
 ## Metrics
 
