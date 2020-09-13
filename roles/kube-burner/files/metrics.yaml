@@ -2,7 +2,7 @@ metrics:
   - query: sum(irate(container_cpu_usage_seconds_total{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"}[2m]) * 100) by (pod, namespace, node)
     metricName: podCPU
 
-  - query: sum(container_memory_usage_bytes{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"} * 100) by (pod, namespace, node)
+  - query: sum(container_memory_usage_bytes{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"}) by (pod, namespace, node)
     metricName: podMemory
 
   - query: sum(irate(process_cpu_seconds_total{service="kubelet",job="kubelet"}[2m]) * 100) by (node)
