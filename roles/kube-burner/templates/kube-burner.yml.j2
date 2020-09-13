@@ -13,7 +13,7 @@ spec:
       serviceAccountName: kube-burner
       containers:
       - name: kube-burner
-        image: {{ workload_args.image | default('quay.io/rsevilla/kube-burner:latest') }}
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/kube-burner:latest') }}
         imagePullPolicy: Always
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]

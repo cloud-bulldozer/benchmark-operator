@@ -11,3 +11,4 @@ test_byowl.sh
 test_hammerdb.sh
 test_vegeta.sh
 test_scale_openshift.sh
+test_kubeburner.sh
