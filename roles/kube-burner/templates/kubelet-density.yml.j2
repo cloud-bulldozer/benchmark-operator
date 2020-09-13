@@ -6,7 +6,7 @@ global:
     enabled: true
     esServers: [{{ prometheus.server }}]
     insecureSkipVerify: true
-    defaultIndex: {{ workload_args.default_index|default("kube-burner") }}
+    defaultIndex: {{ prometheus.default_index|default("ripsaw-kube-burner") }}
     type: elastic
 {% endif %}
 
