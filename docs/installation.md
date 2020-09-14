@@ -3,11 +3,11 @@ This guide uses minikube version v1.5.2+ as the local Kubernetes cluster
 and quay.io for the public registry. We also test on crc version v1.7.0+.
 `kubectl` is used but can be substituted with `oc`.
 
-### Supported versions
+### Tested versions
 * [OpenShift® Container Platform](https://www.openshift.com/products/container-platform/)
-  * Fully supported: 4.3
+  * Tested on: 4.3 and later
 * [kubernetes](https://kubernetes.io/)
-  * Fully supported: 1.16.2
+  * Tested on: 1.16.2 and later
 
 Note:
 * Experimental tag refers to some workloads that might be functioning
