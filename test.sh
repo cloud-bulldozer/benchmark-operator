@@ -100,6 +100,9 @@ do
   cd ..
 done
 
+# Update the operator image
+update_operator_image
+
 # Run scale test first if it is in the test list
 scale_test="false"
 if [[ `grep test-scale-openshift tests/my_tests` ]]
@@ -108,8 +111,6 @@ then
   sed -i '/test-scale-openshift/d' tests/my_tests
   ./run_test.sh test-scale-openshift
 fi
-# Update the operator image
-update_operator_image
 
 # Run tests in parallel up to $max_concurrent at a time.
 parallel -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 

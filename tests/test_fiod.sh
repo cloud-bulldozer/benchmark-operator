@@ -10,6 +10,7 @@ function finish {
   fi
 
   echo "Cleaning up fio"
+  kubectl delete -f resources/kernel-cache-drop-clusterrole.yaml  --ignore-not-found
   wait_clean
 }
 
@@ -19,6 +20,7 @@ trap finish EXIT
 function functional_test_fio {
   wait_clean
   apply_operator
+  kubectl apply -f resources/kernel-cache-drop-clusterrole.yaml
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
@@ -44,10 +46,7 @@ function functional_test_fio {
 }
 
 figlet $(basename $0)
-nodelist="$(kubectl get nodes --show-labels | grep -v kernel-cache-dropper | awk '/Ready/{print $1}')"
-for n in $nodelist ; do
-    kubectl label node $n kernel-cache-dropper=yes
-done
+kubectl label nodes -l node-role.kubernetes.io/worker= kernel-cache-dropper=yes --overwrite
 functional_test_fio "Fio distributed" tests/test_crs/valid_fiod.yaml
 functional_test_fio "Fio distributed - bsrange" tests/test_crs/valid_fiod_bsrange.yaml
 functional_test_fio "Fio hostpath distributed" tests/test_crs/valid_fiod_hostpath.yaml

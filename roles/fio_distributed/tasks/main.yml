@@ -198,4 +198,3 @@
     when : "client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length > 0 "
 
   when: resource_state.resources[0].status.state == "Running"
-
