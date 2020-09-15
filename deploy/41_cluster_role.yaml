@@ -21,3 +21,24 @@ rules:
   verbs:
   - get
   - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: benchmark-operator
+  annotations:
+    rbac.authorization.kubernetes.io/autoupdate: "true"
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+roleRef:
+  apiGroup: ''
+  kind: ClusterRole
+  name: benchmark-operator
+subjects:
+- apiGroup: ''
+  kind: Group
+  name: system:nodes
+- kind: ServiceAccount
+  name: benchmark-operator
+  namespace: my-ripsaw
+
