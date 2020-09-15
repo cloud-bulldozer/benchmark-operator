@@ -28,6 +28,8 @@ spec:
       pin_server: ""
       # Wait for pods to be runnig before finishing kube-burner workload
       wait_when_finished: true
+      # Wait for all pods to be running before moving forward to the next job iteration
+      pod_wait: false
       # Use a custom kube-burner image
       image: quay.io/cloud-bulldozer/kube-burner:latest
       # Queries per second
@@ -36,3 +38,7 @@ spec:
       burst: 25
       # Log level. Allowed, info and debug
       log_level: info
+      # Verify object creation
+      verify_objects: true
+      # Exit w/o indexint if a verify error happened
+      error_on_verify: true

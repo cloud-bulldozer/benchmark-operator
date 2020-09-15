@@ -27,13 +27,16 @@ The workload is specified by the parameter `workload` from the `args` object of 
 All kube-burner's workloads support the following parameters:
 
 - workload: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
-- default_index: Elasticsearch index name. Defaults to `ripsaw-kube-burner`
+- default_index: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
 - job_iterations: How many iterations to execute of the specified kube-burner workload
-- qps: Limit object creation queries per second. Defaults to 5
-- burst: Maximum burst for throttle. Defaults to 10
+- qps: Limit object creation queries per second. Defaults to __5__
+- burst: Maximum burst for throttle. Defaults to __10__
 - image: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
-- wait_when_finished: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to true
-- log_level: Kube-burner log level. Allowed info and debug. Defaults to info
+- wait_when_finished: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to __true__
+- pod_wait: Wait for all pods to be running before moving forward to the next job iteration. Defaults to __false__
+- verify_objects: Verify object count after running each job. Defaults to __true__
+- error_on_verify: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
+- log_level: Kube-burner log level. Allowed info and debug. Defaults to __info__
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 

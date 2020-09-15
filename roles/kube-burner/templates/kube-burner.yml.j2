@@ -5,11 +5,13 @@ metadata:
   name: kube-burner-{{ trunc_uuid }}
   namespace: {{ operator_namespace }}
 spec:
+  backoffLimit: 1
   template:
     metadata:
       labels:
         app: kube-burner-benchmark-{{ trunc_uuid }}
     spec:
+      restartPolicy: Never
       serviceAccountName: kube-burner
       containers:
       - name: kube-burner
@@ -30,7 +32,6 @@ spec:
         - name: kube-burner-config
           configMap:
             name: kube-burner-config-{{ trunc_uuid }}
-      restartPolicy: OnFailure
 {% if workload_args.pin_server is defined and workload_args.pin_server != "" %}
       nodeSelector:
         kubernetes.io/hostname: {{ workload_args.pin_server }}
