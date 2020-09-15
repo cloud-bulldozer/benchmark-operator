@@ -21,8 +21,11 @@ spec:
       default_index: ripsaw-kube-burner
       job_iterations: 1
       pin_server: ""
-      wait_when_finished: false
+      wait_when_finished: true
+      pod_wait: false
       image: quay.io/cloud-bulldozer/kube-burner:latest
       qps: 25
       burst: 50
       log_level: info
+      verify_objects: true
+      error_on_verify: true

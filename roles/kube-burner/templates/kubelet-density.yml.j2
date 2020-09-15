@@ -17,8 +17,10 @@ jobs:
     burst: {{ workload_args.burst|default(10) }}
     namespacedIterations: false
     namespace: kubelet-density
-    podWait: false
-    waitWhenFinished: {{ wait_when_finished|default(true) }}
+    podWait: {{ workload_args.pod_wait|default(false) }}
+    waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}
+    verifyObjects: {{ workload_args.verify_objects|default(true) }}
+    errorOnVerify: {{ workload_args.error_on_verify|default(false) }}
     objects:
 
       - objectTemplate: pod.yml

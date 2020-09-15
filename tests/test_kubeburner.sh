@@ -11,7 +11,7 @@ function finish {
 
   [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n my-ripsaw
   echo "Cleaning up kube-burner"
-  kubectl delete -f resources/kube-burner-role.yml
+  kubectl delete -f resources/kube-burner-role.yml --ignore-not-found
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
   wait_clean
 }
