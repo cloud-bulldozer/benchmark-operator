@@ -42,3 +42,7 @@ spec:
       verify_objects: true
       # Exit w/o indexint if a verify error happened
       error_on_verify: true
+      # Pod nodeSelector
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:

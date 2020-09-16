@@ -29,3 +29,6 @@ spec:
       log_level: info
       verify_objects: true
       error_on_verify: true
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:

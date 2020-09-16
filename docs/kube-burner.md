@@ -37,6 +37,14 @@ All kube-burner's workloads support the following parameters:
 - verify_objects: Verify object count after running each job. Defaults to __true__
 - error_on_verify: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
 - log_level: Kube-burner log level. Allowed info and debug. Defaults to __info__
+- node_selector: Pods deployed by the different workloads use this nodeSelector. This parameter consists of a dictionary like:
+
+```yaml
+node_selector:
+  value: node-role.kubernetes.io/master
+  key: ""
+```
+Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to empty string ""
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
