@@ -134,6 +134,6 @@
       status:
         state: Complete
         complete: true
-    when: succeded_pods.resources|length || failed_pods.resources|length
+    when: succeded_pods.resources|length or failed_pods.resources|length
 
   when: resource_state.resources[0].status.state == "Running"

@@ -5,7 +5,7 @@ metadata:
   name: kube-burner-{{ trunc_uuid }}
   namespace: {{ operator_namespace }}
 spec:
-  backoffLimit: 1
+  backoffLimit: 0
   template:
     metadata:
       labels:

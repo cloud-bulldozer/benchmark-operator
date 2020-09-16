@@ -5,6 +5,8 @@ metadata:
   labels:
     name: kubelet-density
 spec:
+  nodeSelector:
+    {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
   containers:
   - name: kubelet-density
     image: {{.containerImage}}
