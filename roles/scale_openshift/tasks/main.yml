@@ -61,6 +61,6 @@
       status:
         state: Complete
         complete: true
-    when: scale_pod|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')
+    when: "scale_pod|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length > 0"
 
   when: benchmark_state.resources[0].status.state == "Scaling Cluster"
