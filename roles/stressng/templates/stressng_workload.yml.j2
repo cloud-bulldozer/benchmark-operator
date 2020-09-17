@@ -1,0 +1,70 @@
+---
+apiVersion: batch/v1
+kind: "job"
+metadata:
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  parallelism: {{ workload_args.instances }}
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: stressng_workload-{{ trunc_uuid }}
+    spec:
+      containers:
+      - name: stressng
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:master') }}
+        imagePullPolicy: Always
+{% if workload_args.nodeselector is defined %}
+	nodeSelector:
+          "{{ workload_args.nodeselector }}"
+{% endif %}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-hammerdb") }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default("false") }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.server }}"
+          - name: prom_port
+            value: "{{ prometheus.port }}"
+          - name: prom_parallel
+            value: "{{ prometheus.parallel | default("false") }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+        command: ["/bin/sh", "-c"]
+        args: 
+          - "export runtype={{workload_args.runtype}};
+             export timeout={{workload_args.timeout}};
+             export vm_stressors={{workload_args.vm_stressors}};
+             export vm_bytes={{workload_args.vm_bytes}};
+             export mem_stressors={{workload_args.mem_stressors}};
+             run_snafu --tool stressng -u {{ uuid }}"
+        volumeMounts:
+        - name: stressng-workload-volume
+          mountPath: "/workload"
+          readOnly: false
+      volumes:
+      - name: stressng-workload-volume
+        configMap:
+          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+          defaultMode: 0660
+      restartPolicy: OnFailure
+{% include "metadata.yml.j2" %}
