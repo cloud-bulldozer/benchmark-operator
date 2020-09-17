@@ -15,6 +15,7 @@ spec:
   workload:
     name: "fio_distributed"
     args:
+      drop_cache_kernel: true
       samples: 1
       servers: 2
       prefill: true

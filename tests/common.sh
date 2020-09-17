@@ -162,6 +162,14 @@ function operator_requirements {
   kubectl apply -f resources/namespace.yaml
   kubectl apply -f deploy
   kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+  kubectl -n my-ripsaw get roles
+  kubectl -n my-ripsaw get rolebindings
+  kubectl -n my-ripsaw get podsecuritypolicies
+  kubectl -n my-ripsaw get serviceaccounts
+  kubectl -n my-ripsaw get serviceaccount benchmark-operator -o yaml
+  kubectl -n my-ripsaw get role benchmark-operator -o yaml
+  kubectl -n my-ripsaw get rolebinding benchmark-operator -o yaml
+  kubectl -n my-ripsaw get podsecuritypolicy privileged -o yaml
 }
 
 function backpack_requirements {
