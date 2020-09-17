@@ -6,14 +6,15 @@ metadata:
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
-  backoffLimit: 0
   template:
     metadata:
       labels:
         app: iperf3-bench-server-{{ trunc_uuid }}
     spec:
-{% if workload_args.hostnetwork is defined and iperf3.hostnetwork %}
+{% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
+      serviceAccountName: benchmark-operator
+      serviceAccount: benchmark-operator
 {% endif %}
       containers:
       - name: benchmark

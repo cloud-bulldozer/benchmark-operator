@@ -13,6 +13,7 @@ spec:
     name: iperf3
     args:
       pairs: 1
+      hostnetwork: false
       port: 5201
       transmit_type: time
       transmit_value: 60
