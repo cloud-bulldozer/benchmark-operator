@@ -8,7 +8,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) | Kata Containers |
 | ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- | --------------- |
 | [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 3second  | Working                | Working         |
-| [Iperf3](docs/iperf3.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
+| [Iperf3](docs/iperf.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 3second  | Working                | Working         |
 | [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
