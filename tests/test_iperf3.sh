@@ -20,7 +20,8 @@ trap finish EXIT
 function functional_test_iperf {
   wait_clean
   apply_operator
-  kubectl apply -f tests/test_crs/valid_iperf3.yaml
+  echo "Performing iperf3: ${1}"
+  sed -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 
@@ -32,8 +33,9 @@ function functional_test_iperf {
   sleep 5
   # ensuring that iperf actually ran and we can access metrics
   kubectl logs "$iperf_client_pod" --namespace my-ripsaw | grep "iperf Done."
-  echo "iperf test: Success"
+  echo "iperf ${1}: Success"
 }
 
 figlet $(basename $0)
-functional_test_iperf
+functional_test_iperf "hostnetwork: false"
+functional_test_iperf "hostnetwork: true"

@@ -11,7 +11,7 @@ spec:
       labels:
         app: iperf3-bench-client-{{ trunc_uuid }}
     spec:
-{% if workload_args.hostnetwork is defined and workload_args.hostnetwork %}
+{% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
       serviceAccountName: benchmark-operator
       serviceAccount: benchmark-operator
