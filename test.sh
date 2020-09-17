@@ -45,7 +45,7 @@ if [[ ${test_list} == "" ]]; then
 fi
 
 # Massage the names into something that is acceptable for a namespace
-sed 's/.sh//g' tests/iterate_tests | sort | uniq > tests/my_tests
+sed 's/\.sh//g' tests/iterate_tests | sort | uniq > tests/my_tests
 sed -i 's/_/-/g' tests/my_tests
 
 # Prep the results.xml file
@@ -63,7 +63,8 @@ echo '-----|--------|--------|---------' >> results.markdown
 mkdir gold
 
 # Generate uuid
-UUID=$(uuidgen)
+NEW_UUID=$(uuidgen)
+UUID=${NEW_UUID%-*}
 
 sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
 sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
@@ -96,8 +97,21 @@ do
   cd ..
 done
 
+# Run scale test first if it is in the test list
+scale_test="false"
+if [[ `grep test-scale-openshift tests/my_tests` ]]
+then
+  scale_test="true"
+  sed -i '/test-scale-openshift/d' tests/my_tests
+  ./run_test.sh test-scale-openshift
+fi
+
 # Run tests in parallel up to $max_concurrent at a time.
 parallel -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 
+if [[ $scale_test == "true" ]]
+then
+  echo "test-scale-openshift" >> tests/my_tests
+fi
 
 # Update and close JUnit test results.xml and markdown file
 for test_dir in `cat tests/my_tests`

@@ -26,6 +26,8 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/smallfile') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/stressng') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/scale_openshift') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+
 
     # Check for changes in cr files
     if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
@@ -41,6 +43,8 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_stressng*') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_scale*') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+
 
     # Check for changes in test scripts
     test_check=`echo $item | awk -F / '{print $2}'`
