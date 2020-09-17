@@ -112,7 +112,7 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/benchmark_v1alpha1_iperf3_cr.yaml # if edited the original one
+# kubectl apply -f resources/crds/ripsaw_v1alpha1_iperf3_cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
