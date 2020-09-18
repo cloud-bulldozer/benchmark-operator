@@ -88,13 +88,15 @@ spec:
             export h={{item.spec.clusterIP}};
 {% else %}
 {% if workload_args.multus.client is defined %}
-          - "export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+          - "export multus_client={{workload_args.multus.client}};
+          - export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
           - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
              export hostnet={{workload_args.hostnetwork}};
              export ips=$(hostname -I);
+             export num_pairs={{workload_args.pair}};
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
 {% for test in workload_args.test_types %}
