@@ -36,7 +36,8 @@ spec:
         - tcp_download
       runtime: 30
 ```
-`test_types` is a list of all tests it should run. Not every test has been tested with benchmark-operator
+`test_types` is a list of all tests it should run.
+
 As of flent 1.3.2, the following tests are available:
 ```
   bursts                     :  Latency measurements under intermittent UDP bursts
@@ -122,6 +123,11 @@ As of flent 1.3.2, the following tests are available:
   voip-1up                   :  VoIP one-way stream test with competing TCP stream
   voip-rrul                  :  VoIP one-way stream test with competing RRUL test
 ```
+Not every test works in benchmark-operator. Tests that require something other than netserver will not work. Tests that require additional arguments will also not work.
+The voip tests do not work, and the cisco and burst tests do not work.
+
+The tcp_*, udp_, and more should work. tcp_download was the most tested test.
+
 
 `client_resources` and `server_resources` will create flent client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
