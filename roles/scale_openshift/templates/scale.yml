@@ -1,0 +1,72 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'scale-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: scale-{{ trunc_uuid }}
+    spec:
+{% if workload_args.tolerations is defined %}
+      tolerations:
+      - key: {{ workload_args.tolerations.key }}
+        value: {{ workload_args.tolerations.value }}
+        effect: {{ workload_args.tolerations.effect }}
+{% endif %}
+{% if workload_args.label is defined %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ workload_args.label.key }}
+                operator: In
+                values:
+                - {{ workload_args.label.value }}
+{% endif %}
+      containers:
+      - name: scale
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/scale_openshift:latest') }}
+        imagePullPolicy: Always
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("openshift-cluster-timings") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.cert_verify | default("true") }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default("false") }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.server }}"
+          - name: prom_port
+            value: "{{ prometheus.port }}"
+          - name: prom_parallel
+            value: "{{ prometheus.parallel | default("false") }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+        command: ["/bin/sh", "-c"]
+        args:
+          - "run_snafu --tool scale --scale {{workload_args.scale}} -u {{uuid}} --user {{test_user|default("ripsaw")}} --incluster true --poll_interval {{workload_args.poll_interval|default(5)}};
+            sleep {{post_sleep|default(0)}}"
+      serviceAccountName: {{workload_args.serviceaccount|default("default")}}
+      restartPolicy: Never
+{% include "metadata.yml.j2" %}
