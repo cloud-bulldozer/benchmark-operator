@@ -33,7 +33,7 @@ spec:
           - name: es_port
             value: "{{ elasticsearch.port }}"
           - name: es_index
-            value: "{{ elasticsearch.index_name | default("ripsaw-hammerdb") }}"
+            value: "{{ elasticsearch.index_name | default("ripsaw-stressng") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default("false") }}"
 {% endif %}
