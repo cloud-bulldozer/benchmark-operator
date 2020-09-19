@@ -66,7 +66,7 @@ Where:
 
 Metrics collected by kube-burner are predefined in the [metrics.yaml file](../roles/kube-burner/files/metrics.yaml)
 
-## Pin to server
+## Pin to server and tolerations
 
 It's possible to pin kube-burner pod to a certain node using the `pin_server` parameter. This parameter is used in the job template as:
 
@@ -78,11 +78,20 @@ It's possible to pin kube-burner pod to a certain node using the `pin_server` pa
 ```
 
 With the above we could configure the workload to run in a certain node with:
+
 ```yaml
 workload:
   args:
-    workload: kubelet-density
-    job_iterations: 100
     pin_server: ip-10-0-176-173
 ```
 
+It's also possible to configure scheduling tolerations for the kube-burner pod. To do just pass a list with the desired tolerations as in the code snippet below:
+
+```yaml
+workload:
+  args:
+    tolerations:
+    - key: role
+      value: worker
+      effect: NoSchedule
+```
