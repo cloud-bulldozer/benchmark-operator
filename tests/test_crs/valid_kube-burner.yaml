@@ -32,3 +32,6 @@ spec:
       node_selector:
         key: node-role.kubernetes.io/worker
         value:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
