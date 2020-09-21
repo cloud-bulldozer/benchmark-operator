@@ -2,7 +2,7 @@ metrics:
   - query: sum(irate(container_cpu_usage_seconds_total{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"}[2m]) * 100) by (pod, namespace, node)
     metricName: podCPU
 
-  - query: histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{verb!="WATCH"}[5m])) by (resource, le, verb)) > 0
+  - query: histogram_quantile(0.99, sum(rate(apiserver_request_duration_seconds_bucket{verb!="WATCH"}[5m])) by (le, verb)) > 0
     metricName: API99thLatency
 
   - query: sum(container_memory_usage_bytes{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"}) by (pod, namespace, node)
@@ -20,7 +20,7 @@ metrics:
   - query: topk(10,sum(process_resident_memory_bytes{service="kubelet",job="crio"}) by (node))
     metricName: top10CrioMemory
 
-  - query: sum(irate(node_cpu_seconds_total[2m])) by (mode,instance)
+  - query: sum(irate(node_cpu_seconds_total[2m])) by (mode,instance) > 0
     metricName: nodeCPU
 
   - query: avg(node_memory_MemAvailable_bytes) by (instance)
