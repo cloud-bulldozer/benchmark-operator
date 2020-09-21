@@ -13,7 +13,6 @@ spec:
   workload:
     name: "stressng"
     args:
-      image: "quay.io/mkarg/stressng:testing"
       # general options
       runtype: "parallel"
       timeout: "30"
