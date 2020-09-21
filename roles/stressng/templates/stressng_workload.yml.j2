@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: stressng
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:master') }}
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:latest') }}
         imagePullPolicy: Always
 {% if workload_args.nodeselector is defined %}
 	nodeSelector:
