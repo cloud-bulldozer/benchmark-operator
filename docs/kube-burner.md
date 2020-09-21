@@ -1,9 +1,9 @@
-# Kube-burner
+pre# Kube-burner
 
 ## What is kube-burner?
 
-kube-burner is a tool that allows a user to perform scalability tests across Kubernetes and OpenShift clusters by creating thousands of objects. Kube-burner is developed in it's own repository at https://github.com/cloud-bulldozer/kube-burner
-This ripsaw integration is meant to run certain workloads useful to measure certain performance KPIs of a cluster.
+Kube-burner is a tool that allows a user to perform scalability tests across Kubernetes and OpenShift clusters by creating thousands of objects. Kube-burner is developed in it's own repository at https://github.com/cloud-bulldozer/kube-burner
+This ripsaw integration is meant to run only some workloads useful to measure certain performance KPIs of a cluster.
 
 ## Running kube-burner
 
@@ -15,29 +15,44 @@ You can modify kube-burner's [cr.yaml](../resources/crds/ripsaw_v1alpha1_kube-bu
 Ripsaw's kube-burner integration supports the following workloads:
 
 - **cluster-density**: This workload is a cluster density focused test that creates a set of Deployments, Builds, Secret, Services and Routes across the cluster. This is a namespaced workload, meaning that kube-burner **will create as many namespaces with these objects as the configured job_iterations**. 
+Each iteration of this workload creates the following objects:
+  - 12 imagestreams
+  - 3 buidconfigs
+  - 6 builds
+  - 1 deployment with 2 pod replicas (sleep) mounting two secrets each. *deployment-2pod*
+  - 2 deployments with 1 pod replicas (sleep) mounting two secrets. *deployment-1pod*
+  - 3 services, one pointing to *deployment-2pod*, and other two pointing to *deployment-1pod*.
+  - 3 route. 1 pointing to the service *deployment-2pod* and other two pointing to *deployment-1pod*
+  - 20 secrets
 
-**Note**: This workload uses the kube-burner's parameter _*waitFor: ["Deployment"]*_ in order to wait only for deployments in case of using `wait_when_finished`
-- **kubelet-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**
+- **kubelet-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**.
+Each iteration of this workload creates the following object:
+  - 1 pod. (sleep)
+
 - **kubelet-density-heavy**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a postgresql database and a simple client that generates some CPU load) and a service that is used by the client to reach the database.
+Each iteration of this workload creates the following objects:
+  - 1 deployment holding a postgresql database
+  - 1 deployment holding a client application for the previous database
+  - 1 service pointing to the postgresl database
 
-The workload is specified by the parameter `workload` from the `args` object of the configuration.
+The workload type is specified by the parameter `workload` from the `args` object of the configuration. Each workload supports several configuration parameters, detailed in the [configuration section](#configuration)
 
 ## Configuration
 
 All kube-burner's workloads support the following parameters:
 
-- workload: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
-- default_index: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
-- job_iterations: How many iterations to execute of the specified kube-burner workload
-- qps: Limit object creation queries per second. Defaults to __5__
-- burst: Maximum burst for throttle. Defaults to __10__
-- image: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
-- wait_when_finished: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to __true__
-- pod_wait: Wait for all pods to be running before moving forward to the next job iteration. Defaults to __false__
-- verify_objects: Verify object count after running each job. Defaults to __true__
-- error_on_verify: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
-- log_level: Kube-burner log level. Allowed info and debug. Defaults to __info__
-- node_selector: Pods deployed by the different workloads use this nodeSelector. This parameter consists of a dictionary like:
+- **workload**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
+- **default_index**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
+- **job_iterations**: How many iterations to execute of the specified kube-burner workload
+- **qps**: Limit object creation queries per second. Defaults to __5__
+- **burst**: Maximum burst for throttle. Defaults to __10__
+- **image**: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
+- **wait_when_finished**: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to __true__
+- **pod_wait**: Wait for all pods to be running before moving forward to the next job iteration. Defaults to __false__
+- **verify_objects**: Verify object count after running each job. Defaults to __true__
+- **error_on_verify**: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
+- **log_level**: Kube-burner log level. Allowed info and debug. Defaults to __info__
+- **node_selector**: Pods deployed by the different workloads use this nodeSelector. This parameter consists of a dictionary like:
 
 ```yaml
 node_selector:
@@ -45,6 +60,9 @@ node_selector:
   key: ""
 ```
 Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to empty string ""
+
+- **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
+- **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
