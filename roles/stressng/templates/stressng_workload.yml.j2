@@ -56,7 +56,7 @@ spec:
              export vm_stressors={{workload_args.vm_stressors}};
              export vm_bytes={{workload_args.vm_bytes}};
              export mem_stressors={{workload_args.mem_stressors}};
-             run_snafu --tool stressng -u {{ uuid }}"
+             run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}"
         volumeMounts:
         - name: stressng-workload-volume
           mountPath: "/workload"
