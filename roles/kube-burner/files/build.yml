@@ -2,13 +2,12 @@
 kind: Build
 apiVersion: build.openshift.io/v1
 metadata:
-  name: {{.JobName}}-{{.Replica}}
+  name: {{.JobName}}-{{.Replica}}-{{.UUID}}
 spec:
   output:
     to:
       kind: ImageStreamTag
-      name: {{.JobName}}-{{.Replica}}:latest
-  resources: {}
+      name: {{.JobName}}-{{.Replica}}-{{.UUID}}:latest
   serviceAccount: builder
   source:
     dockerfile: |-

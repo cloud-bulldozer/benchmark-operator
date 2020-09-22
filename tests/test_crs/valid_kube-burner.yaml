@@ -18,6 +18,7 @@ spec:
     name: kube-burner
     args:
       workload: WORKLOAD
+      cleanup: true
       default_index: ripsaw-kube-burner
       job_iterations: 1
       pin_server: ""
