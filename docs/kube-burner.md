@@ -1,4 +1,4 @@
-pre# Kube-burner
+# Kube-burner
 
 ## What is kube-burner?
 
@@ -61,6 +61,7 @@ node_selector:
 ```
 Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to empty string ""
 
+- **cleanup**: Delete old namespaces for the selected workload before starting a new benchmark. Defaults to __true__
 - **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
 - **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 

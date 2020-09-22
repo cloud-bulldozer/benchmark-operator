@@ -2,12 +2,12 @@
 kind: Route
 apiVersion: route.openshift.io/v1
 metadata:
-  name: {{.name}}-{{.Replica}}
+  name: {{.name}}-{{.Replica}}-{{.UUID}}
 spec:
   host: www.{{.name}}.example-{{.Iteration}}-{{.Replica}}.com
   to:
     kind: Service
-    name: {{.name}}-{{.Replica}}
+    name: {{.name}}-{{.Replica}}-{{.UUID}}
   tls:
     termination: edge
     certificate: |-

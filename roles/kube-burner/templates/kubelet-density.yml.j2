@@ -18,6 +18,7 @@ jobs:
     namespacedIterations: false
     namespace: kubelet-density
     podWait: {{ workload_args.pod_wait|default(false) }}
+    cleanup: {{ workload_args.cleanup|default(true) }}
     waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}
     verifyObjects: {{ workload_args.verify_objects|default(true) }}
     errorOnVerify: {{ workload_args.error_on_verify|default(false) }}

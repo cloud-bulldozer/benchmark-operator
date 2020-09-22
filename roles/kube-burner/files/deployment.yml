@@ -2,16 +2,16 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{.name}}-{{.Replica}}
+  name: {{.name}}-{{.Replica}}-{{.UUID}}
 spec:
   replicas: {{.podReplicas}}
   selector:
     matchLabels:
-      app: {{.name}}-{{.Replica}}
+      app: {{.name}}-{{.Replica}}-{{.UUID}}
   template:
     metadata:
       labels:
-        app: {{.name}}-{{.Replica}}
+        app: {{.name}}-{{.Replica}}-{{.UUID}}
     spec:
       nodeSelector:
         {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
@@ -42,10 +42,10 @@ spec:
       volumes:
       - name: secret-1
         secret:
-          secretName: {{.JobName}}-{{.Replica}}
+          secretName: {{.JobName}}-1-{{.UUID}}
       - name: secret-2
         secret:
-          secretName: {{.JobName}}-{{.Replica}}
+          secretName: {{.JobName}}-2-{{.UUID}}
       # Add not-ready/unreachable tolerations for 15 minutes so that node
       # failure doesn't trigger pod deletion.
       tolerations:

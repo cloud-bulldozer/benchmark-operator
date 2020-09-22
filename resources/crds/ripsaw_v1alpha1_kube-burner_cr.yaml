@@ -38,6 +38,8 @@ spec:
       burst: 25
       # Log level. Allowed, info and debug
       log_level: info
+      # Delete old namespaces for the selected workload before starting benchmark
+      cleanup: true
       # Verify object creation
       verify_objects: true
       # Exit w/o indexint if a verify error happened

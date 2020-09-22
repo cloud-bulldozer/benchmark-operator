@@ -1,7 +1,7 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: kubelet-density-{{.Iteration}}
+  name: kubelet-density-{{.Iteration}}-{{.UUID}}
   labels:
     name: kubelet-density
 spec:

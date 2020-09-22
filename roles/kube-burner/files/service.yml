@@ -2,15 +2,13 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{.name}}-{{.Replica}}
+  name: {{.name}}-{{.Replica}}-{{.UUID}}
 spec:
   selector:
-    app: {{.name}}-{{.Replica}}
+    app: {{.name}}-{{.Replica}}-{{.UUID}}
   ports:
   - name: {{.name}}
     protocol: TCP
     port: 80
     targetPort: 8080
   type: ClusterIP
-
- 
