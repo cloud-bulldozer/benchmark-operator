@@ -8,6 +8,9 @@ global:
     insecureSkipVerify: true
     defaultIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
     type: elastic
+  measurements:
+    - name: podLatency
+      esIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
 {% endif %}
 
 jobs:

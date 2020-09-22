@@ -104,29 +104,16 @@
 
 - block:
 
-  - name: Waiting for pods to complete....
+  - name: Get job status
     k8s_info:
-      kind: Pod
+      kind: Job
       api_version: v1
       namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app=kube-burner-benchmark-{{ trunc_uuid }}
-      field_selectors:
-        - status.phase=Succeeded
-    register: succeded_pods
+      name: kube-burner-{{ trunc_uuid }}
+    register: job_state
 
-  - name: Waiting for pods to complete....
-    k8s_info:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app=kube-burner-benchmark-{{ trunc_uuid }}
-      field_selectors:
-        - status.phase=Failed
-    register: failed_pods
-
-  - operator_sdk.util.k8s_status:
+  - name: Set complete state to benchmark
+    operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
       name: "{{ meta.name }}"
@@ -134,6 +121,16 @@
       status:
         state: Complete
         complete: true
-    when: succeded_pods.resources|length or failed_pods.resources|length
+    when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0
 
+  - name: Set failed state to benchmark
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Failed
+        complete: true
+    when: job_state.resources[0].status.failed is defined and (job_state.resources[0].status.failed | int) > 0
   when: resource_state.resources[0].status.state == "Running"
