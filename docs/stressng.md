@@ -41,7 +41,7 @@ spec:
 
 ```
 
-The stressng benchmark is divided into 3 subsystems, driven by so-called stressors. In the above example we have cpu stressors, virtual machine (vm) stressors and memory stressors. They are running in a parallel fashion, but could also run sequentially. 
+The stressng benchmark is divided into 3 subsystems, driven by so-called stressors. In the above example we have cpu stressors, virtual memory (vm) stressors and memory stressors. They are running in a parallel fashion, but could also run sequentially. 
 Looking at the stressors individually:
 
 | field name            | description                                                   |
