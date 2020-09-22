@@ -63,6 +63,7 @@ Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to e
 
 - **cleanup**: Delete old namespaces for the selected workload before starting a new benchmark. Defaults to __true__
 - **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
+- **job_timeout**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
 - **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
