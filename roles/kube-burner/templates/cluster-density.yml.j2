@@ -48,6 +48,8 @@ jobs:
           from: cluster-density-src
           to: cluster-density-dst
           gitUri: https://github.com/openshift-scale/hello-openshift.git  
+          nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
+          nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
 
       - objectTemplate: imagestream.yml
         replicas: 6
@@ -57,8 +59,9 @@ jobs:
       - objectTemplate: build.yml
         replicas: 6
         inputVars:
-          gitUri: https://github.com/openshift-scale/hello-openshift.git
-          image: quay.io/openshift-scale/mastervertical-build:latest
+          prefix: cluster-density
+          nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
+          nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
 
       - objectTemplate: deployment.yml
         replicas: 1
