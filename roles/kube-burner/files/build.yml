@@ -4,22 +4,21 @@ apiVersion: build.openshift.io/v1
 metadata:
   name: {{.JobName}}-{{.Replica}}-{{.UUID}}
 spec:
-  output:
-    to:
-      kind: ImageStreamTag
-      name: {{.JobName}}-{{.Replica}}-{{.UUID}}:latest
+  nodeSelector:
+    {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
   serviceAccount: builder
   source:
     dockerfile: |-
-      FROM quay.io/openshift-scale/mastervertical-build
-      USER example
-    git:
-      uri: {{.gitUri}}
-    secrets:
-    type: Git
+      FROM registry.fedoraproject.org/fedora-minimal:latest
+      RUN touch $(date +%s)
+    type: Dockerfile
   strategy:
-    sourceStrategy:
+    dockerStrategy:
       from:
         kind: DockerImage
-        name: {{.image}}
+        name: registry.fedoraproject.org/fedora-minimal:latest
     type: Source
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{.prefix}}-{{.Replica}}-{{.UUID}}:latest
