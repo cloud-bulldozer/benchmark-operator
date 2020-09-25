@@ -56,10 +56,10 @@ All kube-burner's workloads support the following parameters:
 
 ```yaml
 node_selector:
-  value: node-role.kubernetes.io/master
-  key: ""
+  key: node-role.kubernetes.io/master
+  value: ""
 ```
-Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to empty string ""
+Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to empty string ""
 
 - **cleanup**: Delete old namespaces for the selected workload before starting a new benchmark. Defaults to __true__
 - **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
@@ -92,6 +92,7 @@ kube-burner is able to collect Prometheus metrics using the time range of the be
 - [metrics-aggregated.yaml](../roles/kube-burner/files/metrics-aggregated.yaml): This metric profile is indicated for benchmarks in large clusters. Since the metrics from the worker nodes and the infra nodes are aggregated and only metrics from master nodes are collected individually. Also the parameter **step** can be used to reduce the number of metrics (at the expense of granularity) that will be indexed.
 
 By default the [metrics.yaml](metrics.yaml) profile is used. You can change this profile with the variable **metrics_profile**.
+> Metrics collection and indexing is enabled when setting prometheus.prom_url.
 
 ## Pin to server and tolerations
 
