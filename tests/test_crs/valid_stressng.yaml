@@ -5,8 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: search-cloud-perf-lqrf3jjtaqo7727m7ynd2xyt4y.us-west-2.es.amazonaws.com
-    port: 80
+    server: ES_SERVER
+    port: ES_PORT
     index_name: ripsaw-stressng
   metadata:
     collection: true
