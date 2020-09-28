@@ -1,0 +1,57 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-cluster-density
+  namespace: my-ripsaw
+spec:
+  # Metadata information
+  elasticsearch:
+    server: <ES_URL>
+    port: <ES_PORT>
+  prometheus:
+    # Elastic search instance with full URL format. https://elastic.apps.org:9200
+    server: <ES_URL>
+    # Prometheus bearer token
+    prom_token: <PROMETHEUS_BEARER_TOKEN>
+    # Prometheus URL with full URL format. https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    prom_url: <PROMETHEUS_URL>
+  workload:
+    name: kube-burner
+    args:
+      # Workload name
+      workload: cluster-density
+      # Kube-burner Job timeout
+      job_timeout: 7200
+      # ES index name
+      default_index: ripsaw-kube-burner
+      # Number of job iterations
+      job_iterations: 100
+      # Pin kube-burner to a node using the value of the label kubernetes.io/hostname
+      pin_server: ""
+      # Wait for pods to be runnig before finishing kube-burner workload
+      wait_when_finished: true
+      # Wait for all pods to be running before moving forward to the next job iteration
+      pod_wait: false
+      # Use a custom kube-burner image
+      image: quay.io/cloud-bulldozer/kube-burner:latest
+      # Queries per second
+      qps: 25
+      # Max number of burst queries to perform
+      burst: 25
+      # Log level. Allowed, info and debug
+      log_level: info
+      # Delete old namespaces for the selected workload before starting benchmark
+      cleanup: true
+      # Verify object creation
+      verify_objects: true
+      # Exit w/o indexint if a verify error happened
+      error_on_verify: true
+      # kube-burner pod tolerations
+      tolerations:
+      - key: role
+        value: workload
+        effect: NoSchedule
+      # Pod nodeSelector
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:

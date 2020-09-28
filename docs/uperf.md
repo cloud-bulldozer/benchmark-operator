@@ -59,7 +59,7 @@ spec:
 
 `runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
-*Note:* runtime_class has been tested with Kata containers, no other runtime.
+*Note:* runtime_class has been tested with Kata containers, no other runtime. If not using Kata containers the line should not be included in your CR.
 
 `hostnetwork` will test the performance of the node the pod will run on.
 
