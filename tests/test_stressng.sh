@@ -3,7 +3,12 @@ set -xeo pipefail
 
 source tests/common.sh
 
+
 function finish {
+  if [ $? -eq 1 ] && [ $ERRORED != "true" ]
+  then
+    error
+  fi
   echo "Cleaning up stressng"
   kubectl delete -f tests/test_crs/valid_stressng.yaml
   delete_operator
