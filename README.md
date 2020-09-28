@@ -21,6 +21,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Not Supported  |
 | [stressng](docs/stressng.md)   | Stress system resources | Working            |                 | Not Supported         | Not Supported  |
+| [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 
 
 ### Reconciliation
@@ -103,6 +104,9 @@ spec:
 
 ## Capturing Prometheus Data
 [Capturing Prometheus Data](docs/prometheus.md)
+
+## Cache dropping
+[Cache dropping](docs/cache_dropping.md)
 
 ## Community
 Key Members(slack_usernames): ravi, mohit, dry923, rsevilla or rook

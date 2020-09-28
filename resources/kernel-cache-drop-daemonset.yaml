@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kernel-cache-dropper
+  namespace: my-ripsaw
+  labels:
+    app: kernel-cache-dropper
+spec:
+  selector:
+    matchLabels:
+      name: kernel-cache-dropper
+  template:
+    metadata:
+      labels:
+        name: kernel-cache-dropper
+    spec:
+      serviceAccountName: benchmark-operator
+      #tolerations:
+      #- key: node-role.kubernetes.io/master
+      #  effect: NoSchedule
+      containers:
+      - name: kernel-cache-dropper
+        image: quay.io/cloud-bulldozer/kernel_cache_dropper:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ kernel_cache_drop_svc_port }}
+        env:
+            - name: KCACHE_DROP_PORT_NUM
+              value: "{{ kernel_cache_drop_svc_port }}"
+        command: ["/usr/bin/python3"]
+        args: ["/opt/kernel_cache_drop/kernel-cache-drop-websvc.py"]
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        # we don't need all the same volumes as the toolbox pod
+        volumeMounts:
+        - name: proc-sys-vm
+          mountPath: /proc_sys_vm
+      volumes:
+      - name: proc-sys-vm
+        hostPath:
+          path: /proc/sys/vm

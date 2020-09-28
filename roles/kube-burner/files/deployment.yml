@@ -1,0 +1,60 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{.name}}-{{.Replica}}-{{.UUID}}
+spec:
+  replicas: {{.podReplicas}}
+  selector:
+    matchLabels:
+      app: {{.name}}-{{.Replica}}-{{.UUID}}
+  template:
+    metadata:
+      labels:
+        app: {{.name}}-{{.Replica}}-{{.UUID}}
+    spec:
+      nodeSelector:
+        {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
+      containers:
+      - args:
+        - sleep
+        - infinity
+        image: k8s.gcr.io/pause:3.1
+        volumeMounts:
+        - name: secret-1
+          mountPath: /secret1
+        - name: secret-2
+          mountPath: /secret2
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        name: {{.name}}
+        env:
+        - name: ENVVAR1_{{.name}}
+          value: {{.envVar}} 
+        - name: ENVVAR2_{{.name}}
+          value: {{.envVar}} 
+        - name: ENVVAR3_{{.name}}
+          value: {{.envVar}} 
+        - name: ENVVAR4_{{.name}}
+          value: {{.envVar}} 
+      volumes:
+      - name: secret-1
+        secret:
+          secretName: {{.JobName}}-1-{{.UUID}}
+      - name: secret-2
+        secret:
+          secretName: {{.JobName}}-2-{{.UUID}}
+      # Add not-ready/unreachable tolerations for 15 minutes so that node
+      # failure doesn't trigger pod deletion.
+      tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 900
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 900
+

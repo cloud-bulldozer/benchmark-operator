@@ -10,8 +10,23 @@ rules:
   - rolebindings
   - clusterroles
   - clusterrolebindings
+  - daemonsets
   verbs:
   - '*'
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
 - apiGroups:
     - subresources.kubevirt.io
   resources:

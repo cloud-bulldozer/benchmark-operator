@@ -1,0 +1,25 @@
+---
+kind: Build
+apiVersion: build.openshift.io/v1
+metadata:
+  name: {{.JobName}}-{{.Replica}}-{{.UUID}}
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{.JobName}}-{{.Replica}}-{{.UUID}}:latest
+  serviceAccount: builder
+  source:
+    dockerfile: |-
+      FROM quay.io/openshift-scale/mastervertical-build
+      USER example
+    git:
+      uri: {{.gitUri}}
+    secrets:
+    type: Git
+  strategy:
+    sourceStrategy:
+      from:
+        kind: DockerImage
+        name: {{.image}}
+    type: Source

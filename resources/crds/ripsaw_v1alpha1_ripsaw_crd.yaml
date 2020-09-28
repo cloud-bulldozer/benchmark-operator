@@ -101,6 +101,8 @@ spec:
                 type: string
               hostpath:
                 type: string
+              drop_cache_kernel:
+                type: boolean
           status:
             type: object
             properties:

@@ -27,6 +27,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/stressng') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/scale_openshift') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/kube-burner') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
 
 
     # Check for changes in cr files
@@ -44,6 +45,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_stressng*') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_scale*') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_kube-burner*') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
 
 
     # Check for changes in test scripts
@@ -166,6 +168,14 @@ function operator_requirements {
   kubectl apply -f resources/namespace.yaml
   kubectl apply -f deploy
   kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
+  kubectl -n my-ripsaw get roles
+  kubectl -n my-ripsaw get rolebindings
+  kubectl -n my-ripsaw get podsecuritypolicies
+  kubectl -n my-ripsaw get serviceaccounts
+  kubectl -n my-ripsaw get serviceaccount benchmark-operator -o yaml
+  kubectl -n my-ripsaw get role benchmark-operator -o yaml
+  kubectl -n my-ripsaw get rolebinding benchmark-operator -o yaml
+  kubectl -n my-ripsaw get podsecuritypolicy privileged -o yaml
 }
 
 function backpack_requirements {

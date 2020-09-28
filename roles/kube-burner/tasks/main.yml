@@ -1,0 +1,136 @@
+---
+
+- name: Get current state
+  k8s_info:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get current state - If it has changed
+  k8s_info:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- name: Capture operator information
+  k8s_info:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
+- block:
+
+  - name: Create cluster-density configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
+          build.yml: "{{ lookup('file', 'build.yml')}}"
+          buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
+          deployment.yml: "{{ lookup('file', 'deployment.yml')}}"
+          imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
+          route.yml: "{{ lookup('file', 'route.yml')}}"
+          secret.yml: "{{ lookup('file', 'secret.yml')}}"
+          service.yml: "{{ lookup('file', 'service.yml')}}"
+    when: workload_args.workload == "cluster-density"
+
+  - name: Create kubelet-density configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'kubelet-density.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
+          pod.yml: "{{ lookup('file', 'pod.yml')}}"
+    when: workload_args.workload == "kubelet-density"
+
+  - name: Create kubelet-density-heavy configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'kubelet-density-heavy.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
+          app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
+          postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
+          postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
+    when: workload_args.workload == "kubelet-density-heavy"
+
+  - name: Launching kube-burner job
+    k8s:
+      definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Running
+
+  when: resource_state.resources[0].status.state == "Building"
+
+- block:
+
+  - name: Get job status
+    k8s_info:
+      kind: Job
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      name: kube-burner-{{ trunc_uuid }}
+    register: job_state
+
+  - name: Set complete state to benchmark
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
+    when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0
+
+  - name: Set failed state to benchmark
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Failed
+        complete: true
+    when: job_state.resources[0].status.failed is defined and (job_state.resources[0].status.failed | int) > 0
+  when: resource_state.resources[0].status.state == "Running"

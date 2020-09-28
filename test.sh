@@ -66,6 +66,9 @@ mkdir gold
 NEW_UUID=$(uuidgen)
 UUID=${NEW_UUID%-*}
 
+#Tag name
+tag_name="${NODE_NAME:-master}"
+
 sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
 sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
 sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
@@ -79,10 +82,9 @@ sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" tests/test_crs/*.yaml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" playbook.yml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" watches.yaml
 sed -i "s/backpack_role/backpack_role-$UUID/g" resources/backpack_role.yaml
+sed -i "s/my-ripsaw/my-ripsaw-$UUID-test-fiod/g" resources/kernel-cache-drop-daemonset.yaml
 grep -Rl "kind: Benchmark" roles/ | xargs sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g"
-
-# Update the operator image
-update_operator_image
+sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 
 cp -pr * gold/
 
@@ -94,8 +96,12 @@ do
   cd $ci_dir/
   # Edit the namespaces so we can run in parallel
   sed -i "s/my-ripsaw/my-ripsaw-$UUID-$ci_dir/g" `grep -Rl my-ripsaw`
+  sed -i "s/benchmark-operator-role/benchmark-operator-role-$UUID-$ci_dir/g" `grep -Rl benchmark-operator-role`
   cd ..
 done
+
+# Update the operator image
+update_operator_image
 
 # Run scale test first if it is in the test list
 scale_test="false"
