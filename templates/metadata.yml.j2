@@ -5,15 +5,18 @@
       initContainers:
       - name: backpack-{{ trunc_uuid }}
         image: {{ metadata.image }}
-        command: ["python3", "stockpile-wrapper.py"]
+        command: ["/bin/sh", "-c"]
         args:
-          - -s={{ elasticsearch.server }}
-          - -p={{ elasticsearch.port }}
-          - -u={{ uuid }}
-          - -n=${my_node_name}
-          - -N=${my_pod_name}
-          - --redisip={{ bo.resources[0].status.podIP }}
-          - --redisport=6379
+          - >
+            python3
+            stockpile-wrapper.py
+            -s={{ elasticsearch.server }}
+            -p={{ elasticsearch.port }}
+            -u={{ uuid }}
+            -n=${my_node_name}
+            -N=${my_pod_name}
+            --redisip={{ bo.resources[0].status.podIP }}
+            --redisport=6379
 {% if metadata.force is sameas true %}
           - --force
 {% endif %}

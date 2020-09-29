@@ -26,7 +26,7 @@ git_diff_files="$(git diff remotes/origin/master --name-only)"
 if [[ $test_choice != '' ]]; then
   echo "Running for requested tests"
   populate_test_list "${test_choice}"
-elif [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "(build/|deploy/|group_vars/|resources/|/common.sh|/uuid)"` ]]; then
+elif [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "^(templates|build|deploy|group_vars|resources|tests/common.sh|roles/uuid)"` ]]; then
   echo "Running full test"
   cp tests/test_list tests/iterate_tests
 else
