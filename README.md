@@ -20,7 +20,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [Service Mesh](docs/servicemesh.md) | Microservices     | Working            |  Used, default : 3second   | Not Supported         | Not Supported   |
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Not Supported  |
-| [stressng](docs/stressng.md)   | Stress system resources | Working            |                 | Not Supported         | Not Supported  |
+| [stressng](docs/stressng.md)   | Stress system resources | Working            |  Used, default: 3second  | Not Supported         | Not Supported  |
 | [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 
 
