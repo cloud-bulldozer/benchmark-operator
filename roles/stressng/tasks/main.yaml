@@ -44,7 +44,7 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: ConfigMaps Created
-        complete: true
+        complete: false
 
   when: resource_state.resources[0].status.state == "Building" 
 
