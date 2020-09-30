@@ -30,6 +30,7 @@ spec:
       log_level: info
       verify_objects: true
       error_on_verify: true
+      step: 30s
       node_selector:
         key: node-role.kubernetes.io/worker
         value:
