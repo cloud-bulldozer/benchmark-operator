@@ -53,14 +53,12 @@ spec:
             value: "{{ elasticsearch.index_name | default("ripsaw-fs-drift") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default("false") }}"
+          - name: prom_es
+            value: "{{ elasticsearch.server }}"
+          - name: prom_port
+            value: "{{ elasticsearch.port }}"
 {% endif %}
 {% if prometheus is defined %}
-          - name: prom_es
-            value: "{{ prometheus.server }}"
-          - name: prom_port
-            value: "{{ prometheus.port }}"
-          - name: prom_parallel
-            value: "{{ prometheus.parallel | default("false") }}"
           - name: prom_token
             value: "{{ prometheus.prom_token | default() }}"
           - name: prom_url
