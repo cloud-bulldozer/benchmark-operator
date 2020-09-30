@@ -27,7 +27,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
 {% if prometheus is defined and prometheus.prom_url is defined %}
-          - kube-burner init -c config.yml -m metrics.yaml -u {{ prometheus.prom_url }} -t {{ prometheus.prom_token }} --uuid={{ uuid }} --log-level={{ workload_args.log_level|default("info") }}
+          - kube-burner init -c config.yml -m metrics.yaml -u {{ prometheus.prom_url }} -t {{ prometheus.prom_token }} --uuid={{ uuid }} --log-level={{ workload_args.log_level|default("info") }} --step={{ workload_args.step|default("30s") }}
 {% else %}
           - kube-burner init -c config.yml --uuid={{ uuid }} --log-level={{ workload_args.log_level|default("info") }}
 {% endif %}
