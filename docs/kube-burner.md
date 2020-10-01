@@ -43,6 +43,8 @@ All kube-burner's workloads support the following parameters:
 
 - **workload**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
 - **default_index**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
+- **prom_es_user**: Prometheus Elasticsearch user if required
+- **prom_es_pass**: Prometheus Elasticsearch pass if required
 - **job_iterations**: How many iterations to execute of the specified kube-burner workload
 - **qps**: Limit object creation queries per second. Defaults to __5__
 - **burst**: Maximum burst for throttle. Defaults to __10__
