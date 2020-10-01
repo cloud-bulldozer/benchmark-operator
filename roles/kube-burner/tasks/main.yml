@@ -47,7 +47,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', 'metrics.yaml')}}"
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
           build.yml: "{{ lookup('file', 'build.yml')}}"
           buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
           deployment.yml: "{{ lookup('file', 'deployment.yml')}}"

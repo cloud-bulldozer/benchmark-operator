@@ -65,6 +65,8 @@ Where value defaults to __node-role.kubernetes.io/worker__ and key defaults to e
 - **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
 - **job_timeout**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
 - **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
+- **step**: Prometheus step size, useful for long benchmarks. Defaults to 30s
+- **metrics_profile**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml`. Detailed in the [Metrics section](#Metrics) of this document
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
@@ -74,7 +76,6 @@ spec:
     server: https://search-cloud-perf-lqrf3jjtaqo7727m7ynd2xyt4y.us-west-2.es.amazonaws.com:443
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     prom_token: prometheusToken
-    step: 30s
   workload:
 ```
 
@@ -82,11 +83,15 @@ Where:
 - server: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
 - prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
 - prom_token: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
-- step: Prometheus step size, useful for long benchmarks. Defaults to 30s
 
 ## Metrics
 
-Metrics collected by kube-burner are predefined in the [metrics.yaml file](../roles/kube-burner/files/metrics.yaml)
+kube-burner is able to collect Prometheus metrics using the time range of the benchmark. There are two metric profiles available at the moment.
+
+- [metrics.yaml](../roles/kube-burner/files/metrics.yaml): This metric profile is indicated for benchmarks executed in small clusters. Since it gets metrics for several system pods from each node. Otherwise, we can reduce the number of indexed metrics (at the expense of granularity) with the parameter **step**.
+- [metrics-aggregated.yaml](../roles/kube-burner/files/metrics-aggregated.yaml): This metric profile is indicated for benchmarks in large clusters. Since the metrics from the worker nodes and the infra nodes are aggregated and only metrics from master nodes are collected individually. Also the parameter **step** can be used to reduce the number of metrics (at the expense of granularity) that will be indexed.
+
+By default the [metrics.yaml](metrics.yaml) profile is used. You can change this profile with the variable **metrics_profile**.
 
 ## Pin to server and tolerations
 

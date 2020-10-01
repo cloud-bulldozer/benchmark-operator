@@ -44,10 +44,12 @@ spec:
       cleanup: true
       # Verify object creation
       verify_objects: true
-      # Prometheus step size
-      step: 30s
       # Exit w/o indexing if a verify error happened
       error_on_verify: true
+      # Prometheus step size
+      step: 30s
+      # kube-burner metrics profile
+      metrics_profile: metrics.yaml
       # kube-burner pod tolerations
       tolerations:
       - key: role

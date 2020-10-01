@@ -56,7 +56,7 @@ metrics:
   - query: etcd_server_has_leader
     metricName: etcdServerHasLeader
 
-  - query: rate(etcd_server_leader_changes_seen_total[2m])
+  - query: sum(rate(etcd_server_leader_changes_seen_total[2m]))
     metricName: etcdLeaderChangesRate
 
   - query: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket[2m]))

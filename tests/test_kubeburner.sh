@@ -22,6 +22,7 @@ trap finish EXIT
 
 function functional_test_kubeburner {
   workload_name=$1
+  metrics_profile=$2
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   cr=tests/test_crs/valid_kube-burner.yaml
   check_logs=0
@@ -29,7 +30,7 @@ function functional_test_kubeburner {
   apply_operator
   kubectl apply -f resources/kube-burner-role.yml
   echo "Performing kube-burner: ${workload_name}"
-  sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
+  sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/METRICS_PROFILE/${metrics_profile}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 
@@ -49,6 +50,6 @@ function functional_test_kubeburner {
 }
 
 figlet $(basename $0)
-functional_test_kubeburner cluster-density
-functional_test_kubeburner kubelet-density
-functional_test_kubeburner kubelet-density-heavy
+functional_test_kubeburner cluster-density metrics-aggregated.yaml
+functional_test_kubeburner kubelet-density metrics.yaml
+functional_test_kubeburner kubelet-density-heavy metrics.yaml

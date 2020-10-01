@@ -31,6 +31,7 @@ spec:
       verify_objects: true
       error_on_verify: true
       step: 30s
+      metrics_profile: METRICS_PROFILE
       node_selector:
         key: node-role.kubernetes.io/worker
         value:
