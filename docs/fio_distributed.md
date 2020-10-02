@@ -207,6 +207,7 @@ The workload loops are nested as such from the CR options:
   > Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
 - **prefill**: (Optional) boolean to enable/disable prefill SDS
   - prefill requirement stems from Ceph RBD thin-provisioning - just creating the RBD volume doesn't mean that there is space allocated to read and write out there. For example, reads to an uninitialized volume don't even talk to the Ceph OSDs, they just return immediately with zeroes in the client.
+- **fio_json_to_log**: (Optional) boolean to enable/disable sending job results in json format to client pod log.
 
 #### EXPERT: spec.global_overrides
 
