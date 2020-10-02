@@ -34,10 +34,27 @@ For this to work, you must **label** the nodes that you want to drop kernel cach
 ```
 # kubectl label node minikube kernel-cache-dropper=yes
 ```
-If you do not do this, ripsaw will timeout waiting for cache dropper pods to deploy.
+If you do not do this, benchmark-operator will reject the benchmark with an error to the effect that
+none of the cluster nodes have this label. This label controls where kernel cache is dropped.
 
+There will be a short delay after kernel cache is dropped in order to allow the system to recover 
+some key cache contents before stressing it with a workload.  This is controllable via the CACHE_RELOAD_TIME
+env. var. and defaults to 10 sec.
+
+You must also execute this command before running a benchmark.
+
+```
+oc create -f ripsaw.l/resources/kernel-cache-drop-clusterrole.yaml
+```
+
+Lastly, the specific benchmark must support this feature.   
+Benchmarks supported for kernel cache dropping at present are:
+
+- fio
 
 # implementation notes
+
+For benchmark developers...
 
 kernel cache dropping is done by a daemonset run on nodes with the above label.   See roles/kernel_cache_drop
 for details on how this is done.  Each pod started by this daemonset is running a CherryPy web service that
@@ -50,4 +67,10 @@ echo 3 > /proc/sys/vm/drop_caches
 
 The sync is required because the kernel cannot drop cache on dirty pages.  
 A logfile named /tmp/dropcache.log is visible on every cache dropper pod so you can see what it's doing
+
+The benchmark itself must pass environment variables to run_snafu.py in order for it to request a cache
+drop before each sample is run.   The environment variables are:
+
+- KCACHE_DROP_PORT_NUM - default of var kernel_cache_drop_svc_port should be fine
+- kcache_drop_pod_ips - ansible var is already filled in by the cache dropper role
 
