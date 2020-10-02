@@ -77,6 +77,12 @@ spec:
 {% for i in loopvar %}
 {% for job in workload_args.jobs %}
              cat /tmp/fio/fiojob-{{job}}-{{i}}-{{numjobs}}; mkdir -p /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{i}}-{{numjobs}}; run_snafu -t fio -H /tmp/host/hosts -j /tmp/fio/fiojob-{{job}}-{{i}}-{{numjobs}} -s {{workload_args.samples}} -d /tmp/fiod-{{ uuid }}/fiojob-{{job}}-{{i}}-{{numjobs}};
+{% if workload_args.fio_json_to_log is defined and workload_args.fio_json_to_log is sameas true %}
+             for fio_sample in $(seq 1 {{workload_args.samples}});
+             do echo START_FIO_JSON_OUTPUT_fiod-{{uuid}}_fiojob-{{job}}-{{i}}-{{numjobs}}_SAMPLE_$fio_sample;
+             test -f /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{i}}-{{numjobs}}/$fio_sample/{{job}}/fio-result.json && cat /tmp/fiod-{{uuid}}/fiojob-{{job}}-{{i}}-{{numjobs}}/$fio_sample/{{job}}/fio-result.json || echo ERROR_FIO_JSON_FILE_NOT_AVAILABLE;
+             echo END_FIO_JSON_OUTPUT_fiod-{{uuid}}_fiojob-{{job}}-{{i}}-{{numjobs}}_SAMPLE_$fio_sample;done;
+{% endif %}
 {% endfor %}
 {% endfor %}
 {% endfor %}
