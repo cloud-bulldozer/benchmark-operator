@@ -55,12 +55,10 @@ spec:
         chpasswd: { expire: False }
         runcmd:
 {% if workload_args.server_vm.network.multiqueue.enabled %}
-          - yum install -y ethtool
+          - dnf install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.server_vm.network.multiqueue.queues }}
 {% endif %}
-          - yum install -y yum-plugin-copr
-          - yum copr enable ndokos/pbench -y
-          - yum install -y pbench-uperf redis git
+          - dnf install -y uperf redis
           - redis-cli -h {{ bo.resources[0].status.podIP }} set {{ trunc_uuid }} true
           - uperf -s -v -P 20000
     name: cloudinitdisk
