@@ -72,12 +72,8 @@ spec:
           - yum install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
 {% endif %}
-          - yum install -y yum-plugin-copr
-          - yum copr enable ndokos/pbench -y
-          - yum install -y pbench-uperf redis git python-pip numpy
-          - pip install --upgrade pip
-          - pip install "elasticsearch>=6.0.0,<=7.0.2"
-          - git clone https://github.com/cloud-bulldozer/snafu /opt/snafu
+          - dnf install -y uperf redis
+          - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
           - bash /tmp/uperf_script/run_script.sh
     name: cloudinitdisk
   - configMap:
