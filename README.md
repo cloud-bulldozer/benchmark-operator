@@ -48,6 +48,7 @@ helm delete benchmark-operator -n my-ripsaw --purge
 | [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Yes       |  Used, default : 3second  | Not Supported          | Preview         | No |
 | [oslat](docs/oslat.md)         | Real-Time Latency      | Yes           |  Used, default : 3second   | Not Supported          | Preview         | No |
 | [testpmd](docs/testpmd.md)         | TestPMD DPDK App      | No           |  Used   | Not Supported          | Preview         | No |
+| [Flent](docs/flent.md)         | Network Performance    | Yes           |  Used, default : 3second  | Not Supported          | Not Supported   | Yes |
 
 ### Reconciliation
 
