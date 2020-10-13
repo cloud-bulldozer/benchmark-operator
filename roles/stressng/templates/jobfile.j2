@@ -1,0 +1,18 @@
+run {{ workload_args.runtype }}				# run stressors sequentially
+verbose							# verbose output
+metrics-brief						# show metrics at end of each run
+timeout {{ workload_args.timeout}}			# stop each stressor after 60 seconds
+
+# cpu stressor
+cpu {{ workload_args.cpu_stressors }} 			# cpu stressor
+cpu-load {{ workload_args.cpu_percentage }}		# percentage to which the cpu gets loaded
+
+
+# vm stressor
+vm {{ workload_args.vm_stressors }} 			# vm stressors
+vm-bytes {{ workload_args.vm_bytes }} 			# memory per vm stressor
+vm-keep						 	# keep vm mapping
+vm-populate 						# populate memory
+
+# memcpy stressor options
+memcpy {{ workload_args.mem_stressors}}			# memcpy stressors

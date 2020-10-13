@@ -1,0 +1,87 @@
+---
+- name: Get current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get current state - If it has changed
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- block:
+  - name: template stressng config file
+    k8s:
+      definition: 
+        apiVersion: v1
+        kind: ConfigMap
+        metadata: 
+          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          jobfile: "{{ lookup ('template', 'jobfile.j2') }}"
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: ConfigMaps Created
+        complete: false
+
+  when: resource_state.resources[0].status.state == "Building" 
+
+- block:
+  - name: start stressng workload job
+    k8s:
+      definition: "{{ lookup('template', 'stressng_workload.yml.j2') | from_yaml }}"
+    register: jobs
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Benchmark running
+        complete: false
+
+  when: resource_state.resources[0].status.state == "ConfigMaps Created"
+
+- block:
+  - name: wait for benchmark job to finish
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+    register: stressng_workload_pod
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Benchmark Complete
+        complete: true
+      when: stressng_workload_pod | json_query('resources[].status.succeeded')"
+
+  when: resource_state.resources[0].status.state == "Benchmark running"
