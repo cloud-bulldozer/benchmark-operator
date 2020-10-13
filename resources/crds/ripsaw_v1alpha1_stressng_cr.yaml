@@ -1,4 +1,4 @@
-piVersion: ripsaw.cloudbulldozer.io/v1alpha1
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: stressng
