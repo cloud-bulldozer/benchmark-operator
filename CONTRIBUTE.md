@@ -130,38 +130,52 @@ case of failure or when disabled. This ensures no interference with subsequent w
 ### The operator container image
 Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitate a new build of the operator container image.
 The container is built using the [Operator SDK](https://github.com/operator-framework/operator-sdk) and pushed to a public repository.
-The public repository could be [quay](https://quay.io) in which case you'll need to:
+The public repository could be [quay](https://quay.io) in which case you'll need to ensure you have your own Quay account with appropriate permissions. 
+
+> Note: Make sure your quay repository has been created before running the below commands, otherwise they'll fail :D
+
+There is a Makefile at the root of the project that will assist in bootstraping your local Kubernetes cluster with the benchmark-operator. 
+
+Running `make` at the root of the project will build and push the image as `quay.io/$USER/benchmark-operator:$GIT_COMMIT`. If you don't want to push, you can disable it by setting `PUSH_IMAGE=false` before running `make`. 
+
+You can also override both the repo and tag for your operator image by overriding the environment variables `IMAGE_REPO` and `IMAGE_TAG`, respectively. If you are using quay and just want to change the account, you can alternatively set `QUAY_USER` to whatever account name you want. 
+
+
 
 ```bash
-$ operator-sdk build quay.io/<username>/benchmark-operator:testing --image-builder podman 
-$ podman push quay.io/<username>/benchmark-operator:testing
+IMAGE_REPO=<image_repo> \
+IMAGE_TAG=<tag> \
+make
 ```
 
-Note: you can also use docker, and no, we'll not judge ;)
-
-`:testing` is simply a tag. You can define different tags to use with your image, like `:latest` or `:master`
-
-To test with your own operator image, you will need the [operator](resources/operator.yml) file to point the container image to your testing version.
-Be sure to do this outside of your git tree to avoid mangling the official file that points to our stable image.
-
-This can be done as follows:
+or (if using quay)
 
 ```bash
-$ sed 's/image:.*/image: quay.io\/<username>\/benchmark-operator:testing/' resources/operator.yaml > /my/testing/operator.yaml
+QUAY_USER=<username> \ # Resolves to quay.io/<username>/benchmark-operator
+IMAGE_TAG=<tag> \
+make
+
+```
+### Deploying your image
+
+The Makefile makes deploying your image easier, as it will patch the operator image with your just built image without having to create temporary yaml files. 
+
+To do this, you just need to run `make deploy_operator` at the root of the project. By default, the operator is installed in the `my-ripsaw` namespace, but that can be overriden by setting the `INSTALL_NAMESPACE` environment variable. 
+
+> Note: You'll need to make sure whatever environment variables you set during the build are also set correctly when running this command. To make this less of a hassle, there's also the `make build_and_deploy` command which does everything in one call.
+
+```bash
+IMAGE_REPO=<image_repo> \
+IMAGE_TAG=<tag> \
+make build_and_deploy
 ```
 
-You can then redeploy operator
+or (if using quay)
+
 ```bash
-# kubectl delete -f resources/operator.yaml
-# kubectl apply -f /my/testing/operator.yaml
-```
-Redefine CRD
-```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-```
-Apply a new CR
-```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml
+QUAY_USER=<username> \ # Resolves to quay.io/<username>/benchmark-operator
+IMAGE_TAG=<tag> \
+make build_and_deploy
 ```
 
 ## CI
