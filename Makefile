@@ -3,7 +3,7 @@ GIT_COMMIT=$(shell git rev-parse HEAD)
 BUILD_DATE=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ')
 
 # Build Args
-PUSH_IMAGE?=false
+PUSH_IMAGE?=true
 IMAGE_TAG?=$(GIT_COMMIT)
 QUAY_USER?=$(shell whoami)
 IMAGE_REPO?=quay.io/$(QUAY_USER)/benchmark-operator
