@@ -18,4 +18,8 @@ spec:
         image: "{{ workload_args.image }}"
         imagePullPolicy: Always
       restartPolicy: OnFailure
+{% if workload_args.nodeselector is defined %}
+      nodeSelector: 
+        {{ workload_args.nodeselector }}
+{% endif %}
 {% include "metadata.yml.j2" %}
