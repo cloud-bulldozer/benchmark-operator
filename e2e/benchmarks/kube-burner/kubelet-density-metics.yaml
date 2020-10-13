@@ -1,0 +1,40 @@
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: localhost
+    port: 8080
+  metadata:
+    collection: true
+  prometheus:
+    server: http://ES_SERVER
+    prom_token: token
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+  workload:
+    name: kube-burner
+    args:
+      workload: kubelet-density
+      cleanup: true
+      default_index: ripsaw-kube-burner
+      job_iterations: 1
+      pin_server: ""
+      wait_when_finished: true
+      pod_wait: false
+      image: quay.io/cloud-bulldozer/kube-burner:latest
+      qps: 25
+      burst: 50
+      log_level: info
+      verify_objects: true
+      error_on_verify: true
+      step: 30s
+      metrics_profile: metrics.yaml
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule

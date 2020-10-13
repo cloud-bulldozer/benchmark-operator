@@ -1,0 +1,31 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: pgbench-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: localhost
+    port: 8080
+    index_name: ripsaw-pgbench
+  metadata:
+    collection: true
+  workload:
+    name: "pgbench"
+    args:
+      timeout: 5
+      clients:
+        - 1
+        - 2
+      threads: 1
+      transactions: 10
+      cmd_flags: ''
+      init_cmd_flags: ''
+      scaling_factor: 1
+      samples: 2
+      num_databases_pattern: 'all'
+      databases:
+        - host:
+          user: ci
+          password: ci
+          db_name: cidb

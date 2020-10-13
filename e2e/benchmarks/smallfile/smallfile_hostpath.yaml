@@ -1,0 +1,25 @@
+
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  test_user: homer_simpson
+  # to separate this test run from everyone else's
+  clustername: test_ci
+  elasticsearch:
+    server: ES_SERVER
+    port: ES_PORT
+    index_name: ripsaw-smallfile
+  metadata:
+    collection: true
+  hostpath: /mnt/vda1/smallfile
+  workload:
+    name: smallfile
+    args:
+      clients: 1
+      operation: ["create", "read", "append", "delete"]
+      threads: 1
+      file_size: 0
+      files: 100000

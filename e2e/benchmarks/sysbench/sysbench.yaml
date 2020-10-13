@@ -1,0 +1,18 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: ES_SERVER
+    port: ES_PORT
+  metadata:
+    collection: true
+  workload:
+    name: sysbench
+    args:
+      tests:
+      - name: cpu
+        parameters:
+          cpu-max-prime: 200
