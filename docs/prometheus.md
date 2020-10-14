@@ -16,11 +16,11 @@ To enable this functionality a few variables must be set in the workload CR file
 
 ```
 prometheus:
-  server: the elasticsearch server to upload to
-  port: the elasticsearch server port
+  es_server: the elasticsearch server to upload to
+  es_port: the elasticsearch server port
   prom_url: the prometheus URL
   prom_token: a valid access token for prometheus
-  parallel: enable parallel uploads to elasticsearch
+  es_parallel: enable parallel uploads to elasticsearch
 ```
 
 The prometheus token can be obtained by running the following.
@@ -50,11 +50,11 @@ spec:
     port: 8080
     index_name: ripsaw-smallfile
   prometheus:
-    server: my.other.es.server
-    port: 8080
+    es_server: my.other.es.server
+    es_port: 8080
     prom_url: my.prom.server:9100
     prom_token: 0921783409ufsd09752039ufgpods9u750239uge0p34
-    parallel: true
+    es_parallel: true
   metadata:
     collection: true
   workload:
