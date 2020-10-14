@@ -11,7 +11,7 @@ spec:
   metadata:
     collection: true
   prometheus:
-    server: http://ES_SERVER
+    es_server: http://ES_SERVER
     prom_token: PROMETHEUS_TOKEN
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
   workload:

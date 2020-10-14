@@ -38,11 +38,11 @@ spec:
               prometheus:
                 type: object
                 properties:
-                  server:
+                  es_server:
                     type: string
-                  port: 
+                  es_port: 
                     type: integer
-                  parallel:
+                  es_parallel:
                     type: boolean
                   prom_url:
                     type: string
