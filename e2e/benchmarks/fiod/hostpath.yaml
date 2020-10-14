@@ -1,15 +1,15 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fiod-hostpath
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
-    port: ES_PORT
+    server: localhost
+    port: 8080
     index_name: ripsaw-fio
   metadata:
-    collection: true
+    collection: false
   cleanup: false
   hostpath: /mnt/vda1/workload_args/
   workload:

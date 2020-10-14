@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fiod-base
   namespace: my-ripsaw
 spec:
   elasticsearch:
@@ -9,7 +9,7 @@ spec:
     port: 8080
     index_name: ripsaw-fio
   metadata:
-    collection: true
+    collection: false
   cleanup: false
   workload:
     name: "fio_distributed"
