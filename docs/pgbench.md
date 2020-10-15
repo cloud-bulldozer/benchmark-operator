@@ -129,8 +129,7 @@ spec:
   test_user: milton
   # My elasticsearch server information
   elasticsearch:
-    server: my.elasticsearch.server
-    port: 9200
+    server: "htttp://my.elasticsearch.server:9200"
   workload:
     name: "pgbench"
     args:

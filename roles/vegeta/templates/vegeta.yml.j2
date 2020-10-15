@@ -42,22 +42,18 @@ spec:
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
-          - name: es_port
-            value: "{{ elasticsearch.port }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-vegeta") }}"
           - name: es_verify_cert
             value: "{{ elasticsearch.cert_verify | default("true") }}"
           - name: parallel
-            value: "{{ elasticsearch.parallel | default("false") }}"
+            value: "{{ elasticsearch.parallel | default(false) }}"
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
             value: "{{ prometheus.es_server }}"
-          - name: prom_port
-            value: "{{ prometheus.es_port }}"
           - name: prom_parallel
-            value: "{{ prometheus.es_parallel | default("false") }}"
+            value: "{{ prometheus.es_parallel | default(false) }}"
           - name: prom_token
             value: "{{ prometheus.prom_token | default() }}"
           - name: prom_url

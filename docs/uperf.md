@@ -14,6 +14,8 @@ metadata:
   name: uperf-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: "http://es-instance.com:9200"
   workload:
     name: uperf
     args:
@@ -264,98 +266,6 @@ podman push <imageurl>
 You can either access results by indexing them directly or by accessing the console.
 The results are stored in /tmp/ directory
 
-
-
-### Storing results into Elasticsearch
-
-```yaml
-apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
-kind: Benchmark
-metadata:
-  name: example-benchmark
-  namespace: my-ripsaw
-spec:
-  clustername: myk8scluster
-  test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
-  elasticsearch:
-    server: <es_host>
-    port: <es_port>
-  workload:
-    name: uperf
-    args:
-      hostnetwork: false
-      pin: false
-      pin_server: "node-0"
-      pin_client: "node-1"
-      kind: pod
-      samples: 1
-      pair: 1
-      test_types:
-        - stream
-      protos:
-        - tcp
-      sizes:
-        - 16384
-      nthrs:
-        - 1
-      runtime: 30
-```
-
-The new fields :
-
-`elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-
-`elasticsearch.port` port which elasticsearch is listening, typically `9200`.
-
-`user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
-
-By default we will utilize the `uperf-results` index for Elasticsearch.
-
-Deploying the above(assuming pairs is set to 1) would result in
-
-```bash
-# kubectl get -o wide pods
-NAME                                                    READY   STATUS      RESTARTS   AGE     IP             NODE       NOMINATED NODE   READINESS GATES
-benchmark-operator-6679867fb7-p2fzb                     2/2     Running     0          6h1m    10.130.0.56    master-2   <none>           <none>
-uperf-benchmark-nohost-uperf-client-10.128.1.29-kbw4b   0/1     Completed   0          3h11m   10.129.1.214   master-1   <none>           <none>
-
-```
-
-The first pod is our Operator orchestrating the UPerf workload.
-
-To review the results, `kubectl logs <client>`, the top of the output is
-the actual workload that was passed to UPerf (From the values in the custom resource).
-
-Note: If cleanup is not set in the spec file then the client pods will be killed after
-600 seconds from it's completion. The server pods will be cleaned up immediately
-after client job completes
-
-```
-... Trimmed output ...
-+-------------------------------------------------- UPerf Results --------------------------------------------------+
-Run : 1
-Uperf Setup
-
-          hostnetwork : False
-          client: 10.129.1.214
-          server: 10.128.1.29
-
-UPerf results for :
-
-          test_type: stream
-          protocol: tcp
-          message_size: 64
-
-UPerf results (bytes/sec):
-
-          min: 0
-          max: 75938816
-          median: 72580096.0
-          average: 63342843.6066
-          95th: 75016192.0
-+-------------------------------------------------------------------------------------------------------------------+
-
-```
 
 ### Dashboard example
 

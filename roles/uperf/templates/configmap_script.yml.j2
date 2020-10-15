@@ -10,7 +10,6 @@ data:
 {% if elasticsearch is defined %}
 {% if elasticsearch.server is defined %}
     export es={{elasticsearch.server}}
-    export es_port={{elasticsearch.port}}
     export es_index={{ elasticsearch.index_name | default("ripsaw-uperf") }}
     export es_verify_cert={{ elasticsearch.verify_cert | default("true") }}
     export parallel={{ elasticsearch.parallel | default("false") }}

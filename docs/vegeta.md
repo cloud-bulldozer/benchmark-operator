@@ -18,6 +18,9 @@ metadata:
   name: vegeta-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: "http://esinstance.com:9200"
+    index_name: ripsaw-vegeta
   workload:
     name: vegeta
     args:
@@ -85,42 +88,6 @@ Vegeta jobs make usage of pod anti-affinity rules to to deploy vegeta clients on
 
 ## Storing results into Elasticsearch
 
-It's possible to index reults in Elasticseach specifing using a configuration like the below.
-
-```yaml
-apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
-kind: Benchmark
-metadata:
-  name: vegeta-benchmark
-  namespace: my-ripsaw
-spec:
-  elasticsearch:
-    server: esinstance.com
-    port: 9200
-    index_name: ripsaw-vegeta
-  workload:
-    name: vegeta
-    args:
-      hostnetwork: false
-      image: quay.io/cloud-bulldozer/vegeta:latest
-      targets:
-        - name: 100w-ka
-          urls:
-            - GET https://mydomain.com/test.png
-            - GET http://myunsecuredomain.com
-          duration: 10
-```
-
-Where:
-
-- `elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-- `elasticsearch.port` port which elasticsearch is listening, typically `9200`.
-- `elasticsearch.index_name` Elasticseach to index the logs in. This parameter is optional, and defaults to *ripsaw-vegeta*.
-
-In addition, the following parameters can be also specified at the `spec` level to improve ES indexing.
-- `test_user` user is a key that points to user triggering ripsaw, useful to search results in ES. Defaults to *ripsaw*.
-- `clustername` an arbitrary name for your system under test (SUT) that can aid indexing.
-
 The following metrics are indexed at one second intervals:
 
 - rps: Rate of sent requests per second..
@@ -128,7 +95,10 @@ The following metrics are indexed at one second intervals:
 - status_codes: Breakdown of the number status codes observed over the interval.
 - requests: Total number of requests executed until that moment.
 - p99_latency: 99th percentile of the request latency observed over the interval in µs.
+- p97_latency: 95th percentile of the request latency observed over the interval in µs.
 - req_latency: Average latency of all requests observed over the interval in µs.
+- max_latency: Maximum latency observed during the Benchmark.
+- min_latency: Minimum latency observed during the Benchmark.
 - bytes_in: Incoming byte metrics over the interval.
 - bytes_out: Outgoing byte metrics over the interval.
 - targets: Targets file used.
@@ -137,10 +107,9 @@ The following metrics are indexed at one second intervals:
 - hostname: Hostname from the host where the test is launched.
 - keepalive: Whether keepalive is used or not.
 
-
 ### Dashboard example
 
-Using the Elasticsearch storage described above, we can build dashboards like the below.
+Using the ElasticSearch metrics described above, we can build dashboards like the below.
 
 ![Vegeta dashboard](https://i.imgur.com/YWophlP.png)
 

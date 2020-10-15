@@ -6,7 +6,6 @@ metadata:
 spec:
   elasticsearch:
     server: ES_SERVER
-    port: ES_PORT
     index_name: openshift-cluster-timings
   workload:
     name: scale_openshift

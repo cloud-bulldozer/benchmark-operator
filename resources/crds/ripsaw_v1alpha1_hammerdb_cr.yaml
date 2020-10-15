@@ -4,6 +4,8 @@ metadata:
   name: hammerdb-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
   workload:
     name: hammerdb
     args:

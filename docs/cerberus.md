@@ -40,8 +40,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "foo.bar.com"
-    port: 9200
+    server: "http://foo.bar.com:9200"
   cerberus_url: "http://1.2.3.4:8080"
   workload:
     name: byowl

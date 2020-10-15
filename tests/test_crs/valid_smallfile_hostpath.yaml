@@ -10,7 +10,6 @@ spec:
   clustername: test_ci
   elasticsearch:
     server: ES_SERVER
-    port: ES_PORT
     index_name: ripsaw-smallfile
   metadata:
     collection: true

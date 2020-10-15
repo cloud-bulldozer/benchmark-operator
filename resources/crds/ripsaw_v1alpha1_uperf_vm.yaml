@@ -7,8 +7,7 @@ spec:
   clustername: test-cluster
   test_user: <user> # user is a key that points to user triggering ripsaw, useful to search results in ES
   elasticsearch:
-    server: <elastic_host>
-    port: <elastic_port>
+    server: http://es.server.com:80
   cleanup: false
   workload:
     name: uperf

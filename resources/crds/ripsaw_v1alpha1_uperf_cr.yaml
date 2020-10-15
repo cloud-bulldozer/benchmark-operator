@@ -5,9 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   clustername: myk8scluster
-  #elasticsearch:
-  #   server: elk.server.com
-  #   port: 9200
+  elasticsearch:
+    server: http://es.server.com:80
   #test_user: username_to_attach_to_metadata
   workload:
     # cleanup: true
