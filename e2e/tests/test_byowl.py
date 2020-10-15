@@ -1,10 +1,11 @@
 import pytest 
+import unittest
+from test_base import TestBase
 
 
-from e2e.util.k8s import Cluster
-from e2e.models.workload import Workload 
+class TestByowl(TestBase):
+    workload = "byowl"
 
-def test_byowl(helpers):
-    byowl_workload = Workload("byowl", Cluster(), helpers.get_benchmark_dir())
-    runs = byowl_workload.run_all()
-    assert helpers.all_runs_passed(runs) == True
+    
+    def test_byowl(self, run):
+        self.run_and_check_benchmark(run)

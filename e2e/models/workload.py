@@ -28,10 +28,3 @@ class Workload:
         run.start()
         run.wait()
         return run.metadata
-
-
-if __name__ == '__main__':
-    cluster = Cluster()
-    benchmark_dir = "/home/kwhitley/git/whitleykeith/benchmark-operator/e2e/benchmarks"
-    workload = Workload("fiod", cluster, benchmark_dir)
-    print(workload.run_all())

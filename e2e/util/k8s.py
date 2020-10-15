@@ -1,10 +1,9 @@
 from kubernetes import client, config, watch, utils
 import json
-from e2e.util.decorators import timeout
+from timeout_decorator import timeout
 import time
 import yaml
 from e2e.util.exceptions import BenchmarkFailedError
-
 
 class Cluster:
     def __init__(self):
@@ -16,7 +15,6 @@ class Cluster:
 
 
     # Get Functions
-
     def get_pods_by_app(self, app, namespace): 
         label_selector=f"app={app}"
         return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
@@ -24,6 +22,13 @@ class Cluster:
     def get_jobs_by_app(self, app, namespace): 
         label_selector=f"app={app}"
         return self.batch_client.list_namespaced_job(namespace, label_selector=label_selector, watch=False)
+    
+    def get_nodes(self, label_selector): 
+        return self.core_client.list_node(label_selector=label_selector)
+    
+    def get_node_names(self, label_selector):
+        return [node.metadata.name for node in self.get_nodes(label_selector).items ]
+
     
     def get_benchmark(self, name, namespace):
         return self.crd_client.get_namespaced_custom_object(
@@ -33,19 +38,30 @@ class Cluster:
             plural="benchmarks",
             name=name
         )
+
+    def get_benchmark_metadata(self, benchmark_name, benchmark_namespace):
+        benchmark = self.get_benchmark(benchmark_name, benchmark_namespace)
+        return {
+            'name': benchmark['metadata']['name'],
+            'namespace': benchmark['metadata']['namespace'],
+            'uuid': benchmark['status']['uuid'],
+            'suuid': benchmark['status']['suuid'],
+            'related_job': f"{benchmark['spec']['workload']['name']}-{benchmark['status']['suuid']}",
+            'status': benchmark['status']['state']
+        }   
     
     # Waiters
 
-    @timeout(seconds=300)
+    @timeout(seconds=300, use_signals=False)
     def wait_for_pods_by_app(self, app, namespace):
         waiting_for_pods = True
         while waiting_for_pods:
             pods = self.get_pods_by_app(app, namespace).items
             [ print(f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods ]
-            waiting_for_pods = (any([ pod.status.phase != "Running" for pod in pods]))
+            waiting_for_pods = (any([pod.status.phase != "Running" for pod in pods]))
             time.sleep(3)
 
-    @timeout(seconds=300)
+    @timeout(seconds=300, use_signals=False)
     def wait_for_jobs_by_app(self, app, namespace):
         waiting_for_jobs = True
         while waiting_for_jobs:
@@ -54,7 +70,7 @@ class Cluster:
             waiting_for_jobs = (any([ job.status.succeeded != 1 for job in jobs]))
             time.sleep(3)
 
-    @timeout(seconds=500)
+    @timeout(seconds=500, use_signals=False)
     def wait_for_benchmark(self, name, namespace, desired_state="Completed"): 
         waiting_for_benchmark = True
         while waiting_for_benchmark:
@@ -80,6 +96,7 @@ class Cluster:
             plural="benchmarks",
             body=benchmark
         )
+
         try:
             self.wait_for_benchmark(benchmark['metadata']['name'], benchmark['metadata']['namespace'], desired_state="Running")
         except BenchmarkFailedError:
@@ -87,14 +104,33 @@ class Cluster:
         finally: 
             return self.get_benchmark_metadata(benchmark['metadata']['name'], benchmark['metadata']['namespace'])
     
-    def get_benchmark_metadata(self, benchmark_name, benchmark_namespace):
-        benchmark = self.get_benchmark(benchmark_name, benchmark_namespace)
-        return {
-            'name': benchmark['metadata']['name'],
-            'namespace': benchmark['metadata']['namespace'],
-            'uuid': benchmark['status']['uuid'],
-            'suuid': benchmark['status']['suuid'],
-            'related_job': f"{benchmark['spec']['workload']['name']}-{benchmark['status']['suuid']}",
-            'status': benchmark['status']['state']
-        }   
     
+    
+    # Delete Functions
+    def delete_benchmark(self, name, namespace):
+        print(f"Deleting benchmark {name} in namespace {namespace}")
+        self.crd_client.delete_namespaced_custom_object(
+            group="ripsaw.cloudbulldozer.io",
+            version="v1alpha1",
+            namespace=namespace,
+            plural="benchmarks",
+            name=name
+        )
+        print(f"Deleted benchmark {name} in namespace {namespace}")
+
+
+    def delete_all_benchmarks(self, namespace):
+        all_benchmarks = self.crd_client.list_namespaced_custom_object(
+            group="ripsaw.cloudbulldozer.io",
+            version="v1alpha1",
+            namespace=namespace,
+            plural="benchmarks"
+        )
+
+        [ self.delete_benchmark(benchmark['metadata']['name'], namespace) for benchmark in all_benchmarks.get('items', []) ]
+
+    # Patch Functions
+
+    def patch_node(self, node, patch):
+        return self.core_client.patch_node(node, patch)
+

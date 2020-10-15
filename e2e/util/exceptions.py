@@ -1,7 +1,14 @@
 class BenchmarkFailedError(Exception):
-    def __init__(self, benchmark_name, uuid, msg=None):
+    def __init__(self, name, uuid, msg=None):
         if msg is None:
-            msg = f"The benchmark {benchmark_name} with uuid {uuid} failed"
+            msg = f"The benchmark {name} with uuid {uuid} failed"
         super(BenchmarkFailedError, self).__init__(msg)
-        self.benchmark_name = benchmark_name
+        self.name = name
         self.uuid = uuid
+
+class BenchmarkNotStartedError(Exception):
+    def __init__(self, name, msg=None):
+        if msg is None:
+            msg = f"The benchmark {name} has not started yet"
+        
+        super(BenchmarkNotStartedError, self).__init__(msg)
