@@ -4,11 +4,10 @@ metadata:
   name: hammerdb-benchmark
   namespace: my-ripsaw
 spec:
-  # elasticsearch:
-  #   server: elk.server.com
-  #   port: 9200
-  # clustername: myk8scluster
-  # test_user: username_to_attach_to_metadata
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
+# clustername: myk8scluster
+# test_user: username_to_attach_to_metadata
   workload:
     # cleanup: true
     name: hammerdb

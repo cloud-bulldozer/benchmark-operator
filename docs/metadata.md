@@ -1,13 +1,19 @@
 # Metadata Collection
 
 How To:
-* [How it Works](#how-it-works)
-* [Targeted Init Containers](#targeted-init-containers)
-* [DaemonSet](#daemonset)
-* [Differences between targeted and daemonset](#Differences-between-targeted-and-daemonset)
-* [Enable Collection](#enable-collection)
-* [Additional Options](#additional-options)
-* [Running Additional Collections](#running-additional-collections)
+- [Metadata Collection](#metadata-collection)
+  - [How it Works](#how-it-works)
+  - [Targeted Init Containers](#targeted-init-containers)
+  - [DaemonSet](#daemonset)
+  - [Differences between targeted and daemonset](#differences-between-targeted-and-daemonset)
+- [Enable Collection](#enable-collection)
+  - [Additional Options](#additional-options)
+    - [Customizing backpack image](#customizing-backpack-image)
+    - [Privileged Pods](#privileged-pods)
+    - [Additional k8s Information](#additional-k8s-information)
+    - [Stockpile tags](#stockpile-tags)
+    - [Redis integration](#redis-integration)
+  - [Running Additional Collections](#running-additional-collections)
 
 ## How it Works
 
@@ -34,15 +40,14 @@ the workload template with an init container section that looks like:
       serviceAccountName: {{ metadata.serviceaccount }}
 {% endif %}
       initContainers:
-      - name: backpack
+      - name: backpack-{{ trunc_uuid }}
         image: {{ metadata.image }}
         command: ["/bin/sh", "-c"]
         args:
           - >
             python3
             stockpile-wrapper.py
-            -s={{ elasticsearch.server }}
-            -p={{ elasticsearch.port }}
+            -s={{ elasticsearch.url }}
             -u={{ uuid }}
             -n=${my_node_name}
             -N=${my_pod_name}
@@ -51,7 +56,9 @@ the workload template with an init container section that looks like:
 {% if metadata.force is sameas true %}
             --force
 {% endif %}
-            --tags={{ metadata.stockpile_tags|default(["common", "k8s", "openshift"])|join(",") }}
+{% if metadata.stockpile_tags|length > 0 %}
+            --tags={{ metadata.stockpile_tags|join(",") }}
+{% endif %}
 {% if metadata.stockpile_skip_tags|length > 0 %}
             --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
@@ -105,8 +112,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "my.elastic.server.foo"
-    port: 9200
+    server: "http://my.elastic.server.foo:9200"
   metadata:
     collection: true
     targeted: false
@@ -187,7 +193,7 @@ spec:
 The metadata collection will now be enabled however as there is no Elasticsearch information
 defined it will fail.
 
-- Add the Elasticsearch server and Port information
+- Add the Elasticsearch server information
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
@@ -196,8 +202,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "my.elastic.server.foo"
-    port: 9200
+    server: "http://my.elastic.server.foo:9200"
   metadata:
     collection: true
   workload:
@@ -352,9 +357,9 @@ While upon initial creation metadata is collected, it may be useful to collect
 additional runs of data at other times. To do this you will need to loop through
 each backpack Pod and exec the python command below:
 ```
-python3 stockpile-wrapper.py -s [es_server] -p [es_port] -u [uuid]
+python3 stockpile-wrapper.py -s [es_server] -u [uuid]
 ```
-Where es_server and es_port and the Elasticsearch server and port to index to.
+Where es_server points to the Elasticsearch server to index to.
 The UUID can be any uuid string you would like (if you do not supply one it
 will create one for you and you will see it defined in the output). On the
 initial run at boot this is the same UUID as the benchmark UUID.

@@ -4,9 +4,9 @@ metadata:
   name: fio-benchmark
   namespace: my-ripsaw
 spec:
-#  elasticsearch:
-#    server: <es_server>
-#    port: 9200
+  # where elastic search is running
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
 #  clustername: myk8scluster
 #  test_user: ripsaw
   workload:

@@ -38,8 +38,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: foo
-    port: 9090
+    server: "http://es-instance.com:9200"
     index_name: ripsaw-scale
   workload:
     name: scale_openshift

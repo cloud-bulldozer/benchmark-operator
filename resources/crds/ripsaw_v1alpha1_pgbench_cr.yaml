@@ -5,9 +5,8 @@ metadata:
   namespace: my-ripsaw
 spec:
   clustername: myk8scluster
-  #elasticsearch:
-  #  server: my.elasticsearch.server
-  #  port: 9200
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
   #test_user: milton
   workload:
     name: "pgbench"

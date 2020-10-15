@@ -4,13 +4,12 @@ metadata:
   name: example-benchmark
   namespace: my-ripsaw
 spec:
+  # where elastic search is running
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
   test_user: homer_simpson
   # to separate this test run from everyone else's
   clustername: aws-2009-09-10
-  # where elastic search is running
-  elasticsearch:
-    server: my.elasticsearch.server
-    port: 9200
   workload:
     name: fs-drift
     args:

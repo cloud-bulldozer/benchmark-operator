@@ -5,26 +5,25 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Workloads status
 
-| Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) | Kata Containers |
+| Workload                       | Use                    | ElasticSearch indexing  | Reconciliation usage       | VM support (kubevirt) | Kata Containers |
 | ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- | --------------- |
-| [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 3second  | Working                | Working         |
-| [Iperf3](docs/iperf.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 3second  | Working                | Working         |
-| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                 | Not Supported          | Preview         |
-| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [Service Mesh](docs/servicemesh.md) | Microservices     | Working            |  Used, default : 3second   | Not Supported         | Preview         |
-| [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Preview        |
-| [stressng](docs/stressng.md)   | Stress system resources | Working            |  Used, default: 3second  | Not Supported         | Preview        |
-| [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
-| [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Working       |  Used, default : 3second  | Not Supported          | Preview         |
-| [oslat](docs/oslat.md)         | Real-Time Latency      | Working           |  Used, default : 3second   | Not Supported          | Preview         |
-
+| [UPerf](docs/uperf.md)         | Network Performance    | Yes                |  Used, default : 3second  | Working                | Working         |
+| [Iperf3](docs/iperf.md)       | Network Performance     | No                 |  Used, default : 3second  | Not Supported          | Preview         |
+| [fio](docs/fio_distributed.md) | Storage IO             | Yes                |  Used, default : 3second  | Working                | Working         |
+| [Sysbench](docs/sysbench.md)   | System Performance     | No                 |  Used, default : 3second  | Not Supported          | Preview         |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Byowl](docs/byowl.md)         | User defined workload  | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Smallfile](docs/smallfile.md) | Storage IO Performance | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Yes            |  Not used                 | Not Supported          | Preview         |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Service Mesh](docs/servicemesh.md) | Microservices     | No            |  Used, default : 3second   | Not Supported         | Preview         |
+| [Vegeta](docs/vegeta.md)       | HTTP Performance       | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Yes            |  Used, default : 3second  | Not Supported         | Preview        |
+| [stressng](docs/stressng.md)   | Stress system resources | Yes            |  Used, default: 3second  | Not Supported         | Preview        |
+| [kube-burner](docs/kube-burner.md)  | k8s Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         |
+| [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Yes       |  Used, default : 3second  | Not Supported          | Preview         |
+| [oslat](docs/oslat.md)         | Real-Time Latency      | Yes           |  Used, default : 3second   | Not Supported          | Preview         |
 
 
 ### Reconciliation
@@ -53,8 +52,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "my-es.foo.bar"
-    port: 9200
+    server: "http://my-es.foo.bar:80"
   metadata_collection: true
   cleanup: false
   workload:
@@ -80,8 +78,7 @@ metadata:
 spec:
   uuid: 6060004a-7515-424e-93bb-c49844600dde
   elasticsearch:
-    server: "my-es.foo.bar"
-    port: 9200
+    server: "http://my-es.foo.bar:80"
   metadata_collection: true
   cleanup: false
   workload:

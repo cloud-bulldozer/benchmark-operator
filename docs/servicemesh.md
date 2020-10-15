@@ -4,7 +4,7 @@ This is an automated benchmark of basic [Red Hat Openshift Service Mesh](https:/
 
 The benchmark creates two namespaces: one for the Service Mesh [Control Plane](https://istio.io/docs/ops/deployment/architecture/), the other for the workload applications. Hyperfoil driver and the pod used to gather results is installed in the same namespace where Ripsaw is installed. When the benchmark completes those namespaces are destroyed along with other resources in Ripsaw namespace; you can inspect the results in JSON format in the benchmark job's pod output.
 
-## Prerequisities
+## Prerequisites
 
 As this benchmark requires the operator to create new namespaces, you have to grant it an extra permission:
 

@@ -1,8 +1,9 @@
 # Collecting Prometheus Data
 
 How To:
-* [What is it](#what-is-it)
-* [Configuring](#configuring)
+- [Collecting Prometheus Data](#collecting-prometheus-data)
+- [What is it](#what-is-it)
+- [Configuring](#configuring)
 
 # What is it
 
@@ -17,11 +18,12 @@ To enable this functionality a few variables must be set in the workload CR file
 ```
 prometheus:
   es_server: the elasticsearch server to upload to
-  es_port: the elasticsearch server port
   prom_url: the prometheus URL
   prom_token: a valid access token for prometheus
   es_parallel: enable parallel uploads to elasticsearch
 ```
+
+**Note**: Full URL format required for ElasticSearch. i.e. http://myesinstance.domain.com:9200
 
 The prometheus token can be obtained by running the following.
 
@@ -36,7 +38,7 @@ Elasticsearch instance sized appropriately.
 
 Example CR with prometheus uploads enabled
 
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -46,12 +48,10 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: my.es.server
-    port: 8080
+    server: "http://my.es.server:9200"
     index_name: ripsaw-smallfile
   prometheus:
-    es_server: my.other.es.server
-    es_port: 8080
+    es_server: "http://my.other.es.server:80"
     prom_url: my.prom.server:9100
     prom_token: 0921783409ufsd09752039ufgpods9u750239uge0p34
     es_parallel: true

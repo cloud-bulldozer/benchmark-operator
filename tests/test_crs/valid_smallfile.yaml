@@ -10,7 +10,6 @@ spec:
   # where elastic search is running
   elasticsearch:
     server: ES_SERVER
-    port: ES_PORT
     index_name: ripsaw-smallfile
   metadata:
     collection: true

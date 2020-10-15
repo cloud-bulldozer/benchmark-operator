@@ -7,13 +7,12 @@ max_concurrent=3
 # Presetting test_choice to be blank. 
 test_choice=''
 
-while getopts p:t:s:x: flag
+while getopts p:t:s: flag
 do
     case "${flag}" in
         p) max_concurrent=${OPTARG};;
         t) test_choice=${OPTARG};;
         s) ES_SERVER=${OPTARG};;
-        x) ES_PORT=${OPTARG};;
     esac
 done
 
@@ -69,8 +68,7 @@ UUID=${NEW_UUID%-*}
 #Tag name
 tag_name="${NODE_NAME:-master}"
 
-sed -i "s/ES_SERVER/$ES_SERVER/g" tests/test_crs/*
-sed -i "s/ES_PORT/$ES_PORT/g" tests/test_crs/*
+sed -i "s#ES_SERVER#$ES_SERVER#g" tests/test_crs/*
 sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
 sed -i "s/benchmarks.ripsaw.cloudbulldozer.io/benchmarks-$UUID.ripsaw.cloudbulldozer.io/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
 sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml

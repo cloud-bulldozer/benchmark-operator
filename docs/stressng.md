@@ -21,8 +21,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: <ES_SERVER>
-    port: <ES_PORT>
+    server: "http://es-instance.com:9200"
     index_name: ripsaw-stressng
   metadata:
     collection: true

@@ -1,14 +1,16 @@
 # Indexing to Elasticsearch
 
 How To:
-* [What is it](#what-is-it)
-* [Enabling Collection](#enabling-collection)
-    * [Benchmark Data](#benchmark-data)
-    * [Prometheus Data](#prometheus-data)
-* [Extending Prometheus Collection](#extending-prometheus-collection)
-    * [Elasticsearch-Prometheus Data model](#elasticsearch-prometheus-data-model)
-    * [Explaining Workload Include Files](#explaining-workload-include-files)
-    * [Adding Prometheus collection trigger](#adding-prometheus-collection-trigger)
+- [Indexing to Elasticsearch](#indexing-to-elasticsearch)
+- [What is it](#what-is-it)
+- [Enabling Collection](#enabling-collection)
+    - [Benchmark Data](#benchmark-data)
+    - [Prometheus Data](#prometheus-data)
+      - [Retrieving Openshift Prometheus info](#retrieving-openshift-prometheus-info)
+- [Extending Prometheus Collection](#extending-prometheus-collection)
+    - [Elasticsearch-Prometheus Data Model](#elasticsearch-prometheus-data-model)
+    - [Explaining Workload Include Files](#explaining-workload-include-files)
+    - [Adding Prometheus collection trigger](#adding-prometheus-collection-trigger)
 
 
 # What is it
@@ -52,20 +54,25 @@ To enable this functionality a few variables must be set in the workload CR file
 
 ```
 elasticsearch:
-  server: the elasticsearch server to upload to
-  port: the elasticsearch server port
+  server: the elasticsearch server URL to upload to
   parallel: enable parallel uploads to elasticsearch [default: false]
   index_name: the index name to use [default: workload defined]
   verify_cert: disable elasticsearch certificate verification [default: true]
 ```
 
-*NOTE:* The only required parameters if using elasticsearch is the port and server. The others are optional and will be 
-defaulted if not provided. Additionally, enabling parallel uploading may impact Elasticsearch server performance. 
-Ensure your environment is configured to handle the increased load before enabling
+**NOTE**: The ElasticSearch URL MUST BE in the format http(s)://[address]:[port]
+
+In addition to the above, the following parameters can be also specified at the `spec` level to improve indexed documents metadata.
+- `test_user` user is a key that points to user triggering ripsaw, useful to search results in ES. Defaults to *ripsaw*.
+- `clustername` an arbitrary name for your system under test (SUT) that can aid indexing.
+
+*NOTE:* The only required parameter if using elasticsearch is the URL server. The others are optional and will be defaulted if not provided.
+Additionally, enabling parallel uploading may greatly impact Elasticsearch server performance. Ensure your environment is configured to handle the
+increased load before enabling
 
 Example CR with elasticsearch information provided
 
-```
+```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -75,8 +82,7 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: my.es.server
-    port: 8080
+    server: "http://my.es.server:9200"
     index_name: ripsaw-smallfile
   metadata:
     collection: true

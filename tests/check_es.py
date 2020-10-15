@@ -14,20 +14,20 @@
 import argparse
 import elasticsearch
 import sys
+import ssl
+import urllib3
 
-def _check_index(server,port,uuid,index,es_ssl):
-    _es_connection_string = str(server) + ':' + str(port)
+
+def _check_index(server, uuid, index, es_ssl):
 
     if es_ssl == "true":
-        import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl.CERT_NONE
-        es = elasticsearch.Elasticsearch([_es_connection_string], send_get_body_as='POST',
-                                                 ssl_context=ssl_ctx, use_ssl=True)
+        es = elasticsearch.Elasticsearch([server], send_get_body_as='POST', ssl_context=ssl_ctx, use_ssl=True)
     else:
-        es = elasticsearch.Elasticsearch([_es_connection_string], send_get_body_as='POST')
+        es = elasticsearch.Elasticsearch([server], send_get_body_as='POST')
     es.indices.refresh(index=index)
     results = es.search(index=index, body={'query': {'term': {'uuid.keyword': uuid}}}, size=1)
     if results['hits']['total']['value'] > 0:
@@ -36,14 +36,12 @@ def _check_index(server,port,uuid,index,es_ssl):
         print("No result found in ES")
         return 1
 
+
 def main():
     parser = argparse.ArgumentParser(description="Script to verify uploads to ES")
     parser.add_argument(
         '-s', '--server',
         help='Provide elastic server information')
-    parser.add_argument(
-        '-p', '--port',
-        help='Provide elastic port information')
     parser.add_argument(
         '-u', '--uuid',
         help='UUID to provide to search')
@@ -56,7 +54,7 @@ def main():
         default=False)
     args = parser.parse_args()
 
-    sys.exit(_check_index(args.server,args.port,args.uuid,args.index,args.sslskipverify))
+    sys.exit(_check_index(args.server, args.uuid, args.index, args.sslskipverify))
 
 
 if __name__ == '__main__':
