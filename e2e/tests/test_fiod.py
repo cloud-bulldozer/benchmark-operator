@@ -1,6 +1,7 @@
-import pytest 
-from test_base import TestBase
+from pytest import mark
+from models.test_base import TestBase, default_timeout
 
+@mark.fiod
 class TestFiod(TestBase):
     workload = "fiod"
 
@@ -31,6 +32,6 @@ class TestFiod(TestBase):
         super().teardown_method(method)
 
 
-
+    @mark.timeout(default_timeout)
     def test_fiod(self, run):
         self.run_and_check_benchmark(run)

@@ -1,8 +1,18 @@
 import pytest 
 import os
-from e2e.util.k8s import Cluster
-from e2e.models.workload import Workload 
+from util.k8s import Cluster
+from models.workload import Workload 
 
+
+# Test Arguments
+
+def pytest_addoption(parser):
+    parser.addoption("--es-server", action="store", default=None, help="elasticsearch address")
+    parser.addoption("--es-port", action="store", default=None, help="elasticsearch address")
+    parser.addoption("--prom-token", action="store", default=None, help="prometheus token")
+    
+
+# Test Helpers 
 class Helpers:
     def __init__(self):
         self.cluster = Cluster()
@@ -14,7 +24,6 @@ class Helpers:
     @staticmethod
     def get_benchmark_dir():
         benchmark_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "benchmarks")
-        print(benchmark_dir)
         return benchmark_dir
     
     @staticmethod
@@ -23,7 +32,17 @@ class Helpers:
     
     @staticmethod 
     def get_workload(name):
-        return Workload(name, Cluster(), Helpers.get_benchmark_dir())
+        return Workload(name, Helpers.get_cluster(), Helpers.get_benchmark_dir())
+
+    @staticmethod
+    def create_test_resources(name):
+        test_dir = os.path.join(Helpers.get_benchmark_dir(), name, "resources")
+        if (os.path.isdir(test_dir)):
+            for entry in os.scandir(test_dir):
+                if (entry.path.endswith(".yaml")):
+                    Helpers.get_cluster().create_from_yaml(entry.path)
+
+
 
 
 
@@ -37,9 +56,18 @@ def pytest_generate_tests(metafunc):
         runs = workload.benchmark_runs
         metafunc.parametrize("run", runs)
 
+
+# Hooks
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_protocol(item, nextitem):
     item.cls._item = item
     yield
 
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
 
+    if rep.when == "call" and not rep.failed:
+        print(item.funcargs.get("run", {}).metadata)

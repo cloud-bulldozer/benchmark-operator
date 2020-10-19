@@ -13,7 +13,7 @@ spec:
     port: 8080
     index_name: ripsaw-fs-drift
   metadata:
-    collection: true
+    collection: false
   hostpath: /mnt/vda1/fs_drift
   workload:
     name: fs-drift

@@ -3,7 +3,7 @@ import json
 from timeout_decorator import timeout
 import time
 import yaml
-from e2e.util.exceptions import BenchmarkFailedError
+from util.exceptions import BenchmarkFailedError
 
 class Cluster:
     def __init__(self):
@@ -56,10 +56,14 @@ class Cluster:
     def wait_for_pods_by_app(self, app, namespace):
         waiting_for_pods = True
         while waiting_for_pods:
-            pods = self.get_pods_by_app(app, namespace).items
-            [ print(f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods ]
-            waiting_for_pods = (any([pod.status.phase != "Running" for pod in pods]))
             time.sleep(3)
+            pods = self.get_pods_by_app(app, namespace).items
+            if len(pods) == 0: 
+                continue
+            else:
+                [ print(f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods ]
+                waiting_for_pods = (any([pod.status.phase != "Running" for pod in pods]))
+            
 
     @timeout(seconds=300, use_signals=False)
     def wait_for_jobs_by_app(self, app, namespace):
@@ -104,6 +108,8 @@ class Cluster:
         finally: 
             return self.get_benchmark_metadata(benchmark['metadata']['name'], benchmark['metadata']['namespace'])
     
+    def create_from_yaml(self, yaml_file):
+        return utils.create_from_yaml(self.api_client, yaml_file)
     
     
     # Delete Functions
@@ -128,6 +134,9 @@ class Cluster:
         )
 
         [ self.delete_benchmark(benchmark['metadata']['name'], namespace) for benchmark in all_benchmarks.get('items', []) ]
+
+    def delete_namespace(self, namespace):
+        return self.api_client.delete_namespace(namespace, client.V1DeleteOptions())
 
     # Patch Functions
 

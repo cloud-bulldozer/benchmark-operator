@@ -8,7 +8,7 @@ spec:
     server: localhost
     port: 8080
   metadata:
-    collection: true
+    collection: false
   workload:
     name: iperf3
     args:

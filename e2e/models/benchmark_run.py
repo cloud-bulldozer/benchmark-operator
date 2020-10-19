@@ -1,6 +1,6 @@
 import yaml
-from e2e.util.k8s import Cluster 
-from e2e.util.exceptions import BenchmarkNotStartedError
+from util.k8s import Cluster 
+from util.exceptions import BenchmarkNotStartedError
 
 class BenchmarkRun:
     def __init__(self, name, yaml_path, cluster): 
@@ -12,14 +12,15 @@ class BenchmarkRun:
         self.resource_namespace = self.yaml['metadata']['namespace']
         self.metadata = {}
 
+
     def start(self):
         self.metadata = self.cluster.create_benchmark(self.yaml)
         return self.metadata
 
-    def wait(self):
+    def wait(self, desired_state="Complete"):
         if self.metadata == {}:
             raise BenchmarkNotStartedError(self.name)
-        self.cluster.wait_for_benchmark(self.resource_name, self.resource_namespace, desired_state="Complete")
+        self.cluster.wait_for_benchmark(self.resource_name, self.resource_namespace, desired_state=desired_state)
         self.metadata = self.cluster.get_benchmark_metadata(self.resource_name, self.resource_namespace)
         return self.metadata
 

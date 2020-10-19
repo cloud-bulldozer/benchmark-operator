@@ -1,7 +1,7 @@
 from os import listdir
 from os.path import isfile, join
-from e2e.models.benchmark_run import BenchmarkRun
-from e2e.util.k8s import Cluster
+from models.benchmark_run import BenchmarkRun
+from util.k8s import Cluster
 
 
 class Workload:
@@ -28,3 +28,4 @@ class Workload:
         run.start()
         run.wait()
         return run.metadata
+

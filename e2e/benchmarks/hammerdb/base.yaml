@@ -9,7 +9,7 @@ spec:
     port: 8080
     index_name: ripsaw-hammerdb
   metadata:
-    collection: true
+    collection: false
   workload:
     name: "hammerdb"
     args:
