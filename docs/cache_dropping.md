@@ -58,7 +58,7 @@ For benchmark developers...
 
 kernel cache dropping is done by a daemonset run on nodes with the above label.   See roles/kernel_cache_drop
 for details on how this is done.  Each pod started by this daemonset is running a CherryPy web service that
-responds to a GET URL by dropping kernel cache using equivalent of shell commnand:
+responds to a GET URL by dropping kernel cache using equivalent of shell command:
 
 ```
 sync 

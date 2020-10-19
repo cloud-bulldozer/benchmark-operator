@@ -10,16 +10,20 @@ Elasticsearch information is provided.
 
 The scale workload takes the following required variables:
 
-'scale' the target number of workers to scale too
-'serviceaccount' the service account to run as. Note the "default" account generally does not have enough privileges
+`scale` the target number of workers to scale to.
+
+`serviceaccount` the service account to run as. Note the "default" account generally does not have enough privileges
 
 Optional variables:
 
-'poll_interval' how long, in seconds, to wait between polls to see if the scaling is complete. default: 5
-'post_sleep' how long, in seconds, to wait after the scaling is complete before marking the pod as complete. default: 0
-'label' a dictionary consisting of 'key' and 'value'. If provided it will require to launch the node with
+`poll_interval` how long, in seconds, to wait between polls to see if the scaling is complete. default: 5
+
+`post_sleep` how long, in seconds, to wait after the scaling is complete before marking the pod as complete. default: 0
+
+`label` a dictionary consisting of 'key' and 'value'. If provided it will require to launch the node with
         matching key and value
-'tolerations' a dictionary consisting of a 'key', 'value' and 'effect'. If provided it will add a toleration
+
+`tolerations` a dictionary consisting of a 'key', 'value' and 'effect'. If provided it will add a toleration
         for the matching key/value/effect
 
 Your resource file may look like this when using all avaible options:
