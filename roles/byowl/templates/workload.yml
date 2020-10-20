@@ -18,8 +18,14 @@ spec:
         image: "{{ workload_args.image }}"
         imagePullPolicy: Always
       restartPolicy: OnFailure
-{% if workload_args.nodeselector is defined %}
+{% if workload_args.tolerations is defined %}
       nodeSelector: 
-        {{ workload_args.nodeselector }}
+{% for label, value in  workload_args.nodeselector.items() %}
+        {{ label | replace ("_", "-" )}}:{{ value }}
+{% endfor %}
+{% endif  %}
+{% if workload_args.tolerations is defined %}
+      tolerations:
+        {{ workload_args.tolerations }}
 {% endif %}
 {% include "metadata.yml.j2" %}
