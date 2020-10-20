@@ -18,7 +18,7 @@ spec:
         image: "{{ workload_args.image }}"
         imagePullPolicy: Always
       restartPolicy: OnFailure
-{% if workload_args.tolerations is defined %}
+{% if workload_args.nodeselector is defined %}
       nodeSelector: 
 {% for label, value in  workload_args.nodeselector.items() %}
         {{ label | replace ("_", "-" )}}:{{ value }}
