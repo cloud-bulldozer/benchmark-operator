@@ -56,6 +56,11 @@ spec:
                 items:
                   type: object
                   x-kubernetes-preserve-unknown-fields: true
+              global_overrides:
+                type: array
+                items:
+                  type: string
+                  x-kubernetes-preserve-unknown-fields: true
               metadata:
                 default: {}
                 properties:
