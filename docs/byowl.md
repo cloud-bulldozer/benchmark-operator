@@ -14,12 +14,31 @@ metadata:
   name: byowl-benchmark
   namespace: my-ripsaw
 spec:
-  byowl:
-    image: "quay.io/jtaleric/uperf:testing"
-    clients: 1
-    commands: |
-      echo "This is my test workload";
-      echo "This is my test workload again..."
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/me/myawesomebenchmarkimage"
+      clients: 1
+      commands: "echo Test"
+```
+
+
+### NodeSelector and Taint/Tolerations
+
+You can add a node selector and/or taints/tolerations to the resulting Kubernetes resources like so:
+
+```yaml
+spec:
+  workload:
+    name: byowl
+    args:
+      nodeselector:
+        foo: bar
+      tolerations:
+      - key: "taint-to-tolerate"
+        operator: "Exists"
+        effect: "NoSchedule"
+
 ```
 
 This will launch the uperf container, and simply print the messages
