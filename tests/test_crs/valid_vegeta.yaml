@@ -6,7 +6,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
+    url: ES_SERVER
     index_name: ripsaw-vegeta
   metadata:
     collection: true

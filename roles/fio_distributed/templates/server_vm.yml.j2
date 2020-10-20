@@ -49,13 +49,13 @@ spec:
 {% if workload_args.metadata is defined
     and (workload_args.metadata.collection|default(false))
     and (workload_args.metadata.targeted|default(true)) %}
-            - export ES_SERVER={{ elasticsearch.server }}
+            - export ES_SERVER={{ elasticsearch.url }}
 {% if workload_args.vm_image is undefined %}
             - wget https://raw.githubusercontent.com/cloud-bulldozer/bohica/master/stockpile-wrapper/stockpile-wrapper.py
             - pip3 install elasticsearch-dsl openshift kubernetes redis
 {% endif %}
             # TODO: start stockpile-wrapper script
-            python3 stockpile-wrapper.py -s {{ elasticsearch.server }} -u {{ uuid }} -n "$my_node_name" -N "$my_pod_name" --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force
+            python3 stockpile-wrapper.py -s {{ elasticsearch.url }} -u {{ uuid }} -n "$my_node_name" -N "$my_pod_name" --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force
 {% endif %}
             - fio --server
 {% if workload_args.storageclass is defined %}

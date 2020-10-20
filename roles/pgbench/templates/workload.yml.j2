@@ -16,7 +16,7 @@ spec:
 {% endif %}
       containers:
       - name: benchmark
-        image: "{{ pgb_base_image }}:{{ pgb_version }}"
+        image: "{{ pgb_base_image }}"
         imagePullPolicy: Always
         env:
           - name: PGPASSWORD
@@ -34,7 +34,7 @@ spec:
             value: '{{ clustername }}'
 {% if elasticsearch is defined %}
           - name: es
-            value: "{{ elasticsearch.server }}"
+            value: "{{ elasticsearch.url }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-pgbench") }}"
           - name: parallel
@@ -42,7 +42,7 @@ spec:
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
-            value: "{{ prometheus.es_server }}"
+            value: "{{ prometheus.es_url }}"
           - name: prom_parallel
             value: "{{ prometheus.es_parallel | default(false) }}"
           - name: prom_token
@@ -64,7 +64,7 @@ spec:
                    echo 'GO!';
                  {% for clients in workload_args.clients|default('1') %}
                    export database='{{ item.1.host }}/{{ item.1.db_name }}';
-                   export description='scaling factor: {{ workload_args.scaling_factor }} | threads: {{ workload_args.threads }} | clients: {{ clients }}'
+                   export description='scaling factor: {{ workload_args.scaling_factor }} | threads: {{ workload_args.threads }} | clients: {{ clients }}';
                    echo '';
                    echo 'Running PGBench with {{ clients }} clients on database {{ item.1.host }}/{{ item.1.db_name }}';
                    for i in `seq 1 {{ workload_args.samples|int }}`; do

@@ -6,7 +6,6 @@ metadata:
 spec:
   elasticsearch:
     server: http://my.elasticsearch.server:80
-    index_name: ripsaw-ycsb
   clustername: myk8scluster
   workload:
     name: ycsb

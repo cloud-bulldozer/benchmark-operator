@@ -9,7 +9,7 @@ spec:
   # to separate this test run from everyone else's
   clustername: test_ci
   elasticsearch:
-    server: ES_SERVER
+    url: ES_SERVER
     index_name: ripsaw-smallfile
   metadata:
     collection: true

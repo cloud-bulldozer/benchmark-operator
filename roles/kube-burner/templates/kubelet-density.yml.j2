@@ -1,10 +1,10 @@
 ---
 global:
   writeToFile: false
-{% if prometheus is defined and prometheus.prom_url is defined %}
+{% if prometheus is defined and prometheus.prom_url is defined and prometheus.es_url != "" %}
   indexerConfig:
     enabled: true
-    esServers: ["{{ prometheus.es_server }}"]
+    esServers: ["{{ prometheus.es_url }}"]
     insecureSkipVerify: true
     defaultIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
     type: elastic

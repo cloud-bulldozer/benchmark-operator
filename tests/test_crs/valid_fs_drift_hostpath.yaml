@@ -9,7 +9,7 @@ spec:
   clustername: test_ci
   # where elastic search is running
   elasticsearch:
-    server: ES_SERVER
+    url: ES_SERVER
     index_name: ripsaw-fs-drift
   metadata:
     collection: true

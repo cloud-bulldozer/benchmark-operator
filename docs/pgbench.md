@@ -129,7 +129,7 @@ spec:
   test_user: milton
   # My elasticsearch server information
   elasticsearch:
-    server: "htttp://my.elasticsearch.server:9200"
+    url: "htttp://my.elasticsearch.server:9200"
   workload:
     name: "pgbench"
     args:

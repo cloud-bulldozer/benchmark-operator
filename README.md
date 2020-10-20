@@ -75,7 +75,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://my-es.foo.bar:80"
+    url: "http://my-es.foo.bar:80"
   metadata_collection: true
   cleanup: false
   workload:
@@ -101,7 +101,7 @@ metadata:
 spec:
   uuid: 6060004a-7515-424e-93bb-c49844600dde
   elasticsearch:
-    server: "http://my-es.foo.bar:80"
+    url: "http://my-es.foo.bar:80"
   metadata_collection: true
   cleanup: false
   workload:

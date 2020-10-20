@@ -34,7 +34,7 @@ spec:
           value: "{{uuid}}"
 {% if elasticsearch is defined %}
         - name: es
-          value: "{{ elasticsearch.server }}"
+          value: "{{ elasticsearch.url }}"
         - name: es_index
           value: "{{ elasticsearch.index_name | default("ripsaw-ycsb") }}"
         - name: parallel
@@ -42,7 +42,7 @@ spec:
 {% endif %}
 {% if prometheus is defined %}
         - name: prom_es
-          value: "{{ prometheus.es_server }}"
+          value: "{{ prometheus.es_url }}"
         - name: prom_parallel
           value: "{{ prometheus.es_parallel | default(false) }}"
         - name: prom_token

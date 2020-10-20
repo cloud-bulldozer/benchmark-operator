@@ -7,10 +7,10 @@ spec:
   # Metadata information
   elasticsearch:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
-    server: <ES_URL>
+    url: <ES_URL>
   prometheus:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
-    es_server: <ES_URL>
+    es_url: <ES_URL>
     # Prometheus bearer token
     prom_token: <PROMETHEUS_BEARER_TOKEN>
     # Prometheus URL with full URL format. https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091

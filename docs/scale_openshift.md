@@ -38,7 +38,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://es-instance.com:9200"
+    url: "http://es-instance.com:9200"
     index_name: ripsaw-scale
   workload:
     name: scale_openshift

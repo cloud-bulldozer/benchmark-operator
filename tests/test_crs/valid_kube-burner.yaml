@@ -6,11 +6,11 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
+    url: ES_SERVER
   metadata:
     collection: true
   prometheus:
-    es_server: http://ES_SERVER
+    es_url: ES_SERVER
     prom_token: PROMETHEUS_TOKEN
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
   workload:

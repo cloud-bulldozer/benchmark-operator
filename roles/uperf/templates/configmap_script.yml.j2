@@ -8,8 +8,8 @@ data:
   run_script.sh : |
     export h={{item.status.interfaces[0].ipAddress}}
 {% if elasticsearch is defined %}
-{% if elasticsearch.server is defined %}
-    export es={{elasticsearch.server}}
+{% if elasticsearch.url is defined %}
+    export es={{ elasticsearch.url }}
     export es_index={{ elasticsearch.index_name | default("ripsaw-uperf") }}
     export es_verify_cert={{ elasticsearch.verify_cert | default("true") }}
     export parallel={{ elasticsearch.parallel | default("false") }}

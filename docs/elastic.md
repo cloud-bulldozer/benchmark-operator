@@ -54,7 +54,7 @@ To enable this functionality a few variables must be set in the workload CR file
 
 ```
 elasticsearch:
-  server: the elasticsearch server URL to upload to
+  url: the elasticsearch server URL to upload to
   parallel: enable parallel uploads to elasticsearch [default: false]
   index_name: the index name to use [default: workload defined]
   verify_cert: disable elasticsearch certificate verification [default: true]
@@ -62,15 +62,10 @@ elasticsearch:
 
 **NOTE**: The ElasticSearch URL MUST BE in the format http(s)://[address]:[port]
 
-In addition to the above, the following parameters can be also specified at the `spec` level to improve indexed documents metadata.
-- `test_user` user is a key that points to user triggering ripsaw, useful to search results in ES. Defaults to *ripsaw*.
-- `clustername` an arbitrary name for your system under test (SUT) that can aid indexing.
+*NOTE:* The only required parameters if using elasticsearch is `url`. The others are optional and will be
+defaulted if not provided. Additionally, enabling parallel uploading may impact Elasticsearch server performance.
+Ensure your environment is configured to handle the increased load before enabling
 
-*NOTE:* The only required parameter if using elasticsearch is the URL server. The others are optional and will be defaulted if not provided.
-Additionally, enabling parallel uploading may greatly impact Elasticsearch server performance. Ensure your environment is configured to handle the
-increased load before enabling
-
-Example CR with elasticsearch information provided
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -82,7 +77,7 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: "http://my.es.server:9200"
+    url: "http://my.es.server:9200"
     index_name: ripsaw-smallfile
   metadata:
     collection: true
@@ -101,12 +96,13 @@ To enable this functionality we must provide the following parameters to the wor
 
 ```
   prometheus:
-    es_server: my.es.server
-    es_port: 8080 
+    es_url: http://my.es.server:80
     prom_url: http://< URL > 
     prom_token: <token>
     es_parallel: true|false
 ```
+
+**Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the es_url parameter.
 
 Depending on your infrastructure and desire to store prometheues data separately from your benchmark data, you are able 
 to specify the same or different ES server/port from the benchmark data instance. Users are also able to separately 
@@ -127,12 +123,10 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: my.es.server
-    port: 8080
+    server: http://my.es.server:80
     index_name: ripsaw-smallfile
   prometheus:
-    es_server: my.es.server
-    es_port: 8080 
+    es_url: http://my.es.server:80
     prom_url: http://< URL > 
     prom_token: <token>
     es_parallel: true
@@ -169,10 +163,10 @@ oc create clusterrolebinding grafana-cluster-monitoring-view --clusterrole=clust
 oc sa get-token snafu -n my-ripsaw
 ```
 
-*NOTE:* User tokens can expire, for long running test it is recommend to either set the necessary permissions 
+*NOTE:* User tokens can expire, for long running test it is recommend to either set the necessary permissions
 on the token, or use the Prometheus service account's token.
 
-Command to retrieve prometheus service account's token: 
+Command to retrieve prometheus service account's token:
 
 `oc -n openshift-monitoring sa get-token prometheus-k8s`
 
@@ -402,8 +396,3 @@ trigger_workload.py
     
         **yield sample_info_dict, "get_prometheus_trigger"**
 ```
-
-
-
-
-
