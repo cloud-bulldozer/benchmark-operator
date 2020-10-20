@@ -78,7 +78,7 @@ class TestBase():
     def check_metadata_collection(cls, uuid, es_ssl=False):
         if not (cls.metadata_collection_enabled and cls.check_es):
             return True
-        results = [_check_es(uuid, index, es_ssl) for index in cls.indices]
+        results = [cls._check_es(uuid, index, es_ssl) for index in cls.indices]
         assert all(results)
 
     def run_and_check_benchmark(self, run, status="Complete"):

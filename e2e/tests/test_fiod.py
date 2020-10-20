@@ -4,7 +4,7 @@ from models.test_base import TestBase, default_timeout
 @mark.fiod
 class TestFiod(TestBase):
     workload = "fiod"
-    indexes= [
+    indices= [
         "ripsaw-fio-results",
         "ripsaw-fio-log", 
         "ripsaw-fio-analyzed-result"
