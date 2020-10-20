@@ -29,3 +29,7 @@ class Workload:
         run.wait()
         return run.metadata
 
+    
+    def inject_overrides(self, overrides):
+        for run in self.benchmark_runs:
+            [run.update_spec(key, value) for key, value in overrides.items()]

@@ -4,6 +4,11 @@ from models.test_base import TestBase, default_timeout
 @mark.fiod
 class TestFiod(TestBase):
     workload = "fiod"
+    indexes= [
+        "ripsaw-fio-results",
+        "ripsaw-fio-log", 
+        "ripsaw-fio-analyzed-result"
+    ]
 
     def setup_method(self, method):
         super().setup_method(method)

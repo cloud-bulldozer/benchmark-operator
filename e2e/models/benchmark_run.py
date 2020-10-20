@@ -1,16 +1,21 @@
 import yaml
+from benedict import benedict
 from util.k8s import Cluster 
 from util.exceptions import BenchmarkNotStartedError
 
 class BenchmarkRun:
     def __init__(self, name, yaml_path, cluster): 
         with open(yaml_path, 'r') as file:
-            self.yaml = yaml.full_load(file) 
+            self.yaml = benedict(yaml.full_load(file)) 
         self.cluster = cluster
         self.name = name
         self.resource_name = self.yaml['metadata']['name']
         self.resource_namespace = self.yaml['metadata']['namespace']
         self.metadata = {}
+
+
+    def update_spec(self, key_path, new_value):
+        self.yaml[key_path] = new_value
 
 
     def start(self):
