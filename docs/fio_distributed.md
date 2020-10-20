@@ -22,7 +22,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://my.es.server:9200"
+    url: "http://my.es.server:9200"
   clustername: myk8scluster
   test_user: my_test_user_name
   workload:
@@ -296,5 +296,5 @@ The field for timestamp will always be `time_ms` .
 ### Changes to CR for indexing/visualization
 
 In order to index your fio results to elasticsearch, you will need to define the parameters appropriately in
-your workload CR file. The `spec.elasticsearch.server` parameter is required.
+your workload CR file. The `spec.elasticsearch.url` parameter is required.
 The `spec.clustername` and `spec.test_user` values are advised to allow for better indexing of your data.

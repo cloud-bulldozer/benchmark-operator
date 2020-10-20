@@ -19,7 +19,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://esinstance.com:9200"
+    url: "http://esinstance.com:9200"
     index_name: ripsaw-vegeta
   workload:
     name: vegeta

@@ -98,18 +98,18 @@ kube-burner is able to collect complex prometheus metrics and index them in a El
 ```yaml
 spec:
   prometheus:
-    es_server: http://foo.esserver.com:9200
+    es_url: http://foo.esserver.com:9200
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     prom_token: prometheusToken
   workload:
 ```
 
 Where:
-- **``es_server``**: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
+- **``es_url``**: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
 - **``prom_url``**: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
 - **``prom_token``**: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
 
-**Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the url parameter.
+**Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the es_url parameter.
 
 ## Metrics
 

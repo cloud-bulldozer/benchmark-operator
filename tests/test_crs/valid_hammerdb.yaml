@@ -5,14 +5,14 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
+    url: ES_SERVER
     index_name: ripsaw-hammerdb
   metadata:
     collection: true
   workload:
     name: "hammerdb"
     args:
-      image: "quay.io/mkarg/hammerdb:latest"
+      # image: "quay.io/mkarg/hammerdb:latest"
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"

@@ -17,7 +17,7 @@ To enable this functionality a few variables must be set in the workload CR file
 
 ```
 prometheus:
-  es_server: the elasticsearch server to upload to
+  es_url: the elasticsearch server to upload to
   prom_url: the prometheus URL
   prom_token: a valid access token for prometheus
   es_parallel: enable parallel uploads to elasticsearch
@@ -48,10 +48,10 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: "http://my.es.server:9200"
+    url: "http://my.es.server:9200"
     index_name: ripsaw-smallfile
   prometheus:
-    es_server: "http://my.other.es.server:80"
+    es_url: "http://my.other.es.server:80"
     prom_url: my.prom.server:9100
     prom_token: 0921783409ufsd09752039ufgpods9u750239uge0p34
     es_parallel: true
@@ -66,3 +66,5 @@ spec:
       file_size: 0
       files: 100000
 ```
+
+**Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the url parameter.

@@ -112,7 +112,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://my.elastic.server.foo:9200"
+    url: "http://my.elastic.server.foo:9200"
   metadata:
     collection: true
     targeted: false
@@ -202,7 +202,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://my.elastic.server.foo:9200"
+    url: "http://my.elastic.server.foo:9200"
   metadata:
     collection: true
   workload:
@@ -357,9 +357,9 @@ While upon initial creation metadata is collected, it may be useful to collect
 additional runs of data at other times. To do this you will need to loop through
 each backpack Pod and exec the python command below:
 ```
-python3 stockpile-wrapper.py -s [es_server] -u [uuid]
+python3 stockpile-wrapper.py -s [es_url] -u [uuid]
 ```
-Where es_server points to the Elasticsearch server to index to.
+Where es_url points to the Elasticsearch server to index to.
 The UUID can be any uuid string you would like (if you do not supply one it
 will create one for you and you will see it defined in the output). On the
 initial run at boot this is the same UUID as the benchmark UUID.

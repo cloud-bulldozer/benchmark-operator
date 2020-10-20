@@ -3,7 +3,7 @@
 ERRORED=false
 image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
-es_server=${ES_SERVER:-http://foo.esserver.com:9200}
+es_url=${ES_SERVER:-http://foo.esserver.com:9200}
 echo "using container image location $image_location and account $image_account"
 
 function populate_test_list {
@@ -303,7 +303,7 @@ function check_es() {
   local uuid=$1
   local index=${@:2}
   for my_index in $index; do
-    python3 tests/check_es.py -s $es_server -u $uuid -i $my_index \
+    python3 tests/check_es.py -s $es_url -u $uuid -i $my_index \
       || return 1
   done
 }

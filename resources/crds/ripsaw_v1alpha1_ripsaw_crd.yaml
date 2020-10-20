@@ -27,7 +27,7 @@ spec:
               elasticsearch:
                 type: object
                 properties:
-                  server:
+                  url:
                     type: string
                   index_name:
                     type: string
@@ -38,7 +38,7 @@ spec:
               prometheus:
                 type: object
                 properties:
-                  es_server:
+                  es_url:
                     type: string
                   es_parallel:
                     type: boolean
@@ -69,7 +69,7 @@ spec:
                     default: false
                     type: boolean
                   image:
-                    default: "quay.io/rsevilla/backpack:latest"
+                    default: "quay.io/cloud-bulldozer/backpack:latest"
                     type: string
                   label:
                     type: object

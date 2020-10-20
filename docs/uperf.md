@@ -15,7 +15,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: "http://es-instance.com:9200"
+    url: "http://es-instance.com:9200"
   workload:
     name: uperf
     args:

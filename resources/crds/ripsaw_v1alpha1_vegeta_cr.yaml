@@ -6,10 +6,9 @@ metadata:
 spec:
   elasticsearch:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
-    server: "https://elastic.apps.org:9200"
-    index_name: ripsaw-vegeta
+    url: https://elastic.apps.org:9200
 # test_user: username_to_attach_to_metadata
-#  clustername: myk8scluster
+  clustername: myk8scluster
   workload:
     name: vegeta
     args:

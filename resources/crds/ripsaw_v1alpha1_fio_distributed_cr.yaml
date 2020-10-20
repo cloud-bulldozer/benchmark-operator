@@ -6,7 +6,7 @@ metadata:
 spec:
   # where elastic search is running
   elasticsearch:
-    server: http://my.elasticsearch.server:80
+    url: http://my.elasticsearch.server:80
 #  clustername: myk8scluster
 #  test_user: ripsaw
   workload:

@@ -5,8 +5,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
-    port: ES_PORT
+    url: ES_SERVER
     index_name: ripsaw-stressng
   metadata:
     collection: true

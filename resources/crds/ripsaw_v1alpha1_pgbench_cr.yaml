@@ -6,7 +6,7 @@ metadata:
 spec:
   clustername: myk8scluster
   elasticsearch:
-    server: http://my.elasticsearch.server:80
+    url: http://my.elasticsearch.server:80
   #test_user: milton
   workload:
     name: "pgbench"

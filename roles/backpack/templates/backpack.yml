@@ -41,7 +41,7 @@ spec:
           - >
             python3
             stockpile-wrapper.py
-            -s={{ elasticsearch.server }}
+            -s={{ elasticsearch.url }}
             -u={{ uuid }}
             -n=${my_node_name}
             -N=${my_pod_name}
