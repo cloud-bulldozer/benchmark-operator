@@ -1,0 +1,82 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  template:
+    metadata:
+      labels:
+        app: cyclictest-{{ trunc_uuid }}
+    spec:
+      ttlSecondsAfterFinished: 600
+      containers:
+      - name: cyclictest
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/cyclictest:latest') }}
+        command: ["/bin/sh", "-c"]
+        args: ["run_snafu --tool cyclictest -p /tmp/cyclictest.sh -u {{ uuid }} --user {{test_user | default("ripsaw")}}"]
+        imagePullPolicy: Always
+{% if workload_args.nodeselector is defined %}
+      nodeSelector:
+          "{{ workload_args.nodeselector }}"
+{% endif %}
+        resources:
+          requests:
+            memory: {{ workload_args.pod.requests.memory }}
+            cpu: {{ workload_args.pod.requests.cpu }}
+          limits:
+            memory: {{ workload_args.pod.limits.memory }}
+            cpu: {{ workload_args.pod.limits.cpu }}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.server }}"
+          - name: es_port
+            value: "{{ elasticsearch.port }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-cyclictest") }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default("false") }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.es_server }}"
+          - name: prom_port
+            value: "{{ prometheus.es_port }}"
+          - name: prom_parallel
+            value: "{{ prometheus.es_parallel | default("false") }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+          - name: DURATION
+            value: "{{ workload_args.duration }}"
+          - name: DISABLE_CPU_BALANCE
+            value: "{{ workload_args.disable_cpu_balance }}"
+          - name: stressng
+            value: "{{ workload_args.stressng }}"
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: cstate
+          mountPath: /dev/cpu_dma_latency
+        - name: cyclictest-volume
+          mountPath: "/tmp/"
+      volumes:
+      - name: cstate
+        hostPath:
+          path: /dev/cpu_dma_latency
+      - name: cyclictest-volume
+        configMap:
+          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+          defaultMode: 0555
+      restartPolicy: Never
+      serviceAccountName: benchmark-operator
+{% include "metadata.yml.j2" %}
