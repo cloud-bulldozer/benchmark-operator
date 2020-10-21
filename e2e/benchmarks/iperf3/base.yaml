@@ -1,12 +1,11 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: iperf-base
   namespace: my-ripsaw
 spec:
   elasticsearch:
     server: localhost
-    port: 8080
   metadata:
     collection: false
   workload:

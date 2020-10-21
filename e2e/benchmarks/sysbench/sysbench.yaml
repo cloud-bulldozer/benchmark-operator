@@ -1,14 +1,13 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: sysbench
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
-    port: ES_PORT
+    server: localhost
   metadata:
-    collection: true
+    collection: false
   workload:
     name: sysbench
     args:

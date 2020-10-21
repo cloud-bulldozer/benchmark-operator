@@ -2,33 +2,40 @@ import pytest
 import os
 from util.k8s import Cluster
 from models.workload import Workload 
+import logging
 
 
 # Test Arguments
 
 def pytest_addoption(parser):
     parser.addoption("--es-server", action="store", default=None, help="elasticsearch address")
-    parser.addoption("--es-port", action="store", default=8080, help="elasticsearch port")
     parser.addoption("--prom-token", action="store", default=None, help="prometheus token")
     
 
 @pytest.fixture(scope="class")
-def overrides(request):
+def overrides(request, metadata_collection_overrides):
+    request.cls.overrides = {}
+    request.cls.metadata_collection_enabled = request.cls.overrides["spec.metadata.collection"] = metadata_collection_overrides["metadata_collection_enabled"]
+
+    if request.cls.metadata_collection_enabled:
+        request.cls.es_server = request.cls.overrides["spec.elasticsearch.server"] = metadata_collection_overrides["es_server"]
+
+@pytest.fixture(scope="session")
+def metadata_collection_overrides(request):
     metadata_collection_enabled = (request.config.getoption("--es-server") is not None)
-    request.cls.es_server = request.config.getoption("--es-server")
-    request.cls.es_port = int(request.config.getoption("--es-port"))
-    request.cls.metadata_collection_enabled = metadata_collection_enabled
+    es_server= request.config.getoption("--es-server")
+    
 
     if metadata_collection_enabled:
-        request.cls.overrides = {
-            "spec.elasticsearch.server": request.config.getoption("--es-server"),
-            "spec.elasticsearch.port": int(request.config.getoption("--es-port")),
-            "spec.metadata.collection": metadata_collection_enabled
+        return {
+            "metadata_collection_enabled": metadata_collection_enabled, 
+            "es_server": es_server,
         }
     else: 
-        request.cls.overrides = {
-            "spec.metadata.collection": False
+        return {
+            "metadata_collection_enabled": metadata_collection_enabled
         }
+
 
 class Helpers:
     @staticmethod
@@ -78,16 +85,20 @@ def pytest_runtest_makereport(item, call):
     rep = outcome.get_result()
 
     if rep.when == "call" and not rep.failed:
-        print(item.funcargs.get("run", {}).metadata)
+        run_metadata = item.funcargs.get("run").metadata
+        header = "-----Benchmark Metadata-----"
+        metadata_string=f"{run_metadata['name']}\t{run_metadata['uuid']}\t{run_metadata['status']}"
+        full_log = f"\n{header}\n{metadata_string}\n"
+        logging.info(full_log)
 
 
 
 # Test Generator
-
 def pytest_generate_tests(metafunc):
     if "run" in metafunc.fixturenames and metafunc.cls.workload is not None:
         workload = Helpers.get_workload(metafunc.cls.workload)
         runs = workload.benchmark_runs
-        metafunc.parametrize("run", runs)
+        ids = [ run.name for run in runs ]
+        metafunc.parametrize("run", runs, ids=ids)
 
 

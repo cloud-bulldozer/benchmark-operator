@@ -6,7 +6,6 @@ metadata:
 spec:
   elasticsearch:
     server: localhost
-    port: 8080
     index_name: ripsaw-fio
   metadata:
     collection: false

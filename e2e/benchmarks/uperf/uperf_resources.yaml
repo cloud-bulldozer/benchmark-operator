@@ -1,15 +1,14 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: uperf-resources
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    server: ES_SERVER
-    port: ES_PORT
+    server: localhost
     index_name: ripsaw-uperf
   metadata:
-    collection: true
+    collection: false
   cleanup: false
   workload:
     name: uperf

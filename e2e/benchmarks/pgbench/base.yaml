@@ -1,15 +1,14 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: pgbench-benchmark
+  name: pgbench-base
   namespace: my-ripsaw
 spec:
   elasticsearch:
     server: localhost
-    port: 8080
     index_name: ripsaw-pgbench
   metadata:
-    collection: true
+    collection: false
   workload:
     name: "pgbench"
     args:

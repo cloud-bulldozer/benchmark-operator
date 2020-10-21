@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fs-drift-hostpath
   namespace: my-ripsaw
 spec:
   test_user: homer_simpson
@@ -10,7 +10,6 @@ spec:
   # where elastic search is running
   elasticsearch:
     server: localhost
-    port: 8080
     index_name: ripsaw-fs-drift
   metadata:
     collection: false

@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf-serviceip
+  name: uperf-base
   namespace: my-ripsaw
 spec:
   elasticsearch:
@@ -14,7 +14,7 @@ spec:
     name: uperf
     args:
       hostnetwork: false
-      serviceip: true
+      serviceip: false
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
@@ -25,6 +25,7 @@ spec:
       test_types:
         - stream
         - rr
+        - bidirec
       protos:
         - tcp
         - udp

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -x
 
 # The maximum number of concurrent tests to run at one time (0 for unlimited). This can be overriden with -p
@@ -16,136 +16,73 @@ do
     esac
 done
 
-source tests/common.sh
+
+function add_test_to_marker(){
+    if [[ ${test_markers} == "-m" ]]; then
+        test_markers="${test_markers} $1"
+    elif [[ ${test_markers} != *"$1"* ]]; then 
+        test_markers="${test_markers} or $1"
+    fi
+}
+
+function git_diff_lookup(){
+    file_name=$1
+    if [[ $(echo ${file_name} | grep -E '(roles/fs-drift|e2e/benchmarks/fs-drift|e2e/tests/test_fs_drift.py)') ]]; then add_test_to_marker "fs_drift"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/uperf|e2e/benchmarks/uperf|e2e/tests/test_uperf.py)') ]]; then add_test_to_marker "uperf"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/fio_distributed|e2e/benchmarks/fiod|e2e/tests/test_fiod.py)') ]]; then add_test_to_marker "fiod"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/iperf3|e2e/benchmarks/iperf3|e2e/tests/test_iperf3.py)') ]]; then add_test_to_marker "iperf3"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/byowl|e2e/benchmarks/byowl|e2e/tests/test_byowl.py)') ]]; then add_test_to_marker "byowl"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/sysbench|e2e/benchmarks/sysbench|e2e/tests/test_sysbench.py)') ]]; then add_test_to_marker "sysbench"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/pgbench|e2e/benchmarks/pgbench|e2e/tests/test_pgbench.py)') ]]; then add_test_to_marker "pgbench"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/ycsb|e2e/benchmarks/ycsb|e2e/tests/test_ycsb.py)') ]]; then add_test_to_marker "ycsb"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/backpack|e2e/benchmarks/backpack|e2e/tests/test_backpack.py)') ]]; then add_test_to_marker "backpack"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/hammerdb|e2e/benchmarks/hammerdb|e2e/tests/test_hammerdb.py)') ]]; then add_test_to_marker "hammerdb"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/smallfile|e2e/benchmarks/smallfile|e2e/tests/test_smallfile.py)') ]]; then add_test_to_marker "smallfile"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/vegeta|e2e/benchmarks/vegeta|e2e/tests/test_vegeta.py)') ]]; then add_test_to_marker "vegeta"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/stressng|e2e/benchmarks/stressng|e2e/tests/test_stressng.py)') ]]; then add_test_to_marker "stressng"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/scale_openshift|e2e/benchmarks/scale|e2e/tests/test_scale.py)') ]]; then add_test_to_marker "scale"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/kube-burner|e2e/benchmarks/kube-burner|e2e/tests/test_kube_burner.py)') ]]; then add_test_to_marker "kube_burner"; fi
+    if [[ $(echo ${file_name} | grep -E '(roles/servicemesh|e2e/benchmarks/servicemesh|e2e/tests/test_servicemesh.py)') ]]; then add_test_to_marker "servicemesh"; fi
+}
+
+function build_test_markers(){
+    if [[ $1 != '' ]]; then
+        test_markers="-m $1"
+    else
+        echo "helloooooo"
+        test_markers="-m"
+        for item in $git_diff_files
+        do
+            git_diff_lookup ${item}
+        done
+
+    fi
+
+}
 
 eStatus=0
-
 git_diff_files="$(git diff remotes/origin/master --name-only)"
+test_markers="" 
+cli_args="--es-server ${ES_SERVER}"
+
+
 
 if [[ $test_choice != '' ]]; then
   echo "Running for requested tests"
-  populate_test_list "${test_choice}"
-elif [[ `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo "${git_diff_files}" | grep -E "^(templates|build|deploy|group_vars|resources|tests/common.sh|roles/uuid)"` ]]; then
+  build_test_markers "${test_choice}"
+elif [[ $test_choice == "all" || `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "^(templates|build|deploy|group_vars|resources|e2e|roles/uuid)"` ]]; then
   echo "Running full test"
-  cp tests/test_list tests/iterate_tests
 else
   echo "Running specific tests"
-  populate_test_list "${git_diff_files}"
+  build_test_markers ""
 fi
 
-test_list="$(cat tests/iterate_tests)"
-echo "running test suit consisting of ${test_list}"
+virtualenv venv 
+source venv/bin/activate
+pip install -e e2e
+pytest e2e "${test_markers}" ${cli_args}
 
-if [[ ${test_list} == "" ]]; then
-  echo "No tests to run"
-  echo "Results for "$JOB_NAME > results.markdown
-  echo "No tests to run" >> results.markdown
-  exit 0
-fi
 
-# Massage the names into something that is acceptable for a namespace
-sed 's/\.sh//g' tests/iterate_tests | sort | uniq > tests/my_tests
-sed -i 's/_/-/g' tests/my_tests
 
-# Prep the results.xml file
-echo '<?xml version="1.0" encoding="UTF-8"?>
-<testsuites>
-   <testsuite name="CI Results" tests="NUMTESTS" failures="NUMFAILURES">' > results.xml
 
-# Prep the results.markdown file
-echo "Results for "$JOB_NAME > results.markdown
-echo "" >> results.markdown
-echo 'Test | Result | Retries| Duration (HH:MM:SS)' >> results.markdown
-echo '-----|--------|--------|---------' >> results.markdown
 
-# Create a "gold" directory based off the current branch
-mkdir gold
-
-# Generate uuid
-NEW_UUID=$(uuidgen)
-UUID=${NEW_UUID%-*}
-
-#Tag name
-tag_name="${NODE_NAME:-master}"
-
-sed -i "s#ES_SERVER#$ES_SERVER#g" tests/test_crs/*
-sed -i "s/sql-server/sql-server-$UUID/g" tests/mssql.yaml tests/test_crs/valid_hammerdb.yaml tests/test_hammerdb.sh
-sed -i "s/benchmarks.ripsaw.cloudbulldozer.io/benchmarks-$UUID.ripsaw.cloudbulldozer.io/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-sed -i "s/listKind: BenchmarkList/listKind: BenchmarkList-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-sed -i "s/plural: benchmarks/plural: benchmarks-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-sed -i "s/singular: benchmark/singular: benchmark-$UUID/g" resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-sed -i "s/benchmarks/benchmarks-$UUID/g" tests/common.sh
-sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" tests/test_crs/*.yaml
-sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" playbook.yml
-sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g" watches.yaml
-sed -i "s/backpack_role/backpack_role-$UUID/g" resources/backpack_role.yaml
-sed -i "s/my-ripsaw/my-ripsaw-$UUID-test-fiod/g" resources/kernel-cache-drop-daemonset.yaml
-grep -Rl "kind: Benchmark" roles/ | xargs sed -i "s/kind: Benchmark/kind: Benchmark-$UUID/g"
-sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
-
-cp -pr * gold/
-
-# Create individual directories for each test
-for ci_dir in `cat tests/my_tests`
-do
-  mkdir $ci_dir
-  cp -pr gold/* $ci_dir/
-  cd $ci_dir/
-  # Edit the namespaces so we can run in parallel
-  sed -i "s/my-ripsaw/my-ripsaw-$UUID-$ci_dir/g" `grep -Rl my-ripsaw`
-  sed -i "s/benchmark-operator-role/benchmark-operator-role-$UUID-$ci_dir/g" `grep -Rl benchmark-operator-role`
-  cd ..
-done
-
-# Update the operator image
-update_operator_image
-
-# Run scale test first if it is in the test list
-scale_test="false"
-if [[ `grep test-scale-openshift tests/my_tests` ]]
-then
-  scale_test="true"
-  sed -i '/test-scale-openshift/d' tests/my_tests
-  ./run_test.sh test-scale-openshift
-fi
-
-# Run tests in parallel up to $max_concurrent at a time.
-parallel -n 1 -a tests/my_tests -P $max_concurrent ./run_test.sh 
-if [[ $scale_test == "true" ]]
-then
-  echo "test-scale-openshift" >> tests/my_tests
-fi
-
-# Update and close JUnit test results.xml and markdown file
-for test_dir in `cat tests/my_tests`
-do
-  cat $test_dir/results.xml >> results.xml
-  cat $test_dir/results.markdown >> results.markdown
-  cat $test_dir/ci_results >> ci_results
-done
-
-# Get number of successes/failures
-testcount=`wc -l ci_results`
-success=`grep Successful ci_results | awk -F ":" '{print $1}'`
-failed=`grep Failed ci_results | awk -F ":" '{print $1}'`
-failcount=`grep -c Failed ci_results`
-echo "CI tests that passed: "$success
-echo "CI tests that failed: "$failed
-echo "Smoke test: Complete"
-
-echo "   </testsuite>
-</testsuites>" >> results.xml
-
-sed -i "s/NUMTESTS/$testcount/g" results.xml
-sed -i "s/NUMFAILURES/$failcount/g" results.xml
-
-if [ `grep -c Failed ci_results` -gt 0 ]
-then
-  eStatus=1
-fi
-  
-# Clean up our created directories
-rm -rf gold test-* ci_results
-
-exit $eStatus 

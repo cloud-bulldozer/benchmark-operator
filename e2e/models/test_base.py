@@ -2,6 +2,7 @@ import unittest
 import elasticsearch
 from pytest import mark
 import os
+import logging
 import subprocess
 
 default_timeout = 6000
@@ -54,7 +55,7 @@ class TestBase():
     def _check_es(cls, uuid, index, es_ssl):
         
 
-        _es_connection_string = str(cls.es_server) + ':' + str(cls.es_port)
+        _es_connection_string = str(cls.es_server)
 
         if es_ssl == "true":
             import urllib3
@@ -71,12 +72,12 @@ class TestBase():
         if results['hits']['total']['value'] > 0:
             return True
         else:
-            print("No result found in ES")
+            logging.error("No result found in ES")
             return False
 
     @classmethod 
     def check_metadata_collection(cls, uuid, es_ssl=False):
-        if not (cls.metadata_collection_enabled and cls.check_es):
+        if not (cls.metadata_collection_enabled and len(cls.indices) > 0):
             return True
         results = [cls._check_es(uuid, index, es_ssl) for index in cls.indices]
         assert all(results)

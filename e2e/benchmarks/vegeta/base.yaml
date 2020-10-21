@@ -1,0 +1,30 @@
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vegeta-base
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: localhost
+    index_name: ripsaw-vegeta
+  metadata:
+    collection: false
+  workload:
+    name: vegeta
+    args:
+      clients: 2
+      targets:
+        - name: 2w-ka
+          urls:
+            - GET https://1.1.1.1
+            - GET http://1.1.1.1
+          samples: 1
+          workers: 2
+          duration: 5
+          keepalive: true
+        - name: 2w-noka
+          urls:
+            - GET https://1.1.1.1
+          workers: 2
+          duration: 5

@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: fs-drift-base
+  name: smallfile-base
   namespace: my-ripsaw
 spec:
   test_user: homer_simpson
@@ -10,14 +10,14 @@ spec:
   # where elastic search is running
   elasticsearch:
     server: localhost
-    index_name: ripsaw-fs-drift
+    index_name: ripsaw-smallfile
   metadata:
-    collection: false
+    collection: true
   workload:
-    name: fs-drift
+    name: smallfile
     args:
-      worker_pods: 1
-      threads: 5
-      max_file_size_kb: 4
-      max_files: 1000
-      duration: 15
+      clients: 2
+      operation: ["create", "read", "append", "delete"]
+      threads: 1
+      file_size: 0
+      files: 100000

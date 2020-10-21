@@ -1,9 +1,13 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: servicemesh
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: localhost
+  metadata:
+    collection: false
   workload:
     name: servicemesh
     args:
