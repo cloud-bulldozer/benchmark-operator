@@ -5,10 +5,6 @@ global:
   indexerConfig:
     enabled: true
     esServers: [{{ prometheus.es_server }}]
-{% if workload_args.prom_es_user is defined and workload_args.prom_es_pass is defined %}
-    username: {{ workload_args.prom_es_user }}
-    password: {{ workload_args.prom_es_pass }}
-{% endif %}
     insecureSkipVerify: true
     defaultIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
     type: elastic
