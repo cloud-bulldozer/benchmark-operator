@@ -36,3 +36,5 @@ class BenchmarkRun:
             if err.status != 404:
                 raise err
 
+    def get_metadata(self):
+        return self.cluster.get_benchmark_metadata(self.resource_name, self.resource_namespace)

@@ -13,6 +13,7 @@ class TestBase():
     indices = ""
     inject_cli_args = True
     check_es = True
+    benchmark_needs_prometheus = False
 
     def setup_method(self, method):
         self.create_test_resources()

@@ -13,12 +13,15 @@ def pytest_addoption(parser):
     
 
 @pytest.fixture(scope="class")
-def overrides(request, metadata_collection_overrides):
+def overrides(request, metadata_collection_overrides, prometheus_token):
     request.cls.overrides = {}
     request.cls.metadata_collection_enabled = request.cls.overrides["spec.metadata.collection"] = metadata_collection_overrides["metadata_collection_enabled"]
 
     if request.cls.metadata_collection_enabled:
         request.cls.es_server = request.cls.overrides["spec.elasticsearch.server"] = metadata_collection_overrides["es_server"]
+        if prometheus_token is not None and request.cls.benchmark_needs_prometheus:
+            request.cls.overrides['spec.prometheus.es_server'] = f"http://{metadata_collection_overrides['es_server']}"
+            request.cls.overrides['spec.prometheus.prom_token'] = prometheus_token
 
 @pytest.fixture(scope="session")
 def metadata_collection_overrides(request):
@@ -36,6 +39,9 @@ def metadata_collection_overrides(request):
             "metadata_collection_enabled": metadata_collection_enabled
         }
 
+@pytest.fixture(scope="session")
+def prometheus_token(request):
+    return request.config.getoption("--prom-token")
 
 class Helpers:
     @staticmethod
@@ -90,6 +96,9 @@ def pytest_runtest_makereport(item, call):
         metadata_string=f"{run_metadata['name']}\t{run_metadata['uuid']}\t{run_metadata['status']}"
         full_log = f"\n{header}\n{metadata_string}\n"
         logging.info(full_log)
+    elif rep.when == "call" and rep.failed:
+        logging.error(Cluster().get_pod_logs_by_label("name=benchmark-operator", "my-ripsaw"))
+
 
 
 

@@ -1,6 +1,5 @@
 from kubernetes import client, config, watch, utils
 import json
-from timeout_decorator import timeout
 import time
 import yaml
 import logging
@@ -20,9 +19,20 @@ class Cluster:
         label_selector = f"app={app}"
         return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
 
+    def get_pod_logs_by_app(self, app, namespace):
+        pods = self.get_pods_by_app(app, namespace).items
+        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace) for pod in pods ]
+
     def get_jobs_by_app(self, app, namespace):
         label_selector = f"app={app}"
         return self.batch_client.list_namespaced_job(namespace, label_selector=label_selector, watch=False)
+    
+    def get_pods_by_label(self, label_selector, namespace):
+        return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
+
+    def get_pod_logs_by_label(self, label_selector, namespace):
+        pods = self.get_pods_by_label(label_selector, namespace).items
+        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace) for pod in pods ]
 
     def get_nodes(self, label_selector):
         return self.core_client.list_node(label_selector=label_selector)
@@ -55,8 +65,6 @@ class Cluster:
         }
 
     # Waiters
-
-    @timeout(seconds=300, use_signals=False)
     def wait_for_pods_by_app(self, app, namespace):
         waiting_for_pods = True
         while waiting_for_pods:
@@ -70,7 +78,6 @@ class Cluster:
                 waiting_for_pods = (
                     any([pod.status.phase != "Running" for pod in pods]))
 
-    @timeout(seconds=300, use_signals=False)
     def wait_for_jobs_by_app(self, app, namespace):
         waiting_for_jobs = True
         while waiting_for_jobs:
@@ -81,7 +88,6 @@ class Cluster:
                 any([job.status.succeeded != 1 for job in jobs]))
             time.sleep(3)
 
-    @timeout(seconds=500, use_signals=False)
     def wait_for_benchmark(self, name, namespace, desired_state="Completed"):
         waiting_for_benchmark = True
         while waiting_for_benchmark:
