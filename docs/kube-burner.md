@@ -43,8 +43,6 @@ All kube-burner's workloads support the following parameters:
 
 - **workload**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
 - **default_index**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
-- **prom_es_user**: Prometheus Elasticsearch user if required
-- **prom_es_pass**: Prometheus Elasticsearch pass if required
 - **job_iterations**: How many iterations to execute of the specified kube-burner workload
 - **qps**: Limit object creation queries per second. Defaults to __5__
 - **burst**: Maximum burst for throttle. Defaults to __10__
@@ -75,7 +73,7 @@ kube-burner is able to collect complex prometheus metrics and index them in a El
 ```yaml
 spec:
   prometheus:
-    es_server: https://search-cloud-perf-lqrf3jjtaqo7727m7ynd2xyt4y.us-west-2.es.amazonaws.com:443
+    es_server: http://foo.esserver.com:9200
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     prom_token: prometheusToken
   workload:
@@ -85,6 +83,8 @@ Where:
 - es_server: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
 - prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
 - prom_token: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
+
+**Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the url parameter.
 
 ## Metrics
 
