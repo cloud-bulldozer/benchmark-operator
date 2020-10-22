@@ -49,6 +49,15 @@ spec:
 {% if workload_args.pin_server|default('') %}
       nodeSelector:
         kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+{% elif workload_args.nodeselector is defined %}
+      nodeSelector: 
+{% for label, value in  workload_args.nodeselector.items() %}
+        {{ label | replace ("_", "-" )}}:{{ value }}
+{% endfor %}
+{% endif  %}
+{% if workload_args.tolerations is defined %}
+      tolerations:
+        {{ workload_args.tolerations }}
 {% endif %}
 {% if workload_args.storageclass is defined %}
       volumes:

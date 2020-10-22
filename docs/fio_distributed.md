@@ -88,6 +88,29 @@ spec:
 #        - key=value
 ```
 
+### NodeSelector and Taint/Tolerations vs. pin server
+
+You can add a node selector and/or taints/tolerations to the resulting Kubernetes resources like so:
+
+```yaml
+spec:
+  workload:
+    name: fio_distributed
+    args:
+      nodeselector:
+        foo: bar
+      tolerations:
+      - key: "taint-to-tolerate"
+        operator: "Exists"
+        effect: "NoSchedule"
+```
+
+> Note: Usage of `nodeselector` is not compatible with usage of `pin_server`. You must only use one. You can get the same behavior of pin_server with a node selector by doing this:
+
+```yaml
+nodeselector:
+  kubernetes.io/hostname: 'SERVER_TO_PIN'
+```
 ### Workload Loops
 
 The options provided in the CR file are designed to allow for a nested set of job execution loops.
