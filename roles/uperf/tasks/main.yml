@@ -270,7 +270,7 @@
         namespace: "{{ operator_namespace }}"
         status:
           state: Clients Running
-      when: "workload_args.pair|default('1')|int == client_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (client_vm | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+      when: "workload_args.pair|default('1')|int == client_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (client_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
     when: resource_kind == "vm"
 
