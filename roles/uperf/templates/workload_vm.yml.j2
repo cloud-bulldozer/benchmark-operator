@@ -69,10 +69,10 @@ spec:
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK250D | cut -f1 -d' ') /tmp/uperf_script"
         runcmd:
 {% if workload_args.client_vm.network.multiqueue.enabled %}
-          - yum install -y ethtool
+          - dnf install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
 {% endif %}
-          - dnf install -y uperf redis
+          - dnf install -y uperf redis git
           - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
           - bash /tmp/uperf_script/run_script.sh
     name: cloudinitdisk
