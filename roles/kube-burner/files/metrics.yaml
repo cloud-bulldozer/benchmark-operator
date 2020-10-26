@@ -89,7 +89,7 @@ metrics:
   - query: sum(kube_node_status_condition{status="true"}) by (condition)
     metricName: nodeStatus
 
-  - query: (sum(rate(container_fs_writes_total{device!~".+dm.+"}[5m])) by (device, container, node) and on (node) kube_node_role{role="master"}) > 0
+  - query: (sum(rate(container_fs_writes_bytes_total{container!="",device!~".+dm.+"}[5m])) by (device, container, node) and on (node) kube_node_role{role="master"}) > 0
     metricName: containerDiskUsage
 
   - query: sum(rate(etcd_object_counts{}[5m])) by (resource) > 0
