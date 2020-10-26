@@ -51,6 +51,10 @@ spec:
             value: "{{ elasticsearch.index_name | default("ripsaw-smallfile") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default("false") }}"
+          - name: kcache_drop_pod_ips
+            value: "{{ kcache_drop_pod_ips | default() }}"
+          - name: KCACHE_DROP_PORT_NUM
+            value: "{{ kernel_cache_drop_svc_port }}"
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
