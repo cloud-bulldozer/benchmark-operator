@@ -12,4 +12,4 @@ class TestHammerDB(TestBase):
 
     @mark.timeout(default_timeout)
     def test_hammerdb(self, run):
-        self.run_and_check_benchmark(run, status="DB Workload Complete")
+        self.run_and_check_benchmark(run, desired_running_state="DB workload running", desired_complete_state="DB Workload Complete")

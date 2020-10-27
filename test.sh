@@ -49,7 +49,6 @@ function build_test_markers(){
     if [[ $1 != '' ]]; then
         test_markers="-m $1"
     else
-        echo "helloooooo"
         test_markers="-m"
         for item in $git_diff_files
         do

@@ -9,4 +9,4 @@ class TestStressng(TestBase):
 
     @mark.timeout(default_timeout)
     def test_stressng(self, run):
-        self.run_and_check_benchmark(run)
+        self.run_and_check_benchmark(run, desired_running_state="Benchmark running")

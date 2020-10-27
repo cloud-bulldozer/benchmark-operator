@@ -168,14 +168,94 @@ Apply a new CR
 Currently we have a CI that runs against PRs.
 You can learn more about CI at [work_in_progress]
 
-### CI add test
-To ensure that adding new a workload will not break other workloads and its
-behavior can be predicted, we've mandated writing tests before PR can be merged.
+### Adding CI Tests
 
-If a new workload is added, please follow the instructions to add a testcase to
-[test.sh](test,sh):
-* copy an existing test like [uperf test](tests/test_uperf.sh)
-* Add commands needed to setup the workload specific requirements if any
-* Add a valid cr file to [test_crs](tests/test_crs/) directory for your workload
-* Apply the cr and run a simple functional test to ensure that the expected behavior is asserted
-* NOTE: make sure that your test script name has only underscores and no `-` in the name
+We use [pytest](https://docs.pytest.org/en/stable/) to run our operator tests. We have a test framework inside this repo under `e2e` with all tests located at `e2e/tests`.
+
+Once you've added your new benchmark to the operator and wish to test it, you can add them by doing the following:
+
+**1. Create your benchmark directory and test cases**
+
+---
+
+Create your benchmark directory inside `e2e/benchmarks` and add all of your test cases there.
+
+>If you have any dependent kubernetes resources, you can create a `resources` subdir and add any raw Kubernetes YAML Manifests there. The framework will orchestrate setup/teardown of those resources automatically.
+
+**2. Add your test module**
+
+---
+
+Create your test module by adding a file called `test_$BENCHMARK.py` under `e2e/tests`. The module should have a class that looks like this, replacing instances of `mybench/MyBench` with your benchmark name:
+
+```python
+from pytest import mark
+from models.test_base import TestBase, default_timeout
+
+
+@mark.mybench
+class TestMyBench(TestBase):
+    workload = "mybench"
+
+    @mark.timeout(default_timeout)
+    def test_mybench(self, run):
+        self.run_and_check_benchmark(run)
+
+```
+
+**3. Add your benchmark to pytest.ini**
+
+---
+
+Finally, you can add your benchmark with a description to the `pytest.ini` file at the root of the project. This *must* be the same value that you marked your class with in your test module. 
+
+### Advanced Usage
+
+**Test Options**
+
+---
+
+There are specific test options surfaced up through the `TestBase` class that is inherited by the templated test case. 
+
+* `workload: string`: Defines the name of the benchmark workload to be ran, which should map to the directory name under `e2e/benchmarks`
+* `indices: list` : A list of elasticsearch indices to check against for data. If not supplied metadata collection is turned off and ES is not checked.
+* `inject_cli_args: bool, Default: True`: Turns off injection of CLI arguments such as the ElasticSearch server. 
+* `check_es: bool, Default: True`: This turns off the check against ElasticSearch. Metadata collection will still be on if ES CLI Args are supplied. 
+* `benchmark_needs_prometheus, Default: False`: This is used if the benchmark under test requires the prometheus token supplied through the CLI arg `--prom-token`. 
+
+
+**Custom setup/teardown methods**
+
+---
+
+In some benchmarks, it may be necessary to add more complex setup/teardown logic than what is provided by the framework. In order to do so, you can implement the `setup_method` and `teardown_method` methods in your class like so:
+
+
+```python
+from pytest import mark
+from models.test_base import TestBase, default_timeout
+
+@mark.mybench
+class TestMyBench(TestBase):
+    workload = "mybench"
+
+    def setup_method(self, method):
+        super().setup_method(method)
+        # Put your custom code here, after calling super
+
+    def teardown_method(self, method):
+        # Put your custom code here, before calling super
+        super().teardown_method(method)
+
+
+    @mark.timeout(default_timeout)
+    def test_mybench(self, run):
+        self.run_and_check_benchmark(run)
+
+```
+
+**Using the helpers**
+
+---
+
+There are helpers injected into every test case inheriting the `TestBase` class. They are surfaced as a class variable called `self.helpers` which gives access to all functions defined the `Helper` class at `e2e/tests/conftest.py`

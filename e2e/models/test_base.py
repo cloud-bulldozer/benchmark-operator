@@ -5,7 +5,7 @@ import os
 import logging
 import subprocess
 
-default_timeout = 6000
+default_timeout = 60000000
 
 @mark.usefixtures("helpers", "overrides")
 class TestBase():
@@ -46,12 +46,12 @@ class TestBase():
         if (os.path.isdir(test_dir)):
             for entry in os.scandir(test_dir):
                 if (entry.path.endswith(".yaml")):
-                    subprocess.run([
+                    print(subprocess.run([
                         "kubectl",
                         operation,
                         "-f",
                         entry.path
-                    ], capture_output=True)
+                    ], capture_output=True))
     @classmethod
     def _check_es(cls, uuid, index, es_ssl):
         
@@ -83,10 +83,10 @@ class TestBase():
         results = [cls._check_es(uuid, index, es_ssl) for index in cls.indices]
         assert all(results)
 
-    def run_and_check_benchmark(self, run, status="Complete"):
-        run.start()
-        results = run.wait(desired_state = status)
-        assert results['status'] == status
+    def run_and_check_benchmark(self, run, desired_running_state="Running", desired_complete_state="Complete"):
+        run.start(desired_state=desired_running_state)
+        results = run.wait(desired_state=desired_complete_state)
+        assert results['status'] == desired_complete_state
         self.check_metadata_collection(results['uuid'])
 
     

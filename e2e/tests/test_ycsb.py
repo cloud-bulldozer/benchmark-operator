@@ -9,4 +9,4 @@ class TestYcsb(TestBase):
 
     @mark.timeout(default_timeout)
     def test_ycsb(self, run):
-        self.run_and_check_benchmark(run)
+        self.run_and_check_benchmark(run, desired_running_state="Running Load", desired_complete_state="Workload Complete")

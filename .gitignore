@@ -1,3 +1,6 @@
+# Custom ignores
+results.xml
+
 # Ignore
 *.swp
 
