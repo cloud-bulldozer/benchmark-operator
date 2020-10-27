@@ -25,6 +25,10 @@ spec:
           mountPath: /secret1
         - name: secret-2
           mountPath: /secret2
+        - name: configmap-1
+          mountPath: /configmap1
+        - name: configmap-2
+          mountPath: /configmap2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -46,6 +50,12 @@ spec:
       - name: secret-2
         secret:
           secretName: {{.JobName}}-2-{{.UUID}}
+      - name: configmap-1
+        configMap:
+          name: {{.JobName}}-1-{{.UUID}}
+      - name: configmap-2
+        configMap:
+          name: {{.JobName}}-2-{{.UUID}}
       # Add not-ready/unreachable tolerations for 15 minutes so that node
       # failure doesn't trigger pod deletion.
       tolerations:
