@@ -66,7 +66,7 @@ cli_args="--es-server ${ES_SERVER}"
 
 
 
-if [[ $test_choice != '' ]]; then
+if [[ $test_choice != '' && $test_choice != 'all' ]]; then
   echo "Running for requested tests"
   build_test_markers "${test_choice}"
 elif [[ $test_choice == "all" || `echo "${git_diff_files}" | grep -cv /` -gt 0 || `echo ${git_diff_files} | grep -E "^(templates|build|deploy|group_vars|resources|e2e|roles/uuid)"` ]]; then
