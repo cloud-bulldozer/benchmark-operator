@@ -102,4 +102,8 @@ jobs:
           name: deployment-1pod
 
       - objectTemplate: secret.yml
-        replicas: 20
+        replicas: 10
+
+      - objectTemplate: configmap.yml
+        replicas: 10
+

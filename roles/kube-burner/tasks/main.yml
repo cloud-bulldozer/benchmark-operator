@@ -55,6 +55,7 @@
           route.yml: "{{ lookup('file', 'route.yml')}}"
           secret.yml: "{{ lookup('file', 'secret.yml')}}"
           service.yml: "{{ lookup('file', 'service.yml')}}"
+          configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
     when: workload_args.workload == "cluster-density"
 
   - name: Create kubelet-density configmaps

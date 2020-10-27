@@ -19,11 +19,12 @@ Each iteration of this workload creates the following objects:
   - 12 imagestreams
   - 3 buidconfigs
   - 6 builds
-  - 1 deployment with 2 pod replicas (sleep) mounting two secrets each. *deployment-2pod*
-  - 2 deployments with 1 pod replicas (sleep) mounting two secrets. *deployment-1pod*
+  - 1 deployment with 2 pod replicas (sleep) mounting two secrets and two configmaps each. *deployment-2pod*
+  - 2 deployments with 1 pod replicas (sleep) mounting two secrets and two configmaps. *deployment-1pod*
   - 3 services, one pointing to *deployment-2pod*, and other two pointing to *deployment-1pod*.
   - 3 route. 1 pointing to the service *deployment-2pod* and other two pointing to *deployment-1pod*
-  - 20 secrets
+  - 10 secrets
+  - 10 configmaps
 
 - **kubelet-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**.
 Each iteration of this workload creates the following object:
