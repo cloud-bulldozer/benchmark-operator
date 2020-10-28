@@ -12,14 +12,13 @@ spec:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
     spec:
+{% if workload_args.nodeselector is defined %}
+      nodeSelector: {{ workload_args.nodeselector | to_json }}
+{% endif %}
       containers:
       - name: stressng
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:latest') }}
         imagePullPolicy: Always
-{% if workload_args.nodeselector is defined %}
-	nodeSelector:
-          "{{ workload_args.nodeselector }}"
-{% endif %}
         env:
           - name: uuid
             value: "{{ uuid }}"
