@@ -2,7 +2,7 @@ from pytest import mark
 from models.test_base import TestBase, default_timeout
 
 
-@mark.backpack
+@mark.backpack_ds
 class TestBackpackDaemonSet(TestBase):
     workload = "backpack_ds"
     indices = [
