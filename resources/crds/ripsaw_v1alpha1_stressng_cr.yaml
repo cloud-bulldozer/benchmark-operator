@@ -18,6 +18,8 @@ spec:
       timeout: "30"
       instances: 1
       # nodeselector:
+      #   key1: value1
+      #   key2: value2
       # cpu stressor options
       cpu_stressors: "1"
       cpu_percentage: "100"
