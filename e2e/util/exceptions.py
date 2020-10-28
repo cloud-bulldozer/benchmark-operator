@@ -12,3 +12,10 @@ class BenchmarkNotStartedError(Exception):
             msg = f"The benchmark {name} has not started yet"
         
         super(BenchmarkNotStartedError, self).__init__(msg)
+
+class BenchmarkTimeoutError(Exception):
+    def __init__(self, name, msg=None):
+        if msg is None:
+            msg = f"The benchmark {name} timed out"
+        
+        super(BenchmarkNotStartedError, self).__init__(msg)

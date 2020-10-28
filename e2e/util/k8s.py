@@ -3,7 +3,7 @@ import json
 import time
 import yaml
 import logging
-from util.exceptions import BenchmarkFailedError
+from util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError
 
 
 class Cluster:
@@ -88,10 +88,13 @@ class Cluster:
                 any([job.status.succeeded != 1 for job in jobs]))
             time.sleep(3)
 
-    def wait_for_benchmark(self, name, namespace, desired_state="Completed"):
+    def wait_for_benchmark(self, name, namespace, desired_state="Completed", default_timeout=300):
         waiting_for_benchmark = True
         logging.info(f"Waiting for state: {desired_state}")
+        timeout_interval = 0
         while waiting_for_benchmark:
+            if timeout_interval >= default_timeout:
+                raise BenchmarkTimeoutError(name)
             benchmark = self.get_benchmark(name, namespace)
             bench_status = benchmark.get('status', {})
             uuid = bench_status.get('uuid', "Not Assigned Yet")
@@ -104,6 +107,7 @@ class Cluster:
 
             waiting_for_benchmark = (current_state != desired_state)
             time.sleep(3)
+            timeout_interval += 3
         logging.info(
             f"{benchmark['metadata']['name']} with uuid {uuid} has reached the desired state {desired_state}")
 
