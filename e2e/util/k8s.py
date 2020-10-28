@@ -42,7 +42,7 @@ class Cluster:
 
     def get_namespaces_with_label(self, label_key, label_value):
         label_selector = f"{label_key}={label_value}"
-        return self.api_client.list_namespace(label_selector=label_selector)
+        return self.core_client.list_namespace(label_selector=label_selector)
 
     def get_benchmark(self, name, namespace):
         return self.crd_client.get_namespaced_custom_object(
@@ -158,10 +158,10 @@ class Cluster:
          for benchmark in all_benchmarks.get('items', [])]
 
     def delete_namespace(self, namespace):
-        return self.api_client.delete_namespace(namespace, client.V1DeleteOptions())
+        return self.core_client.delete_namespace(namespace, client.V1DeleteOptions())
 
     def delete_namespaces_with_label(self, label_key, label_value):
-        [self.api_client.delete_namespace(
+        [self.core_client.delete_namespace(
             namespace) for namespace.metadata.name in self.get_namespaces_with_label(label_key, label_value).items]
     
     # Patch Functions
