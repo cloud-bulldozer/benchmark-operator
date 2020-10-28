@@ -162,7 +162,7 @@ class Cluster:
 
     def delete_namespaces_with_label(self, label_key, label_value):
         [self.core_client.delete_namespace(
-            namespace) for namespace.metadata.name in self.get_namespaces_with_label(label_key, label_value).items]
+            namespace.metadata.name) for namespace in self.get_namespaces_with_label(label_key, label_value).items]
     
     # Patch Functions
     def patch_node(self, node, patch):
