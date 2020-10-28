@@ -97,7 +97,7 @@ def pytest_runtest_makereport(item, call):
         full_log = f"\n{header}\n{metadata_string}\n"
         logging.info(full_log)
     elif rep.when == "call" and rep.failed:
-        logging.error(Cluster().get_pod_logs_by_label("name=benchmark-operator", "my-ripsaw"))
+        logging.error(Cluster().get_pod_logs_by_label("name=benchmark-operator", "my-ripsaw", "benchmark-operator"))
 
 
 

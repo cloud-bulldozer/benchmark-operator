@@ -19,9 +19,9 @@ class Cluster:
         label_selector = f"app={app}"
         return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
 
-    def get_pod_logs_by_app(self, app, namespace):
+    def get_pod_logs_by_app(self, app, namespace, container):
         pods = self.get_pods_by_app(app, namespace).items
-        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace) for pod in pods ]
+        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
 
     def get_jobs_by_app(self, app, namespace):
         label_selector = f"app={app}"
@@ -30,9 +30,9 @@ class Cluster:
     def get_pods_by_label(self, label_selector, namespace):
         return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
 
-    def get_pod_logs_by_label(self, label_selector, namespace):
+    def get_pod_logs_by_label(self, label_selector, namespace, container):
         pods = self.get_pods_by_label(label_selector, namespace).items
-        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace) for pod in pods ]
+        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
 
     def get_nodes(self, label_selector):
         return self.core_client.list_node(label_selector=label_selector)
