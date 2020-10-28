@@ -7,7 +7,7 @@ import subprocess
 from flaky import flaky
 from util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError
 
-default_timeout = 6
+default_timeout = 600
 default_retries = 3
 
 @mark.usefixtures("helpers", "overrides")
