@@ -17,6 +17,6 @@ class TestPgBench(TestBase):
         run.update_spec("spec.workload.args.databases[0].host", postgres_pod_ip)
         
 
-    @mark.timeout(default_timeout)
+    
     def test_pgbench(self, run):
         self.run_and_check_benchmark(run, desired_running_state="Run Workload")

@@ -127,7 +127,7 @@ class Cluster:
                 benchmark['metadata']['name'], benchmark['metadata']['namespace'], desired_state=desired_state, default_timeout=default_timeout)
         except BenchmarkFailedError:
             logging.error("error, benchmark failed")
-        finally:
+        else:
             return self.get_benchmark_metadata(benchmark['metadata']['name'], benchmark['metadata']['namespace'])
 
     def create_from_yaml(self, yaml_file):

@@ -9,6 +9,6 @@ class TestKubeBurner(TestBase):
     indices = ["ripsaw-kube-burner"]
     benchmark_needs_prometheus = True
 
-    @mark.timeout(default_timeout)
+    
     def test_kube_burner(self, run):
         self.run_and_check_benchmark(run)

@@ -37,6 +37,6 @@ class TestFiod(TestBase):
         super().teardown_method(method)
 
 
-    @mark.timeout(default_timeout)
+    
     def test_fiod(self, run):
         self.run_and_check_benchmark(run)

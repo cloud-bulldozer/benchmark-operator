@@ -20,6 +20,6 @@ class Testbackpack(TestBase):
         "ocp_kube_controllermanager-metadata"
     ]
 
-    @mark.timeout(default_timeout)
+    
     def test_backpack(self, run):
         self.run_and_check_benchmark(run)

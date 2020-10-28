@@ -7,6 +7,6 @@ class TestIPerf3(TestBase):
     workload = "iperf3"
     inject_cli_args = False
 
-    @mark.timeout(default_timeout)
+    
     def test_iperf3(self, run):
         self.run_and_check_benchmark(run)

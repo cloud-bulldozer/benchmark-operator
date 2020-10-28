@@ -197,7 +197,7 @@ from models.test_base import TestBase, default_timeout
 class TestMyBench(TestBase):
     workload = "mybench"
 
-    @mark.timeout(default_timeout)
+    
     def test_mybench(self, run):
         self.run_and_check_benchmark(run)
 
@@ -248,7 +248,7 @@ class TestMyBench(TestBase):
         super().teardown_method(method)
 
 
-    @mark.timeout(default_timeout)
+    
     def test_mybench(self, run):
         self.run_and_check_benchmark(run)
 
