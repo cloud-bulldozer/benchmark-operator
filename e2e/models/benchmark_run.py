@@ -22,10 +22,10 @@ class BenchmarkRun:
         self.metadata = self.cluster.create_benchmark(self.yaml, desired_state)
         return self.metadata
 
-    def wait(self, desired_state="Complete"):
+    def wait(self, desired_state="Complete", default_timeout=300):
         if self.metadata == {}:
             raise BenchmarkNotStartedError(self.name)
-        self.cluster.wait_for_benchmark(self.resource_name, self.resource_namespace, desired_state=desired_state)
+        self.cluster.wait_for_benchmark(self.resource_name, self.resource_namespace, desired_state=desired_state, default_timeout=default_timeout)
         self.metadata = self.cluster.get_benchmark_metadata(self.resource_name, self.resource_namespace)
         return self.metadata
 
