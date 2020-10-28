@@ -93,7 +93,6 @@ class TestBase():
         try:
             results = run.wait(desired_state=desired_complete_state, default_timeout=default_timeout)
             assert results.get('status', "") == desired_complete_state
-            sleep(5)
             self.check_metadata_collection(results['uuid'])
         except (BenchmarkFailedError, BenchmarkTimeoutError) as err:
             assert False
