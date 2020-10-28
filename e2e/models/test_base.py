@@ -6,6 +6,7 @@ import logging
 import subprocess
 from flaky import flaky
 from util.exceptions import BenchmarkFailedError
+from timeout_decorator import timeout
 
 default_timeout = 6
 default_retries = 3
@@ -87,6 +88,7 @@ class TestBase():
         results = [cls._check_es(uuid, index, es_ssl) for index in cls.indices]
         assert all(results)
 
+    @timeout(default_timeout, use_signals=False)
     def run_and_check_benchmark(self, run, desired_running_state="Running", desired_complete_state="Complete"):
         run.start(desired_state=desired_running_state)
         try:
