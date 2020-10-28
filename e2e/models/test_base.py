@@ -5,6 +5,7 @@ import os
 import logging
 import subprocess
 from flaky import flaky
+from util.exceptions import BenchmarkFailedError
 
 default_timeout = 600
 default_retries = 3
@@ -88,8 +89,9 @@ class TestBase():
 
     def run_and_check_benchmark(self, run, desired_running_state="Running", desired_complete_state="Complete"):
         run.start(desired_state=desired_running_state)
-        results = run.wait(desired_state=desired_complete_state)
-        assert results['status'] == desired_complete_state
-        self.check_metadata_collection(results['uuid'])
-
-    
+        try:
+            results = run.wait(desired_state=desired_complete_state)
+            assert results['status'] == desired_complete_state
+            self.check_metadata_collection(results['uuid'])
+        except BenchmarkFailedError as err:
+            assert False
