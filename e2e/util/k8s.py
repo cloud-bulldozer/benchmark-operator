@@ -58,8 +58,8 @@ class Cluster:
         return {
             'name': benchmark['metadata']['name'],
             'namespace': benchmark['metadata']['namespace'],
-            'uuid': benchmark['status']['uuid'],
-            'suuid': benchmark['status']['suuid'],
+            'uuid': benchmark['status'].get('uuid', "Not Assigned Yet"),
+            'suuid': benchmark['status'].get('suuid', "Not Assigned Yet"),
             'related_job': f"{benchmark['spec']['workload']['name']}-{benchmark['status']['suuid']}",
             'status': benchmark['status']['state']
         }
