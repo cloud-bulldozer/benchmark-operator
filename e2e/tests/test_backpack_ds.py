@@ -22,4 +22,4 @@ class TestBackpackDaemonSet(TestBase):
 
     
     def test_backpack_daemonset(self, run):
-        self.run_and_check_benchmark(run, desired_running_state="Metadata Collecting", desired_complete_state="Metadata Collecting")
+        self.run_and_check_benchmark(run, desired_running_state="Metadata Collecting", desired_complete_state="")
