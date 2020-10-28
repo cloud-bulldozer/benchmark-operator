@@ -76,6 +76,8 @@ else
   build_test_markers ""
 fi
 
+pip install virtualenv
+rm -rf venv || true
 virtualenv venv 
 source venv/bin/activate
 pip install -e e2e

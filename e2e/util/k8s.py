@@ -161,7 +161,7 @@ class Cluster:
         return self.api_client.delete_namespace(namespace, client.V1DeleteOptions())
 
     def delete_namespaces_with_label(self, label_key, label_value):
-        [self.api_clientdelete_namespace(
+        [self.api_client.delete_namespace(
             namespace) for namespace.metadata.name in self.get_namespaces_with_label(label_key, label_value).items]
     
     # Patch Functions
