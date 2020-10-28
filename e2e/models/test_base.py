@@ -4,10 +4,13 @@ from pytest import mark
 import os
 import logging
 import subprocess
+from flaky import flaky
 
-default_timeout = 60000000
+default_timeout = 600
+default_retries = 3
 
 @mark.usefixtures("helpers", "overrides")
+@flaky(max_runs=default_retries)
 class TestBase():
     workload = ""
     indices = ""
