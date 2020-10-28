@@ -18,8 +18,8 @@ class BenchmarkRun:
         self.yaml[key_path] = new_value
 
 
-    def start(self, desired_state="Running"):
-        self.metadata = self.cluster.create_benchmark(self.yaml, desired_state)
+    def start(self, desired_state="Running", default_timeout=300):
+        self.metadata = self.cluster.create_benchmark(self.yaml, desired_state, default_timeout=default_timeout)
         return self.metadata
 
     def wait(self, desired_state="Complete", default_timeout=300):

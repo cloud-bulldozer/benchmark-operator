@@ -113,7 +113,7 @@ class Cluster:
 
     # Create Functions
 
-    def create_benchmark(self, benchmark, desired_state="Running"):
+    def create_benchmark(self, benchmark, desired_state="Running", default_timeout=300):
         self.crd_client.create_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
             version="v1alpha1",
@@ -124,7 +124,7 @@ class Cluster:
 
         try:
             self.wait_for_benchmark(
-                benchmark['metadata']['name'], benchmark['metadata']['namespace'], desired_state=desired_state)
+                benchmark['metadata']['name'], benchmark['metadata']['namespace'], desired_state=desired_state, default_timeout=default_timeout)
         except BenchmarkFailedError:
             logging.error("error, benchmark failed")
         finally:

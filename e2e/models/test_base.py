@@ -88,7 +88,7 @@ class TestBase():
         assert all(results)
 
     def run_and_check_benchmark(self, run, desired_running_state="Running", desired_complete_state="Complete", default_timeout=default_timeout):
-        run.start(desired_state=desired_running_state)
+        run.start(desired_state=desired_running_state, default_timeout=default_timeout)
         try:
             results = run.wait(desired_state=desired_complete_state, default_timeout=default_timeout)
             assert results['status'] == desired_complete_state
