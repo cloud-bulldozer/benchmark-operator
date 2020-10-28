@@ -18,4 +18,5 @@ class BenchmarkTimeoutError(Exception):
         if msg is None:
             msg = f"The benchmark {name} timed out"
         
-        super(BenchmarkNotStartedError, self).__init__(msg)
+        super(BenchmarkTimeoutError, self).__init__(msg)
+        self.name = name
