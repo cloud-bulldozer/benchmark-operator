@@ -20,6 +20,7 @@ trap finish EXIT
 function functional_test_smallfile {
   wait_clean
   apply_operator
+  kubectl apply -f resources/kernel-cache-drop-clusterrole.yaml
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
