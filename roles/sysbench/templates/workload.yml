@@ -15,13 +15,17 @@ spec:
       containers:
       - name: sysbench
         command: ["/bin/sh", "-c"]
-        args: ["/tmp/sysbenchScript"]
+        args: ["cd /opt/sysbench && /tmp/sysbenchScript"]
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/sysbench:latest') }}
         imagePullPolicy: Always
         volumeMounts:
         - name: sysbench-volume
           mountPath: "/tmp/"
+        - name: sysbench-runtime
+          mountPath: "/opt/sysbench"
       volumes:
+      - name: sysbench-runtime
+        emptyDir: {}
       - name: sysbench-volume
         configMap:
           name: "sysbench-config-{{ trunc_uuid }}"
