@@ -49,7 +49,7 @@ Looking at the stressors individually:
 | runtype               | parallel or sequential                                        |
 | timeout               | time for the stressors to run                                 | 
 | instances             | number of instances (pods) to run                             |
-| nodeselector          | label for nodes on whiche the stressor pods will run          | 
+| nodeselector          | label for nodes on which the stressor pods will run           |
 | cpu_stressors         | number of cpu stressors                                       |
 | cpu_percentage        | percentage at which the stressor will run, e.g. 70% of a CPU  |
 | vm_stressors          | number of vm stressors                                        |

@@ -42,6 +42,12 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
+{% if kcache_drop_pod_ips is defined and item | int == 1 %}
+          - name: kcache_drop_pod_ips
+            value: "{{ kcache_drop_pod_ips | default() }}"
+          - name: KCACHE_DROP_PORT_NUM
+            value: "{{ kernel_cache_drop_svc_port }}"
+{% endif %}
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"

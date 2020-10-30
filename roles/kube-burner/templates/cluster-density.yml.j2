@@ -14,12 +14,12 @@ global:
 {% endif %}
 
 jobs:
-  - name: cluster-density
+  - name: cluster-density-{{ uuid }}
     jobIterations: {{ workload_args.job_iterations }}
     qps: {{ workload_args.qps|default(5) }}
     burst: {{ workload_args.burst|default(10) }}
     namespacedIterations: true
-    namespace: cluster-density
+    namespace: cluster-density-{{ uuid }}
     podWait: {{ workload_args.pod_wait|default(false) }}
     cleanup: {{ workload_args.cleanup|default(true) }}
 {% if wait_for is defined %}
