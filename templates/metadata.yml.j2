@@ -3,7 +3,7 @@
       serviceAccountName: {{ metadata.serviceaccount }}
 {% endif %}
       initContainers:
-      - name: backpack-{{ trunc_uuid }}
+      - name: backpack
         image: {{ metadata.image }}
         command: ["/bin/sh", "-c"]
         args:
@@ -18,13 +18,11 @@
             --redisip={{ bo.resources[0].status.podIP }}
             --redisport=6379
 {% if metadata.force is sameas true %}
-          - --force
+            --force
 {% endif %}
-{% if metadata.stockpile_tags|length > 0 %}
-          - --tags={{ metadata.stockpile_tags|join(",") }}
-{% endif %}
+            --tags={{ metadata.stockpile_tags|default(["common", "k8s", "openshift"])|join(",") }}
 {% if metadata.stockpile_skip_tags|length > 0 %}
-          - --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+            --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
         imagePullPolicy: Always
         securityContext:

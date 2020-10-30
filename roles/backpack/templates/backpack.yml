@@ -51,9 +51,7 @@ spec:
 {% if metadata.force is sameas true %}
             --force
 {% endif %}
-{% if metadata.stockpile_tags|length > 0 %}
-            --tags={{ metadata.stockpile_tags|join(",") }}
-{% endif %}
+            --tags={{ metadata.stockpile_tags|default(["common", "k8s", "openshift"])|join(",") }}
 {% if metadata.stockpile_skip_tags|length > 0 %}
             --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}

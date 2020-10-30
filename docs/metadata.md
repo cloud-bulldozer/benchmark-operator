@@ -30,26 +30,30 @@ the workload template with an init container section that looks like:
 
 ```jinja
 {% if metadata.collection is sameas true and metadata.targeted is sameas true %}
+{% if metadata.serviceaccount != "default" %}
+      serviceAccountName: {{ metadata.serviceaccount }}
+{% endif %}
       initContainers:
-      - name: backpack-{{ trunc_uuid }}
+      - name: backpack
         image: {{ metadata.image }}
-        command: ["python3", "stockpile-wrapper.py"]
+        command: ["/bin/sh", "-c"]
         args:
-          - -s={{ elasticsearch.server }}
-          - -p={{ elasticsearch.port }}
-          - -u={{ uuid }}
-          - -n=${my_node_name}
-          - -N=${my_pod_name}
-          - --redisip={{ bo.resources[0].status.podIP }}
-          - --redisport=6379
+          - >
+            python3
+            stockpile-wrapper.py
+            -s={{ elasticsearch.server }}
+            -p={{ elasticsearch.port }}
+            -u={{ uuid }}
+            -n=${my_node_name}
+            -N=${my_pod_name}
+            --redisip={{ bo.resources[0].status.podIP }}
+            --redisport=6379
 {% if metadata.force is sameas true %}
-          - --force
+            --force
 {% endif %}
-{% if metadata.stockpile_tags|length > 0 %}
-          - --tags={{ metadata.stockpile_tags|join(",") }}
-{% endif %}
+            --tags={{ metadata.stockpile_tags|default(["common", "k8s", "openshift"])|join(",") }}
 {% if metadata.stockpile_skip_tags|length > 0 %}
-          - --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+            --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
         imagePullPolicy: Always
         securityContext:
@@ -63,7 +67,6 @@ the workload template with an init container section that looks like:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-        serviceAccountName: {{ metadata.serviceaccount }}
 {% endif %}
 ```
 
