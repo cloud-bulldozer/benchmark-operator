@@ -51,6 +51,8 @@ Lastly, the specific benchmark must support this feature.
 Benchmarks supported for kernel cache dropping at present are:
 
 - fio
+- smallfile
+- fs-drift
 
 # implementation notes
 
