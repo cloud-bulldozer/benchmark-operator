@@ -23,6 +23,7 @@ a performance baseline of Kubernetes cluster on your provider.
 | [stressng](docs/stressng.md)   | Stress system resources | Working            |  Used, default: 3second  | Not Supported         | Not Supported  |
 | [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
 | [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Working       |  Used, default : 3second  | Not Supported          | Not Supported   |
+| [oslat](docs/oslat.md)         | Real-Time Latency      | Working           |  Used, default : 3second   | Not Supported          | Not Supported   |
 
 
 

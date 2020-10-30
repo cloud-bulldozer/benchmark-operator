@@ -1,0 +1,22 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: oslat
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    server: <ES_SERVER>
+    port: <ES_PORT>
+  workload:
+    name: "oslat"
+    args:
+      runtime: "10s"
+      disable_cpu_balance: true
+      use_taskset: true
+      pod:
+        requests:
+          memory: "200Mi"
+          cpu: "4"
+        limits:
+          memory: "200Mi"
+          cpu: "4"
