@@ -1,9 +1,13 @@
 import pytest 
+from pytest import Module, Item
 import os
 from util.k8s import Cluster
 from models.workload import Workload 
 import logging
-
+import copy
+import warnings
+from typing import Optional, List, Dict
+from collections import defaultdict, deque
 
 # Test Arguments
 
@@ -106,8 +110,20 @@ def pytest_runtest_makereport(item, call):
 def pytest_generate_tests(metafunc):
     if "run" in metafunc.fixturenames and metafunc.cls.workload is not None:
         workload = Helpers.get_workload(metafunc.cls.workload)
-        runs = workload.benchmark_runs
-        ids = [ run.name for run in runs ]
-        metafunc.parametrize("run", runs, ids=ids)
-
+        if workload.name == "scale":
+            runs = workload.benchmark_runs
+            scale_down_run = next((run for run in runs if run.name == 'down'), None)
+            scale_up_run = next((run for run in runs if run.name == 'up'), None)
+            cluster = Helpers.get_cluster()
+            worker_nodes = cluster.get_nodes('node-role.kubernetes.io/worker= ')
+            num_workers = len(worker_nodes.items)
+            scale_up_run.update_spec("spec.workload.args.scale", num_workers)
+            
+            scale_down_param = pytest.param(scale_down_run, marks=pytest.mark.dependency(name="scale_down"))
+            scale_up_param = pytest.param(scale_up_run, marks=pytest.mark.dependency(name="scale_up", depends=["scale_down"]))
+            metafunc.parametrize('run', [scale_down_param, scale_up_param], ids=[scale_down_run.name, scale_up_run.name])
+        else:
+            runs = workload.benchmark_runs
+            ids = [ run.name for run in runs ]
+            metafunc.parametrize("run", runs, ids=ids)
 
