@@ -51,6 +51,7 @@ Lastly, the specific benchmark must support this feature.
 Benchmarks supported for kernel cache dropping at present are:
 
 - fio
+- smallfile
 
 # implementation notes
 
@@ -69,8 +70,17 @@ The sync is required because the kernel cannot drop cache on dirty pages.
 A logfile named /tmp/dropcache.log is visible on every cache dropper pod so you can see what it's doing
 
 The benchmark itself must pass environment variables to run_snafu.py in order for it to request a cache
-drop before each sample is run.   The environment variables are:
+drop before each sample is run.   Make sure only 1 of the workload pods requests cache dropping for each sample.
+The environment variables are:
 
 - KCACHE_DROP_PORT_NUM - default of var kernel_cache_drop_svc_port should be fine
 - kcache_drop_pod_ips - ansible var is already filled in by the cache dropper role
 
+For example, in your workload.yml.j2 where it creates the environment variables for the pod:
+
+```
+          - name: kcache_drop_pod_ips
+            value: "{{ kcache_drop_pod_ips | default() }}"
+          - name: KCACHE_DROP_PORT_NUM
+            value: "{{ kernel_cache_drop_svc_port }}"
+```
