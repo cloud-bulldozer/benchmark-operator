@@ -1,6 +1,8 @@
 #!/bin/bash
 set -x
+GIT_ROOT=$(git rev-parse --show-toplevel)
 
+source $GIT_ROOT/common.sh
 # The maximum number of concurrent tests to run at one time (0 for unlimited). This can be overriden with -p
 max_concurrent=3
 
@@ -76,14 +78,16 @@ else
   build_test_markers ""
 fi
 
+wait_clean
+echo "building image"
+# Update the operator image and deploy
+update_operator_image
+apply_operator
+
 pip install virtualenv
 rm -rf venv || true
 virtualenv venv 
 source venv/bin/activate
 pip install -e e2e
 pytest e2e "${test_markers}" ${cli_args}
-
-
-
-
-
+wait_clean

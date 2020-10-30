@@ -1,28 +1,21 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf-resources
+  name: example-benchmark
   namespace: my-ripsaw
 spec:
   elasticsearch:
     server: localhost
     index_name: ripsaw-uperf
   metadata:
-    collection: false
+    collection: true
   cleanup: false
   workload:
     name: uperf
     args:
-      client_resources:
-        requests:
-          cpu: 100m
-          memory: 100Mi
-      server_resources:
-        requests:
-          cpu: 100m
-          memory: 100Mi
-      hostnetwork: true
+      hostnetwork: false
       serviceip: false
+      networkpolicy: true
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
@@ -33,6 +26,7 @@ spec:
       test_types:
         - stream
         - rr
+        - bidirec
       protos:
         - tcp
         - udp

@@ -1,7 +1,8 @@
+---
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: kube-burner-kubelet-density
+  name: kube-burner-max-namespaces
   namespace: my-ripsaw
 spec:
   elasticsearch:
@@ -15,7 +16,7 @@ spec:
   workload:
     name: kube-burner
     args:
-      workload: kubelet-density
+      workload: max-namespaces
       cleanup: true
       default_index: ripsaw-kube-burner
       job_iterations: 1
@@ -30,7 +31,7 @@ spec:
       verify_objects: true
       error_on_verify: true
       step: 30s
-      metrics_profile: metrics.yaml
+      metrics_profile: metrics-aggregated.yaml
       node_selector:
         key: node-role.kubernetes.io/worker
         value:

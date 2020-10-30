@@ -3,7 +3,7 @@ from models.test_base import TestBase, default_timeout
 
 
 @mark.scale
-@mark.first
+@mark.last
 class TestScale(TestBase):
     workload = "scale"
     indices = ["openshift-cluster-timings"]
