@@ -18,6 +18,7 @@ spec:
   workload:
     name: fs-drift
     args:
+      drop_cache_kernel: true
       worker_pods: 1
       threads: 5
       max_file_size_kb: 4

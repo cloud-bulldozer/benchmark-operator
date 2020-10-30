@@ -66,6 +66,10 @@ spec:
           - name: prom_url
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
+          - name: kcache_drop_pod_ips
+            value: "{{ kcache_drop_pod_ips | default() }}"
+          - name: KCACHE_DROP_PORT_NUM
+            value: "{{ kernel_cache_drop_svc_port }}"
           - name: TMPDIR
             value: /tmp/fs-drift-output
           args:
