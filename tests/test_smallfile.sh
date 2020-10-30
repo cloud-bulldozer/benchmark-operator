@@ -10,6 +10,7 @@ function finish {
   fi
 
   echo "Cleaning up smallfile"
+  kubectl delete -f resources/kernel-cache-drop-clusterrole.yaml
   wait_clean
 }
 
