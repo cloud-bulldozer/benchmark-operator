@@ -127,12 +127,6 @@
       with_items: "{{ serviceip.resources }}"
       when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
 
-    - name: Validate input
-      fail:
-        msg: 'ServiceIP setting not defined'
-      ignore_errors: yes
-      when: workload_args.serviceip is not defined
-
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
