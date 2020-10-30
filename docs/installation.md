@@ -92,6 +92,7 @@ run workloads:
 * [fs-drift](fs-drift.md)
 * [servicemesh](servicemesh.md)
 * [cyclictest](cyclictest.md)
+* [oslat](oslat.md)
 
 If you want to add a new workload please follow these [instructions](../CONTRIBUTE.md#Add-workload) to submit a PR
 
