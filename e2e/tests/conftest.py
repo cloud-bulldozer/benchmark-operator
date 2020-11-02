@@ -114,8 +114,8 @@ def pytest_generate_tests(metafunc):
             runs = workload.benchmark_runs
             scale_down_run = next((run for run in runs if run.name == 'down'), None)
             scale_up_run = next((run for run in runs if run.name == 'up'), None)
-            scale_up_param = pytest.param(scale_up_run, marks=pytest.mark.dependency(name="scale_up"))
-            scale_down_param = pytest.param(scale_down_run, marks=pytest.mark.dependency(name="scale_down", depends=["scale_up"]))
+            scale_up_param = pytest.param(scale_up_run, marks=[pytest.mark.dependency(name="scale_up"), pytest.mark.second_to_last])
+            scale_down_param = pytest.param(scale_down_run, marks=[pytest.mark.dependency(name="scale_down", depends=["scale_up"]), pytest.mark.last])
             
             metafunc.parametrize('run', [scale_down_param, scale_up_param], ids=[scale_down_run.name, scale_up_run.name])
         else:
