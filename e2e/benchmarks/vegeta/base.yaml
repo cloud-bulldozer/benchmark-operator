@@ -9,7 +9,7 @@ spec:
     server: localhost
     index_name: ripsaw-vegeta
   metadata:
-    collection: false
+    collection: true
   workload:
     name: vegeta
     args:

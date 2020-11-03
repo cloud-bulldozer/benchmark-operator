@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: ripsaw-pgbench
   metadata:
-    collection: false
+    collection: true
   workload:
     name: "pgbench"
     args:

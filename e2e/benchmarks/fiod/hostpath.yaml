@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: ripsaw-fio
   metadata:
-    collection: false
+    collection: true
   cleanup: false
   hostpath: /mnt/vda1/workload_args/
   workload:

@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: ripsaw-stressng
   metadata:
-    collection: false
+    collection: true
   workload:
     name: "stressng"
     args:

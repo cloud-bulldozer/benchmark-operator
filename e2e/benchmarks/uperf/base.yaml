@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: ripsaw-uperf
   metadata:
-    collection: false
+    collection: true
   cleanup: false
   workload:
     name: uperf

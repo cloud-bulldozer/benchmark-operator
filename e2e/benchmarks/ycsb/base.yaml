@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: ripsaw-ycsb
   metadata:
-    collection: false
+    collection: true
   workload:
     name: ycsb
     args:

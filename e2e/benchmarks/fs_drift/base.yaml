@@ -12,7 +12,7 @@ spec:
     server: localhost
     index_name: ripsaw-fs-drift
   metadata:
-    collection: false
+    collection: true
   workload:
     name: fs-drift
     args:

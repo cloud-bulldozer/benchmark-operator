@@ -8,7 +8,7 @@ spec:
     server: localhost
     index_name: openshift-cluster-timings
   metadata:
-    collection: false
+    collection: true
   workload:
     name: scale_openshift
     args:
