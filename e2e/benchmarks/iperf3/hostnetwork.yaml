@@ -7,7 +7,7 @@ spec:
   elasticsearch:
     server: localhost
   metadata:
-    collection: true
+    collection: false
   workload:
     name: iperf3
     args:
