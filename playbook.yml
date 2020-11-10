@@ -82,6 +82,9 @@
 
     - block:
 
+      - include_role:
+          name: "common"
+
       - include_role: 
           name: "{{ workload.name }}"
         vars:

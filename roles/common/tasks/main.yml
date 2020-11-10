@@ -1,0 +1,17 @@
+# common tasks across multiple roles go here
+- block:
+  - name: Get Network Policy
+    k8s_facts:
+      kind: NetworkPolicy
+      api_version: networking.k8s.io/v1
+      namespace: '{{ operator_namespace }}'
+      name: "{{ meta.name }}-networkpolicy-{{ trunc_uuid }}"
+    register: network_policy
+
+  - name: Create Network policy if enabled
+    k8s:
+      definition: "{{ lookup('template', 'networkpolicy.yml.j2') | from_yaml }}"
+    when: network_policy.resources | length < 1
+
+  when: workload.args.networkpolicy is defined and workload.args.networkpolicy
+

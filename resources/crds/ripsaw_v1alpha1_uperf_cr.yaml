@@ -15,6 +15,7 @@ spec:
     args:
       serviceip: false
       hostnetwork: false
+      networkpolicy: false
       pin: false
       multus:
         enabled: false
