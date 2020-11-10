@@ -15,6 +15,7 @@ spec:
     args:
       hostnetwork: false # irrelevant for vms
       serviceip: false # irrelevant for vms
+      networkpolicy: false
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"

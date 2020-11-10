@@ -34,6 +34,7 @@ spec:
       serviceip: false
       runtime_class: class_name
       hostnetwork: false
+      networkpolicy: false
       pin: false
       kind: pod
       pin_server: "node-0"
@@ -62,6 +63,8 @@ spec:
 *Note:* `runtime_class` has only been tested with Kata containers. Only include `runtime_class` if using Kata containers.
 
 `hostnetwork` will test the performance of the node the pod will run on.
+
+`networkpolicy` will create a simple networkpolicy for ingress
 
 *Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
 

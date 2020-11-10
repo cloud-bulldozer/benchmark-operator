@@ -1,0 +1,14 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: "{{ meta.name }}-networkpolicy-{{ trunc_uuid }}"
+  namespace: '{{ operator_namespace }}'
+spec:
+  podSelector: 
+    matchLabels:
+      type: "{{ meta.name }}-bench-server-{{ trunc_uuid }}"
+  ingress:
+  - from:
+    - podSelector: 
+        matchLabels:
+          type: "{{ meta.name }}-bench-client-{{ trunc_uuid }}"
