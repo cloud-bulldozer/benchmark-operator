@@ -32,7 +32,6 @@ spec:
       prefill: true
       samples: 3
       servers: 3
-      pin_server: ''
       # Chose to run servers in 'pod' or 'vm'
       # 'vm' needs kubevirt to be available
       # Default: pod
@@ -105,7 +104,7 @@ spec:
         effect: "NoSchedule"
 ```
 
-> Note: Usage of `nodeselector` is not compatible with usage of `pin_server`. You must only use one. You can get the same behavior of pin_server with a node selector by doing this:
+> Note: The implementation of `nodeselector` has led to the deprecation of `pin_server`. You must only use `nodeslector`. You can get the same behavior of pin_server with a node selector by doing this:
 
 ```yaml
 nodeselector:
@@ -179,8 +178,7 @@ The workload loops are nested as such from the CR options:
 
 - **samples**: Number of times to run the exact same workload. This is the innermost loop, as [described above](#workload-loops)
 - **servers**: Number of fio servers that will run the specified workload concurrently
-- **pin_server**: K8S node name (per `kubectl get nodes`) on which to run server pods
-  > Note: Providing a node name to `pin_server` will result in *all* server pods running on the specified node.
+- **nodeselector**: K8S node selector (per `kubectl get nodes`) on which to run server pods
 - **jobs**: (list) fio job types to run, per `fio(1)` valid values for the `readwrite` option
   > Note: Under most circumstances, a `write` job should be provided as the first list item for `jobs`. This will
   > ensure that subsequent jobs in the list can use the files created by the `write` job instead of needing
