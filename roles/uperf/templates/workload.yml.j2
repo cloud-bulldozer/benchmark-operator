@@ -104,7 +104,11 @@ spec:
 {% for size in workload_args.sizes %}
 {% for nthr in workload_args.nthrs %}
                  cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
+{% if workload_args.run_id is defined %}
+                 run_snafu --tool uperf --run-id {{workload_args.run_id}} -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+{% else %}
                  run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+{% endif %}
 {% endfor %}
 {% endfor %}
 {% endfor %}
