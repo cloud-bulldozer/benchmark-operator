@@ -50,9 +50,6 @@ metrics:
   - query: rate(node_disk_read_bytes_total{device!~"^(dm|rb).*"}[2m])
     metricName: nodeDiskReadBytes
 
-  - query: node_nf_conntrack_entries
-    metricName: nodeConntrackEntries
-
   - query: sum(rate(etcd_server_leader_changes_seen_total[2m]))
     metricName: etcdLeaderChangesRate
 

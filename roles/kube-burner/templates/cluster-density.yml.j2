@@ -14,7 +14,7 @@ global:
 {% endif %}
 
 jobs:
-  - name: cluster-density-{{ uuid }}
+  - name: cluster-density
     jobIterations: {{ workload_args.job_iterations }}
     qps: {{ workload_args.qps|default(5) }}
     burst: {{ workload_args.burst|default(10) }}
