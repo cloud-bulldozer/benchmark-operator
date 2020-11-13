@@ -66,14 +66,6 @@ spec:
 
 `networkpolicy` will create a simple networkpolicy for ingress
 
-*Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
-
-```bash
-
-$ oc adm policy add-scc-to-user privileged -z benchmark-operator
-
-```
-
 `pin` will allow the benchmark runner place nodes on specific nodes, using the `hostname` label.
 
 `pin_server` what node to pin the server pod to.
