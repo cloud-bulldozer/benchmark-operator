@@ -126,6 +126,6 @@ spec:
       restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
 {% endif %}
 {% include "metadata.yml.j2" %}

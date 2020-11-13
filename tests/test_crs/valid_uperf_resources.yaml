@@ -22,7 +22,7 @@ spec:
         requests:
           cpu: 100m
           memory: 100Mi
-      hostnetwork: false
+      hostnetwork: true
       serviceip: false
       pin: false
       pin_server: "node-0"
