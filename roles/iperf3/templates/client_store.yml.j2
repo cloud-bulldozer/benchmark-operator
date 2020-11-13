@@ -14,7 +14,6 @@ spec:
 {% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
       serviceAccountName: benchmark-operator
-      serviceAccount: benchmark-operator
 {% endif %}
       containers:
       - name: benchmark
