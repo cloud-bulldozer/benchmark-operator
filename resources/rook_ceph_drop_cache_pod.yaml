@@ -10,7 +10,7 @@ spec:
     imagePullPolicy: Always
     command: [/bin/sh, -c]
     args:
-      - cd /opt/bohica/ceph-cache-dropper; python ./osd-cache-drop-websvc.py
+      - cd /opt/bohica/ceph-cache-dropper; python3 ./osd-cache-drop-websvc.py
     env:
       - name: ROOK_ADMIN_SECRET
         valueFrom:
