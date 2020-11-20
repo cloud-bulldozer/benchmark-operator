@@ -27,7 +27,7 @@ spec:
       # Number of job iterations
       job_iterations: 100
       # Pin kube-burner to a node using the value of the label kubernetes.io/hostname
-      pin_server: ""
+      pin_server: {"node-role.kubernetes.io/worker": ""}
       # Wait for pods to be runnig before finishing kube-burner workload
       wait_when_finished: true
       # Wait for all pods to be running before moving forward to the next job iteration

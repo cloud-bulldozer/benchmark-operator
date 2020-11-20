@@ -19,7 +19,7 @@ jobs:
     qps: {{ workload_args.qps|default(5) }}
     burst: {{ workload_args.burst|default(10) }}
     namespacedIterations: false
-    namespace: max-namespaces-{{ uuid }}
+    namespace: max-services-{{ uuid }}
     podWait: {{ workload_args.pod_wait|default(false) }}
     cleanup: {{ workload_args.cleanup|default(true) }}
     waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}

@@ -123,11 +123,6 @@
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ meta.name }}"
   - name: Launching kube-burner job
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"

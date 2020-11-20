@@ -112,18 +112,21 @@ By default the [metrics.yaml](../roles/kube-burner/files/metrics-aggregated.yaml
 It's possible to pin kube-burner pod to a certain node using the `pin_server` parameter. This parameter is used in the job template as:
 
 ```jinja
-{% if workload_args.pin_server is defined and workload_args.pin_server != "" %}
-      nodeSelector:
-        kubernetes.io/hostname: {{ workload_args.pin_server }}
+{% if workload_args.pin_server is defined %}
+{% for label, value in  workload_args.pin_server.items() %}
+        {{ label | replace ("_", "-" )}}: {{ value }}
+{% endfor %}
+{% else %}
+      node-role.kubernetes.io/worker: ""
 {% endif %}
 ```
 
-With the above we could configure the workload to run in a certain node with:
+That is to say, by default kube-burner runs in worker nodes.  With the above we could configure the workload to run in infra labeled nodes with:
 
 ```yaml
 workload:
   args:
-    pin_server: ip-10-0-176-173
+    pin_server: {"node-role.kubernetes.io/infra": ""}
 ```
 
 It's also possible to configure scheduling tolerations for the kube-burner pod. To do just pass a list with the desired tolerations as in the code snippet below:
