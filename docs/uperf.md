@@ -97,6 +97,32 @@ Will run `stream` w/ `tcp` and message size `1024` three times and
 `stream` w/ `tcp` and message size `16384` three times. This will help us
 gain confidence in our results.
 
+### Asymmetric Request-Response
+
+For the request-response (rr) `test_type`, it is possible to provide the `sizes` values as a
+list of two values where the first value is the write size and the second value is the read
+size.
+
+For example:
+```yaml
+      samples: 3
+      pair: 1
+      test_types:
+        - rr
+      protos:
+        - tcp
+      sizes:
+        - 1024
+        - [8192, 4096]
+      nthrs:
+        - 1
+      runtime: 30
+```
+Will run the `rr` test with `tcp`, first with a symmectic size of `1024` and then with an
+asymmetric size of `8192` write and `4096` read.
+
+### Multus
+
 If the user desires to test with Multus, use the below Multus `NetworkAtachmentDefinition`
 as an example:
 

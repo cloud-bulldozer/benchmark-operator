@@ -8,18 +8,25 @@ data:
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}
 {% for size in workload_args.sizes %}
+{% if size is iterable %}
+{% set wsize = size[0] %}
+{% set rsize = size[1] %}
+{% else %}
+{% set wsize = size %}
+{% set rsize = size %}
+{% endif %}
 {% for nthr in workload_args.nthrs %}
-  uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} : |
+  uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} : |
     <?xml version=1.0?>
-    <profile name="{{test}}-{{proto}}-{{size}}-{{nthr}}">
+    <profile name="{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}}">
     {% if ( 'rr' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
-            <flowop type=write options="size={{size}}"/>
-            <flowop type=read  options="size={{size}}"/>
+            <flowop type=write options="size={{wsize}}"/>
+            <flowop type=read  options="size={{rsize}}"/>
           <transaction iterations="1">
             <flowop type=disconnect />
           </transaction>
@@ -31,7 +38,7 @@ data:
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
-            <flowop type=write options="count=16 size={{size}}"/>
+            <flowop type=write options="count=16 size={{wsize}}"/>
           </transaction>
           <transaction iterations="1">
             <flowop type=disconnect />
@@ -44,7 +51,7 @@ data:
             <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
-            <flowop type=read options="count=16 size={{size}}"/>
+            <flowop type=read options="count=16 size={{rsize}}"/>
           </transaction>
           <transaction iterations="1">
             <flowop type=disconnect />
