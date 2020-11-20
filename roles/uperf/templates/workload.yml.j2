@@ -102,12 +102,19 @@ spec:
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}
 {% for size in workload_args.sizes %}
-{% for nthr in workload_args.nthrs %}
-                 cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}};
-{% if workload_args.run_id is defined %}
-                 run_snafu --tool uperf --run-id {{workload_args.run_id}} -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+{% if size is iterable %}
+{% set wsize = size[0] %}
+{% set rsize = size[1] %}
 {% else %}
-                 run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{size}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+{% set wsize = size %}
+{% set rsize = size %}
+{% endif %}
+{% for nthr in workload_args.nthrs %}
+                 cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
+{% if workload_args.run_id is defined %}
+                 run_snafu --tool uperf --run-id {{workload_args.run_id}} -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
+{% else %}
+                 run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}};
 {% endif %}
 {% endfor %}
 {% endfor %}
