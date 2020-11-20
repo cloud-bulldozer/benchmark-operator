@@ -15,9 +15,13 @@ spec:
       tolerations: {{ workload_args.tolerations|default([]) }}
       restartPolicy: Never
       serviceAccountName: kube-burner
-{% if workload_args.pin_server is defined and workload_args.pin_server %}
       nodeSelector:
-        kubernetes.io/hostname: {{ workload_args.pin_server }}
+{% if workload_args.pin_server is defined and workload_args.pin_server != "" %}
+{% for label, value in  workload_args.pin_server.items() %}
+        {{ label | replace ("_", "-" )}}: {{ value }}
+{% endfor %}
+{% else %}
+        node-role.kubernetes.io/worker: ""
 {% endif %}
       containers:
       - name: kube-burner

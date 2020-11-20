@@ -7,11 +7,11 @@ spec:
   replicas: {{.podReplicas}}
   selector:
     matchLabels:
-      app: {{.name}}-{{.Replica}}-{{.UUID}}
+      app: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
   template:
     metadata:
       labels:
-        app: {{.name}}-{{.Replica}}-{{.UUID}}
+        app: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
     spec:
       nodeSelector:
         {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
