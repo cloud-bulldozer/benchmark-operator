@@ -26,6 +26,30 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
+          - name: runtype
+            value: "{{workload_args.runtype}}"
+          - name: timeout
+            value: "{{workload_args.timeout}}"
+{% if workload_args.cpu_stressors is defined %}
+          - name: cpu_stressors
+            value: "{{workload_args.cpu_stressors}}"
+{% endif %}
+{% if workload_args.cpu_percentage is defined %}
+          - name: cpu_percentage
+            value: "{{workload_args.cpu_percentage}}"
+{% endif %}
+{% if workload_args.vm_stressors is defined %}
+          - name: vm_stressors
+            value: "{{workload_args.vm_stressors}}"
+{% endif %}
+{% if workload_args.vm_bytes is defined %}
+          - name: vm_bytes
+            value: "{{workload_args.vm_bytes}}"
+{% endif %}
+{% if workload_args.mem_stressors is defined %}
+          - name: mem_stressors
+            value: "{{workload_args.mem_stressors}}"
+{% endif %}
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.server }}"
@@ -49,13 +73,7 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
-        args: 
-          - "export runtype={{workload_args.runtype}};
-             export timeout={{workload_args.timeout}};
-             export vm_stressors={{workload_args.vm_stressors}};
-             export vm_bytes={{workload_args.vm_bytes}};
-             export mem_stressors={{workload_args.mem_stressors}};
-             run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}"
+        args: ["run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}"]
         volumeMounts:
         - name: stressng-workload-volume
           mountPath: "/workload"
