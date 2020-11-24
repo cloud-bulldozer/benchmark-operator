@@ -48,7 +48,7 @@ Each iteration of this workload creates the following objects:
 
 - **max-namespaces**: This workload is a cluster limits focused test which creates maximum possible namespaces across the cluster. This is a namespaced workload, meaning that kube-burner **will create as many namespaces with these objects as the configured job_iterations**.
   - 1 deployment holding a postgresql database
-  - 1 deployment holding a client application for the previous database
+  - 5 deployments consisting of a client application for the previous database
   - 1 service pointing to the postgresl database
 
 - **max-services**: This workload is a cluster limits focused test which creates maximum possible services per namespace. It **will create a single namespace, each iteration of this workload will populate that namespace with these objects:**

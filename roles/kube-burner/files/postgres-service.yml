@@ -1,7 +1,8 @@
+---
 kind: Service
 apiVersion: v1
 metadata:
-  name: postgresql-{{.Replica}}-{{.Iteration}}-{{.UUID}}
+  name: postgres-{{.Iteration}}-{{.UUID}}
 spec:
   selector:
     name: postgres-{{.Replica}}-{{.Iteration}}-{{.UUID}}
