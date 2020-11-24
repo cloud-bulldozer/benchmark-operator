@@ -32,7 +32,7 @@ spec:
         - name: POSTGRESQL_DATABASE
           value: kubelet-density
         - name: POSTGRESQL_HOSTNAME
-          value: postgresql-{{.Replica}}-{{.Iteration}}-{{.UUID}}
+          value: postgres-{{.Iteration}}-{{.UUID}}
         - name: POSTGRESQL_PORT
           value: '5432'
         - name: POSTGRESQL_RETRY_INTERVAL

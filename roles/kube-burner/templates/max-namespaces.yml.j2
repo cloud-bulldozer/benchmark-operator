@@ -34,7 +34,7 @@ jobs:
           nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
 
       - objectTemplate: app-deployment.yml
-        replicas: 1
+        replicas: 5
         inputVars:
           readinessPeriod: 10
           nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
