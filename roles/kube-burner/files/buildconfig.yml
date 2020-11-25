@@ -2,14 +2,14 @@
 kind: BuildConfig
 apiVersion: build.openshift.io/v1
 metadata:
-  name: {{.JobName}}-{{.Replica}}-{{.UUID}}
+  name: {{.JobName}}-{{.Replica}}
 spec:
   nodeSelector:
     {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
   triggers:
   - type: GitHub
     github:
-      secret: {{.JobName}}-{{.Replica}}-{{.UUID}}
+      secret: {{.JobName}}-{{.Replica}}
   - type: ImageChange
   source:
     type: Git
@@ -20,8 +20,8 @@ spec:
     sourceStrategy:
       from:
         kind: ImageStreamTag
-        name: {{.from}}-{{.Replica}}-{{.UUID}}:latest
+        name: {{.from}}-{{.Replica}}:latest
   output:
     to:
       kind: ImageStreamTag
-      name: {{.to}}-{{.Replica}}-{{.UUID}}:latest
+      name: {{.to}}-{{.Replica}}:latest

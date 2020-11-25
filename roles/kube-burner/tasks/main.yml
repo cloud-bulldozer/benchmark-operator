@@ -118,6 +118,7 @@
           app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
           postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
           postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
+          secret.yml: "{{ lookup('file', 'secret.yml')}}"
     when: workload_args.workload == "max-namespaces"
 
   - name: Create max-services configmaps

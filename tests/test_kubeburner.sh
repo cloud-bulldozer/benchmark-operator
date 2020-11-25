@@ -35,6 +35,7 @@ function functional_test_kubeburner {
   uuid=${long_uuid:0:8}
 
   pod_count "app=kube-burner-benchmark-$uuid" 1 900
+  check_logs=1
   wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
 
   index="ripsaw-kube-burner"
@@ -43,7 +44,6 @@ function functional_test_kubeburner {
     echo "kube-burner ${workload_name}: Success"
   else
     echo "Failed to find data for kube-burner ${workload_name} in ES"
-    check_logs=1
     exit 1
   fi
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
