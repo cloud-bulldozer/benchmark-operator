@@ -18,6 +18,7 @@ elasticsearch:
   port: the elasticsearch server port
   parallel: enable parallel uploads to elasticsearch [default: false]
   index_name: the index name to use [default: workload defined]
+  verify_cert: disable elasticsearch certificate verification [default: true]
 ```
 
 *NOTE:* The only required parameters if using elasticsearch and the port and server. The others are optional and will be defaulted if not provided.
