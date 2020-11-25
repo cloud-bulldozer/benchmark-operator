@@ -35,6 +35,8 @@ spec:
                     type: string
                   parallel:
                     type: boolean
+                  verify_cert:
+                    type: string
               prometheus:
                 type: object
                 properties:
