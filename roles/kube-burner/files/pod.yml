@@ -1,7 +1,7 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: {{.JobName}}-{{.Iteration}}-{{.UUID}}
+  name: {{.JobName}}-{{.Iteration}}
   labels:
     name: {{.JobName}}
 spec:

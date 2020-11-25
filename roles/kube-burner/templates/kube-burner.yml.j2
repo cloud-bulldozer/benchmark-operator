@@ -16,7 +16,7 @@ spec:
       restartPolicy: Never
       serviceAccountName: kube-burner
       nodeSelector:
-{% if workload_args.pin_server is defined and workload_args.pin_server != "" %}
+{% if workload_args.pin_server is defined and workload_args.pin_server is mapping %}
 {% for label, value in  workload_args.pin_server.items() %}
         {{ label | replace ("_", "-" )}}: {{ value }}
 {% endfor %}

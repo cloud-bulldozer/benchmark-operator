@@ -2,15 +2,15 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
+  name: {{.name}}-{{.Iteration}}-{{.Replica}}
 spec:
   selector:
     matchLabels:
-      app: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
+      app: {{.name}}-{{.Iteration}}-{{.Replica}}
   template:
     metadata:
       labels:
-        app: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
+        app: {{.name}}-{{.Iteration}}-{{.Replica}}
     spec:
       nodeSelector:
         {{.nodeSelectorKey}}: {{.nodeSelectorValue}}

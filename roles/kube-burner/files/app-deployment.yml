@@ -1,12 +1,12 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: perfapp-{{.Replica}}-{{.Iteration}}-{{.UUID}}
+  name: perfapp-{{.Replica}}-{{.Iteration}}
 spec:
   template:
     metadata:
       labels:
-        name: perfapp-{{.Replica}}-{{.Iteration}}-{{.UUID}}
+        name: perfapp-{{.Replica}}-{{.Iteration}}
     spec:
       nodeSelector:
         {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
@@ -32,7 +32,7 @@ spec:
         - name: POSTGRESQL_DATABASE
           value: kubelet-density
         - name: POSTGRESQL_HOSTNAME
-          value: postgres-{{.Iteration}}-{{.UUID}}
+          value: postgres-{{.Iteration}}
         - name: POSTGRESQL_PORT
           value: '5432'
         - name: POSTGRESQL_RETRY_INTERVAL
@@ -44,7 +44,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      name: perfapp-{{.Replica}}-{{.Iteration}}-{{.UUID}}
+      name: perfapp-{{.Replica}}-{{.Iteration}}
   triggers:
   - type: ConfigChange
   strategy:

@@ -2,10 +2,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
+  name: {{.name}}-{{.Iteration}}-{{.Replica}}
 spec:
   selector:
-    app: {{.name}}-{{.Iteration}}-{{.Replica}}-{{.UUID}}
+    app: {{.name}}-{{.Iteration}}-{{.Replica}}
   ports:
   - name: {{.name}}
     protocol: TCP
