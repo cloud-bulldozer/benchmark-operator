@@ -8,17 +8,17 @@ metrics:
   - query: sum(container_memory_rss{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler)"}) by (pod, namespace, node)
     metricName: podMemory
 
-  - query: topk(3,sum(irate(process_cpu_seconds_total{service="kubelet",job="kubelet"}[2m]) * 100) by (node))
-    metricName: top3KubeletCPU
+  - query: sum(irate(process_cpu_seconds_total{service="kubelet",job="kubelet"}[2m]) * 100) by (node) and on (node) kube_node_role{role="worker"}
+    metricName: kubeletCPU
 
-  - query: topk(3,sum(process_resident_memory_bytes{service="kubelet",job="kubelet"}) by (node))
-    metricName: top3KubeletMemory
+  - query: sum(process_resident_memory_bytes{service="kubelet",job="kubelet"}) by (node) and on (node) kube_node_role{role="worker"}
+    metricName: kubeletMemory
 
-  - query: topk(3,sum(irate(process_cpu_seconds_total{service="kubelet",job="crio"}[2m]) * 100) by (node))
-    metricName: top3CrioCPU
+  - query: sum(irate(process_cpu_seconds_total{service="kubelet",job="crio"}[2m]) * 100) by (node) and on (node) kube_node_role{role="worker"}
+    metricName: crioCPU
 
-  - query: topk(3,sum(process_resident_memory_bytes{service="kubelet",job="crio"}) by (node))
-    metricName: top3CrioMemory
+  - query: sum(process_resident_memory_bytes{service="kubelet",job="crio"}) by (node) and on (node) kube_node_role{role="worker"}
+    metricName: crioMemory
 
   - query: sum(irate(node_cpu_seconds_total[2m])) by (mode,instance) > 0
     metricName: nodeCPU
@@ -62,6 +62,15 @@ metrics:
   - query: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[2m]))
     metricName: 99thEtcdDiskWalFsyncDurationSeconds
 
+  - query: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket[5m]))
+    metricName: 99thEtcdRoundTripTimeSeconds
+
+  - query: etcd_mvcc_db_total_size_in_bytes
+    metricName: etcdDBPhysicalSizeBytes
+
+  - query: etcd_mvcc_db_total_size_in_use_in_bytes
+    metricName: etcdDBLogicalSizeBytes
+
   - query: count(kube_namespace_created)
     metricName: namespaceCount
 
@@ -82,6 +91,7 @@ metrics:
 
   - query: kube_node_role
     metricName: nodeRoles
+    instant: true
 
   - query: sum(kube_node_status_condition{status="true"}) by (condition)
     metricName: nodeStatus
@@ -92,3 +102,10 @@ metrics:
   - query: sum(rate(etcd_object_counts{}[5m])) by (resource) > 0
     metricName: etcdObjectCount
 
+  - query: cluster_version{type="completed"}
+    metricName: clusterVersion
+    instant: true
+
+  - query: sum by (cluster_version)(etcd_cluster_version)
+    metricName: etcdVersion
+    instant: true
