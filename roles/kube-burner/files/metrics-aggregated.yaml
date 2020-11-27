@@ -134,6 +134,15 @@ metrics:
   - query: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[2m]))
     metricName: 99thEtcdDiskWalFsyncDurationSeconds
 
+  - query: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket[5m]))
+    metricName: 99thEtcdRoundTripTimeSeconds
+
+  - query: etcd_mvcc_db_total_size_in_bytes
+    metricName: etcdDBPhysicalSizeBytes
+
+  - query: etcd_mvcc_db_total_size_in_use_in_bytes
+    metricName: etcdDBLogicalSizeBytes
+
   - query: count(kube_namespace_created)
     metricName: namespaceCount
 
@@ -154,6 +163,7 @@ metrics:
 
   - query: kube_node_role{role="master"}
     metricName: nodeRoles
+    instant: true
 
   - query: sum(kube_node_status_condition{status="true"}) by (condition)
     metricName: nodeStatus
@@ -163,3 +173,11 @@ metrics:
 
   - query: sum(rate(etcd_object_counts{}[5m])) by (resource) > 0
     metricName: etcdObjectCount
+
+  - query: cluster_version{type="completed"}
+    metricName: clusterVersion
+    instant: true
+
+  - query: sum by (cluster_version)(etcd_cluster_version)
+    metricName: etcdVersion
+    instant: true
