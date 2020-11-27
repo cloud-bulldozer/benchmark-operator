@@ -3,7 +3,7 @@
 ## What is kube-burner?
 
 Kube-burner is a tool that allows a user to perform scalability tests across Kubernetes and OpenShift clusters by creating thousands of objects. Kube-burner is developed in it's own repository at https://github.com/cloud-bulldozer/kube-burner
-This ripsaw integration is meant to run only some workloads useful to measure certain performance KPIs of a cluster.
+The ripsaw integration here is meant to run only some workloads useful to measure certain performance KPIs of a cluster.
 
 ## Running kube-burner
 
@@ -36,6 +36,15 @@ Each iteration of this workload creates the following objects:
   - 1 deployment holding a client application for the previous database
   - 1 service pointing to the postgresl database
 
+- **max-namespaces**: This workload is a cluster limits focused test which creates maximum possible namespaces across the cluster. This is a namespaced workload, meaning that kube-burner **will createas many namespaces with these objects as the configured job_iterations**. Each namespace will be populated with the following objects.:
+  - 1 deployment holding a postgresql database
+  - 1 deployment holding a client application for the previous database
+  - 1 service pointing to the postgresl database
+
+- **max-services**: This workload is a cluster limits focused test which creates maximum possible services per each namespace. Each namespace will be populated with the following objects.:
+  - 1 simple application deployment (hello-openshift).
+  - 1 service pointing to the previous deployment.
+
 The workload type is specified by the parameter `workload` from the `args` object of the configuration. Each workload supports several configuration parameters, detailed in the [configuration section](#configuration)
 
 ## Configuration
@@ -67,7 +76,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **job_timeout**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
 - **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 - **step**: Prometheus step size, useful for long benchmarks. Defaults to 30s
-- **metrics_profile**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml`. Detailed in the [Metrics section](#Metrics) of this document
+- **metrics_profile**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics-aggregated.yaml` in cluster-density and `metrics.yaml` in the remaining workloads. Detailed in the [Metrics section](#Metrics) of this document
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
@@ -94,8 +103,9 @@ kube-burner is able to collect Prometheus metrics using the time range of the be
 - [metrics.yaml](../roles/kube-burner/files/metrics.yaml): This metric profile is indicated for benchmarks executed in small clusters. Since it gets metrics for several system pods from each node. Otherwise, we can reduce the number of indexed metrics (at the expense of granularity) with the parameter **step**.
 - [metrics-aggregated.yaml](../roles/kube-burner/files/metrics-aggregated.yaml): This metric profile is indicated for benchmarks in large clusters. Since the metrics from the worker nodes and the infra nodes are aggregated and only metrics from master nodes are collected individually. Also the parameter **step** can be used to reduce the number of metrics (at the expense of granularity) that will be indexed.
 
-By default the [metrics.yaml](metrics.yaml) profile is used. You can change this profile with the variable **metrics_profile**.
-> Metrics collection and indexing is enabled when setting prometheus.prom_url.
+By default the [metrics-aggregated.yaml](../roles/kube-burner/files/metrics-aggregated.yaml) profile is used. You can change this profile with the variable **metrics_profile**.
+
+**Note**: Metrics collection and indexing is enabled when setting prometheus `prom_url`
 
 ## Pin to server and tolerations
 

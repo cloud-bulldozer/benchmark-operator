@@ -53,3 +53,5 @@ figlet $(basename $0)
 functional_test_kubeburner cluster-density metrics-aggregated.yaml
 functional_test_kubeburner kubelet-density metrics.yaml
 functional_test_kubeburner kubelet-density-heavy metrics.yaml
+functional_test_kubeburner max-namespaces metrics-aggregated.yaml
+functional_test_kubeburner max-services metrics-aggregated.yaml
