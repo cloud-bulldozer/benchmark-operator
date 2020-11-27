@@ -1,0 +1,40 @@
+---
+global:
+  writeToFile: false
+{% if prometheus is defined and prometheus.prom_url is defined %}
+  indexerConfig:
+    enabled: true
+    esServers: [{{ prometheus.es_server }}]
+    insecureSkipVerify: true
+    defaultIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
+    type: elastic
+  measurements:
+    - name: podLatency
+      esIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
+{% endif %}
+
+jobs:
+  - name: max-services
+    jobIterations: {{ workload_args.job_iterations }}
+    qps: {{ workload_args.qps|default(5) }}
+    burst: {{ workload_args.burst|default(10) }}
+    namespacedIterations: false
+    namespace: max-namespaces-{{ uuid }}
+    podWait: {{ workload_args.pod_wait|default(false) }}
+    cleanup: {{ workload_args.cleanup|default(true) }}
+    waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}
+    verifyObjects: {{ workload_args.verify_objects|default(true) }}
+    errorOnVerify: {{ workload_args.error_on_verify|default(false) }}
+    objects:
+
+      - objectTemplate: simple-deployment.yml
+        replicas: 1
+        inputVars:
+          name: max-services
+          nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
+          nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
+
+      - objectTemplate: service.yml
+        replicas: 1
+        inputVars:
+          name: max-services

@@ -63,7 +63,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
           build.yml: "{{ lookup('file', 'build.yml')}}"
           buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
           deployment.yml: "{{ lookup('file', 'deployment.yml')}}"
@@ -104,6 +104,46 @@
           postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
     when: workload_args.workload == "kubelet-density-heavy"
 
+  - name: Create max-namespaces configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'max-namespaces.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+          app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
+          postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
+          postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
+    when: workload_args.workload == "max-namespaces"
+
+  - name: Create max-services configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'max-services.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+          simple-deployment.yml: "{{ lookup('file', 'simple-deployment.yml')}}"
+          service.yml: "{{ lookup('file', 'service.yml')}}"
+    when: workload_args.workload == "max-services"
+
+  - name: Launching kube-burner job
+    k8s:
+      definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
   - name: Launching kube-burner job
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"

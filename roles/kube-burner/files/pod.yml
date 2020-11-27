@@ -1,14 +1,14 @@
 kind: Pod
 apiVersion: v1
 metadata:
-  name: kubelet-density-{{.Iteration}}-{{.UUID}}
+  name: {{.JobName}}-{{.Iteration}}-{{.UUID}}
   labels:
-    name: kubelet-density
+    name: {{.JobName}}
 spec:
   nodeSelector:
     {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
   containers:
-  - name: kubelet-density
+  - name: {{.JobName}}
     image: {{.containerImage}}
     ports:
     - containerPort: 8080
