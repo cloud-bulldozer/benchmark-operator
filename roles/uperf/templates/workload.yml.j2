@@ -94,6 +94,9 @@ spec:
           - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
+{% if workload_args.networkpolicy is defined %}
+             export networkpolicy={{workload_args.networkpolicy}};
+{% endif %}
              export hostnet={{workload_args.hostnetwork}};
              export ips=$(hostname -I);
              export num_pairs={{workload_args.pair}};
