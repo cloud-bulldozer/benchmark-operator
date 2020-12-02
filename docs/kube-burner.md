@@ -1,3 +1,13 @@
+- [Kube-burner](#kube-burner)
+  - [What is kube-burner?](#what-is-kube-burner)
+  - [Running kube-burner](#running-kube-burner)
+  - [Supported workloads](#supported-workloads)
+  - [Configuration](#configuration)
+  - [Metrics](#metrics)
+  - [Pin to server and tolerations](#pin-to-server-and-tolerations)
+  - [Using a remote configuration for kube-burner](#using-a-remote-configuration-for-kube-burner)
+
+
 # Kube-burner
 
 ## What is kube-burner?
@@ -125,4 +135,33 @@ workload:
     - key: role
       value: worker
       effect: NoSchedule
+```
+
+
+## Using a remote configuration for kube-burner
+
+Apart from the pre-defined workloads available in this integration with kube-burner, it's possible to make kube-burner to fetch a remote configuration file, from 
+a remote http server. This mechanism can be used by pointing the variable `remote_config` to the desired remote configuration file:
+
+
+```yaml
+workload:
+  args:
+    remote_config: https://your.domain.org/kube-burner-config.yaml
+```
+
+Keep in mind that the object templated declared in this remote configuration file need to be pointed to a remote source as well so that kube-burner will also be able to fetch them. i.e
+```yaml
+    objects:
+
+      - objectTemplate: https://your.domain.org/templates/pod.yml
+        replicas: 1
+```
+
+In addition to using remote configurations for kube-burner, it's also possible to use a remote metrics profile. It can be configured with the variable `remote_metrics_profile`
+
+```yaml
+workload:
+  args:
+    remote_metrics_profile: https://your.domain.org/metrics-profile.yaml
 ```
