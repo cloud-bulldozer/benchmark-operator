@@ -92,6 +92,7 @@ spec:
         - 1
       runtime: 30
 ```
+`protos` can be udp, tcp or sctp. If you want to use sctp, make sure that your OCP cluster is set up to support it. Details on how to do that can be found in (setup_sctp.md).
 
 Will run `stream` w/ `tcp` and message size `1024` three times and
 `stream` w/ `tcp` and message size `16384` three times. This will help us

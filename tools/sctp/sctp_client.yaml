@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sctpclient
+  labels:
+    app: sctpclient
+spec:
+  containers:
+    - name: sctpclient
+      image: registry.access.redhat.com/ubi8/ubi
+      command: ["/bin/sh", "-c"]
+      args:
+        ["dnf install -y nc && sleep inf"]
