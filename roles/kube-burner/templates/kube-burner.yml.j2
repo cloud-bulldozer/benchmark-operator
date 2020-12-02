@@ -26,11 +26,25 @@ spec:
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]
         args:
-{% if prometheus is defined and prometheus.prom_url is defined %}
-          - kube-burner init -c config.yml -m metrics.yaml -u {{ prometheus.prom_url }} -t {{ prometheus.prom_token }} --uuid={{ uuid }} --log-level={{ workload_args.log_level|default("info") }} --step={{ workload_args.step|default("30s") }}
+        - >
+          kube-burner init
+{% if workload_args.remote_config is defined and workload_args.remote_config %}
+          -c {{ workload_args.remote_config }}
 {% else %}
-          - kube-burner init -c config.yml --uuid={{ uuid }} --log-level={{ workload_args.log_level|default("info") }}
+          -c config.yml
 {% endif %}
+{% if prometheus is defined and prometheus.prom_url is defined %}
+          -u {{ prometheus.prom_url }}
+          -t {{ prometheus.prom_token }}
+          --step={{ workload_args.step|default("30s") }}
+{% if workload_args.remote_metrics_profile is defined and workload_args.remote_metrics_profile %}
+          -m {{ workload_args.remote_metrics_profile }}
+{% else %}
+          -m metrics.yaml
+{% endif %}
+{% endif %}
+          --uuid={{ uuid }}
+          --log-level={{ workload_args.log_level|default("info") }}
         volumeMounts:
           - name: kube-burner-config
             mountPath: /tmp/kube-burner

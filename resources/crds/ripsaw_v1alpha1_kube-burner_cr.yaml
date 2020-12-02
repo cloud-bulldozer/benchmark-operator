@@ -50,6 +50,10 @@ spec:
       step: 30s
       # kube-burner metrics profile
       metrics_profile: metrics.yaml
+      # Remote configuration file
+      # remote_config: http://yourdomain/kube-burner.yml
+      # Remote metrics profile
+      # remote_metrics_profile: http://yourdomain/metrics-profile.yml
       # kube-burner pod tolerations
       tolerations:
       - key: role

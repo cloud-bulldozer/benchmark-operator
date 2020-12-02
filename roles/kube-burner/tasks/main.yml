@@ -37,6 +37,22 @@
 
 - block:
 
+  - name: Create metrics profile for remote configuration job
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+    when: 
+      - workload_args.remote_config is defined
+      - workload_args.remote_config
+      - workload_args.remote_metrics_profile is not defined
+      - workload_args.remote_metrics_profile
+
   - name: Create cluster-density configmaps
     k8s:
       definition:
