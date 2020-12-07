@@ -47,7 +47,7 @@ spec:
   terminationGracePeriodSeconds: 0
 {% if workload_args.pin is sameas true %}
   nodeSelector:
-    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+    kubernetes.io/hostname: '{{ workload_args.pin_client }}'
 {% endif %}
   networks:
     - name: default
