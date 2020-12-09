@@ -19,13 +19,13 @@ def pytest_addoption(parser):
 @pytest.fixture(scope="class")
 def overrides(request, metadata_collection_overrides, prometheus_token):
     request.cls.overrides = {}
-    request.cls.metadata_collection_enabled = request.cls.overrides["spec.metadata.collection"] = metadata_collection_overrides["metadata_collection_enabled"]
+    request.cls.metadata_collection_enabled = request.cls.overrides["spec/metadata/collection"] = metadata_collection_overrides["metadata_collection_enabled"]
 
     if request.cls.metadata_collection_enabled:
         request.cls.es_server = request.cls.overrides["spec.elasticsearch.server"] = metadata_collection_overrides["es_server"]
         if prometheus_token is not None and request.cls.benchmark_needs_prometheus:
-            request.cls.overrides['spec.prometheus.es_server'] = f"http://{metadata_collection_overrides['es_server']}"
-            request.cls.overrides['spec.prometheus.prom_token'] = prometheus_token
+            request.cls.overrides['spec/prometheus/es_server'] = f"http://{metadata_collection_overrides['es_server']}"
+            request.cls.overrides['spec/prometheus/prom_token'] = prometheus_token
 
 @pytest.fixture(scope="session")
 def metadata_collection_overrides(request):

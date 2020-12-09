@@ -6,7 +6,7 @@ from util.exceptions import BenchmarkNotStartedError
 class BenchmarkRun:
     def __init__(self, name, yaml_path, cluster): 
         with open(yaml_path, 'r') as file:
-            self.yaml = benedict(yaml.full_load(file)) 
+            self.yaml = benedict(yaml.full_load(file), keypath_separator="/") 
         self.cluster = cluster
         self.name = name
         self.resource_name = self.yaml['metadata']['name']

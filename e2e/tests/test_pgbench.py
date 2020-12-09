@@ -14,7 +14,7 @@ class TestPgBench(TestBase):
         postgres_pod = cluster.get_pods_by_app("postgres", "my-ripsaw").items[0]
         postgres_pod_ip = postgres_pod.status.pod_ip
         run = self._item.callspec.getparam('run')
-        run.update_spec("spec.workload.args.databases[0].host", postgres_pod_ip)
+        run.update_spec("spec/workload/args/databases[0]/host", postgres_pod_ip)
         
 
     
