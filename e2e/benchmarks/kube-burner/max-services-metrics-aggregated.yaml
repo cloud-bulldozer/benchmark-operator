@@ -22,7 +22,7 @@ spec:
       default_index: ripsaw-kube-burner
       job_iterations: 1
       job_timeout: 600
-      pin_server: {"node-role.kubernetes.io/worker": ""}
+      pin_server: {"node-role.kubernetes.io/workload": ""}
       wait_when_finished: true
       pod_wait: false
       image: quay.io/cloud-bulldozer/kube-burner:latest
@@ -34,7 +34,7 @@ spec:
       step: 30s
       metrics_profile: metrics-aggregated.yaml
       node_selector:
-        key: node-role.kubernetes.io/worker
+        key: node-role.kubernetes.io/workload
         value:
       tolerations:
       - key: node-role.kubernetes.io/master
