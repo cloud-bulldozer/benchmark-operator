@@ -34,8 +34,22 @@
       - name = benchmark-operator
   register: bo
 
-- name: Generate list of database counts
-  include_tasks: generate_num_databases.yml
+- name: Set the list to be enumerated
+  set_fact:
+    enumeration_list: '{{ workload_args.databases }}'
+
+- name: Set enumeration pattern
+  set_fact:
+    enumeration_pattern: '{{ num_databases_pattern }}'
+
+- name: Set enumeration zero base to false (start counting from 1)
+  set_fact:
+    enumeration_zero_base: false
+
+- name: Generate list of database counts by enumeration pattern
+  include_role:
+    name: common
+    tasks_from: enumeration_by_pattern.yml
 
 - name: Init benchmark environment
   include_tasks: init.yml
@@ -51,7 +65,7 @@
 
 - name: Set dbnum
   set_fact:
-    dbnum: "{{ num_databases[dbnum_item|int] | int }}"
+    dbnum: "{{ enumeration[dbnum_item|int] | int }}"
 
 - name: Prep pgbench workload
   include_tasks: prep_workload.yml

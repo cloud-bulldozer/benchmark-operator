@@ -23,7 +23,7 @@
     status:
       state: "Prep Workload"
       complete: false
-  when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase')) and dbnum_item|int < (num_databases|length - 1)"
+  when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase')) and dbnum_item|int < (enumeration|length - 1)"
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -33,4 +33,4 @@
     status:
       state: "Complete"
       complete: true
-  when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase')) and dbnum_item|int >= (num_databases|length - 1)"
+  when: "'Succeeded' in (pgbench_pods | json_query('resources[].status.phase')) and dbnum_item|int >= (enumeration|length - 1)"
