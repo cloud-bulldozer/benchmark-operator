@@ -21,13 +21,12 @@
 # enumeration_pattern = 'by2'
 #
 # Then this will output:
-# enumeration = [2, 4, 5]
+# enumeration = [1, 3, 5, 7]
 #
 # EXAMPLE 2:
 # If you set:
 # enumeration_list = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
 # enumeration_pattern = 'doubling'
-# enumeration_zero_base = false
 #
 # Then this will output:
 # enumeration = [1, 2, 4]
@@ -43,9 +42,9 @@
 #   set_fact:
 #     enumeration_pattern: '{{ num_databases_pattern }}'
 # 
-# - name: Set enumeration zero base (defaults to true if excluded)
+# - name: Set enumeration zero base (defaults to false if excluded)
 #   set_fact:
-#     enumeration_zero_base: true
+#     enumeration_zero_base: false
 # 
 # - name: Generate enumeration list by enumeration pattern
 #   include_role:
@@ -53,14 +52,14 @@
 #     tasks_from: enumeration_by_pattern.yml
 #
 
-- name: Default zero base
-  set_fact:
-    base: 0
-
-- name: Change base if enumeration_zero_base is false
+- name: Default to one-base counting
   set_fact:
     base: 1
-  when: enumeration_zero_base is defined and not enumeration_zero_base
+
+- name: Change base if enumeration_zero_base is true
+  set_fact:
+    base: 0
+  when: enumeration_zero_base is defined and enumeration_zero_base
 
 - name: Set enumeration to linear by-1 pattern
   set_fact:
@@ -82,5 +81,5 @@
 
 - name: Set enumeration to all pattern
   set_fact:
-    enumeration: "{{ enumeration|default([]) + [enumeration_list|length + base] }}"
+    enumeration: "{{ enumeration|default([]) + [enumeration_list|length - 1 + base] }}"
   when: enumeration_pattern == "all"

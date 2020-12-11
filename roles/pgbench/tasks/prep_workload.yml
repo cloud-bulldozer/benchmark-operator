@@ -1,17 +1,18 @@
 ---
-- name: Init workload start signal to false
+- name: Initialize the workload start signal to false
   command: "redis-cli set pgb_start false;"
 
-- name: Init client ready state to empty
+- name: Initialize the client ready state to empty
   command: "redis-cli del pgb_client_ready"
 
-- name: Setup pgbench test job(s)
+- name: Prepare the pgbench test job(s)
   k8s:
     definition: "{{ lookup('template', 'templates/workload.yml.j2') }}"
   with_indexed_items: "{{ workload_args.databases }}"
   when: item.0|int in range(dbnum|int)
 
-- operator_sdk.util.k8s_status:
+- name: Set state to "Check Clients"
+  operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"

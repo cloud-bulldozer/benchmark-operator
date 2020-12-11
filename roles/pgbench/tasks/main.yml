@@ -34,48 +34,44 @@
       - name = benchmark-operator
   register: bo
 
-- name: Set the list to be enumerated
+- name: Set the list of databases to be enumerated
   set_fact:
     enumeration_list: '{{ workload_args.databases }}'
 
-- name: Set enumeration pattern
+- name: Set enumeration pattern for the numbers of databases
   set_fact:
     enumeration_pattern: '{{ num_databases_pattern }}'
 
-- name: Set enumeration zero base to false (start counting from 1)
-  set_fact:
-    enumeration_zero_base: false
-
-- name: Generate list of database counts by enumeration pattern
+- name: Generate a list of database counts by enumeration pattern
   include_role:
     name: common
     tasks_from: enumeration_by_pattern.yml
 
-- name: Init benchmark environment
+- name: Initialize the benchmark environment
   include_tasks: init.yml
   when: resource_state.resources[0].status.state == "Init"
 
-- name: Get dbnum_item from redis
+- name: Get the current dbnum list item index from redis
   command: "redis-cli get dbnum_item"
   register: get_dbnum_item
 
-- name: Set dbnum_item
+- name: Set dbnum_item fact from the value in redis
   set_fact:
     dbnum_item: "{{ get_dbnum_item.stdout | int }}"
 
-- name: Set dbnum
+- name: Select the number of databases to test from the numeration list
   set_fact:
     dbnum: "{{ enumeration[dbnum_item|int] | int }}"
 
-- name: Prep pgbench workload
+- name: Prepare the pgbench workload
   include_tasks: prep_workload.yml
   when: resource_state.resources[0].status.state == "Prep Workload"
 
-- name: Check pgbench clients
+- name: Check the pgbench clients status
   include_tasks: check_clients.yml
   when: resource_state.resources[0].status.state == "Check Clients"
 
-- name: Run pgbench workloads
+- name: Run the pgbench workloads
   include_tasks: run_workload.yml
   when: resource_state.resources[0].status.state == "Run Workload"
 

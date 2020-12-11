@@ -1,8 +1,9 @@
 ---
-- name: Initialize dbnum_item in redis
+- name: Initialize dbnum item list in redis
   command: "redis-cli set dbnum_item 0"
 
-- operator_sdk.util.k8s_status:
+- name: Set state to "Prep Workload"
+  operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ meta.name }}"
