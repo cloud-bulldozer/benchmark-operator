@@ -209,14 +209,14 @@ You must have configured your k8s cluster with [Kubevirt](https://kubevirt.io) p
 ```yaml
 server_vm:
   dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
-  sockets: 2
-  cores: 1
+  sockets: 1
+  cores: 2
   threads: 1
   image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
   limits:
-    memory: 2Gi
+    memory: 4Gi
   requests:
-    memory: 2Gi
+    memory: 4Gi
   network:
     front_end: bridge # or masquerade
     multiqueue:
@@ -227,14 +227,14 @@ server_vm:
     #- hostpassthrough
 client_vm:
   dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
-  sockets: 2
-  cores: 1
+  sockets: 1
+  cores: 2
   threads: 1
   image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
   limits:
-    memory: 2Gi
+    memory: 4Gi
   requests:
-    memory: 2Gi
+    memory: 4Gi
   network:
     front_end: bridge # or masquerade
     multiqueue:

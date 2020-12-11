@@ -59,7 +59,8 @@ spec:
           - ethtool -L eth0 combined {{ workload_args.server_vm.network.multiqueue.queues }}
 {% endif %}
           - dnf install -y uperf redis git
-          - redis-cli -h {{ bo.resources[0].status.podIP }} set {{ trunc_uuid }} true
+          - redis-cli -h {{ bo.resources[0].status.podIP }} setnx {{ trunc_uuid }} 0
+          - redis-cli -h {{ bo.resources[0].status.podIP }} incr {{ trunc_uuid }}
           - uperf -s -v -P 20000
     name: cloudinitdisk
 status: {}
