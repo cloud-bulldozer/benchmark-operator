@@ -20,18 +20,18 @@ spec:
       pin_server: "node-0"
       pin_client: "node-1"
       samples: 2
-      pair: 1 # has to be one 1 for vm
+      pair: 1
       kind: vm
       server_vm:
         dedicatedcpuplacement: false
-        sockets: 2
-        cores: 1
+        sockets: 1
+        cores: 2
         threads: 1
         image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
         limits:
-          memory: 2Gi
+          memory: 4Gi
         requests:
-          memory: 2Gi
+          memory: 4Gi
         network:
           front_end: bridge # or masquerade
           multiqueue:
@@ -42,14 +42,14 @@ spec:
           #- hostpassthrough
       client_vm:
         dedicatedcpuplacement: false
-        sockets: 2
-        cores: 1
+        sockets: 1
+        cores: 2
         threads: 1
         image: kubevirt/fedora-cloud-container-disk-demo:latest
         limits:
-          memory: 2Gi
+          memory: 4Gi
         requests:
-          memory: 2Gi
+          memory: 4Gi
         network:
           front_end: bridge # or masquerade
           multiqueue:
@@ -59,15 +59,11 @@ spec:
           - none
           #- hostpassthrough
       test_types:
-        #- stream
-        - rr
+        - stream
       protos:
         - tcp
-        #- udp
       sizes:
-        #- 1024
-        - 512
+        - 16384
       nthrs:
-        #- 1
-        - 2
-      runtime: 5
+        - 1
+      runtime: 30
