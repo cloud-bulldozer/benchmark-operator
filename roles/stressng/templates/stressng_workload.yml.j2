@@ -12,6 +12,9 @@ spec:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
 {% if workload_args.nodeselector is defined %}
       nodeSelector: {{ workload_args.nodeselector | to_json }}
 {% endif %}

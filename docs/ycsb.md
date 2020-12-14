@@ -66,6 +66,7 @@ so that the ycsb pod can access the API of database.
 
 `pin_node` what node to pin the pod to.
 
+`runtime_class`: If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
 Once done creating/editing the resource file, you can run it by:
 

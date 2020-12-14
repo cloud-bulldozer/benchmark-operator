@@ -88,6 +88,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 - **step**: Prometheus step size, useful for long benchmarks. Defaults to 30s
 - **metrics_profile**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in kubelet-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
+- **runtime_class** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 

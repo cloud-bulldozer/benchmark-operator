@@ -11,6 +11,9 @@ spec:
       labels:
       app: "{{ meta.name }}-{{ trunc_uuid }}"
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: command
         image: "{{ hf_pod.resources[0].spec.containers[0].image }}"

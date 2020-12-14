@@ -11,6 +11,9 @@ spec:
       labels:
         app: scale-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
 {% if workload_args.tolerations is defined %}
       tolerations:
       - key: {{ workload_args.tolerations.key }}

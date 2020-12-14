@@ -12,6 +12,9 @@ spec:
       labels:
         app: kube-burner-benchmark-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       tolerations: {{ workload_args.tolerations|default([]) }}
       restartPolicy: Never
       serviceAccountName: kube-burner

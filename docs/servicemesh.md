@@ -14,6 +14,12 @@ oc apply -f resources/self_provisioner_binding.yaml
 
 Service Mesh and Hyperfoil operators must be [already installed](https://docs.openshift.com/container-platform/4.4/operators/olm-adding-operators-to-cluster.html) to the cluster before the benchmark starts.
 
+## Optional setting
+
+The option **runtime_class** can be set to specify an optional
+runtime_class to the podSpec runtimeClassName.  This is primarily
+intended for Kata containers.
+
 ## Running the benchmark
 
 Here is an example of the [benchmark CR](../resources/crds/ripsaw_v1alpha1_servicemesh_cr.yaml):

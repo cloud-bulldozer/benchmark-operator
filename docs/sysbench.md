@@ -7,6 +7,10 @@
 Given that you followed instructions to deploy operator,
 you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml)
 
+The optional argument **runtime_class** can be set to specify an
+optional runtime_class to the podSpec runtimeClassName.  This is
+primarily intended for Kata containers.
+
 Note: please ensure you set 0 for other workloads if editing the
 [cr.yaml](../resources/crds/ripsaw_v1alpha1_sysbench_cr.yaml) file otherwise
 

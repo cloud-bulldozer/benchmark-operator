@@ -47,6 +47,10 @@ The tpcc benchmark which we use can set up an arbitrary number of warehouses bet
 
 With `runtime`, `rampup` and `samples` the time for a single run, the rampup time per run and the number of runs can be controlled. 
 
+The option **runtime_class** can be set to specify an optional
+runtime_class to the podSpec runtimeClassName.  This is primarily
+intended for Kata containers.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash

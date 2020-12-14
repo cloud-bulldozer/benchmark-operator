@@ -11,6 +11,9 @@ spec:
       labels:
        app: byowl-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: byowl
         command: ["/bin/sh", "-c"]

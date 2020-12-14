@@ -8,22 +8,22 @@ a performance baseline of Kubernetes cluster on your provider.
 | Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) | Kata Containers |
 | ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- | --------------- |
 | [UPerf](docs/uperf.md)         | Network Performance    | Working            |  Used, default : 3second  | Working                | Working         |
-| [Iperf3](docs/iperf.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
+| [Iperf3](docs/iperf.md)       | Network Performance    | Working            |  Used, default : 3second  | Not Supported          | Preview         |
 | [fio](docs/fio_distributed.md) | Storage IO             | Working            |  Used, default : 3second  | Working                | Working         |
-| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                 | Not Supported          | Not Supported   |
-| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [Service Mesh](docs/servicemesh.md) | Microservices     | Working            |  Used, default : 3second   | Not Supported         | Not Supported   |
-| [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Not Supported  |
-| [stressng](docs/stressng.md)   | Stress system resources | Working            |  Used, default: 3second  | Not Supported         | Not Supported  |
-| [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Working       |  Used, default : 3second  | Not Supported          | Not Supported   |
-| [oslat](docs/oslat.md)         | Real-Time Latency      | Working           |  Used, default : 3second   | Not Supported          | Not Supported   |
+| [Sysbench](docs/sysbench.md)   | System Performance     | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [YCSB](docs/ycsb.md)           | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Byowl](docs/byowl.md)         | User defined workload  | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Pgbench](docs/pgbench.md)     | Postgres Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Smallfile](docs/smallfile.md) | Storage IO Performance | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Working            |  Not used                 | Not Supported          | Preview         |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Service Mesh](docs/servicemesh.md) | Microservices     | Working            |  Used, default : 3second   | Not Supported         | Preview         |
+| [Vegeta](docs/vegeta.md)       | HTTP Performance       | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Working            |  Used, default : 3second  | Not Supported         | Preview        |
+| [stressng](docs/stressng.md)   | Stress system resources | Working            |  Used, default: 3second  | Not Supported         | Preview        |
+| [kube-burner](docs/kube-burner.md)  | k8s Performance   | Working            |  Used, default : 3second  | Not Supported          | Preview         |
+| [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Working       |  Used, default : 3second  | Not Supported          | Preview         |
+| [oslat](docs/oslat.md)         | Real-Time Latency      | Working           |  Used, default : 3second   | Not Supported          | Preview         |
 
 
 
