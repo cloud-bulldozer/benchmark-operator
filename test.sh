@@ -67,7 +67,6 @@ test_markers=""
 cli_args="--es-server ${ES_SERVER}"
 
 
-
 if [[ $test_choice != '' && $test_choice != 'all' ]]; then
   echo "Running for requested tests"
   build_test_markers "${test_choice}"
