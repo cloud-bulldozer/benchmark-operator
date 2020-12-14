@@ -35,7 +35,7 @@ spec:
     extra_options_server: ' '
     #retries: 200
 ```
-Optional argument:
+Optional arguments:
 `retries` is an optional argument that can be used if you are running long tests
 and don't want the logic to exit early, this is due to iperf logic using ansible's
 retries to wait for iperf client job to be finish running. Note that the delay is
@@ -45,6 +45,10 @@ an integer value.
 
 So for example: if you estimate a job to not take more than 900s,
 then you'd probably give a `retries` of 60, as 60*15 is 900s.
+
+`runtime_class` can be set to specify an optional
+runtime_class to the podSpec runtimeClassName.  This is primarily
+intended for Kata containers.
 
 The rest of the args are compulsory arguments that need to be passed and can cause
 issues if missed, they are:

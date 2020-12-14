@@ -10,6 +10,9 @@ spec:
       labels:
         app: hammerdb_creator-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: hammerdb
         command: ["/bin/sh", "-c"]

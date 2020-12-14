@@ -12,6 +12,9 @@ spec:
       labels:
         name: 'ycsb-run-{{ trunc_uuid }}'
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: ycsb
         image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/ycsb-server:latest') }}"

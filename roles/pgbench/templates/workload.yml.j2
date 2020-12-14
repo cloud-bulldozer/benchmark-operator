@@ -11,6 +11,9 @@ spec:
       labels:
         app: pgbench-client-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: benchmark
         image: "{{ pgb_base_image }}:{{ pgb_version }}"

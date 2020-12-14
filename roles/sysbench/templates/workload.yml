@@ -12,6 +12,9 @@ spec:
       labels:
        app: sysbench-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       containers:
       - name: sysbench
         command: ["/bin/sh", "-c"]

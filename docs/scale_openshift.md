@@ -26,6 +26,8 @@ Optional variables:
 `tolerations` a dictionary consisting of a 'key', 'value' and 'effect'. If provided it will add a toleration
         for the matching key/value/effect
 
+`runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+
 Your resource file may look like this when using all avaible options:
 
 ```yaml

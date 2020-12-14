@@ -9,6 +9,10 @@ Given that you followed instructions to deploy operator, you can modify [cr.yaml
 It is recommended to define pod requests and limits when running oslat test, to give guaranteed CPUs to the pods. It is also expected to have the
 realtime kernel installed with required isolation for pods using the [Performance Add-On Operator](https://github.com/openshift-kni/performance-addon-operators).
 
+The option **runtime_class** can be set to specify an optional
+runtime_class to the podSpec runtimeClassName.  This is primarily
+intended for Kata containers.
+
 An example CR might look like this
 
 ```yaml

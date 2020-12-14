@@ -74,6 +74,10 @@ The `log2` value will increment through a set of values on a log2 scale up to th
 
 Note that the `add2` and `log2` values may not end up testing 100% of the databases listed, since `add2` will always end on an even number and `log2` will always end on the highest integer on the log2 curve up to the total number of databases (i.e., if you provide 100 databases in the list, the last `log2` test will be against 64 databases since the next log2 value would be 128)
 
+The `runtime_class` option can be set to specify an optional
+runtime_class to the podSpec runtimeClassName.  This is primarily
+intended for Kata containers.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash

@@ -11,6 +11,9 @@ spec:
       labels:
         app: iperf3-bench-server-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
 {% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
       serviceAccountName: benchmark-operator

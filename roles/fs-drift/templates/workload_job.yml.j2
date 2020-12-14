@@ -12,6 +12,9 @@ spec:
       labels:
         app: fs-drift-benchmark-{{ trunc_uuid }}
     spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:

@@ -23,9 +23,9 @@ spec:
 ```
 
 
-### NodeSelector and Taint/Tolerations
+### NodeSelector, Taint/Tolerations, and RuntimeClass
 
-You can add a node selector and/or taints/tolerations to the resulting Kubernetes resources like so:
+You can add a node selector, taints/tolerations, and/or runtimeclass to the resulting Kubernetes resources like so:
 
 ```yaml
 spec:
@@ -38,6 +38,7 @@ spec:
       - key: "taint-to-tolerate"
         operator: "Exists"
         effect: "NoSchedule"
+	  runtimeclassname: "MyRuntimeClass"
 
 ```
 

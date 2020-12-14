@@ -101,6 +101,7 @@ previous runs for example)
   lives in a different directory on the target hosts and the test-driver host.
  * **pause** -- integer (microseconds) each thread will wait before starting next
   file.
+ * **runtime_class** - If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
 
 Once done creating/editing the resource file, one can run it by:
