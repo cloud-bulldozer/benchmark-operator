@@ -256,17 +256,17 @@
       command: "redis-cli get clients-{{ trunc_uuid }}"
       register: clients_ready_count
 
-    when: resource_kind == "vm"
+    - name: Update resource state
+      operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: Clients Running
+      when: "workload_args.pair|default('1')|int == clients_ready_count.stdout|int"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Clients Running
-    when: "workload_args.pair|default('1')|int == clients_ready_count.stdout|int"
+    when: resource_kind == "vm"
 
   when: resource_state.resources[0].status.state == "Waiting for Clients"
 
