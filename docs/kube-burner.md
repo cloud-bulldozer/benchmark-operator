@@ -6,6 +6,7 @@
   - [Metrics](#metrics)
   - [Pin to server and tolerations](#pin-to-server-and-tolerations)
   - [Using a remote configuration for kube-burner](#using-a-remote-configuration-for-kube-burner)
+  - [Alerting](#alerting)
 
 
 # Kube-burner
@@ -19,6 +20,8 @@ The ripsaw integration here is meant to run only some workloads useful to measur
 
 Given that you followed instructions to deploy operator. Kube-burner needs an additional serviceaccount and clusterrole to run. Available at [kube-burner-role.yml](../resources/kube-burner-role.yml)
 You can modify kube-burner's [cr.yaml](../resources/crds/ripsaw_v1alpha1_kube-burner_cr.yaml) to fit your requirements.
+
+----
 
 ## Supported workloads
 
@@ -62,18 +65,18 @@ The workload type is specified by the parameter `workload` from the `args` objec
 
 All kube-burner's workloads support the following parameters:
 
-- **workload**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
-- **default_index**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
-- **job_iterations**: How many iterations to execute of the specified kube-burner workload
-- **qps**: Limit object creation queries per second. Defaults to __5__
-- **burst**: Maximum burst for throttle. Defaults to __10__
-- **image**: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
-- **wait_when_finished**: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to __true__
-- **pod_wait**: Wait for all pods to be running before moving forward to the next job iteration. Defaults to __false__
-- **verify_objects**: Verify object count after running each job. Defaults to __true__
-- **error_on_verify**: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
-- **log_level**: Kube-burner log level. Allowed info and debug. Defaults to __info__
-- **node_selector**: Pods deployed by the different workloads use this nodeSelector. This parameter consists of a dictionary like:
+- **`workload`**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
+- **``default_index``**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
+- **``job_iterations``**: How many iterations to execute of the specified kube-burner workload
+- **``qps``**: Limit object creation queries per second. Defaults to __5__
+- **``burst``**: Maximum burst for throttle. Defaults to __10__
+- **``image``**: Allows to use an alternative kube-burner container image. Defaults to `quay.io/cloud-bulldozer/kube-burner:latest`
+- **``wait_when_finished``**: Makes kube-burner to wait for all objects created to be ready/completed before index metrics and finishing the job. Defaults to __true__
+- **``pod_wait``**: Wait for all pods to be running before moving forward to the next job iteration. Defaults to __false__
+- **``verify_objects``**: Verify object count after running each job. Defaults to __true__
+- **``error_on_verify``**: Exit with rc 1 before indexing when object verification fails. Defaults to __false__
+- **``log_level``**: Kube-burner log level. Allowed info and debug. Defaults to __info__
+- **``node_selector``**: Pods deployed by the different workloads use this nodeSelector. This parameter consists of a dictionary like:
 
 ```yaml
 node_selector:
@@ -82,13 +85,13 @@ node_selector:
 ```
 Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to empty string ""
 
-- **cleanup**: Delete old namespaces for the selected workload before starting a new benchmark. Defaults to __true__
-- **wait_for**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
-- **job_timeout**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
-- **pin_server** and **tolerations**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
-- **step**: Prometheus step size, useful for long benchmarks. Defaults to 30s
-- **metrics_profile**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in kubelet-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
-- **runtime_class** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+- **``cleanup``**: Delete old namespaces for the selected workload before starting a new benchmark. Defaults to __true__
+- **``wait_for``**: List containing the objects Kind to wait for at the end of each iteration or job. This parameter only **applies the cluster-density workload**. If not defined wait for all objects. i.e: wait_for: ["Deployment"]
+- **``job_timeout``**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
+- **``pin_server``** and **``tolerations``**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
+- **``step``**: Prometheus step size, useful for long benchmarks. Defaults to 30s
+- **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in kubelet-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
+- **``runtime_class``** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
 
@@ -102,9 +105,9 @@ spec:
 ```
 
 Where:
-- es_server: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
-- prom_url: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
-- prom_token: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
+- **``es_server``**: Points to a valid ElasticSearch endpoint. Full URL format required. i.e. https://elastic.instance.apps.com:9200
+- **``prom_url``**: Points to a valid Prometheus endpoint. Full URL format required. i.e https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+- **``prom_token``**: Refers to a valid prometheus token. It can be obtained with: `oc -n openshift-monitoring sa get-token prometheus-k8s`
 
 **Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the url parameter.
 
@@ -180,3 +183,39 @@ workload:
   args:
     remote_metrics_profile: https://your.domain.org/metrics-profile.yaml
 ```
+
+## Alerting
+
+Kube-burner includes an alerting mechanism able to evaluate Prometheus expressions at the end of the latest Kube-burner's job. This alerting mechanism is based on a configuration file known as `alert-profile`. Similar to other configuration files. We can make usage of this feature in this Ripsaw's integration. Similar to other configuration files, this alert-profile can also be fetched from a remote location, this time configured by the variable `remote_alert_profile`.
+
+```yaml
+workload:
+  args:
+    remote_alert_profile: https://your.domain.org/alerting-profile.yaml
+```
+
+And this file looks like:
+
+```yaml
+# etcd alarms
+
+- expr: avg_over_time(histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[2m]))[5m:]) > 0.015
+  description: 5 minutes avg. etcd fsync latency on {{$labels.pod}} higher than 10ms {{$value}}
+  severity: error
+
+- expr: avg_over_time(histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket[5m]))[5m:]) > 0.1
+  description: 5 minutes avg. etcd netowrk peer round trip on {{$labels.pod}} higher than 100ms {{$value}}
+  severity: error
+
+- expr: increase(etcd_server_leader_changes_seen_total[2m]) > 0
+  description: etcd leader changes observed
+  severity: error
+```
+Where expr holds the Prometheus expression to evaluate and description holds a description of the alert. 
+It supports different severities:
+- info: Prints an info message with the alarm description to stdout. By default all expressions have this severity.
+- warning: Prints a warning message with the alarm description to stdout.
+- error: Prints a error message with the alarm description to stdout and makes kube-burner rc = 1
+- critical: Prints a fatal message with the alarm description to stdout and exits execution inmediatly with rc != 0
+
+More information can be found at the [Kube-burner docs site.](https://kube-burner.readthedocs.io/en/latest/alerting/)
