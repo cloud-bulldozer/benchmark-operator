@@ -44,10 +44,9 @@ spec:
           -u {{ prometheus.prom_url }}
           -t {{ prometheus.prom_token }}
           --step={{ workload_args.step|default("30s") }}
-{% if workload_args.remote_metrics_profile is defined and workload_args.remote_metrics_profile %}
-          -m {{ workload_args.remote_metrics_profile }}
-{% else %}
-          -m metrics.yaml
+          -m {{ workload_args.remote_metrics_profile|default("metrics.yaml", true) }}
+{% if workload_args.remote_alert_profile is defined and workload_args.remote_alert_profile %}
+          -a {{ workload_args.remote_alert_profile }}
 {% endif %}
 {% endif %}
           --uuid={{ uuid }}
