@@ -14,6 +14,8 @@ spec:
     args:
       # if true, do large sequential write to preallocate volume before using
       prefill: true
+      # for compressed volume uncomment the next line and make the cmp_bs same as bs
+      # prefill_bs: 8KiB
       # number of times each test
       samples: 3
       # number of fio pods generating workload
