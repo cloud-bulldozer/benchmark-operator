@@ -45,6 +45,23 @@
   register: serviceip
   when: workload_args.serviceip is defined and workload_args.serviceip
 
+### V2 vs V1
+- name: V2 Record num server (V1) pods
+  set_fact:
+      num_server_pods: "{{ workload_args.pair | default('1'|int) }}"
+  when: workload_args.max_node is not defined
+
+- name: V2 Setup eligible node (static) list - Tobe replaced by real node list builder
+  set_fact:
+      server_node_list: [ worker0 ]
+
+- name: V2 Record num server pods
+  set_fact:
+      num_server_pods: "{{ server_node_list|length * workload_args.density | default('1'|int) }}"
+  when: workload_args.max_node is defined
+
+### </ V2 vs V1>
+
 - block:
 
   - name: Create service for server pods
@@ -58,6 +75,19 @@
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
+    when: workload_args.max_node is not defined
+
+############ <V2>
+
+  - name: V2 Start Server(s) - total = eligible nodes * density
+    k8s:
+       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    with_nested:
+      - "{{ server_node_list }}" 
+      - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
+    when: workload_args.max_node is defined
+
+############ </V2>
 
   - name: Wait for pods to be running....
     k8s_facts:
@@ -78,7 +108,8 @@
         state: "Starting Servers"
 
   when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
-
+ 
+########### VM block
 - block:
 
   - name: Start Server(s)
@@ -107,6 +138,8 @@
 
   when: resource_state.resources[0].status.state == "Building" and resource_kind == "vm"
 
+########### </VM vlock>
+
 - block:
 
   - name: Get server pods
@@ -126,7 +159,8 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: "Starting Clients"
-    when: "workload_args.pair|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+    when: "num_server_pods|int  == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+    #when: "workload_args.pair|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
 
 
   when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
