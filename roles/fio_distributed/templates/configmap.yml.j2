@@ -15,7 +15,11 @@ data:
     unit_base=8
     ioengine=libaio
     size={{workload_args.filesize}}
+{% if workload_args.prefill_bs is defined %}
+    bs={{workload_args.prefill_bs}}
+{% else %}
     bs=4096KiB
+{% endif %}
     iodepth=1
     direct=1
     numjobs=1
