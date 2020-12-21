@@ -2,7 +2,11 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 nameOverride: ""
+
+# -- (string) overrides naming of all resources
 fullnameOverride: "benchmark-operator"
+
+# -- map for custom cluster roles for certain benchmarks like kubevirt
 rbac:
   clusterRoles:
     kubevirt: false
@@ -11,6 +15,7 @@ rbac:
   
 operator: 
 
+  # -- how many replicas for the operator deployment
   replicaCount: 1
 
   image:
@@ -21,26 +26,19 @@ operator:
   resources:
     limits:
       cpu: "0.1"
-    # We usually recommend not to specify default resources and to leave this as a conscious
-    # choice for the user. This also increases chances charts run on environments with little
-    # resources, such as Minikube. If you do want to specify resources, uncomment the following
-    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-    # limits:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
 
 
   nodeSelector: {}
 
+
   tolerations:
+  # -- schedule on a workload node even if it's tainted
   - key: role
     value: workload
     effect: NoSchedule
 
   affinity:
+  # -- nodeAffinity is set to make the operator run on workload nodes, but it's not required
     nodeAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
