@@ -5,6 +5,8 @@ image_location=${RIPSAW_CI_IMAGE_LOCATION:-quay.io}
 image_account=${RIPSAW_CI_IMAGE_ACCOUNT:-rht_perf_ci}
 es_server=${ES_SERVER:-foo.esserver.com}
 es_port=${ES_PORT:-80}
+BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/benchmark-operator/benchmark-operator:master"}
+
 echo "using container image location $image_location and account $image_account"
 
 function wait_clean {
@@ -17,7 +19,6 @@ function wait_clean {
 
 function apply_operator {
   operator_requirements
-  BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/benchmark-operator/benchmark-operator:master"}
   cat resources/operator.yaml | \
     sed 's#quay.io/benchmark-operator/benchmark-operator:master#'$BENCHMARK_OPERATOR_IMAGE'#' | \
     kubectl apply -f -
