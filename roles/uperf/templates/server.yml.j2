@@ -50,6 +50,15 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
+
+# 
+# V2 pin server pod to node
+#
+{% if workload_args.max_node is defined %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ item[0] }}'
+{% endif %}
+
 {% if workload_args.serviceip is sameas true %}
       securityContext:
         sysctls:

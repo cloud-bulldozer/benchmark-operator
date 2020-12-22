@@ -3,9 +3,9 @@ kind: Job
 apiVersion: batch/v1
 metadata:
 {% if workload_args.serviceip is sameas true %}
-  name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item[0].spec.clusterIP}}-{{ trunc_uuid }}'
 {% else %}
-  name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item[0].status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
   namespace: '{{ operator_namespace }}'
 spec:
@@ -13,7 +13,7 @@ spec:
     metadata:
       labels:
         app: uperf-bench-client-{{ trunc_uuid }}
-        clientfor: {{ item.metadata.labels.app }}
+        clientfor: {{ item[0].metadata.labels.app }}
         type: uperf-bench-client-{{ trunc_uuid }}
 {% if workload_args.multus.enabled is sameas true %}
       annotations:
@@ -37,7 +37,7 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - {{ item.metadata.labels.app }}
+                  - {{ item[0].metadata.labels.app }}
               topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
@@ -83,13 +83,13 @@ spec:
         args:
 {% if workload_args.serviceip is sameas true %}
           - "export serviceip=true;
-            export h={{item.spec.clusterIP}};
+            export h={{item[0].spec.clusterIP}};
 {% else %}
 {% if workload_args.multus.client is defined %}
           - "export multus_client={{workload_args.multus.client}};
-            export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+            export h={{ (item[0]['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
-          - "export h={{item.status.podIP}};
+          - "export h={{item[0].status.podIP}};
 {% endif %}
 {% endif %}
 {% if workload_args.networkpolicy is defined %}
@@ -142,4 +142,11 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: '{{ workload_args.pin_client }}'
 {% endif %}
+
+{% if workload_args.max_node is defined %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ item[1] }}'
+{% endif %}
+
+
 {% include "metadata.yml.j2" %}
