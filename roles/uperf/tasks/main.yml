@@ -45,26 +45,29 @@
   register: serviceip
   when: workload_args.serviceip is defined and workload_args.serviceip
 
-### V2 vs V1
-- name: A6 Record num server (V1) pods
+#
+# "pin" mode exists prior to "scale" mode. If "pin: true", we will
+# do the old way using pin_server and pin_client
+#
+- name: A6 Record num server (V1) pods using workload_args.pair - TBD
   set_fact:
       num_server_pods: "{{ workload_args.pair | default('1')|int }}"
   when: workload_args.max_node is not defined
 
+####
+
 - name: A7 V2 Setup eligible node (static) list - Tobe replaced by real node list builder
   set_fact:
-      server_node_list: [ worker0, worker2 ]
+      worker_node_list: "{{workload_args.node_list}}"
 
-- name: A8 V2 Record num server pods
+- name: A8 V2 Record num server pods using new worker_node_list
   set_fact:
-      num_server_pods: "{{ server_node_list|length * workload_args.density | default('1')|int }}"
+      num_server_pods: "{{ worker_node_list|length * workload_args.density | default('1')|int }}"
   when: workload_args.max_node is defined
 
 - name: A8_1 show num_server_pods
   debug:
       var: num_server_pods
-
-### </ V2 vs V1>
 
 - block:
 
@@ -87,7 +90,7 @@
     k8s:
        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     with_nested:
-      - "{{ server_node_list }}" 
+      - "{{ worker_node_list }}" 
       - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
     when: workload_args.max_node is defined
 
@@ -114,6 +117,8 @@
   when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
  
 ########### <VM block>
+# VM remains scale agnostic for now
+###########
 - block:
 
   - name: V11 Start Server(s)
@@ -144,7 +149,7 @@
 
 ########### </VM vlock>
 
-########### <POD>
+########### <POD> mode
 - block:
 
   - name: P13 Get server pods
@@ -171,6 +176,7 @@
   when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
 
 ######## </POD>
+#
 ######## <VM>
 - block:
 
@@ -204,7 +210,7 @@
 
 #### </VM block>
 
-- block:   #HN while state is "start client"
+- block:   #HN while state is "start client" for pod
 
   - name: A17 Get pod info
     k8s_facts:
@@ -219,18 +225,67 @@
     k8s:
       definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
-  - block:
-    - name: P19 Start Client(s)
+  - block:   # Starting Clients"
+    - set_fact:
+        cpod_affi_list: []
+
+    - block:
+      - name: HN colocate TBD
+        debug:
+            msg: "HN colocate TBD"
+      when: workload_args.colocate is defined and workload_args.colocate|bool == True
+
+    #### generate affinity list
+    - block:
+
+      - name: Pass 1 - Build client list for node[1:]
+        set_fact:
+            cpod_affi_list: "{{ cpod_affi_list  + [ item[0]] }}"
+        with_nested:
+            - "{{ worker_node_list[1:] }}"
+            - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
+
+      - name: HNC_0 debug cpod_list
+        debug:
+              var: cpod_affi_list
+
+      - name: Pass 2 - Append client list with node[0] to the end
+        set_fact:
+            cpod_affi_list: "{{cpod_affi_list  + [ item[0] ] }}"
+        with_nested:
+            - "{{ worker_node_list[0] }}"
+            - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
+
+
+      - name: HNC_1 debug cpod_list
+        debug:
+              var: cpod_affi_list 
+
+
+      when: workload_args.colocate is not defined or workload_args.colocate|bool == False
+    #### End generate cpod affinity list
+    
+    - name: P19 Start Client(s) w/o serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: "{{ server_pods.resources }}"
+      with_together: 
+        - "{{ server_pods.resources }}"
+        - "{{ cpod_affi_list }}"
       when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
 
-    - name: P20 Start Client(s) - ServiceIP
+    - name: P20 Start Client(s) with serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: "{{ serviceip.resources }}"
+      with_together: 
+        - "{{ serviceip.resources }}"
+        - "{{ cpod_affi_list }}"
+
       when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
+
+    - name: compare worker000 versus pin_server
+      debug:
+          msg: "HN equal"
+      when: worker_node_list[0] == workload_args.pin_server 
 
     when: resource_kind == "pod"
  
@@ -270,7 +325,7 @@
 
 - block:
 
-  - block: #P block
+  - block: # Pod block
     - name: P22 Get client pod status
       k8s_facts:
         kind: Pod
