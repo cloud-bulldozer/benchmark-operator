@@ -6,7 +6,7 @@ metadata:
 {% if workload_args.max_node is not defined %}
   name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
 {% else %}
-  name: 'uperf-server-{{ item[0] }}-{{ item[1] }}-{{ trunc_uuid }}'
+  name: 'uperf-server-{{worker_node_list[ item[0]] }}-{{ item[1] }}-{{ trunc_uuid }}'
 {% endif %}
 
   namespace: "{{ operator_namespace }}"
@@ -20,14 +20,16 @@ spec:
 {% if workload_args.max_node is not defined %}
         app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
 {% else %}
-        app: uperf-bench-server-{{ item[0] }}-{{ item[1]  }}-{{ trunc_uuid }}
+        #app: uperf-bench-server-{{ item[0] }}-{{ item[1]  }}-{{ trunc_uuid }}
+        app: uperf-bench-server-{{ worker_node_list[item[0]] }}-{{ item[1]  }}-{{ trunc_uuid }}
 {% endif %}
 
         type: uperf-bench-server-{{ trunc_uuid }}
-{% if workload_args.multus.enabled is sameas true %}
       annotations:
+{% if workload_args.multus.enabled is sameas true %}
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
 {% endif %}
+        node_idx: '{{ item[0] }}'
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -56,7 +58,8 @@ spec:
 #
 {% if workload_args.max_node is defined %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ item[0] }}'
+        #kubernetes.io/hostname: '{{ item[0] }}'
+        kubernetes.io/hostname: '{{ worker_node_list[item[0]] }}'
 {% endif %}
 
 {% if workload_args.serviceip is sameas true %}
