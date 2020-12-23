@@ -56,18 +56,20 @@
 
 ####
 
-- name: A7 V2 Setup eligible node (static) list - Tobe replaced by real node list builder
+- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
+  set_fact:
+      worker_node_list: "{{workload_args.node_list[0]}}"
+  when: workload_args.max_node is not defined
+
+- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
   set_fact:
       worker_node_list: "{{workload_args.node_list}}"
+  when: workload_args.max_node is defined
 
 - name: A8 V2 Record num server pods using new worker_node_list
   set_fact:
       num_server_pods: "{{ worker_node_list|length * workload_args.density | default('1')|int }}"
   when: workload_args.max_node is defined
-
-- name: A8_1 show num_server_pods
-  debug:
-      var: num_server_pods
 
 - block:
 
@@ -90,9 +92,12 @@
     k8s:
        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     with_nested:
-      - "{{ worker_node_list }}" 
+      - "{{ range(0, worker_node_list|length| default('0'|int)) | list }}"
       - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
-    when: workload_args.max_node is defined
+    #
+    # Each server annotates a "node_idx" which will allow its peer client
+    # to derive its affinity according the 'colocate' variable
+    #
 
 ############ </V2>
 
@@ -226,66 +231,24 @@
       definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
 
   - block:   # Starting Clients"
-    - set_fact:
-        cpod_affi_list: []
-
-    - block:
-      - name: HN colocate TBD
-        debug:
-            msg: "HN colocate TBD"
-      when: workload_args.colocate is defined and workload_args.colocate|bool == True
-
-    #### generate affinity list
-    - block:
-
-      - name: Pass 1 - Build client list for node[1:]
-        set_fact:
-            cpod_affi_list: "{{ cpod_affi_list  + [ item[0]] }}"
-        with_nested:
-            - "{{ worker_node_list[1:] }}"
-            - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
-
-      - name: HNC_0 debug cpod_list
-        debug:
-              var: cpod_affi_list
-
-      - name: Pass 2 - Append client list with node[0] to the end
-        set_fact:
-            cpod_affi_list: "{{cpod_affi_list  + [ item[0] ] }}"
-        with_nested:
-            - "{{ worker_node_list[0] }}"
-            - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
-
-
-      - name: HNC_1 debug cpod_list
-        debug:
-              var: cpod_affi_list 
-
-
-      when: workload_args.colocate is not defined or workload_args.colocate|bool == False
-    #### End generate cpod affinity list
-    
     - name: P19 Start Client(s) w/o serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_together: 
+      with_items: 
         - "{{ server_pods.resources }}"
-        - "{{ cpod_affi_list }}"
       when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
+
+     #
+     # Each server annotates a "node_idx". Each peer client will
+     # derive its affinity according the 'colocate' variable.
+     #
 
     - name: P20 Start Client(s) with serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_together: 
+      with_items: 
         - "{{ serviceip.resources }}"
-        - "{{ cpod_affi_list }}"
-
       when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
-
-    - name: compare worker000 versus pin_server
-      debug:
-          msg: "HN equal"
-      when: worker_node_list[0] == workload_args.pin_server 
 
     when: resource_kind == "pod"
  
@@ -364,13 +327,6 @@
         status:
           state: Clients Running
       when: "workload_args.pair|default('1')|int == clients_ready_count.stdout|int"
-
-    - name: V14 debug state
-      debug: 
-        msg: "HN ater V24 {{ resource_state.resources[0].status.state }}"
-
-    when: resource_kind == "vm"
-
 
   when: resource_state.resources[0].status.state == "Waiting for Clients"
 
