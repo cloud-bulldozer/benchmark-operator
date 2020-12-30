@@ -28,6 +28,10 @@ data:
     rw=write
     create_on_open=1
     fsync_on_close=1
+{% if workload_args.cmp_ratio is defined %}
+    buffer_compress_percentage={{ workload_args.cmp_ratio }}
+    buffer_pattern=0xdeadface
+{% endif %}
 {% endif %}
 {% if workload_args.bsrange is defined %}
 {% set loopvar = workload_args.bsrange %}
