@@ -24,6 +24,9 @@
 {% if metadata.stockpile_skip_tags|length > 0 %}
             --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
+{% if metadata.ssl is sameas true %}
+            --sslskipverify True
+{% endif %}
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}

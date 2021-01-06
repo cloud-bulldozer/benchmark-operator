@@ -55,6 +55,9 @@ the workload template with an init container section that looks like:
 {% if metadata.stockpile_skip_tags|length > 0 %}
             --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
 {% endif %}
+{% if metadata.ssl is sameas true %}
+            --sslskipverify
+{% endif %}
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}
@@ -240,6 +243,18 @@ metadata:
 ```
 
 In the spec section of the benchmark yaml as outlined for the other variables.
+
+### Elasticsearch SSL Verification
+
+By default elasticsearch SSL verification is disabled. To enable it, set ssl
+to true in the metadata section.
+
+To enable ssl verification:
+
+```yaml
+metadata:
+  ssl: true
+```
 
 ### Additional k8s Information
 
