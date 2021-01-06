@@ -6,7 +6,7 @@
 - block:
   - name: init group node count
     set_fact:
-       group_node_count: "{{ workload_args.min_node | default('2')|int }}"
+       group_node_count: "{{ workload_args.min_node | default('1')|int }}"
     #
     # TBD HN range check, colocate and other checks
     #
