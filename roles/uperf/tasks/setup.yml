@@ -1,0 +1,71 @@
+---
+
+- name: A1 Get current state
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: A3 Get current state - If it has changed
+  k8s_facts:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
+
+- name: A4 Capture operator information
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - name = benchmark-operator
+  register: bo
+
+- name: A5 Capture ServiceIP
+  k8s_facts:
+    kind: Service
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - type = uperf-bench-server-{{ trunc_uuid }}
+  register: serviceip
+  when: workload_args.serviceip is defined and workload_args.serviceip
+
+#
+# "pin" mode exists prior to "scale" mode. If "pin: true", we will
+# do the old way using pin_server and pin_client
+#
+- name: A6 Record num server (V1) pods using workload_args.pair - TBD
+  set_fact:
+      num_server_pods: "{{ workload_args.pair | default('1')|int }}"
+  when: workload_args.max_node is not defined
+
+- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
+  set_fact:
+      worker_node_list: "{{workload_args.node_list[0]}}"
+  when: workload_args.max_node is not defined
+
+- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
+  set_fact:
+      worker_node_list: "{{workload_args.node_list}}"
+  when: workload_args.max_node is defined
+
+- name: A8 V2 Record num server pods using new worker_node_list
+  set_fact:
+      num_server_pods: "{{ worker_node_list|length * workload_args.density | default('1')|int }}"
+  when: workload_args.max_node is defined
+

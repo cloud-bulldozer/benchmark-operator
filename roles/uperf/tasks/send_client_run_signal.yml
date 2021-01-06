@@ -1,0 +1,18 @@
+---
+
+- block:
+
+  - name: A25 Signal workload
+    command: "redis-cli set start true"
+
+  - name: A26 Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Running"
+
+  when: resource_state.resources[0].status.state == "Clients Running"
+

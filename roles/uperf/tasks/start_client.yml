@@ -1,0 +1,76 @@
+---
+
+- block:
+
+### <POD> kind 
+  - name: A17 Get pod info
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: A18 Generate uperf xml files
+    k8s:
+      definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+
+  - block:   # Starting Clients"
+    - name: P19 Start Client(s) w/o serviceIP
+      k8s:
+        definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+      with_items: 
+        - "{{ server_pods.resources }}"
+      when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
+
+     #
+     # Each server annotates a "node_idx". Each peer client will
+     # derive its affinity according the 'colocate' variable.
+     #
+
+    - name: P20 Start Client(s) with serviceIP
+      k8s:
+        definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+      with_items: 
+        - "{{ serviceip.resources }}"
+      when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
+
+    when: resource_kind == "pod"
+ 
+### <VM> kind 
+  - block:
+
+    - name: V19 Wait for vms to be running....
+      k8s_facts:
+        kind: VirtualMachineInstance
+        api_version: kubevirt.io/v1alpha3
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - type = uperf-bench-server-{{ trunc_uuid }}
+      register: server_vms
+
+
+    - name: V20 Generate uperf test files
+      k8s:
+        definition: "{{ lookup('template', 'configmap_script.yml.j2') | from_yaml }}"
+      with_items: "{{ server_vms.resources }}"
+
+    - name: V21 Start Client(s)
+      k8s:
+        definition: "{{ lookup('template', 'workload_vm.yml.j2') | from_yaml }}"
+      with_items: "{{ server_vms.resources }}"
+      when: server_vms.resources|length > 0
+
+    when: resource_kind == "vm"
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Waiting for Clients
+
+  when: resource_state.resources[0].status.state == "Starting Clients"
+
