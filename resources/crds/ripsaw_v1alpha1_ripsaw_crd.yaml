@@ -93,6 +93,9 @@ spec:
                   targeted:
                     default: true
                     type: boolean
+                  ssl:
+                    default: false
+                    type: boolean
                 type: object
               cerberus_url:
                 type: string
