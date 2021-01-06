@@ -1,0 +1,55 @@
+---
+########### <POD> kind
+- block:
+
+  - name: P13 Get server pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: P14 Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "num_server_pods|int  == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+
+  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
+
+######## <VM> kind
+- block:
+
+  - name: V14 Wait for vms to be running....
+    k8s_facts:
+      kind: VirtualMachineInstance
+      api_version: kubevirt.io/v1alpha3
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_vms
+
+  - name: V15 Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+
+  - name: V16 blocking client from running uperf
+    command: "redis-cli set {{ trunc_uuid }} false"
+    with_items: "{{ server_vms.resources }}"
+    when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
+
+  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "vm" and workload_args.pair|default('1')|int|int == 1
+
+

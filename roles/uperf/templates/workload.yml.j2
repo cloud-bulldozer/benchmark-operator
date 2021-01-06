@@ -99,7 +99,8 @@ spec:
              export ips=$(hostname -I);
              export num_pairs={{workload_args.pair}};
              while true; do
-               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+               state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+               if [[ $state =~ 'true' ]]; then
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}
 {% for size in workload_args.sizes %}
@@ -124,6 +125,23 @@ spec:
 {% endfor %}
 {% endfor %}
 {% endfor %}
+                   redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion;
+                   while true; do
+                       state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                       if [[ $state =~ 'restart' ]]; then
+                          break;
+                       elif [[ $state =~ 'done' ]]; then
+                          break;
+                       else
+                         continue;
+                       fi;
+                   done;
+                   if [[ $state =~ 'restart' ]]; then
+                      continue;
+                   fi;
+
+               elif [[ $state =~ 'done' ]]; then
+                   break;
                else
                  continue;
                fi;

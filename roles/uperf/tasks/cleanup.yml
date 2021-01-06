@@ -1,0 +1,45 @@
+---
+
+- block:
+
+  - block:
+    - name: P29 Get Server Pods
+      k8s_facts:
+        kind: Pod
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+        label_selectors:
+          - type = uperf-bench-server-{{ trunc_uuid }}
+      register: server_pods
+
+    - name: P30 Pod names - to clean
+      set_fact:
+        clean_pods: |
+            [
+            {% for item in server_pods.resources %}
+              "{{ item['metadata']['name'] }}",
+            {% endfor %}
+            ]
+
+    - name: P31 Cleanup run
+      k8s:
+        kind: pod
+        api_version: v1
+        namespace: '{{ operator_namespace }}'
+        state: absent
+        name: "{{ item }}"
+      with_items: "{{ clean_pods }}"
+      when: cleanup
+    when: resource_kind == "pod"
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Complete
+        complete: true
+
+  when: resource_state.resources[0].status.state == "Cleanup"
+

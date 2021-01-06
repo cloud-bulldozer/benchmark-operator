@@ -1,0 +1,27 @@
+---
+
+- block:
+  #
+  # Entry Condition: 
+  #    1. A previous task has set 'group_node_count' in redis
+  #    2. All cliest are polling for 'start' to run its workoad
+  # Output: Clients with idx <= group_node_count will run
+  #
+
+  - name: Signal group to run
+    command: "redis-cli set start true "
+
+  - name: Update state to "Set Running"
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Set Running
+
+  - name: debug 2
+    command: "redis-cli set state Set_Running"
+
+  when: resource_state.resources[0].status.state == "Clients Running"
+

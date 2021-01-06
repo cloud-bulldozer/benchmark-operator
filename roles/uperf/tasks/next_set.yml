@@ -1,0 +1,59 @@
+---
+
+- block:
+  - name: debug 
+    command: "redis-cli set task next_set"
+
+  - name: read last group_node_count
+    command: "redis-cli get group_node_count"
+    register: redis_out
+
+  - name: Compute next run group size
+    set_fact:
+        group_node_count: "{{redis_out.stdout|int + 1}}"
+
+  - block:
+    # 
+    # We have passed max_node - All done
+    #
+    - name: Unpause pods to complete
+      command: "redis-cli set start done"
+
+    - name: Change state to proceed to exit
+      operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Set Running
+
+    when: "group_node_count|int > workload_args.max_node|int"
+
+  - block:
+    # 
+    # More round(s) to run.
+    #
+
+    - name: Send redis restart signal
+      command: "redis-cli set start restart"
+
+    - name: Reset redis num_completion
+      command: "redis-cli set num_completion 0"
+
+    - name: Set next run group_node_count
+      command: "redis-cli set group_node_count {{group_node_count}}"
+
+    - name: Change state to run next round
+      operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Clients Running
+
+    when: "group_node_count|int <= workload_args.max_node|int"
+
+  when: resource_state.resources[0].status.state == "Run Next Set"
+

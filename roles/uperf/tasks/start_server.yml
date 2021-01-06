@@ -1,0 +1,104 @@
+---
+
+  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  # Start servers
+  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+- block:
+  - name: init group node count
+    set_fact:
+       group_node_count: "{{ workload_args.min_node | default('2')|int }}"
+    #
+    # TBD HN range check, colocate and other checks
+    #
+
+  - name: init redis
+    command: "redis-cli set group_mark 0"
+  - name: init redis
+    command: "redis-cli set start 0"
+  - name: init redis
+    command: "redis-cli set num_completion 0"
+  - name: init redis
+    command: "redis-cli set group_node_count {{ group_node_count }}"
+
+  - name: P8 Create service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+    with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
+    when: workload_args.serviceip is defined and workload_args.serviceip
+
+  - name: P9 Start Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    register: servers
+    with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
+    when: workload_args.max_node is not defined
+
+############ <V2>
+
+  - name: P10 V2 Start Server(s) - total = eligible nodes * density
+    k8s:
+       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    with_nested:
+      - "{{ range(0, worker_node_list|length| default('0'|int)) | list }}"
+      - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
+    #
+    # Each server annotates a "node_idx" which will allow its peer client
+    # to derive its affinity according the 'colocate' variable
+    #
+
+############ </V2>
+
+  - name: P11 Wait for pods to be running....
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: P12 Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Servers"
+
+  when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
+ 
+########### <VM block>
+# VM remains scale agnostic for now
+###########
+- block:
+
+  - name: V11 Start Server(s)
+    k8s:
+      definition: "{{ lookup('template', 'server_vm.yml.j2') | from_yaml }}"
+    register: servers
+    with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
+
+  - name: V12 Wait for vms to be running....
+    k8s_facts:
+      kind: VirtualMachineInstance
+      api_version: kubevirt.io/v1alpha3
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_vms
+
+  - name: V13 Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Servers"
+
+  when: resource_state.resources[0].status.state == "Building" and resource_kind == "vm"
+
+########### </VM vlock>
+
+

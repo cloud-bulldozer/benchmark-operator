@@ -2,3 +2,6 @@
 # vars file for bench
 cleanup: true
 worker_node_list: []
+group_node_count: 0
+max_node_count: 0
+
