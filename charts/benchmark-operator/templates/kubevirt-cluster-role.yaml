@@ -1,0 +1,76 @@
+{{ if .Values.rbac.clusterRoles.kubevirt }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "benchmark-operator.fullname" . }}-kubevirt
+rules:
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  - clusterroles
+  - clusterrolebindings
+  - daemonsets
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+- apiGroups:
+    - subresources.kubevirt.io
+  resources:
+    - virtualmachineinstances/console
+    - virtualmachineinstances/vnc
+  verbs:
+    - get
+- apiGroups:
+    - kubevirt.io
+  resources:
+    - virtualmachineinstances
+    - virtualmachines
+    - virtualmachineinstancepresets
+    - virtualmachineinstancereplicasets
+  verbs:
+    - get
+    - delete
+    - create
+    - update
+    - patch
+    - list
+    - watch
+    - deletecollection
+- apiGroups: [""]
+  resources:
+    - configmaps
+  resourceNames:
+    - kubevirt-config
+  verbs:
+    - update
+    - get
+    - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "benchmark-operator.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "benchmark-operator.fullname" . }}-kubevirt
+subjects:
+- kind: ServiceAccount
+  name: {{ include "benchmark-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+{{ end }}

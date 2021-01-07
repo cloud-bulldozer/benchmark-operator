@@ -3,6 +3,29 @@
 The intent of this Operator is to deploy common workloads to establish
 a performance baseline of Kubernetes cluster on your provider.
 
+## Installation
+
+Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires 
+your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
+
+> Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator`
+
+
+
+```bash
+git clone https://github.com/cloud-bulldozer/benchmark-operator
+cd benchmark-operator/charts/benchmark-operator
+helm install benchmark-operator . -n my-ripsaw --create-namespace
+```
+
+To delete this release, you can do so with the following command:
+
+```bash
+helm delete benchmark-operator -n my-ripsaw --purge
+```
+
+
+
 ## Workloads status
 
 | Workload                       | Use                    | Status in Operator | Reconciliation usage       | VM support (kubevirt) | Kata Containers |

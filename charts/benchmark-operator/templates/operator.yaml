@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "benchmark-operator.fullname" . }}
+  namespace: {{ .Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ include "benchmark-operator.fullname" . }}
+  template:
+    metadata:
+      labels:
+        name: {{ include "benchmark-operator.fullname" . }}
+    spec:
+      serviceAccountName: {{ include "benchmark-operator.fullname" . }}
+      containers:
+        - name: ansible
+          command:
+          - /usr/local/bin/ao-logs
+          - /tmp/ansible-operator/runner
+          - stdout
+          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}"
+          imagePullPolicy: {{ .Values.operator.image.pullPolicy}}
+          volumeMounts:
+          - mountPath: /tmp/ansible-operator/runner
+            name: runner
+            readOnly: true
+        - name: benchmark-operator
+          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}"
+          imagePullPolicy: {{ .Values.operator.image.pullPolicy}}
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "benchmark-operator"
+            - name: WORKER_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+              value: "1"
+            - name: ANSIBLE_VERBOSITY
+              value: "4"
+          volumeMounts:
+          - mountPath: /tmp/ansible-operator/runner
+            name: runner
+        - name: redis-master
+          image: k8s.gcr.io/redis:v1
+          env:
+            - name: MASTER
+              value: "true"
+          ports:
+            - containerPort: 6379
+          resources:
+            {{- toYaml .Values.operator.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /redis-master-data
+              name: data
+      {{- with .Values.operator.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.operator.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: runner
+          emptyDir: {}
+
+
