@@ -45,8 +45,12 @@
   no_log: True
 
 - name: Isolate Worker Role Hostnames
-  register:
+  set_fact:
     worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
+
+- name: Exlude unhealthy nodes i.e. low diskspace 
+  set_fact:
+      worker_node_list: "{{ worker_node_list | reject('search', workload_args.exluded_node) | list }}"
 
 - name: A5 Capture ServiceIP
   k8s_facts:
