@@ -50,8 +50,8 @@
 
 - name: Exlude unhealthy nodes i.e. low diskspace 
   set_fact:
-      worker_node_list: "{{ worker_node_list | reject('search', workload_args.exluded_node) | list }}"
-  when: workload_args.exluded_node is defined
+      worker_node_list: "{{ worker_node_list | difference(workload_args.excluded_node[0]) }}"
+  when: workload_args.excluded_node is defined
 
 - name: A5 Capture ServiceIP
   k8s_facts:
