@@ -21,7 +21,7 @@ operator:
   image:
     repository: quay.io/benchmark-operator/benchmark-operator
     pullPolicy: Always
-    tag: ""
+    tag: master
 
   resources:
     limits:

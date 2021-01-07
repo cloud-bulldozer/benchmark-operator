@@ -20,14 +20,14 @@ spec:
           - /usr/local/bin/ao-logs
           - /tmp/ansible-operator/runner
           - stdout
-          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag | default "master" }}"
+          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}"
           imagePullPolicy: {{ .Values.operator.image.pullPolicy}}
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
             name: runner
             readOnly: true
         - name: benchmark-operator
-          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag | default "master" }}"
+          image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag }}"
           imagePullPolicy: {{ .Values.operator.image.pullPolicy}}
           env:
             - name: WATCH_NAMESPACE
