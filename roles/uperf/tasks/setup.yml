@@ -35,6 +35,19 @@
       - name = benchmark-operator
   register: bo
 
+- name: List Nodes Labeled as Workers
+  k8s_info:
+    api_version: v1
+    kind: Node
+    label_selectors:
+      - "node-role.kubernetes.io/worker="
+  register: node_list
+  no_log: True
+
+- name: Isolate Worker Role Hostnames
+  register:
+    worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
+
 - name: A5 Capture ServiceIP
   k8s_facts:
     kind: Service
@@ -54,15 +67,15 @@
       num_server_pods: "{{ workload_args.pair | default('1')|int }}"
   when: workload_args.max_node is not defined
 
-- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
-  set_fact:
-      worker_node_list: "{{workload_args.node_list[0]}}"
-  when: workload_args.max_node is not defined
-
-- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
-  set_fact:
-      worker_node_list: "{{workload_args.node_list}}"
-  when: workload_args.max_node is defined
+  #- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
+  #  set_fact:
+  #      worker_node_list: "{{workload_args.node_list[0]}}"
+  #  when: workload_args.max_node is not defined
+  #
+  #- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
+  #  set_fact:
+  #      worker_node_list: "{{workload_args.node_list}}"
+  #  when: workload_args.max_node is defined
 
 - name: A8 V2 Record num server pods using new worker_node_list
   set_fact:
