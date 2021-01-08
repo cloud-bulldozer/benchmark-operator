@@ -24,7 +24,6 @@ metadata:
 spec:
   elasticsearch:
     server: <ES_SERVER>
-    port: <ES_PORT>
   workload:
     name: "oslat"
     args:
