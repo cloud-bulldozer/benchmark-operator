@@ -58,6 +58,7 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}
+          runAsNonRoot: false
         readinessProbe:
           exec:
             command:
