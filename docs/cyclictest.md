@@ -23,6 +23,8 @@ metadata:
   name: cyclictest
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    server: <ES_SERVER>
   workload:
     name: "cyclictest"
     args:
