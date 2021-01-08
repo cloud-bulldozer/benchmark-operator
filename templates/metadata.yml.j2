@@ -26,6 +26,7 @@
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}
+          runAsNonRoot: false
         env:
           - name: my_node_name
             valueFrom:
