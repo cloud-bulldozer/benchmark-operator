@@ -11,6 +11,18 @@ spec:
       labels:
         app: iperf3-bench-server-{{ trunc_uuid }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - iperf3-bench-client-{{ trunc_uuid }}
+              topologyKey: kubernetes.io/hostname
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
