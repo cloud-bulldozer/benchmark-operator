@@ -3,6 +3,9 @@
 
 ##### <POD> kind
   - block: # Pod block
+    - name: debug 
+      command: "redis-cli set state Waiting_for_Clients"
+
     - name: P22 Get client pod status
       k8s_facts:
         kind: Pod

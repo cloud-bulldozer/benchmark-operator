@@ -5,3 +5,12 @@ worker_node_list: []
 group_node_count: 0
 max_node_count: 0
 
+pod_low_idx: 1
+pod_hi_idx: 1
+node_low_idx: 1
+node_hi_idx: 1
+
+node_idx: 0
+pod_idx: 0
+
+all_run_done: false

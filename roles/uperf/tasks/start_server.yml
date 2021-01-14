@@ -4,21 +4,9 @@
   # Start servers
   #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 - block:
-  - name: init group node count
-    set_fact:
-       group_node_count: "{{ workload_args.min_node | default('1')|int }}"
-    #
-    # TBD HN range check, colocate and other checks
-    #
 
-  - name: init redis
-    command: "redis-cli set group_mark 0"
-  - name: init redis
-    command: "redis-cli set start 0"
-  - name: init redis
-    command: "redis-cli set num_completion 0"
-  - name: init redis
-    command: "redis-cli set group_node_count {{ group_node_count }}"
+  - include_tasks: init.yml
+
 
   - name: P8 Create service for server pods
     k8s:
@@ -39,8 +27,11 @@
     k8s:
        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     with_nested:
-      - "{{ range(0, worker_node_list|length| default('0'|int)) | list }}"
-      - "{{ range(0, workload_args.density | default('1'|int)) | list }}"
+      - "{{ range(0, node_hi_idx|int +1) | list }}"
+      - "{{ range(0, pod_hi_idx|int  +1) | list }}"
+
+     #- "{{ range(0, worker_node_list|length| default('0'|int)) | list }}"
+     #- "{{ range(0, workload_args.density | default('1'|int)) | list }}"
     #
     # Each server annotates a "node_idx" which will allow its peer client
     # to derive its affinity according the 'colocate' variable
