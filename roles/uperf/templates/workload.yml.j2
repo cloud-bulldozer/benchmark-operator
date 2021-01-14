@@ -96,18 +96,22 @@ spec:
              export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
              export hostnet={{workload_args.hostnetwork}};
-             mynode={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
+             my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
+             my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};
              export ips=$(hostname -I);
              export num_pairs={{workload_args.pair}};
              node_limit=0;
+             pod_limit=0;
              while true; do
                state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
                if [[ $state =~ 'true' ]]; then
-                   node_limit=$(redis-cli -h {{bo.resources[0].status.podIP}} get group_node_count);
-                   if [[ $node_limit -le $mynode ]]; then
+                   node_limit=$(redis-cli -h {{bo.resources[0].status.podIP}} get node_idx);
+                   pod_limit=$(redis-cli -h {{bo.resources[0].status.podIP}} get pod_idx);
+                   if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
                          continue;
                    fi;
 
+                   /bin/echo 'UPERF scale config: num_node=' $node_limit+1' density= {{ pod_idx }}';
 
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}

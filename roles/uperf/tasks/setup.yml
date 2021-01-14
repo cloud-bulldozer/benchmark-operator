@@ -48,7 +48,7 @@
   set_fact:
     worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
 
-- name: Exlude unhealthy nodes i.e. low diskspace 
+- name: Exclude unhealthy nodes i.e. low diskspace 
   set_fact:
       worker_node_list: "{{ worker_node_list | difference(workload_args.excluded_node[0]) }}"
   when: workload_args.excluded_node is defined
@@ -62,6 +62,38 @@
       - type = uperf-bench-server-{{ trunc_uuid }}
   register: serviceip
   when: workload_args.serviceip is defined and workload_args.serviceip
+
+#
+# Compute node and pod limits using CR params while taking into account 
+# of the actual number of nodes available in the system
+#
+- name: init node idx
+  set_fact:
+       node_idx: "{{ workload_args.min_node | default('0')|int }}"
+    #
+    # TBD HN range check, colocate and other checks
+    #
+
+- name: init pod low idx
+  set_fact:
+      pod_low_idx: "{{ workload_args.density_range[0]|int | default('1')|int - 1 }}"
+
+- name: init pod hi idx
+  set_fact:
+      pod_hi_idx: "{{ workload_args.density_range[1]|int | default('1')|int - 1 }}"
+
+- name: init node low idx
+  set_fact:
+      node_low_idx: "{{ workload_args.node_range[0]|int | default('1')|int - 1 }}"
+
+- name: init node hi idx
+  set_fact:
+      node_hi_idx: "{{ workload_args.node_range[1]|int | default('1')|int - 1 }}"
+
+- name: Adjust node_hi_idx if cluster has less nodes
+  set_fact:
+      node_hi_idx: "{{ worker_node_list|length| default('0')|int -1 }}"
+  when: "node_hi_idx|int >= worker_node_list|length| default('0')|int "
 
 #
 # "pin" mode exists prior to "scale" mode. If "pin: true", we will
@@ -84,6 +116,6 @@
 
 - name: A8 V2 Record num server pods using new worker_node_list
   set_fact:
-      num_server_pods: "{{ worker_node_list|length * workload_args.density | default('1')|int }}"
+      num_server_pods: "{{ (node_hi_idx|int+1) * (pod_hi_idx|int+1) }}"
   when: workload_args.max_node is defined
 

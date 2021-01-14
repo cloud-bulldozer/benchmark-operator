@@ -30,6 +30,7 @@ spec:
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
 {% endif %}
         node_idx: '{{ item[0] }}'
+        pod_idx: '{{ item[1] }}'
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"

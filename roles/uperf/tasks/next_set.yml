@@ -1,20 +1,73 @@
 ---
-
+#
+# This module logically implements RE-ENTRANT double for loops
+#   with_items:
+#     range (node_low_idx, node_hi_idx)
+#     range (pod_low_idx, pod_hi_idx)
+# Each iteration executes one item, and each re-entrance
+# continues where it left off.
+#
 - block:
   - name: debug 
     command: "redis-cli set task next_set"
-
-  - name: read last group_node_count
-    command: "redis-cli get group_node_count"
-    register: redis_out
-
-  - name: Compute next run group size
+  - name:
     set_fact:
-        group_node_count: "{{redis_out.stdout|int + 1}}"
+        all_run_done: False
+
+  - name: read previous pod_idx
+    command: "redis-cli get pod_idx"
+    register: redis_pod_idx
+
+  - name: Increment pod_idx
+    set_fact:
+        pod_idx: "{{redis_pod_idx.stdout|int + 1}}"
+
+  - name: read pod_hi_idx 
+    command: "redis-cli get pod_hi_idx"
+    register: redis_pod_hi_idx
+
+  - name: Read prev node_idx
+    command: "redis-cli get node_idx"
+    register: redis_node_idx
+
+  - name: node_idx
+    set_fact:
+       node_idx: "{{redis_node_idx.stdout|int}}"
+
+  - block: 
+    #
+    # This block starts a new node loop
+    #
+    - name: Increment node_idx
+      set_fact:
+        node_idx: "{{node_idx|int + 1}}"
+
+    - name: Read node_hi_idx
+      command: "redis-cli get node_hi_idx"
+      register: redis_node_hi_idx
+
+    - name: Check node loop for ending condition
+      set_fact:
+        all_run_done: True
+      when: "node_idx|int > redis_node_hi_idx.stdout|int"
+
+    #
+    # Reset pod_idx AFTER node_idx tasks above, else cond change
+    # causes it to skip node_idx tasks
+    #
+    - name: read pod_low_idx
+      command: "redis-cli get pod_low_idx"
+      register: redis_pod_low_idx
+  
+    - name: Reset pod_idx to pod_low_idx
+      set_fact:
+        pod_idx: "{{redis_pod_low_idx.stdout|int}}"
+
+    when: "pod_idx|int > redis_pod_hi_idx.stdout|int"
 
   - block:
     # 
-    # We have passed max_node - All done
+    # All done
     #
     - name: Unpause pods to complete
       command: "redis-cli set start done"
@@ -28,21 +81,24 @@
           status:
             state: Set Running
 
-    when: "group_node_count|int > workload_args.max_node|int"
+    when: all_run_done == True
 
   - block:
     # 
     # More round(s) to run.
     #
-
     - name: Send redis restart signal
       command: "redis-cli set start restart"
 
     - name: Reset redis num_completion
       command: "redis-cli set num_completion 0"
 
-    - name: Set next run group_node_count
-      command: "redis-cli set group_node_count {{group_node_count}}"
+    # New node_idx value on new node loop ONLY. But we are lazy, just write every time.
+    - name: Set next run node_idx
+      command: "redis-cli set node_idx {{node_idx}}"
+
+    - name: Set next run pod_idx
+      command: "redis-cli set pod_idx {{pod_idx}}"
 
     - name: Change state to run next round
       operator_sdk.util.k8s_status:
@@ -53,7 +109,7 @@
           status:
             state: Clients Running
 
-    when: "group_node_count|int <= workload_args.max_node|int"
+    when: all_run_done == False
 
   when: resource_state.resources[0].status.state == "Run Next Set"
 

@@ -2,6 +2,9 @@
 ########### <POD> kind
 - block:
 
+  - name: debug 
+    command: "redis-cli set state Starting_Servers"
+
   - name: P13 Get server pods
     k8s_facts:
       kind: Pod
@@ -10,6 +13,10 @@
       label_selectors:
         - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
+
+  - name: debug
+    debug:
+        msg: "{{ num_server_pods }}"
 
   - name: P14 Update resource state
     operator_sdk.util.k8s_status:
