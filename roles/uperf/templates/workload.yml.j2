@@ -67,12 +67,12 @@ spec:
           - name: prom_url
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
-{% if uperf.pin is sameas true %}
           - name: client_node
-            client_node: {{ uperf.pin_client }}
-          - name: client_node
-            server_node: {{ uperf.pin_server }}
-{% endif %}
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: server_node
+            value: "{{ uperf.pin_server|default("unknown") }}"
 {% if workload_args.client_resources is defined %}
         resources: {{ workload_args.client_resources | to_json }}
 {% endif %}
