@@ -29,7 +29,7 @@
     with_nested:
       - "{{ range(0, node_hi_idx|int +1) | list }}"
       - "{{ range(0, pod_hi_idx|int  +1) | list }}"
-
+    when: workload_args.node_range is defined
     #
     # Each server annotates a "node_idx" which will allow its peer client
     # to derive its affinity according the 'colocate' variable

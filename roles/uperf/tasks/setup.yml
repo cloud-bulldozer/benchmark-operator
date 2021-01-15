@@ -70,18 +70,22 @@
 - name: init pod low idx
   set_fact:
       pod_low_idx: "{{ workload_args.density_range[0]|int | default('1')|int - 1 }}"
+  when: workload_args.density_range is defined
 
 - name: init pod hi idx
   set_fact:
       pod_hi_idx: "{{ workload_args.density_range[1]|int | default('1')|int - 1 }}"
+  when: workload_args.density_range is defined
 
 - name: init node low idx
   set_fact:
       node_low_idx: "{{ workload_args.node_range[0]|int | default('1')|int - 1 }}"
+  when: workload_args.node_range is defined
 
 - name: init node hi idx
   set_fact:
       node_hi_idx: "{{ workload_args.node_range[1]|int | default('1')|int - 1 }}"
+  when: workload_args.node_range is defined
 
 - name: Adjust node_hi_idx if cluster has less nodes
   set_fact:
