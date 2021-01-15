@@ -123,6 +123,19 @@ spec:
                 type: string
               cerberus:
                 type: string
+              pod_hi_idx:
+                type: string
+              pod_low_idx:
+               type: string
+              node_hi_idx:
+                type: string
+              node_low_idx:
+               type: string
+              pod_idx:
+               type: string
+              node_idx:
+               type: string
+
     additionalPrinterColumns:
     - name: Type
       type: string

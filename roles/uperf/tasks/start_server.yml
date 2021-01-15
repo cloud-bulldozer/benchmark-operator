@@ -19,7 +19,7 @@
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
-    when: workload_args.max_node is not defined
+    when: workload_args.node_range is not defined
 
 ############ <V2>
 
@@ -30,8 +30,6 @@
       - "{{ range(0, node_hi_idx|int +1) | list }}"
       - "{{ range(0, pod_hi_idx|int  +1) | list }}"
 
-     #- "{{ range(0, worker_node_list|length| default('0'|int)) | list }}"
-     #- "{{ range(0, workload_args.density | default('1'|int)) | list }}"
     #
     # Each server annotates a "node_idx" which will allow its peer client
     # to derive its affinity according the 'colocate' variable
