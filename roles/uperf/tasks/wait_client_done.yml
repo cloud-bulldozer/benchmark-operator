@@ -1,8 +1,6 @@
 ---
 
 - block:
-  - name: debug 
-    command: "redis-cli set task Running"
 
 #### <POD> kind
   - block:

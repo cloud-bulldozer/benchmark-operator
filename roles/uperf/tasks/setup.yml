@@ -67,13 +67,6 @@
 # Compute node and pod limits using CR params while taking into account 
 # of the actual number of nodes available in the system
 #
-- name: init node idx
-  set_fact:
-       node_idx: "{{ workload_args.min_node | default('0')|int }}"
-    #
-    # TBD HN range check, colocate and other checks
-    #
-
 - name: init pod low idx
   set_fact:
       pod_low_idx: "{{ workload_args.density_range[0]|int | default('1')|int - 1 }}"
@@ -102,20 +95,20 @@
 - name: A6 Record num server (V1) pods using workload_args.pair - TBD
   set_fact:
       num_server_pods: "{{ workload_args.pair | default('1')|int }}"
-  when: workload_args.max_node is not defined
+  when: workload_args.node_range is not defined
 
   #- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
   #  set_fact:
   #      worker_node_list: "{{workload_args.node_list[0]}}"
-  #  when: workload_args.max_node is not defined
+  #  when: workload_args.node_range is not defined
   #
   #- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
   #  set_fact:
   #      worker_node_list: "{{workload_args.node_list}}"
-  #  when: workload_args.max_node is defined
+  #  when: workload_args.node_range is defined
 
 - name: A8 V2 Record num server pods using new worker_node_list
   set_fact:
       num_server_pods: "{{ (node_hi_idx|int+1) * (pod_hi_idx|int+1) }}"
-  when: workload_args.max_node is defined
+  when: workload_args.node_range is defined
 

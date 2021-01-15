@@ -7,25 +7,24 @@
 - name: Clear num_completion
   command: "redis-cli set num_completion 0"
 
-# Node
-- name: Init node_hi_idx
-  command: "redis-cli set node_hi_idx {{ node_hi_idx }}"
+- name: Init node and pod indices in benchmark context
+  operator_sdk.util.k8s_status:
+     api_version: ripsaw.cloudbulldozer.io/v1alpha1
+     kind: Benchmark
+     name: "{{ meta.name }}"
+     namespace: "{{ operator_namespace }}"
+     status:
+        pod_hi_idx: "{{pod_hi_idx}}"
+        pod_low_idx: "{{pod_low_idx}}"
+        node_hi_idx: "{{node_hi_idx}}"
+        node_low_idx: "{{node_low_idx}}"
+        node_idx: "{{node_low_idx}}"
+        pod_idx: "{{pod_low_idx}}"
 
-- name: Init node_low_idx
-  command: "redis-cli set node_low_idx {{ node_low_idx }}"
-
- # Pod
-- name: Init pod_hi_idx
-  command: "redis-cli set pod_hi_idx {{ pod_hi_idx }}"
-
-- name: Init pod_low_idx
-  command: "redis-cli set pod_low_idx {{ pod_low_idx }}"
-
- # Starting Node and Pod
-- name: Init node_idx
+# Set redis starting Node and Pod
+- name: Set starting node_idx
   command: "redis-cli set node_idx {{ node_low_idx }}"
 
-- name: Init pod_idx
+- name: Set redis starting pod_idx
   command: "redis-cli set pod_idx {{ pod_low_idx }}"
-
 

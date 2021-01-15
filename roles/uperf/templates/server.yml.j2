@@ -3,7 +3,7 @@ kind: Job
 apiVersion: batch/v1
 metadata:
 
-{% if workload_args.max_node is not defined %}
+{% if workload_args.node_range is not defined %}
   name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
 {% else %}
   name: 'uperf-server-{{worker_node_list[ item[0]] }}-{{ item[1] }}-{{ trunc_uuid }}'
@@ -17,7 +17,7 @@ spec:
     metadata:
       labels:
 
-{% if workload_args.max_node is not defined %}
+{% if workload_args.node_range is not defined %}
         app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
 {% else %}
         #app: uperf-bench-server-{{ item[0] }}-{{ item[1]  }}-{{ trunc_uuid }}
@@ -57,7 +57,7 @@ spec:
 # 
 # V2 pin server pod to node
 #
-{% if workload_args.max_node is defined %}
+{% if workload_args.node_range is defined %}
       nodeSelector:
         #kubernetes.io/hostname: '{{ item[0] }}'
         kubernetes.io/hostname: '{{ worker_node_list[item[0]] }}'

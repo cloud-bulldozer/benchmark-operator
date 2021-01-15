@@ -4,22 +4,11 @@
   - block:
 
     - name: debug
-      command: "redis-cli set task wait_set_done"
+      command: "redis-cli set state Set_Running"
 
     - name: read pod completion count
       command: "redis-cli get num_completion"
       register: num_completion
-
-    - name: read node_idx
-      command: "redis-cli get node_idx"
-      register: node_idx
-
-    - name: read pod_idx
-      command: "redis-cli get pod_idx"
-      register: pod_idx
-
-    - name: debug
-      command: "redis-cli set read_num_completion {{ num_completion.stdout }}"
 
     - operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -28,8 +17,7 @@
         namespace: "{{ operator_namespace }}"
         status:
           state: Run Next Set
-      when: "num_completion.stdout|int == ((node_idx.stdout|int+1) * (pod_idx.stdout|int +1))"
-      #when: "num_completion.stdout|int == node_idx.stdout|int * workload_args.density|default('1')|int"
+      when: "num_completion.stdout|int == ((resource_state.resources[0].status.node_idx|int +1) * (resource_state.resources[0].status.pod_idx|int +1))"
     when: resource_kind == "pod"
 
   when: resource_state.resources[0].status.state == "Set Running"

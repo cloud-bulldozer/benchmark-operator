@@ -168,7 +168,7 @@ spec:
           configMap:
             name: uperf-test-{{ trunc_uuid }}
       restartPolicy: OnFailure
-{% if workload_args.max_node is defined %}
+{% if workload_args.node_range is defined %}
 {% if workload_args.colocate is sameas true %}
       nodeSelector:
         # client node same as server node

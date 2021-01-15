@@ -3,9 +3,9 @@
 - block:
   #
   # Entry Condition: 
-  #    1. A previous task has set 'node_idx' in redis
+  #    1. A previous task has set 'node_idx' and 'pod_idx' in redis
   #    2. All cliest are polling for 'start' to run its workoad
-  # Output: Clients with idx <= node_idx will run
+  # Output: Clients with node_idx <= redis node_idx && pod_idx <= redis pod_ix
   #
 
   - name: Signal group to run
