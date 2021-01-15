@@ -32,3 +32,12 @@ spec:
       nthrs:
         - 1
       runtime: 30
+
+      # The following variables are for scale uperf.
+      # The scale mode will be activated with 'node_range' defined.
+      
+      #colocate: True 
+      #density_range: [1, 2]
+      #node_range: [1, 2]
+      #excluded_node: [ worker001 ]
+
