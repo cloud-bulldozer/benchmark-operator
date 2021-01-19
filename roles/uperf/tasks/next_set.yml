@@ -1,6 +1,6 @@
 ---
 #
-# This module logically implements RE-ENTRANT double for loops
+# This module logically implements RE-ENTRANT nested for loops
 #   with_items:
 #     range (node_low_idx, node_hi_idx)
 #     range (pod_low_idx, pod_hi_idx)
@@ -8,25 +8,36 @@
 # continues where it left off.
 #
 - block:
-  - name:
+  - name: Read previous node_idx and pod_idx
     set_fact:
         all_run_done: False
+        inc: "{{workload_args.step_size|default('add1')}}"
+        amount: 0
+        pod_idx: "{{resource_state.resources[0].status.pod_idx|int}}"
+        node_idx: "{{resource_state.resources[0].status.node_idx|int}}"
+
+  - name: Extract add amount
+    set_fact:
+      amount: "{{ inc | regex_replace('[^0-9]', '') }}"
+      inc: add
+    when: "'add' in inc"
 
   - name: Increment pod_idx
     set_fact:
-        pod_idx: "{{resource_state.resources[0].status.pod_idx|int +1 }}"
-
-  - name: Read previous node_idx
-    set_fact:
-       node_idx: "{{resource_state.resources[0].status.node_idx|int}}"
-
+        pod_idx: "{%-if inc=='add' -%}{{pod_idx|int+amount|int}} 
+                  {%-elif inc=='log2' -%}{{(pod_idx|int*2)+1}} 
+                  {%-else -%}{{pod_idx|int+1}} 
+                  {% endif %}"
   - block: 
     #
     # This block starts a new node loop
     #
     - name: Increment node_idx
       set_fact:
-        node_idx: "{{node_idx|int + 1}}"
+        node_idx: "{%- if inc=='add' -%}{{node_idx|int+amount|int}} 
+                   {%- elif inc=='log2' -%}{{(node_idx|int *2)+1}} 
+                   {%- else -%}{{node_idx|int+1}} 
+                   {% endif %}"
 
     - name: Check node loop for ending condition
       set_fact:

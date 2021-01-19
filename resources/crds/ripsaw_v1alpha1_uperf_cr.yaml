@@ -36,8 +36,16 @@ spec:
       # The following variables are for scale uperf.
       # The scale mode will be activated with 'node_range' defined.
       
-      #colocate: True 
-      #density_range: [1, 2]
-      #node_range: [1, 2]
-      #excluded_node: [ worker001 ]
+      # colocate: True 
+      # density_range: [1, 32]
+      # node_range: [1, 10]
+      # step_size: log2
+      #   Valid step_size values are: addN or log2
+      #   N can be any decimal number
+      #   Enumeration examples:
+      #      add1:  1,2,3,4 ,,,
+      #      add2:  1,3,5,7 ...
+      #      add10: 1,11,21,31 ...
+      #      log2:  1,2,4,8,16,32 ,,,
+      # excluded_node: [ worker001 ]
 
