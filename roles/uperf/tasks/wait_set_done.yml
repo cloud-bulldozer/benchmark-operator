@@ -10,14 +10,20 @@
       command: "redis-cli get num_completion"
       register: num_completion
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Run Next Set
+    - block:
+      - operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Run Next Set
+
+      - name: Change redis state to force idle client pods to outside their main loop
+        command: "redis-cli set start 0"
+        
       when: "num_completion.stdout|int == ((resource_state.resources[0].status.node_idx|int +1) * (resource_state.resources[0].status.pod_idx|int +1))"
+
     when: resource_kind == "pod"
 
   when: resource_state.resources[0].status.state == "Set Running"
