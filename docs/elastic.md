@@ -123,7 +123,7 @@ spec:
   test_user: homer_simpson
   clustername: test_ci
   elasticsearch:
-    server: http://my.es.server:80
+    url: http://my.es.server:80
     index_name: ripsaw-smallfile
   prometheus:
     es_url: http://my.es.server:80
