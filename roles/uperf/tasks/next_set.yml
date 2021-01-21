@@ -68,7 +68,7 @@
           name: "{{ meta.name }}"
           namespace: "{{ operator_namespace }}"
           status:
-            state: Set Running
+            state: Running
 
     when: all_run_done == True
 
@@ -81,13 +81,6 @@
 
     - name: Reset redis num_completion
       command: "redis-cli set num_completion 0"
-
-    # New node_idx value on new node loop ONLY. But we simply write every time.
-    - name: Set next run node_idx
-      command: "redis-cli set node_idx {{node_idx}}"
-
-    - name: Set next run pod_idx
-      command: "redis-cli set pod_idx {{pod_idx}}"
 
     - name: Change state to run next round
       operator_sdk.util.k8s_status:
