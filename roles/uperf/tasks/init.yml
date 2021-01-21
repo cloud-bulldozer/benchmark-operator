@@ -21,10 +21,4 @@
         node_idx: "{{node_low_idx}}"
         pod_idx: "{{pod_low_idx}}"
 
-# Set redis starting Node and Pod
-- name: Set starting node_idx
-  command: "redis-cli set node_idx {{ node_low_idx }}"
-
-- name: Set redis starting pod_idx
-  command: "redis-cli set pod_idx {{ pod_low_idx }}"
 

@@ -104,11 +104,14 @@ spec:
              export pod_count=0
              node_limit=0;
              pod_limit=0;
+             STR='';
              while true; do
-               state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+               STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+               state=$(echo $STR | cut -f1 -d-);
                if [[ $state =~ 'true' ]]; then
-                   node_limit=$(redis-cli -h {{bo.resources[0].status.podIP}} get node_idx);
-                   pod_limit=$(redis-cli -h {{bo.resources[0].status.podIP}} get pod_idx);
+                   node_limit=$(echo $STR | cut -f2 -d-);
+                   pod_limit=$(echo $STR | cut -f3 -d-);
+                   echo 'state=' $state 'node=' $node_limit 'pod=' $pod_limit;
                    if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
                          continue;
                    fi;
@@ -163,7 +166,11 @@ spec:
                fi;
                break;
              done;
+{% if workload_args.node_range is not defined %}
              redis-cli -h {{bo.resources[0].status.podIP}} set start false"
+{% else %}
+            "
+{% endif %}
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"
