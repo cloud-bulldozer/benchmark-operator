@@ -118,7 +118,7 @@ items:
                        pod_limit=$(echo $STR | cut -f3 -d-);
                        echo 'state=' $state 'node=' $node_limit 'pod=' $pod_limit;
                        if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
-                             continue;
+                             sleep 0.5; continue;
                        fi;
     
                        /bin/echo 'UPERF-run-context: num_node=' $((node_limit+1)) 'density=' $((pod_limit+1)) 'my_node_idx=' $my_node_idx 'my_pod_idx=' $my_pod_idx;
@@ -157,17 +157,17 @@ items:
                            elif [[ $state =~ 'done' ]]; then
                               break;
                            else
-                             continue;
+                             sleep 0.5; continue;
                            fi;
                        done;
                        if [[ $state =~ 'restart' ]]; then
-                          continue;
+                          sleep 0.5; continue;
                        fi;
     
                    elif [[ $state =~ 'done' ]]; then
                        break;
                    else
-                     continue;
+                     sleep 0.5; continue;
                    fi;
                    break;
                  done;
