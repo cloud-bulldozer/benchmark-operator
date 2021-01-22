@@ -34,14 +34,14 @@ spec:
           - /usr/local/bin/ao-logs
           - /tmp/ansible-operator/runner
           - stdout
-          image: quay.io/benchmark-operator/benchmark-operator:master
+          image: quay.io/hnhan/benchmark-operator:uperf-scale
           imagePullPolicy: "Always"
           volumeMounts:
           - mountPath: /tmp/ansible-operator/runner
             name: runner
             readOnly: true
         - name: benchmark-operator
-          image: quay.io/benchmark-operator/benchmark-operator:master
+          image: quay.io/hnhan/benchmark-operator:uperf-scale
           imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
@@ -70,7 +70,7 @@ spec:
             - containerPort: 6379
           resources:
             limits:
-              cpu: "0.1"
+              cpu: "2.0"
           volumeMounts:
             - mountPath: /redis-master-data
               name: data
