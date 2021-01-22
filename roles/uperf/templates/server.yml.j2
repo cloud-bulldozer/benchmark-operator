@@ -1,72 +1,89 @@
 ---
-kind: Job
-apiVersion: batch/v1
-metadata:
-
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+{% macro job_template(item, node_idx_item='') %}
+  - kind: Job
+    apiVersion: batch/v1
+    metadata:    
 {% if workload_args.node_range is not defined %}
-  name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
+      name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
 {% else %}
-  name: 'uperf-server-{{worker_node_list[ item[0]] }}-{{ item[1] }}-{{ trunc_uuid }}'
+      name: 'uperf-server-{{worker_node_list[ node_idx_item ] }}-{{ item }}-{{ trunc_uuid }}'
 {% endif %}
-
-  namespace: "{{ operator_namespace }}"
-spec:
-  ttlSecondsAfterFinished: 600
-  backoffLimit: 0
-  template:
-    metadata:
-      labels:
-
-{% if workload_args.node_range is not defined %}
-        app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
-{% else %}
-        #app: uperf-bench-server-{{ item[0] }}-{{ item[1]  }}-{{ trunc_uuid }}
-        app: uperf-bench-server-{{ worker_node_list[item[0]] }}-{{ item[1]  }}-{{ trunc_uuid }}
-{% endif %}
-
-        type: uperf-bench-server-{{ trunc_uuid }}
-      annotations:
-{% if workload_args.multus.enabled is sameas true %}
-        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
-{% endif %}
-        node_idx: '{{ item[0] }}'
-        pod_idx: '{{ item[1] }}'
+      namespace: "{{ operator_namespace }}"
     spec:
+      ttlSecondsAfterFinished: 600
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+{% if workload_args.node_range is not defined %}
+            app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
+{% else %}
+            #app: uperf-bench-server-{{ node_idx_item }}-{{ item  }}-{{ trunc_uuid }}
+            app: uperf-bench-server-{{ worker_node_list[node_idx_item] }}-{{ item  }}-{{ trunc_uuid }}
+{% endif %}
+            type: uperf-bench-server-{{ trunc_uuid }}
+          annotations:
+{% if workload_args.multus.enabled is sameas true %}
+            k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+{% endif %}
+{% if workload_args.node_range is defined %}
+            node_idx: '{{ node_idx_item }}'
+            pod_idx: '{{ item }}'
+{% endif %}
+        spec:
 {% if workload_args.runtime_class is defined %}
-      runtimeClassName: "{{ workload_args.runtime_class }}"
+          runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-      hostNetwork: true
-      serviceAccountName: benchmark-operator
+          hostNetwork: true
+          serviceAccountName: benchmark-operator
 {% endif %}
-      containers:
-      - name: benchmark
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+          containers:
+          - name: benchmark
+            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
 {% if workload_args.server_resources is defined %}
-        resources: {{ workload_args.server_resources | to_json }}
+            resources: {{ workload_args.server_resources | to_json }}
 {% endif %}
-        imagePullPolicy: Always
-        command: ["/bin/sh","-c"]
-        args: ["uperf -s -v -P 20000"]
-      restartPolicy: OnFailure
+            imagePullPolicy: Always
+            command: ["/bin/sh","-c"]
+            args: ["uperf -s -v -P 20000"]
+          restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+          nodeSelector:
+            kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
 
 # 
 # V2 pin server pod to node
 #
 {% if workload_args.node_range is defined %}
-      nodeSelector:
-        #kubernetes.io/hostname: '{{ item[0] }}'
-        kubernetes.io/hostname: '{{ worker_node_list[item[0]] }}'
+          nodeSelector:
+            #kubernetes.io/hostname: '{{ node_idx_item }}'
+            kubernetes.io/hostname: '{{ worker_node_list[node_idx_item] }}'
 {% endif %}
 
 {% if workload_args.serviceip is sameas true %}
-      securityContext:
-        sysctls:
-        - name: net.ipv4.ip_local_port_range
-          value: 20000 20011
+          securityContext:
+            sysctls:
+            - name: net.ipv4.ip_local_port_range
+              value: 20000 20011
 {% endif %}
-{% include "metadata.yml.j2" %}
+{% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
+    {{ metadata()|indent }}
+{% endmacro %}
+{% if workload_args.node_range is not defined %}
+{% for item in range(pod_sequence|int)  %}
+{{ job_template(item) }}
+{% endfor %}
+{% else %}
+{% for node_idx_item in range(node_sequence|int)  %}
+{% for item in range(pod_sequence|int)  %}
+{{ job_template(item,node_idx_item) }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+

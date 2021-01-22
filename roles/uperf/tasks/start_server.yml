@@ -18,7 +18,8 @@
     k8s:
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     register: servers
-    with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
+    vars:
+      pod_sequence: "{{ workload_args.pair | default('1')|int }}"
     when: workload_args.node_range is not defined
 
 ############ <V2>
@@ -26,9 +27,9 @@
   - name: P10 V2 Start Server(s) - total = eligible nodes * density
     k8s:
        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
-    with_nested:
-      - "{{ range(0, node_hi_idx|int +1) | list }}"
-      - "{{ range(0, pod_hi_idx|int  +1) | list }}"
+    vars:
+      pod_sequence: "{{ pod_hi_idx|int +1 }}"
+      node_sequence: "{{ node_hi_idx|int +1 }}"
     when: workload_args.node_range is defined
     #
     # Each server annotates a "node_idx" which will allow its peer client

@@ -1,124 +1,129 @@
 ---
-kind: Job
-apiVersion: batch/v1
-metadata:
-{% if workload_args.serviceip is sameas true %}
-  name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
-{% else %}
-  name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
-{% endif %}
-  namespace: '{{ operator_namespace }}'
-spec:
-  template:
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+{% for item in resource_item %}
+  - kind: Job
+    apiVersion: batch/v1
     metadata:
-      labels:
-        app: uperf-bench-client-{{ trunc_uuid }}
-        clientfor: {{ item.metadata.labels.app }}
-        type: uperf-bench-client-{{ trunc_uuid }}
-{% if workload_args.multus.enabled is sameas true %}
-      annotations:
-        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% if workload_args.serviceip is sameas true %}
+      name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+{% else %}
+      name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
+      namespace: '{{ operator_namespace }}'
     spec:
+      template:
+        metadata:
+          labels:
+            app: uperf-bench-client-{{ trunc_uuid }}
+            clientfor: {{ item.metadata.labels.app }}
+            type: uperf-bench-client-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+          annotations:
+            k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% endif %}
+        spec:
 {% if workload_args.runtime_class is defined %}
-      runtimeClassName: "{{ workload_args.runtime_class }}"
+          runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-      hostNetwork: true
-      serviceAccountName: benchmark-operator
+          hostNetwork: true
+          serviceAccountName: benchmark-operator
 {% endif %}
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - {{ item.metadata.labels.app }}
-              topologyKey: kubernetes.io/hostname
-      containers:
-      - name: benchmark
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
-        env:
-          - name: uuid
-            value: "{{ uuid }}"
-          - name: test_user
-            value: "{{ test_user | default("ripsaw") }}"
-          - name: clustername
-            value: "{{ clustername }}"
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - {{ item.metadata.labels.app }}
+                  topologyKey: kubernetes.io/hostname
+          containers:
+          - name: benchmark
+            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+            env:
+              - name: uuid
+                value: "{{ uuid }}"
+              - name: test_user
+                value: "{{ test_user | default("ripsaw") }}"
+              - name: clustername
+                value: "{{ clustername }}"
 {% if elasticsearch is defined %}
-          - name: es
-            value: "{{ elasticsearch.url }}"
-          - name: es_index
-            value: "{{ elasticsearch.index_name | default("ripsaw-uperf") }}"
-          - name: parallel
-            value: "{{ elasticsearch.parallel | default(false) }}"
-          - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default(true) }}"
+              - name: es
+                value: "{{ elasticsearch.url }}"
+              - name: es_index
+                value: "{{ elasticsearch.index_name | default("ripsaw-uperf") }}"
+              - name: parallel
+                value: "{{ elasticsearch.parallel | default(false) }}"
+              - name: es_verify_cert
+                value: "{{ elasticsearch.verify_cert | default(true) }}"
 {% endif %}
 {% if prometheus is defined %}
-          - name: prom_es
-            value: "{{ prometheus.es_url }}"
-          - name: prom_parallel
-            value: "{{ prometheus.es_parallel | default(false) }}"
-          - name: prom_token
-            value: "{{ prometheus.prom_token | default() }}"
-          - name: prom_url
-            value: "{{ prometheus.prom_url | default() }}"
+              - name: prom_es
+                value: "{{ prometheus.es_url }}"
+              - name: prom_parallel
+                value: "{{ prometheus.es_parallel | default(false) }}"
+              - name: prom_token
+                value: "{{ prometheus.prom_token | default() }}"
+              - name: prom_url
+                value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
-          - name: client_node
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: server_node
-            value: "{{ uperf.pin_server|default("unknown") }}"
+              - name: client_node
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+              - name: server_node
+                value: "{{ uperf.pin_server|default("unknown") }}"
 {% if workload_args.client_resources is defined %}
-        resources: {{ workload_args.client_resources | to_json }}
+            resources: {{ workload_args.client_resources | to_json }}
 {% endif %}
-        imagePullPolicy: Always
-        command: ["/bin/sh", "-c"]
-        args:
+            imagePullPolicy: Always
+            command: ["/bin/sh", "-c"]
+            args:
 {% if workload_args.serviceip is sameas true %}
-          - "export serviceip=true;
-            export h={{item.spec.clusterIP}};
+              - "export serviceip=true;
+                export h={{item.spec.clusterIP}};
 {% else %}
 {% if workload_args.multus.client is defined %}
-          - "export multus_client={{workload_args.multus.client}};
-            export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+              - "export multus_client={{workload_args.multus.client}};
+                export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
-          - "export h={{item.status.podIP}};
+              - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
 {% if workload_args.networkpolicy is defined %}
-             export networkpolicy={{workload_args.networkpolicy}};
+                 export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
-             export hostnet={{workload_args.hostnetwork}};
-             export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
-             export my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};
-             export ips=$(hostname -I);
-             export num_pairs={{workload_args.pair}};
-             export node_count=0
-             export pod_count=0
-             node_limit=0;
-             pod_limit=0;
-             STR='';
-             while true; do
-               STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
-               state=$(echo $STR | cut -f1 -d-);
-               if [[ $state =~ 'true' ]]; then
-                   node_limit=$(echo $STR | cut -f2 -d-);
-                   pod_limit=$(echo $STR | cut -f3 -d-);
-                   echo 'state=' $state 'node=' $node_limit 'pod=' $pod_limit;
-                   if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
-                         continue;
-                   fi;
-
-                   /bin/echo 'UPERF-run-context: num_node=' $((node_limit+1)) 'density=' $((pod_limit+1)) 'my_node_idx=' $my_node_idx 'my_pod_idx=' $my_pod_idx;
-                   node_count=$((node_limit+1));
-                   pod_count=$((pod_limit+1));
+                 export hostnet={{workload_args.hostnetwork}};
+                 export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
+                 export my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};
+                 export ips=$(hostname -I);
+                 export num_pairs={{workload_args.pair}};
+                 export node_count=0
+                 export pod_count=0
+                 node_limit=0;
+                 pod_limit=0;
+                 STR='';
+                 while true; do
+                   STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                   state=$(echo $STR | cut -f1 -d-);
+                   if [[ $state =~ 'true' ]]; then
+                       node_limit=$(echo $STR | cut -f2 -d-);
+                       pod_limit=$(echo $STR | cut -f3 -d-);
+                       echo 'state=' $state 'node=' $node_limit 'pod=' $pod_limit;
+                       if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
+                             continue;
+                       fi;
+    
+                       /bin/echo 'UPERF-run-context: num_node=' $((node_limit+1)) 'density=' $((pod_limit+1)) 'my_node_idx=' $my_node_idx 'my_pod_idx=' $my_pod_idx;
+                       node_count=$((node_limit+1));
+                       pod_count=$((pod_limit+1));
 
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}
@@ -131,72 +136,73 @@ spec:
 {% set rsize = size %}
 {% endif %}
 {% for nthr in workload_args.nthrs %}
-                 cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
-                 run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+                     cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
+                     run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
 {% if workload_args.run_id is defined %}
-                 --run-id {{workload_args.run_id}} \
+                     --run-id {{workload_args.run_id}} \
 {% endif %}
 {% if workload_args.debug is defined and workload_args.debug %}
-                 -v \
+                     -v \
 {% endif %}
                  ;
 {% endfor %}
 {% endfor %}
 {% endfor %}
 {% endfor %}
-                   redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion;
-                   while true; do
-                       state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                       redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion;
+                       while true; do
+                           state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                           if [[ $state =~ 'restart' ]]; then
+                              break;
+                           elif [[ $state =~ 'done' ]]; then
+                              break;
+                           else
+                             continue;
+                           fi;
+                       done;
                        if [[ $state =~ 'restart' ]]; then
-                          break;
-                       elif [[ $state =~ 'done' ]]; then
-                          break;
-                       else
-                         continue;
+                          continue;
                        fi;
-                   done;
-                   if [[ $state =~ 'restart' ]]; then
-                      continue;
+    
+                   elif [[ $state =~ 'done' ]]; then
+                       break;
+                   else
+                     continue;
                    fi;
-
-               elif [[ $state =~ 'done' ]]; then
                    break;
-               else
-                 continue;
-               fi;
-               break;
-             done;
+                 done;
 {% if workload_args.node_range is not defined %}
-             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
+                 redis-cli -h {{bo.resources[0].status.podIP}} set start false"
 {% else %}
-            "
+                "
 {% endif %}
-        volumeMounts:
-          - name: config-volume
-            mountPath: "/tmp/uperf-test"
-      volumes:
-        - name: config-volume
-          configMap:
-            name: uperf-test-{{ trunc_uuid }}
-      restartPolicy: OnFailure
+            volumeMounts:
+              - name: config-volume
+                mountPath: "/tmp/uperf-test"
+          volumes:
+            - name: config-volume
+              configMap:
+                name: uperf-test-{{ trunc_uuid }}
+          restartPolicy: OnFailure
 {% if workload_args.node_range is defined %}
 {% if workload_args.colocate is sameas true %}
-      nodeSelector:
-        # client node same as server node
-        kubernetes.io/hostname: "{{ worker_node_list[item['metadata']['annotations']['node_idx'] | from_json] }}"
+          nodeSelector:
+            # client node same as server node
+            kubernetes.io/hostname: "{{ worker_node_list[item['metadata']['annotations']['node_idx'] | from_json] }}"
 {% else %}
-      nodeSelector:
-        # skew client node one position left in the woker_node_list
-        kubernetes.io/hostname: "{{ worker_node_list[ (1+(item['metadata']['annotations']['node_idx'] | from_json)) % (worker_node_list|length)] }}"
+          nodeSelector:
+            # skew client node one position left in the woker_node_list
+            kubernetes.io/hostname: "{{ worker_node_list[ (1+(item['metadata']['annotations']['node_idx'] | from_json)) % (worker_node_list|length)] }}"
 {% endif %}
 
 {% else  %}
 {% if workload_args.pin is sameas true %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+          nodeSelector:
+            kubernetes.io/hostname: '{{ workload_args.pin_client }}'
 {% endif %}
    
 {% endif %}
 
-
-{% include "metadata.yml.j2" %}
+{% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
+    {{ metadata()|indent }}
+{% endfor %}

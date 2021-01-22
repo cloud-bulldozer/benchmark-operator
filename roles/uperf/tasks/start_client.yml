@@ -20,8 +20,8 @@
     - name: P19 Start Client(s) w/o serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: 
-        - "{{ server_pods.resources }}"
+      vars: 
+        resource_item: "{{ server_pods.resources }}"
       when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
 
      #
@@ -32,8 +32,8 @@
     - name: P20 Start Client(s) with serviceIP
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: 
-        - "{{ serviceip.resources }}"
+      vars: 
+        resource_item: "{{ serviceip.resources }}"
       when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
 
     when: resource_kind == "pod"
