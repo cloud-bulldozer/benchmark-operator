@@ -48,10 +48,23 @@
   set_fact:
     worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
 
-- name: Exclude unhealthy nodes i.e. low diskspace 
+- name: List Nodes Labeled with {{ workload_args.exclude_label }}
+  k8s_info:
+    api_version: v1
+    kind: Node
+    label_selectors:
+      - '{{ item }}'
+  with_items: "{{ workload_args.exclude_labels }}"
+  register: exclude_node_list
+
+- name: Isolate Worker Role Hostnames for label  {{ workload_args.exclude_label }}
   set_fact:
-      worker_node_list: "{{ worker_node_list | difference(workload_args.excluded_node[0]) }}"
-  when: workload_args.excluded_node is defined and workload_args.excluded_node|length > 0
+    worker_node_exclude_list: "{{ exclude_node_list | json_query('results[].resources[].metadata.name') }}"
+
+- name: Exclude labelled nodes
+  set_fact:
+      worker_node_list: "{{ worker_node_list | difference(worker_node_exclude_list) }}"
+  when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
 
 - name: A5 Capture ServiceIP
   k8s_facts:

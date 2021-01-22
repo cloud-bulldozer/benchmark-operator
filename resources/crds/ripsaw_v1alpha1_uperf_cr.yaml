@@ -47,5 +47,7 @@ spec:
       #      add2:  1,3,5,7 ...
       #      add10: 1,11,21,31 ...
       #      log2:  1,2,4,8,16,32 ,,,
-      # excluded_node: [ worker001 ]
+      # exclude_labels:  (OR conditional, every node that matches any of these labels is excluded)
+      #    - "bad=true"
+      #    - "fc640=true"
 
