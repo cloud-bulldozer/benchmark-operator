@@ -53,8 +53,7 @@
     when: resource_state.resources[0].status.state == "Waiting for Clients"
 
   - include_tasks: send_client_run_signal.yml
-    #when: resource_state.resources[0].status.state == "Clients Running"
-    when: resource_state.resources[0].status.state == "Clients"
+    when: resource_state.resources[0].status.state == "Clients Running"
 
   - include_tasks: wait_client_done.yml
     when: resource_state.resources[0].status.state == "Running"
