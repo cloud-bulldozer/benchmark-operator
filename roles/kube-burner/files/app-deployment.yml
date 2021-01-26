@@ -30,7 +30,7 @@ spec:
         - name: POSTGRESQL_PASSWORD
           value: secret
         - name: POSTGRESQL_DATABASE
-          value: kubelet-density
+          value: node-density
         - name: POSTGRESQL_HOSTNAME
           value: postgres-{{.Iteration}}
         - name: POSTGRESQL_PORT

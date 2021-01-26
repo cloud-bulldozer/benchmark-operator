@@ -22,7 +22,7 @@ spec:
         - name: POSTGRESQL_PASSWORD
           value: secret
         - name: POSTGRESQL_DATABASE
-          value: kubelet-density
+          value: node-density
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: false

@@ -74,7 +74,7 @@
           configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
     when: workload_args.workload == "cluster-density"
 
-  - name: Create kubelet-density configmaps
+  - name: Create node-density configmaps
     k8s:
       definition:
         apiVersion: v1
@@ -83,12 +83,12 @@
           name: kube-burner-config-{{ trunc_uuid }}
           namespace: "{{ operator_namespace }}"
         data:
-          config.yml: "{{ lookup('template', 'kubelet-density.yml.j2')}}"
+          config.yml: "{{ lookup('template', 'node-density.yml.j2')}}"
           metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
           pod.yml: "{{ lookup('file', 'pod.yml')}}"
-    when: workload_args.workload == "kubelet-density"
+    when: workload_args.workload == "node-density"
 
-  - name: Create kubelet-density-heavy configmaps
+  - name: Create node-density-heavy configmaps
     k8s:
       definition:
         apiVersion: v1
@@ -97,12 +97,12 @@
           name: kube-burner-config-{{ trunc_uuid }}
           namespace: "{{ operator_namespace }}"
         data:
-          config.yml: "{{ lookup('template', 'kubelet-density-heavy.yml.j2')}}"
+          config.yml: "{{ lookup('template', 'node-density-heavy.yml.j2')}}"
           metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
           app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
           postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
           postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
-    when: workload_args.workload == "kubelet-density-heavy"
+    when: workload_args.workload == "node-density-heavy"
 
   - name: Create max-namespaces configmaps
     k8s:

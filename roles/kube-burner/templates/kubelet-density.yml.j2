@@ -14,12 +14,12 @@ global:
 {% endif %}
 
 jobs:
-  - name: kubelet-density
+  - name: node-density
     jobIterations: {{ workload_args.job_iterations }}
     qps: {{ workload_args.qps|default(5) }}
     burst: {{ workload_args.burst|default(10) }}
     namespacedIterations: false
-    namespace: kubelet-density-{{ uuid }}
+    namespace: node-density-{{ uuid }}
     podWait: {{ workload_args.pod_wait|default(false) }}
     cleanup: {{ workload_args.cleanup|default(true) }}
     waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}

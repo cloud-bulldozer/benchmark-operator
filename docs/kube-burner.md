@@ -39,11 +39,11 @@ Each iteration of this workload creates the following objects:
   - 10 secrets
   - 10 configmaps
 
-- **kubelet-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**.
+- **node-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**.
 Each iteration of this workload creates the following object:
   - 1 pod. (sleep)
 
-- **kubelet-density-heavy**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a postgresql database and a simple client that generates some CPU load) and a service that is used by the client to reach the database.
+- **node-density-heavy**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a postgresql database and a simple client that generates some CPU load) and a service that is used by the client to reach the database.
 Each iteration of this workload creates the following objects:
   - 1 deployment holding a postgresql database
   - 1 deployment holding a client application for the previous database
@@ -65,7 +65,7 @@ The workload type is specified by the parameter `workload` from the `args` objec
 
 All kube-burner's workloads support the following parameters:
 
-- **`workload`**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, kubelet-density and kubelet-density-heavy
+- **`workload`**: Type of kube-burner workload. As mentioned before, allowed values are cluster-density, node-density and node-density-heavy
 - **``default_index``**: Elasticsearch index name. Defaults to __ripsaw-kube-burner__
 - **``job_iterations``**: How many iterations to execute of the specified kube-burner workload
 - **``qps``**: Limit object creation queries per second. Defaults to __5__
@@ -90,7 +90,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **``job_timeout``**: Kube-burner job timeout in seconds. Defaults to __3600__ .Uses the parameter [activeDeadlineSeconds](https://kubernetes.io/docs/concepts/workloads/controllers/job/#job-termination-and-cleanup)
 - **``pin_server``** and **``tolerations``**: Detailed in the section [Pin to server and tolerations](#Pin-to-server-and-tolerations)
 - **``step``**: Prometheus step size, useful for long benchmarks. Defaults to 30s
-- **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in kubelet-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
+- **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in node-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
 - **``runtime_class``** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch instance. This feature can be configured by the prometheus object of kube-burner's CR.
@@ -118,7 +118,7 @@ kube-burner is able to collect Prometheus metrics using the time range of the be
 - [metrics.yaml](../roles/kube-burner/files/metrics.yaml): This metric profile is indicated for benchmarks executed in small clusters. Since it gets metrics for several system pods from each node. Otherwise, we can reduce the number of indexed metrics (at the expense of granularity) with the parameter **step**.
 - [metrics-aggregated.yaml](../roles/kube-burner/files/metrics-aggregated.yaml): This metric profile is indicated for benchmarks in large clusters. Since the metrics from the worker nodes and the infra nodes are aggregated and only metrics from master nodes are collected individually. Also the parameter **step** can be used to reduce the number of metrics (at the expense of granularity) that will be indexed.
 
-By default the [metrics.yaml](../roles/kube-burner/files/metrics-aggregated.yaml) profile is used  in kubelet-density workloads and `metrics-aggregated.yaml` in the remaining. You can change this profile with the variable **metrics_profile**.
+By default the [metrics.yaml](../roles/kube-burner/files/metrics-aggregated.yaml) profile is used  in node-density workloads and `metrics-aggregated.yaml` in the remaining. You can change this profile with the variable **metrics_profile**.
 
 **Note**: Metrics collection and indexing is enabled when setting prometheus `prom_url`
 
