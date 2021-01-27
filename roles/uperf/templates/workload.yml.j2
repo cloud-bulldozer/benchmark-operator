@@ -98,10 +98,10 @@ items:
 {% endif %}
 {% endif %}
 {% if (workload_args.colocate is defined) %}
-              - export colocate={{ workload_args.colocate}};
+                 export colocate={{ workload_args.colocate}};
 {% endif %}
 {% if workload_args.step_size is defined %}
-              - export stepsize={{ workload_args.step_size }};
+                 export stepsize={{ workload_args.step_size }};
 {% endif %}
 {% if workload_args.networkpolicy is defined %}
                  export networkpolicy={{workload_args.networkpolicy}};
