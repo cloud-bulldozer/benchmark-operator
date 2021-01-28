@@ -40,8 +40,6 @@
  
 ### <VM> kind 
   - block:
-    - name: debug 
-      command: "redis-cli set state Starting_Clients"
 
     - name: V19 Wait for vms to be running....
       k8s_facts:

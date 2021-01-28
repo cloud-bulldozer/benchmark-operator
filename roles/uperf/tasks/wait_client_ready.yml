@@ -1,12 +1,8 @@
 ---
 - block:
-
-##### <POD> kind
-  - block: # Pod block
-    - name: debug 
-      command: "redis-cli set state Waiting_for_Clients"
-
-    - name: P22 Get client pod status
+   ##### <POD> kind
+  - block: 
+    - name: Get client pod status
       k8s_facts:
         kind: Pod
         api_version: v1
@@ -15,7 +11,7 @@
           - app = uperf-bench-client-{{ trunc_uuid }}
       register: client_pods
 
-    - name: P23 Update resource state
+    - name: Update resource state
       operator_sdk.util.k8s_status:
         api_version: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
@@ -27,8 +23,8 @@
 
     when: resource_kind == "pod"
 
-##### <VM> kind
   - block:
+    ##### <VM> kind
 
     - name: V22 set complete to false
       command: "redis-cli set complete false"

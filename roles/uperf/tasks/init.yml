@@ -21,4 +21,3 @@
         node_idx: "{{node_low_idx}}"
         pod_idx: "{{pod_low_idx}}"
 
-

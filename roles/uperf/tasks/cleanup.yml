@@ -3,7 +3,7 @@
 - block:
 
   - block:
-    - name: P29 Get Server Pods
+    - name: Get Server Pods
       k8s_facts:
         kind: Pod
         api_version: v1
@@ -12,7 +12,7 @@
           - type = uperf-bench-server-{{ trunc_uuid }}
       register: server_pods
 
-    - name: P30 Pod names - to clean
+    - name: Pod names - to clean
       set_fact:
         clean_pods: |
             [
@@ -21,7 +21,7 @@
             {% endfor %}
             ]
 
-    - name: P31 Cleanup run
+    - name: Cleanup run
       k8s:
         kind: pod
         api_version: v1
