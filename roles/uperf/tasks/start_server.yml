@@ -1,44 +1,27 @@
 ---
 
-  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  # Start servers
-  #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 - block:
 
   - include_tasks: init.yml
 
-
-  - name: P8 Create service for server pods
+  - name: Create service for server pods
     k8s:
       definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
     when: workload_args.serviceip is defined and workload_args.serviceip
 
-  - name: P9 Start Server(s)
-    k8s:
-      definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
-    register: servers
-    vars:
-      pod_sequence: "{{ workload_args.pair | default('1')|int }}"
-    when: workload_args.node_range is not defined
-
-############ <V2>
-
-  - name: P10 V2 Start Server(s) - total = eligible nodes * density
+  - name: Start Server(s) - total = eligible nodes * density
     k8s:
        definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     vars:
       pod_sequence: "{{ pod_hi_idx|int +1 }}"
       node_sequence: "{{ node_hi_idx|int +1 }}"
-    when: workload_args.node_range is defined
+
     #
     # Each server annotates a "node_idx" which will allow its peer client
     # to derive its affinity according the 'colocate' variable
     #
-
-############ </V2>
-
-  - name: P11 Wait for pods to be running....
+  - name: Wait for pods to be running....
     k8s_facts:
       kind: Pod
       api_version: v1
@@ -47,7 +30,7 @@
         - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: P12 Update resource state
+  - name: Update resource state
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark

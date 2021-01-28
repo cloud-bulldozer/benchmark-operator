@@ -2,9 +2,9 @@
 
 - block:
 
-#### <POD> kind
+  #### <POD> kind
   - block:
-    - name: P27 Waiting for pods to complete....
+    - name: Waiting for pods to complete....
       k8s_facts:
         kind: pod
         api_version: v1
@@ -24,7 +24,7 @@
       when: "num_server_pods|int == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
     when: resource_kind == "pod"
 
-#### <VM> kind
+  #### <VM> kind
   - block:
 
     - name: V28 get complete

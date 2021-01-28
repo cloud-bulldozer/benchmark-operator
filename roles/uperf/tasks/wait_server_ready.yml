@@ -1,9 +1,6 @@
 ---
-########### <POD> kind
 - block:
-
-  - name: debug 
-    command: "redis-cli set state Starting_Servers"
+   ########### <POD> kind
 
   - name: P13 Get server pods
     k8s_facts:
@@ -14,11 +11,7 @@
         - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: debug
-    debug:
-        msg: "{{ num_server_pods }}"
-
-  - name: P14 Update resource state
+  - name: Update resource state
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -30,8 +23,8 @@
 
   when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
 
-######## <VM> kind
 - block:
+  ######## <VM> kind
 
   - name: V14 Wait for vms to be running....
     k8s_facts:

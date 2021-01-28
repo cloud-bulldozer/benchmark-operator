@@ -3,8 +3,8 @@
 - block:
   #
   # Entry Condition: 
-  #    1. A previous task has set 'node_idx' and 'pod_idx' in redis
-  #    2. All cliest are polling for 'start' to run its workoad
+  #    1. A previous task has set 'node_idx' and 'pod_idx' in benchmark ctx
+  #    2. All cliest are polling redis for 'start-node_idx-pod_idx' to start
   # Output: Clients with node_idx <= redis node_idx && pod_idx <= redis pod_ix
   #
 
@@ -19,9 +19,6 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: Set Running
-
-  - name: debug 2
-    command: "redis-cli set state Set_Running"
 
   when: resource_state.resources[0].status.state == "Clients Running"
 

@@ -2,10 +2,6 @@
 
 - block:
   - block:
-
-    - name: debug
-      command: "redis-cli set state Set_Running"
-
     - name: read pod completion count
       command: "redis-cli get num_completion"
       register: num_completion

@@ -1,6 +1,6 @@
 ---
 
-- name: A1 Get current state
+- name: Get current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
@@ -18,7 +18,7 @@
       complete: false
   when: resource_state.resources[0].status.state is not defined
 
-- name: A3 Get current state - If it has changed
+- name: Get current state - If it has changed
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
@@ -26,7 +26,7 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- name: A4 Capture operator information
+- name: Capture operator information
   k8s_facts:
     kind: Pod
     api_version: v1
@@ -34,40 +34,102 @@
     label_selectors:
       - name = benchmark-operator
   register: bo
+  
+- block:
+    #
+    # This block is for scale mode where client and server pods are spreaded
+    # across all eligible nodes
+    #
+  - name: List Nodes Labeled as Workers
+    k8s_info:
+      api_version: v1
+      kind: Node
+      label_selectors:
+        - "node-role.kubernetes.io/worker="
+    register: node_list
+    no_log: True
+  
+  - name: Isolate Worker Role Hostnames
+    set_fact:
+      worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
+  
+  - name: List Nodes Labeled with {{ workload_args.exclude_label }}
+    k8s_info:
+      api_version: v1
+      kind: Node
+      label_selectors:
+        - '{{ item }}'
+    with_items: "{{ workload_args.exclude_labels }}"
+    register: exclude_node_list
+    when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
+  
+  - name: Isolate Worker Role Hostnames for label  {{ workload_args.exclude_label }}
+    set_fact:
+      worker_node_exclude_list: "{{ exclude_node_list | json_query('results[].resources[].metadata.name') }}"
+  
+  - name: Exclude labelled nodes
+    set_fact:
+        worker_node_list: "{{ worker_node_list | difference(worker_node_exclude_list) }}"
+    when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
+    #
+    # Compute node and pod limits using CR params while taking into account 
+    # of the actual number of nodes available in the system
+    #
+  - name: init pod and node low/hi idx
+    set_fact:
+        pod_low_idx: "{{ workload_args.density_range[0] | default('1')|int - 1 }}"
+        pod_hi_idx: "{{ workload_args.density_range[1] | default('1')|int - 1 }}"
+        node_low_idx: "{{ workload_args.node_range[0] | default('1')|int - 1 }}"
+        node_hi_idx: "{{ workload_args.node_range[1]  | default('1')|int - 1 }}"
+  
+  - name: Adjust node_hi_idx if cluster has less nodes
+    set_fact:
+        node_hi_idx: "{{ worker_node_list|length| default('0')|int -1 }}"
+    when: "node_hi_idx|int >= worker_node_list|length| default('0')|int "
 
-- name: List Nodes Labeled as Workers
-  k8s_info:
-    api_version: v1
-    kind: Node
-    label_selectors:
-      - "node-role.kubernetes.io/worker="
-  register: node_list
-  no_log: True
+  - name: Record num server pods using new worker_node_list
+    # in Scale mode, num server pods = num_node * number_pod
+    set_fact:
+      num_server_pods: "{{ (node_hi_idx|int+1) * (pod_hi_idx|int+1) }}"
+ 
+      #
+      # End scle mode
+      #
+  when: workload_args.pin | default(False) == False
 
-- name: Isolate Worker Role Hostnames
-  set_fact:
-    worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
+- block:
+    #
+    # This block is for the "pin" mode where the server and the client node
+    # are specified by pin_server and pin_client variables.
+    
+  - name: Add "Pin" server and client node to worker list. 
+    # The add order is significant as we will enumerate the server pods on
+    # the first node in the list, and client pods on the second node.
+    set_fact: 
+        worker_node_list: "{{worker_node_list + [item]}}"
+    with_items:
+      - '{{workload_args.pin_server}}'
+      - '{{workload_args.pin_client}}'
 
-- name: List Nodes Labeled with {{ workload_args.exclude_label }}
-  k8s_info:
-    api_version: v1
-    kind: Node
-    label_selectors:
-      - '{{ item }}'
-  with_items: "{{ workload_args.exclude_labels }}"
-  register: exclude_node_list
-  when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
+  - name: Init "Pin" mode node and pod indices
+    set_fact:
+        pod_low_idx: "{{ workload_args.density_range[0] | default('1')|int - 1 }}"
+        pod_hi_idx: "{{ workload_args.density_range[1] | default('1')|int - 1 }}"
+        # node indices are used as client pod 'start' parameter.
+        node_low_idx: "0"
+        node_hi_idx: "0"
 
-- name: Isolate Worker Role Hostnames for label  {{ workload_args.exclude_label }}
-  set_fact:
-    worker_node_exclude_list: "{{ exclude_node_list | json_query('results[].resources[].metadata.name') }}"
+  - name: A8 V2 Record num Pin server pods using new worker_node_list
+    set_fact:
+      # in Pin mode, num server pods = number of pods 
+      num_server_pods: "{{ pod_hi_idx|int +1 }}"
 
-- name: Exclude labelled nodes
-  set_fact:
-      worker_node_list: "{{ worker_node_list | difference(worker_node_exclude_list) }}"
-  when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
-
-- name: A5 Capture ServiceIP
+    #
+    # End pin mode where pin_client and pin_server are specified
+    #
+  when: workload_args.pin | default(False) == True
+  
+- name: Capture ServiceIP
   k8s_facts:
     kind: Service
     api_version: v1
@@ -76,57 +138,4 @@
       - type = uperf-bench-server-{{ trunc_uuid }}
   register: serviceip
   when: workload_args.serviceip is defined and workload_args.serviceip
-
-#
-# Compute node and pod limits using CR params while taking into account 
-# of the actual number of nodes available in the system
-#
-- name: init pod low idx
-  set_fact:
-      pod_low_idx: "{{ workload_args.density_range[0]|int | default('1')|int - 1 }}"
-  when: workload_args.density_range is defined
-
-- name: init pod hi idx
-  set_fact:
-      pod_hi_idx: "{{ workload_args.density_range[1]|int | default('1')|int - 1 }}"
-  when: workload_args.density_range is defined
-
-- name: init node low idx
-  set_fact:
-      node_low_idx: "{{ workload_args.node_range[0]|int | default('1')|int - 1 }}"
-  when: workload_args.node_range is defined
-
-- name: init node hi idx
-  set_fact:
-      node_hi_idx: "{{ workload_args.node_range[1]|int | default('1')|int - 1 }}"
-  when: workload_args.node_range is defined
-
-- name: Adjust node_hi_idx if cluster has less nodes
-  set_fact:
-      node_hi_idx: "{{ worker_node_list|length| default('0')|int -1 }}"
-  when: "node_hi_idx|int >= worker_node_list|length| default('0')|int "
-
-#
-# "pin" mode exists prior to "scale" mode. If "pin: true", we will
-# do the old way using pin_server and pin_client
-#
-- name: A6 Record num server (V1) pods using workload_args.pair - TBD
-  set_fact:
-      num_server_pods: "{{ workload_args.pair | default('1')|int }}"
-  when: workload_args.node_range is not defined
-
-  #- name: A7 V2 scale run -  Setup eligible node (static) list - Tobe replaced by real node list builder
-  #  set_fact:
-  #      worker_node_list: "{{workload_args.node_list[0]}}"
-  #  when: workload_args.node_range is not defined
-  #
-  #- name: A7 V1 non-scale Setup eligible node (static) list - Tobe replaced by real node list builder
-  #  set_fact:
-  #      worker_node_list: "{{workload_args.node_list}}"
-  #  when: workload_args.node_range is defined
-
-- name: A8 V2 Record num server pods using new worker_node_list
-  set_fact:
-      num_server_pods: "{{ (node_hi_idx|int+1) * (pod_hi_idx|int+1) }}"
-  when: workload_args.node_range is defined
 
