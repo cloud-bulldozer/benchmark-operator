@@ -101,9 +101,6 @@ items:
                  export colocate={{ workload_args.colocate}};
 {% endif %}
 {% if workload_args.step_size is defined %}
-                 export stepsize={{ workload_args.step_size }};
-{% endif %}
-{% if workload_args.step_size is defined %}
                 export stepsize={{ workload_args.step_size }};
 {% endif %}
 {% if workload_args.node_range is defined %}
