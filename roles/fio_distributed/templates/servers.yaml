@@ -49,7 +49,7 @@ spec:
 {% if workload_args.nodeselector is defined %}
       nodeSelector: 
 {% for label, value in  workload_args.nodeselector.items() %}
-        {{ label | replace ("_", "-" )}}:{{ value }}
+        {{ label | replace ("_", "-" )}}: {{ value }}
 {% endfor %}
 {% endif  %}
 {% if workload_args.tolerations is defined %}
