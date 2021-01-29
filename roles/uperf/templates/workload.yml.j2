@@ -46,7 +46,7 @@ items:
                   topologyKey: kubernetes.io/hostname
           containers:
           - name: benchmark
-            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+            image: {{ workload_args.image | default('quay.io/lblyth/lblyth-uperf:latest') }}
             env:
               - name: uuid
                 value: "{{ uuid }}"
@@ -88,11 +88,11 @@ items:
             args:
 {% if workload_args.serviceip is sameas true %}
               - "export serviceip=true;
-                export h={{item.spec.clusterIP}};
+              export h={{item.spec.clusterIP}};
 {% else %}
 {% if workload_args.multus.client is defined %}
               - "export multus_client={{workload_args.multus.client}};
-                export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+              export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
               - "export h={{item.status.podIP}};
 {% endif %}
@@ -103,8 +103,17 @@ items:
 {% if workload_args.step_size is defined %}
                  export stepsize={{ workload_args.step_size }};
 {% endif %}
+{% if workload_args.step_size is defined %}
+                export stepsize={{ workload_args.step_size }};
+{% endif %}
+{% if workload_args.node_range is defined %}
+                export node_range={{ workload_args.node_range[0] }}_{{ workload_args.node_range[1] }};
+{% endif %}
+{% if workload_args.density_range is defined %}
+                export density_range={{ workload_args.density_range[0] }}_{{ workload_args.density_range[1] }};
+{% endif %}
 {% if workload_args.networkpolicy is defined %}
-                 export networkpolicy={{workload_args.networkpolicy}};
+                export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
                  export hostnet={{workload_args.hostnetwork}};
                  export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
@@ -126,8 +135,8 @@ items:
                        if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
                              sleep 0.5; continue;
                        fi;
-    
-                       /bin/echo 'UPERF-run-context: num_node=' $((node_limit+1)) 'density=' $((pod_limit+1)) 'my_node_idx=' $my_node_idx 'my_pod_idx=' $my_pod_idx;
+
+                       echo "UPERF-run-context num_node=" $((node_limit+1)) "density=" $((pod_limit+1)) "my_node_idx=" $my_node_idx "my_pod_idx=" $my_pod_idx;
                        node_count=$((node_limit+1));
                        pod_count=$((pod_limit+1));
 
@@ -169,7 +178,7 @@ items:
                        if [[ $state =~ 'restart' ]]; then
                           sleep 0.5; continue;
                        fi;
-    
+
                    elif [[ $state =~ 'done' ]]; then
                        break;
                    else
