@@ -82,6 +82,6 @@
       status:
         state: Benchmark Complete
         complete: true
-      when: stressng_workload_pod | json_query('resources[].status.succeeded')"
+    when: stressng_workload_pod | json_query('resources[].status.succeeded')
 
   when: resource_state.resources[0].status.state == "Benchmark running"

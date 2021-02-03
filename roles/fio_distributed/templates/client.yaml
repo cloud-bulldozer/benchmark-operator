@@ -37,7 +37,7 @@ spec:
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-fio") }}"
           - name: es_verify_cert
-            value: "{{ elasticsearch.cert_verify | default("true") }}"
+            value: "{{ elasticsearch.verify_cert | default("true") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
 {% endif %}
