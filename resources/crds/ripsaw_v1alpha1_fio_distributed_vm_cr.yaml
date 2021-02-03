@@ -1,14 +1,16 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: fio-vm-benchmark
+  name: fio-vm-benchmark-example
   namespace: my-ripsaw
 spec:
   # where elastic search is running
   elasticsearch:
     url: http://my.elasticsearch.server:80
-#  clustername: myk8scluster
-#  test_user: ripsaw
+    verify_cert: false
+    parallel: false
+  # clustername: myk8scluster
+  # test_user: ripsaw
   workload:
     name: "fio_distributed"
     args:
