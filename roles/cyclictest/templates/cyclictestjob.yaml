@@ -45,9 +45,9 @@ spec:
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-cyclictest") }}"
           - name: parallel
-            value: "{{ elasticsearch.parallel | default("false") }}"
+            value: "{{ elasticsearch.parallel | default(false) }}"
           - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default("true") }}"
+            value: "{{ elasticsearch.verify_cert | default(true) }}"
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
@@ -55,7 +55,7 @@ spec:
           - name: prom_port
             value: "{{ prometheus.es_port }}"
           - name: prom_parallel
-            value: "{{ prometheus.es_parallel | default("false") }}"
+            value: "{{ prometheus.es_parallel | default(false) }}"
           - name: prom_token
             value: "{{ prometheus.prom_token | default() }}"
           - name: prom_url

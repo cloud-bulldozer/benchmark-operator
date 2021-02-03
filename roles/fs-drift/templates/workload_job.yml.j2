@@ -55,7 +55,7 @@ spec:
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
           - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default("true") }}"
+            value: "{{ elasticsearch.verify_cert | default(true) }}"
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
