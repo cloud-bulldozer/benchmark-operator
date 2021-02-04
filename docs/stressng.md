@@ -67,12 +67,6 @@ Once done creating/editing the resource file, you can run it by:
 
 ## Running stressng in VMs through kubevirt/cnv [Preview]
 Note: this is currently in preview mode.
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_stressng_vm.yaml) to your needs.
-
-
-### Pre-requisites
-
-You must have configured your k8s cluster with [Kubevirt](https://kubevirt.io) preferably v0.23.0 (last tested version).
 
 
 ### changes to cr file

@@ -1,6 +1,6 @@
 ---
 resource_kind: "{{ workload.args.kind | default('pod') }}"
-uperf:
+stressng:
   proto: tcp
   test_type: stream
   nthr: 1
