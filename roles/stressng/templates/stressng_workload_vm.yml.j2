@@ -1,0 +1,74 @@
+---
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstance
+metadata:
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  domain:
+    cpu:
+      sockets: {{ workload_args.client_vm.sockets }}
+      cores: {{ workload_args.client_vm.cores }}
+      threads: {{ workload_args.client_vm.threads }}
+      dedicatedCpuPlacement: {{ workload_args.client_vm.dedicatedcpuplacement }}
+{% if 'hostpassthrough' in workload_args.client_vm.extra_options %}
+      model: host-passthrough
+{% endif %}
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: containerdisk
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+      - disk: {}
+        name: stressng-workload-volume
+        # set serial
+        serial: CVLY623300HK240D
+      interfaces:
+        - name: default
+          {{ workload_args.client_vm.network.front_end }}: {}
+      networkInterfaceMultiqueue: {{ workload_args.client_vm.network.multiqueue.enabled }}
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: {{ workload_args.client_vm.requests.memory }}
+      limits:
+        memory: {{ workload_args.client_vm.limits.memory }}
+  terminationGracePeriodSeconds: 0
+{% if workload_args.pin is sameas true %}
+  nodeSelector:
+    kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
+  networks:
+    - name: default
+      pod: {}
+  volumes:
+  - name: containerdisk
+    containerDisk:
+      image: {{ workload_args.client_vm.image }}
+  - cloudInitNoCloud:
+      userData: |-
+        #cloud-config
+        password: fedora
+        chpasswd: { expire: False }
+        bootcmd:
+          # mount the ConfigMap
+          - "mkdir /tmp/stressng-test"
+          - "mkdir /tmp/stressng-test/jobfile"
+          - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240D | cut -f1 -d' ') /tmp/stressng-test"
+        runcmd:
+{% if workload_args.client_vm.network.multiqueue.enabled %}
+          - dnf install -y ethtool
+          - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
+{% endif %}
+          - dnf install -y stress-ng redis git
+          - pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper
+          - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
+    name: cloudinitdisk
+  - configMap:
+      name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+    name: stressng-workload-volume
+status: {}

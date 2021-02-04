@@ -1,15 +1,15 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: stressng
+  name: stressng-benchmark
   namespace: my-ripsaw
 spec:
   elasticsearch:
-    url: http://my.elasticsearch.server:80
+    url: ""
   metadata:
-    collection: true
+    collection: false
   workload:
-    name: "stressng"
+    name: stressng
     args:
       # general options
       runtype: "parallel"
