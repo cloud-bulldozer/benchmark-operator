@@ -1,27 +1,46 @@
 ---
-kind: Service
 apiVersion: v1
-metadata:
-  name: uperf-service-{{ item }}-{{ trunc_uuid }}
-  namespace: '{{ operator_namespace }}'
-  labels:
-    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
-    type: uperf-bench-server-{{ trunc_uuid }}
-spec:
-  selector:
-    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
-  ports:
-  - name: uperf
-    port: 20000
-    targetPort: 20000
-    protocol: TCP
+kind: List
+metadata: {}
+items:
+{% macro job_template(item, node_idx_item='') %}
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      #name: uperf-service-{{ item }}-{{ trunc_uuid }}
+      name:  uperf-service-{{worker_node_list[ node_idx_item ] }}-{{ item }}-{{ trunc_uuid }}
+
+      namespace: '{{ operator_namespace }}'
+      labels:
+        #app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] }}-{{ item }}-{{ trunc_uuid }}
+        type: uperf-bench-server-{{ trunc_uuid }}
+      annotations:
+            node_idx: '{{ node_idx_item }}'
+            pod_idx: '{{ item }}'
+    spec:
+      selector:
+        #app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] }}-{{ item }}-{{ trunc_uuid }}
+      ports:
+      - name: uperf
+        port: 20000
+        targetPort: 20000
+        protocol: TCP
 {% for num in range(20001,20012,1) %}
-  - name: uperf-control-tcp-{{num}}
-    port: {{num}}
-    targetPort: {{num}}
-    protocol: TCP
-  - name: uperf-control-udp-{{num}}
-    port: {{num}}
-    targetPort: {{num}}
-    protocol: UDP
+      - name: uperf-control-tcp-{{num}}
+        port: {{num}}
+        targetPort: {{num}}
+        protocol: TCP
+      - name: uperf-control-udp-{{num}}
+        port: {{num}}
+        targetPort: {{num}}
+        protocol: UDP
 {% endfor %}
+{% endmacro %}
+{% for node_idx_item in range(node_sequence|int)  %}
+{% for item in range(pod_sequence|int)  %}
+{{ job_template(item,node_idx_item) }}
+{% endfor %}
+{% endfor %}
+

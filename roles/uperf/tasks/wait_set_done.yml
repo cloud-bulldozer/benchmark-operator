@@ -2,6 +2,7 @@
 
 - block:
   - block:
+    ### <POD> kind
     - name: read pod completion count
       command: "redis-cli get num_completion"
       register: num_completion
@@ -18,5 +19,10 @@
 
     when: resource_kind == "pod"
 
-  when: resource_state.resources[0].status.state == "Set Running"
+    ### no <VM> kind block - Run a "set" is not yet supported
 
+  when: resource_kind == "pod"
+
+#
+# No <VM> kind block - It has not been adapted to scale mode yet.
+#

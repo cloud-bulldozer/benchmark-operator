@@ -67,7 +67,7 @@
     set_fact:
       worker_node_exclude_list: "{{ exclude_node_list | json_query('results[].resources[].metadata.name') }}"
   
-  - name: Exclude labelled nodes
+  - name: Exclude labeled nodes
     set_fact:
         worker_node_list: "{{ worker_node_list | difference(worker_node_exclude_list) }}"
     when: workload_args.exclude_labels is defined and workload_args.exclude_labels | length > 0
@@ -81,20 +81,33 @@
         pod_hi_idx: "{{ workload_args.density_range[1] | default('1')|int - 1 }}"
         node_low_idx: "{{ workload_args.node_range[0] | default('1')|int - 1 }}"
         node_hi_idx: "{{ workload_args.node_range[1]  | default('1')|int - 1 }}"
-  
+    #
+    # Next sanity check and massage the indices if necessary.
+    # We shall complete gracefully and not iterate wildly.
+    #
   - name: Adjust node_hi_idx if cluster has less nodes
     set_fact:
         node_hi_idx: "{{ worker_node_list|length| default('0')|int -1 }}"
     when: "node_hi_idx|int >= worker_node_list|length| default('0')|int "
+
+  - name: Adjust node_low_idx if necessary 
+    set_fact:
+        node_low_idx: "{{node_hi_idx|int}}"
+    when: "node_low_idx|int > node_hi_idx|int"
+
+  - name: Adjust pod_low_idx if necessary
+    set_fact:
+        pod_low_idx: "{{pod_hi_idx|int}}"
+    when: "pod_low_idx|int > pod_hi_idx|int"
 
   - name: Record num server pods using new worker_node_list
     # in Scale mode, num server pods = num_node * number_pod
     set_fact:
       num_server_pods: "{{ (node_hi_idx|int+1) * (pod_hi_idx|int+1) }}"
  
-      #
-      # End scle mode
-      #
+    #
+    # End scale mode
+    #
   when: workload_args.pin | default(False) == False
 
 - block:
@@ -119,7 +132,7 @@
         node_low_idx: "0"
         node_hi_idx: "0"
 
-  - name: A8 V2 Record num Pin server pods using new worker_node_list
+  - name: Record num Pin server pods using new worker_node_list
     set_fact:
       # in Pin mode, num server pods = number of pods 
       num_server_pods: "{{ pod_hi_idx|int +1 }}"

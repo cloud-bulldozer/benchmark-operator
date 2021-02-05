@@ -1,6 +1,5 @@
 ---
 
-
 - name: Clear start flag 
   command: "redis-cli set start 0"
 

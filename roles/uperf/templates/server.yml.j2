@@ -15,7 +15,6 @@ items:
       template:
         metadata:
           labels:
-            #app: uperf-bench-server-{{ node_idx_item }}-{{ item  }}-{{ trunc_uuid }}
             app: uperf-bench-server-{{ worker_node_list[node_idx_item] }}-{{ item  }}-{{ trunc_uuid }}
             type: uperf-bench-server-{{ trunc_uuid }}
           annotations:
@@ -46,12 +45,7 @@ items:
           nodeSelector:
             kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
-
-# 
-# V2 pin server pod to node
-#
           nodeSelector:
-            #kubernetes.io/hostname: '{{ node_idx_item }}'
             kubernetes.io/hostname: '{{ worker_node_list[node_idx_item] }}'
 
 {% if workload_args.serviceip is sameas true %}
