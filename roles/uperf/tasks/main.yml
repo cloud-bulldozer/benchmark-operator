@@ -16,8 +16,9 @@
   - include_tasks: wait_client_ready.yml
     when: resource_state.resources[0].status.state == "Waiting for Clients"
 
-  # LOOP BEGIN
-  #
+  # LOOP BEGIN 
+  # This loop iterates density_range[] and node_range[] for "scale" mode
+
   - include_tasks: run_a_set.yml
     when: resource_state.resources[0].status.state == "Clients Running"
 
@@ -27,9 +28,10 @@
 
   - include_tasks: next_set.yml
     when: resource_state.resources[0].status.state == "Run Next Set"
-    # will loop back to "Client Running" state, or FALLTHRU to "Running" state below and finish
-    #
-  # LOOP END
+    # will loop back to "Client Running" state, or FALLTHRU to "Running" 
+    # state below and finish
+
+  # LOOP END 
 
   - include_tasks: wait_client_done.yml
     when: resource_state.resources[0].status.state == "Running"
@@ -39,7 +41,9 @@
 
   when:  resource_kind == "pod"
 
-
+#
+# <VM> kind does not support "scale" mode yet 
+#
 
 - block:
 

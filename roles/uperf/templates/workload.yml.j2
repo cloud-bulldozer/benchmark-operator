@@ -117,8 +117,8 @@ items:
                  export my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};
                  export ips=$(hostname -I);
                  export num_pairs={{workload_args.pair}};
-                 export node_count=0
-                 export pod_count=0
+                 export node_count=0;
+                 export pod_count=0;
                  node_limit=0;
                  pod_limit=0;
                  STR='';
@@ -128,7 +128,6 @@ items:
                    if [[ $state =~ 'true' ]]; then
                        node_limit=$(echo $STR | cut -f2 -d-);
                        pod_limit=$(echo $STR | cut -f3 -d-);
-                       echo 'state=' $state 'node=' $node_limit 'pod=' $pod_limit;
                        if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
                              sleep 0.5; continue;
                        fi;

@@ -1,8 +1,8 @@
 ---
-
+# This module is invoked by VM-kind only
 - block:
 
-  - name: A25 Signal workload
+  - name: Signal workload
     command: "redis-cli set start true"
 
   - name: A26 Update resource state

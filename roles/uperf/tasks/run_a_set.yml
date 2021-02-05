@@ -5,7 +5,7 @@
   # Entry Condition: 
   #    1. A previous task has set 'node_idx' and 'pod_idx' in benchmark ctx
   #    2. All cliest are polling redis for 'start-node_idx-pod_idx' to start
-  # Output: Clients with node_idx <= redis node_idx && pod_idx <= redis pod_ix
+  # Output: Clients with node_idx <= redis node_idx && pod_idx <= redis pod_ix will run
   #
 
   - name: Signal group to run
@@ -19,6 +19,8 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: Set Running
+  when: resource_kind == "pod"
 
-  when: resource_state.resources[0].status.state == "Clients Running"
-
+#
+# No <VM> kind - It has not been adapted to Scale mode
+#

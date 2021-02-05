@@ -1,49 +1,48 @@
 ---
+
+- block: 
+  ### <POD> kind
+
+  - name: Get client pod status
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = uperf-bench-client-{{ trunc_uuid }}
+    register: client_pods
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Clients Running
+    when: "num_server_pods|int == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and num_server_pods|int == (client_pods | json_query('resources[].status.podIP')|length)"
+
+  when: resource_kind == "pod"
+
 - block:
-   ##### <POD> kind
-  - block: 
-    - name: Get client pod status
-      k8s_facts:
-        kind: Pod
-        api_version: v1
-        namespace: '{{ operator_namespace }}'
-        label_selectors:
-          - app = uperf-bench-client-{{ trunc_uuid }}
-      register: client_pods
+  ### <VM> kind
 
-    - name: Update resource state
-      operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Clients Running
-      when: "num_server_pods|int == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and num_server_pods|int == (client_pods | json_query('resources[].status.podIP')|length)"
+  - name: set complete to false
+    command: "redis-cli set complete false"
 
-    when: resource_kind == "pod"
+  - name: Get count of clients ready
+    command: "redis-cli get clients-{{ trunc_uuid }}"
+    register: clients_ready_count
 
-  - block:
-    ##### <VM> kind
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Clients Running
+    when: "workload_args.pair|default('1')|int == clients_ready_count.stdout|int"
 
-    - name: V22 set complete to false
-      command: "redis-cli set complete false"
-
-    - name: Get count of clients ready
-      command: "redis-cli get clients-{{ trunc_uuid }}"
-      register: clients_ready_count
-
-    - name: V24 Update resource state
-      operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Clients Running
-      when: "workload_args.pair|default('1')|int == clients_ready_count.stdout|int"
-
-    when: resource_kind == "vm"
-
-  when: resource_state.resources[0].status.state == "Waiting for Clients"
+  when: resource_kind == "vm"
 

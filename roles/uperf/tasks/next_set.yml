@@ -1,9 +1,11 @@
 ---
 #
-# This module logically implements RE-ENTRANT nested for loops
+# This module logically implements an RE-ENTRANT nested "for" loops;
+#   <do something>  
 #   with_items:
 #     range (node_low_idx, node_hi_idx)
 #     range (pod_low_idx, pod_hi_idx)
+#
 # Each iteration executes one item, and each re-entrance
 # continues where it left off.
 #
@@ -95,5 +97,8 @@
 
     when: all_run_done == False
 
-  when: resource_state.resources[0].status.state == "Run Next Set"
+  when: resource_kind == "pod"
 
+#
+# No <VM> block - Scale mode support is N/A
+#
