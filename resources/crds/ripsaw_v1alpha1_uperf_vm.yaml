@@ -5,7 +5,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   clustername: test-cluster
-  test_user: <user> # user is a key that points to user triggering ripsaw, useful to search results in ES
+  test_user: user # user is a key that points to user triggering ripsaw, useful to search results in ES
   elasticsearch:
     server: http://es.server.com:80
   cleanup: false

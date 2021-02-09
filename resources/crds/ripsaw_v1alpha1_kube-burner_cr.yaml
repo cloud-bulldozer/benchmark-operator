@@ -1,20 +1,20 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: kube-burner-cluster-density
+  name: kube-burner-cluster-density-example
   namespace: my-ripsaw
 spec:
   # Metadata information
   elasticsearch:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
-    url: <ES_URL>
+    url: http://my.elasticsearch.server:80
   prometheus:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
-    es_url: <ES_URL>
+    es_url: http://my.elasticsearch.server:80
     # Prometheus bearer token
-    prom_token: <PROMETHEUS_BEARER_TOKEN>
+    prom_token: PROMETHEUS_BEARER_TOKEN
     # Prometheus URL with full URL format. https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
-    prom_url: <PROMETHEUS_URL>
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
   workload:
     name: kube-burner
     args:
