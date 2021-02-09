@@ -20,7 +20,7 @@ spec:
       pin: false
       #
       # pin: true/false - default=false
-      #    - true will run 'Pin' mode using 1 pin_server and 1 pin_client nodes.
+      #    - true will run 'Pin' mode using 1 server (pin_server:) and 1 client (pin_clien:) nodes.
       #    - false will run 'Scale' mode. See colocate, density_range, node_range and step_size.
       pin_server: "node-0"
       pin_client: "node-1"
@@ -28,9 +28,9 @@ spec:
       kind: pod
       pair: 1
       #
-      # 'pair' is obsolete. Instead, use 'density_range' which allows fixed or enumerated 
-      #    number of pairs. Enumeration is an enhanced capability of the 'Pin' mode.
-      #
+      # 'pair' sepcifies fixed number of client-server pairs for "Pin" mode,
+      #  If 'pair' is NOT present, it will use 'density_range' which allows
+      #  enumeration in addition to fixed number of pair.
       test_types:
         - stream
       protos:
@@ -43,7 +43,7 @@ spec:
 
       # The following variables are for 'Scale' mode.
       # The 'Scale' mode is activated when 'pin=false' or undefined.
-      # The Scale mode op params are: colocate, denstisy_range, node_range and step_size.
+      # The Scale mode params are: colocate, denstisy_range, node_range and step_size.
       #
       # colocate: true/false - default=false
       # density_range: [n, m] - default=[1,1]
@@ -57,7 +57,7 @@ spec:
       #      add10: 1,11,21,31 ...
       #      log2:  1,2,4,8,16,32 ,,,
       #
-      # The 'exlude_labels' is the list of ineligible worker nodes.
+      # 'exclude_labels' specifies the list of ineligible worker nodes.
       # exclude_labels:  (OR conditional, every node that matches any of these labels is excluded)
       #    - "bad=true"
       #    - "fc640=true"

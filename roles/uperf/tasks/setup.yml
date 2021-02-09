@@ -123,14 +123,27 @@
     with_items:
       - '{{workload_args.pin_server}}'
       - '{{workload_args.pin_client}}'
+  #
+  # In 'Pin' mode, 'pair' specifies number of pairs (classic behavior), If 'pair' 
+  # is undefined use 'density_range' (new bahavior with "Scale" enhancement)
+  #
+  - name: Init "Pin" mode indices using 'pair'
+    set_fact:
+        pod_low_idx: "{{ workload_args.pair | default('1')|int - 1 }}"
+        pod_hi_idx: "{{ workload_args.pair | default('1')|int - 1 }}"
+        # node indices are used as client pod 'start' parameter.
+        node_low_idx: "0"
+        node_hi_idx: "0"
+    when: workload_args.pair is defined
 
-  - name: Init "Pin" mode node and pod indices
+  - name: Init "Pin" mode indices using 'density_range'
     set_fact:
         pod_low_idx: "{{ workload_args.density_range[0] | default('1')|int - 1 }}"
         pod_hi_idx: "{{ workload_args.density_range[1] | default('1')|int - 1 }}"
         # node indices are used as client pod 'start' parameter.
         node_low_idx: "0"
         node_hi_idx: "0"
+    when: workload_args.pair is not defined
 
   - name: Record num Pin server pods using new worker_node_list
     set_fact:
