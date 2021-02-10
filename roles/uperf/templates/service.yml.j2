@@ -8,12 +8,12 @@ items:
     apiVersion: v1
     metadata:
       #name: uperf-service-{{ item }}-{{ trunc_uuid }}
-      name:  uperf-service-{{worker_node_list[ node_idx_item ] }}-{{ item }}-{{ trunc_uuid }}
+      name:  uperf-service-{{worker_node_list[ node_idx_item ] | truncate(32,true,'') }}-{{ item }}-{{ trunc_uuid }}
 
       namespace: '{{ operator_namespace }}'
       labels:
         #app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
-        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(16,true,'') }}-{{ item }}-{{ trunc_uuid }}
+        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(32,true,'') }}-{{ item }}-{{ trunc_uuid }}
         type: uperf-bench-server-{{ trunc_uuid }}
       annotations:
             node_idx: '{{ node_idx_item }}'
@@ -21,7 +21,7 @@ items:
     spec:
       selector:
         #app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
-        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(16,true,'')}}-{{ item }}-{{ trunc_uuid }}
+        app:  uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(32,true,'')}}-{{ item }}-{{ trunc_uuid }}
       ports:
       - name: uperf
         port: 20000
