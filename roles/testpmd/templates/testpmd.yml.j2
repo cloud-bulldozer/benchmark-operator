@@ -1,0 +1,85 @@
+# https://github.com/rh-nfv-int/testpmd-operator
+
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: "testpmd-application-pod-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  template:
+    metadata:
+      labels:
+        app: "testpmd-application-pod-{{ trunc_uuid }}"
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[
+{% set i = namespace(value=0) %}
+{% for network in workload_args.networks.testpmd %}
+{% set outer_loop = loop %}
+{% for count in range(network.count) %}
+          {
+            "name": "{{ network.name }}",        
+            "mac": "{{ maclist_testpmd[i.value] }}",
+            "namespace": "{{ operator_namespace }}"
+          }{% if loop.index < network.count or outer_loop.index < network_name_list|length %},{% endif %}
+{% set i.value = i.value + 1 %}
+{% endfor %}
+{% endfor %}
+        ]'
+        maclist_trex: "{{ maclist_trex|list|join(',') }}"
+        maclist_testpmd: "{{ maclist_testpmd|list|join(',') }}"
+    spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_testpmd }}'
+{% endif %}
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: testpmd
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - echo "set promisc all off" >> /tmp/testpmd-cmdline.txt && testpmd -l $(cat /sys/fs/cgroup/cpuset/cpuset.cpus) $(PCI=""; IFS=',' read -r -a NETWORK_ARRAY <<< "$NETWORK_NAME_LIST"; for item in "${NETWORK_ARRAY[@]}"; do IFS='/' read -r -a RES_ARRAY <<< "$item"; NAME="PCIDEVICE_OPENSHIFT_IO_${RES_ARRAY[1]^^}";IFS=',' read -r -a PCI_ARRAY <<< "${!NAME}";for pci_item in "${PCI_ARRAY[@]}"; do PCI+=" -w ${pci_item} ";done;done;echo $PCI) --socket-mem {{ workload_args.socket_memory | default('1024,0') }} -n {{ workload_args.memory_channels | default(4) }} --proc-type auto --file-prefix pg -- --disable-rss --nb-cores={{ workload_args.forwarding_cores | default(4) }} --rxq={{ workload_args.rx_queues | default(1) }} --txq={{ workload_args.tx_queues | default(1) }} --rxd={{ workload_args.rx_descriptors | default(1024) }} --txd={{ workload_args.tx_descriptors | default(1024) }} --auto-start {% for mac in maclist_trex %} --eth-peer={{ loop.index -1 }},{{ mac }} {% endfor %} --forward-mode={{ workload_args.forward_mode | default('mac') }} --stats-period {{ workload_args.stats_period | default(1) }} --cmdline-file /tmp/testpmd-cmdline.txt
+        image: "{{ workload_args.image_testpmd | default('registry.redhat.io/openshift4/dpdk-base-rhel8:v4.6') }}"
+        imagePullPolicy: "{{ workload_args.image_pull_policy | default('Always') }}"
+        securityContext:
+{% if workload_args.privileged %}
+          privileged: true
+{% else %}
+          capabilities:
+            add: ["IPC_LOCK", "NET_ADMIN"]
+{% endif %}
+        resources:
+          limits:
+            hugepages-1Gi: {{ workload_args.pod_hugepage_1gb_count | default('4Gi') }}
+            memory: {{ workload_args.pod_memory | default('1000Mi') }}
+            cpu: {{ workload_args.pod_cpu | default(6) }}
+{% for key, value in network_resources.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+          requests:
+            hugepages-1Gi: {{ workload_args.pod_hugepage_1gb_count | default('4Gi') }}
+            memory: {{ workload_args.pod_memory | default('1000Mi') }}
+            cpu: {{ workload_args.pod_cpu | default(6) }}
+{% for key, value in network_resources.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+        volumeMounts:
+        - name: hugepage
+          mountPath: /dev/hugepages
+        env:
+        - name: NETWORK_NAME_LIST
+          value: "{{ network_resources.keys()|list|join(',') }}"
+{% if workload_args.environments is defined %}
+{% for key, value in workload_args.environments.items() %}
+        - name: {{ key }}
+          value: "{{ value }}"
+{% endfor %}
+{% endif %}
+      volumes:
+      - name: hugepage
+        emptyDir:
+          medium: HugePages
+      restartPolicy: OnFailure
+      serviceAccountName: benchmark-operator
+{% include "metadata.yml.j2" %}
+

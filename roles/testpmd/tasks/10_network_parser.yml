@@ -1,0 +1,17 @@
+---
+- debug:
+    msg: "Gather network info of network: {{ item.name }}"
+
+- set_fact:
+    net_def: "{{ lookup('k8s', kind='NetworkAttachmentDefinition', namespace=operator_namespace, resource_name=item.name) }}"
+  failed_when: net_def|length == 0
+
+- set_fact:
+    network_port_count: "{{ item.count|default(1) }}"
+    network_resource_name: "{{ net_def['metadata']['annotations']['k8s.v1.cni.cncf.io/resourceName'] }}"
+
+- set_fact:
+    network_resources: "{{ network_resources | default({}) | combine( {network_resource_name : network_port_count} ) }}"
+
+- set_fact:
+    network_name_list: "{{ network_name_list | default([]) + [item.name] }}"

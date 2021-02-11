@@ -1,0 +1,137 @@
+# https://github.com/rh-nfv-int/trex-operator
+
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: "trex-traffic-gen-pod-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+spec:
+  template:
+    metadata:
+      labels:
+        app: "trex-traffic-gen-pod-{{ trunc_uuid }}"
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[
+{% set i = namespace(value=0) %}
+{% for network in workload_args.networks.trex %}
+{% set outer_loop = loop %}
+{% for count in range(network.count) %}
+          {
+            "name": "{{ network.name }}",       
+            "mac": "{{ item.metadata.annotations.maclist_trex.split(',')[i.value] }}",
+            "namespace": "{{ operator_namespace }}"
+          }{% if loop.index < network.count or outer_loop.index < network_name_list|length %},{% endif %}
+{% set i.value = i.value + 1 %}
+{% endfor %}
+{% endfor %}
+        ]'
+        maclist_trex: "{{ item.metadata.annotations.maclist_trex }}"
+        maclist_testpmd: "{{ item.metadata.annotations.maclist_testpmd }}"
+    spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_trex }}'
+{% endif %}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - testpmd-application-pod-{{ trunc_uuid }}
+              topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: trex
+        command: ["/bin/sh"]
+        args:
+        - "-c"
+        - "run_snafu --tool trex --uuid {{ trunc_uuid }} --user {{ test_user | default('snafu') }}"
+        image: "{{ workload_args.image_trex | default('quay.io/cloud-bulldozer/trex:latest') }}"
+        imagePullPolicy: "{{ workload_args.image_pull_policy | default('Always') }}"
+        securityContext:
+{% if workload_args.privileged %}
+          privileged: true
+{% else %}
+          capabilities:
+            add: ["IPC_LOCK", "NET_ADMIN"]
+{% endif %}
+        resources:
+          limits:
+            hugepages-1Gi: {{ workload_args.pod_hugepage_1gb_count | default('4Gi') }}
+            memory: {{ workload_args.pod_memory | default('1000Mi') }}
+            cpu: {{ workload_args.pod_cpu | default(6) }}
+{% for key, value in network_resources.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+          requests:
+            hugepages-1Gi: {{ workload_args.pod_hugepage_1gb_count | default('4Gi') }}
+            memory: {{ workload_args.pod_memory | default('1000Mi') }}
+            cpu: {{ workload_args.pod_cpu | default(6) }}
+{% for key, value in network_resources.items() %}
+            {{ key }}: {{ value }}
+{% endfor %}
+        volumeMounts:
+        - name: hugepage
+          mountPath: /dev/hugepages
+        env:
+        - name: CLUSTERNAME
+          value: "{{ clustername }}"        
+        - name: NETWORK_NAME_LIST
+          value: "{{ network_resources.keys()|list|join(',') }}"
+        - name: SOURCE_MAC_LIST
+          value: "{{ item.metadata.annotations.maclist_trex }}"
+        - name: DEST_MAC_LIST
+          value: "{{ item.metadata.annotations.maclist_testpmd }}"  
+        - name: DURATION
+          value: "{{ workload_args.duration | default(30) }}" 
+        - name: PACKET_SIZE
+          value: "{{ workload_args.packet_size | default(64) }}" 
+        - name: PACKET_RATE
+          value: "{{ workload_args.packet_rate | default('10kpps') }}" 
+        - name: NUM_STREAM
+          value: "{{ workload_args.num_stream | default(1) }}"
+        - name: NUM_PORT
+          value: "{{ item.metadata.annotations.maclist_trex.split(',')|length }}"
+        - name: TREX_NODE
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: TESTPMD_NODE
+          value: "{{ item.spec.nodeName }}"                                                                          
+{% if workload_args.environments is defined %}
+{% for key, value in workload_args.environments.items() %}
+        - name: {{ key }}
+          value: "{{ value }}"
+{% endfor %}
+{% endif %}
+{% if elasticsearch is defined %}
+        - name: es
+          value: "{{ elasticsearch.url }}"
+        - name: es_index
+          value: "{{ elasticsearch.index_name | default("ripsaw-testpmd") }}"
+        - name: parallel
+          value: "{{ elasticsearch.parallel | default(false) }}"
+{% endif %}
+{% if prometheus is defined %}
+        - name: prom_es
+          value: "{{ prometheus.es_url }}"
+        - name: prom_parallel
+          value: "{{ prometheus.es_parallel | default(false) }}"
+        - name: prom_token
+          value: "{{ prometheus.prom_token | default() }}"
+        - name: prom_url
+          value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+      volumes:
+      - name: hugepage
+        emptyDir:
+          medium: HugePages
+      restartPolicy: OnFailure
+      serviceAccountName: benchmark-operator
+{% include "metadata.yml.j2" %}
+
