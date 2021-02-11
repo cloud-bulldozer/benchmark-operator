@@ -43,9 +43,7 @@ spec:
             value: "{{ clustername }}"
 {% if elasticsearch is defined %}
           - name: es
-            value: "{{ elasticsearch.server }}"
-          - name: es_port
-            value: "{{ elasticsearch.port }}"
+            value: "{{ elasticsearch.url }}"
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-flent") }}"
 {% endif %}

@@ -33,7 +33,7 @@ function functional_test_flent {
   wait_for "kubectl wait -n my-ripsaw --for=condition=Initialized pods/$flent_client_pod --timeout=500s" "500s" $flent_client_pod
   wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=flent-bench-client-$uuid jobs --timeout=500s" "500s" $flent_client_pod
 
-  index="ripsaw-flent"
+  index="ripsaw-flent-results"
   if check_es "${long_uuid}" "${index}"
   then
     echo "${test_name} test: Success"
