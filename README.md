@@ -47,7 +47,7 @@ helm delete benchmark-operator -n my-ripsaw --purge
 | [kube-burner](docs/kube-burner.md)  | k8s Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Yes       |  Used, default : 3second  | Not Supported          | Preview         | No |
 | [oslat](docs/oslat.md)         | Real-Time Latency      | Yes           |  Used, default : 3second   | Not Supported          | Preview         | No |
-
+| [testpmd](docs/testpmd.md)         | TestPMD DPDK App      | No           |  Used   | Not Supported          | Preview         | No |
 
 ### Reconciliation
 
