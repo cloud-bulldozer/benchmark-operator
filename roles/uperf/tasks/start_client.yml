@@ -20,7 +20,7 @@
       definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
     vars: 
       resource_item: "{{ server_pods.resources }}"
-    when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
+    when: workload_args.serviceip|default(False) == False and server_pods.resources|length > 0
 
    #
    # Each server annotates a "node_idx". Each peer client will
@@ -32,7 +32,7 @@
       definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
     vars: 
       resource_item: "{{ serviceip.resources }}"
-    when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
+    when: workload_args.serviceip|default(False) == True and serviceip.resources|length > 0
 
   when: resource_kind == "pod"
  
