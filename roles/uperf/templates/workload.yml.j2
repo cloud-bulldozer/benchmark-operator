@@ -88,11 +88,11 @@ items:
             args:
 {% if workload_args.serviceip is sameas true %}
               - "export serviceip=true;
-              export h={{item.spec.clusterIP}};
+                 export h={{item.spec.clusterIP}};
 {% else %}
 {% if workload_args.multus.client is defined %}
               - "export multus_client={{workload_args.multus.client}};
-              export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+                 export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
               - "export h={{item.status.podIP}};
 {% endif %}
@@ -101,16 +101,16 @@ items:
                  export colocate={{ workload_args.colocate}};
 {% endif %}
 {% if workload_args.step_size is defined %}
-                export stepsize={{ workload_args.step_size }};
+                 export stepsize={{ workload_args.step_size }};
 {% endif %}
 {% if workload_args.node_range is defined %}
-                export node_range='{{ workload_args.node_range[0] }}_{{ workload_args.node_range[1] }}';
+                 export node_range='{{ workload_args.node_range[0] }}_{{ workload_args.node_range[1] }}';
 {% endif %}
 {% if workload_args.density_range is defined %}
-                export density_range='{{ workload_args.density_range[0] }}_{{ workload_args.density_range[1] }}';
+                 export density_range='{{ workload_args.density_range[0] }}_{{ workload_args.density_range[1] }}';
 {% endif %}
 {% if workload_args.networkpolicy is defined %}
-                export networkpolicy={{workload_args.networkpolicy}};
+                 export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
                  export hostnet={{workload_args.hostnetwork}};
                  export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
@@ -199,7 +199,7 @@ items:
             kubernetes.io/hostname: "{{ worker_node_list[item['metadata']['annotations']['node_idx'] | from_json] }}"
 {% else %}
           nodeSelector:
-            # skew client node one position left in the woker_node_list
+            # skew client node one position to the right in the worker_node_list
             kubernetes.io/hostname: "{{ worker_node_list[ (1+(item['metadata']['annotations']['node_idx'] | from_json)) % (worker_node_list|length)] }}"
 {% endif %}
 
