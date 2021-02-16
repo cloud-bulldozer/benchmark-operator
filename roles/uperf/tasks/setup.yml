@@ -51,8 +51,8 @@
   
   - name: Isolate Worker Role Hostnames
     set_fact:
-      worker_node_list: "{{ node_list | json_query('resources[].metadata.name') | list }}"
-  
+      worker_node_list: "{{ node_list | json_query('resources[].metadata.labels.\"kubernetes.io/hostname\"') | list }}"
+ 
   - name: List Nodes Labeled with {{ workload_args.exclude_label }}
     k8s_info:
       api_version: v1
