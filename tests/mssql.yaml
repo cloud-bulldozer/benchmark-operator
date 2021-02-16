@@ -20,8 +20,6 @@ spec:
         app: mssql
     spec:
       terminationGracePeriodSeconds: 10
-      securityContext:
-        runAsUser: 10001
       containers:
       - name: mssql
         image: quay.io/cloud-bulldozer/mssql:latest
