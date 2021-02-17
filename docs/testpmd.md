@@ -11,7 +11,7 @@ This workload assumes a healthy cluster is runing with SR-IOV and Performance Ad
 
 ### Sample SR-IOV configuration
 
-These are used to create VFs and SRIOV networks, interface might vary
+These are used to create VFs and SRIOV networks, interface might vary. Creating `SriovNetworkNodePolicy` will reboot your worker nodes one by one.
 
 ```yaml
 apiVersion: sriovnetwork.openshift.io/v1
@@ -57,7 +57,8 @@ spec:
 
 ### Sample PAO configuration
 
-The CPU and socket information might vary, use the below as an example. 
+The CPU and socket information might vary, use the below as an example. Creating `PerformanceProfile` will trigger MCO to reboot worker nodes one by one.
+Please be sure to WAIT until the previous step is finished, i.e SR-IOV VF configuration. 
 
 Add label to the MCP pool before creating the performance profile.
 ```sh
