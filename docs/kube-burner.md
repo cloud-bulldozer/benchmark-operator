@@ -59,6 +59,10 @@ Each iteration of this workload creates the following objects:
   - 1 simple application deployment (hello-openshift)
   - 1 service pointing to the previous deployment
 
+- **pod-density**: Creates a single namespace with a number of Deployments equal to **job_iterations**. This workload is similar to node-density except is used to create a large number of pods spread across the cluster instead of specifically loading up each node with a given number of pods as in `node-density`.
+Each iteration of this workload creates the following object:
+  - 1 pod. (sleep)
+
 The workload type is specified by the parameter `workload` from the `args` object of the configuration. Each workload supports several configuration parameters, detailed in the [configuration section](#configuration)
 
 ## Configuration
