@@ -43,7 +43,7 @@ helm delete benchmark-operator -n my-ripsaw --purge
 | [Service Mesh](docs/servicemesh.md) | Microservices     | No            |  Used, default : 3second   | Not Supported         | Preview         | No |
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Yes            |  Used, default : 3second  | Not Supported         | Preview        | Yes |
-| [stressng](docs/stressng.md)   | Stress system resources | Yes            |  Used, default: 3second  | Not Supported         | Preview        | Yes |
+| [stressng](docs/stressng.md)   | Stress system resources | Yes            |  Used, default: 3second  | Working               | Preview        | Yes |
 | [kube-burner](docs/kube-burner.md)  | k8s Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [cyclictest](docs/cyclictest.md)  | Real-Time Performance   | Yes       |  Used, default : 3second  | Not Supported          | Preview         | No |
 | [oslat](docs/oslat.md)         | Real-Time Latency      | Yes           |  Used, default : 3second   | Not Supported          | Preview         | No |

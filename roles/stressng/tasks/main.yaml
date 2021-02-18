@@ -26,12 +26,13 @@
   register: resource_state
 
 - block:
+
   - name: template stressng config file
     k8s:
-      definition: 
+      definition:
         apiVersion: v1
         kind: ConfigMap
-        metadata: 
+        metadata:
           name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
@@ -46,13 +47,23 @@
         state: ConfigMaps Created
         complete: false
 
-  when: resource_state.resources[0].status.state == "Building" 
+  when: resource_state.resources[0].status.state == "Building"
 
 - block:
+  - name: set complete to false
+    command: "redis-cli set complete false"
+
   - name: start stressng workload job
     k8s:
       definition: "{{ lookup('template', 'stressng_workload.yml.j2') | from_yaml }}"
     register: jobs
+    when: resource_kind == "pod"
+
+  - name: start stressng vm workload job
+    k8s:
+      definition: "{{ lookup('template', 'stressng_workload_vm.yml.j2') | from_yaml }}"
+    register: jobs
+    when: resource_kind == "vm"
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -66,22 +77,38 @@
   when: resource_state.resources[0].status.state == "ConfigMaps Created"
 
 - block:
-  - name: wait for benchmark job to finish
-    k8s_facts:
-      kind: Job
-      api_version: batch/v1
-      name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
-      namespace: "{{ operator_namespace }}"
-    register: stressng_workload_pod
+  - block:
+    - name: wait for benchmark job to finish
+      k8s_facts:
+        kind: Job
+        api_version: batch/v1
+        name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+        namespace: "{{ operator_namespace }}"
+      register: stressng_workload_pod
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha
-      kind: Benchmark
-      name: "{{ meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Benchmark Complete
-        complete: true
-    when: stressng_workload_pod | json_query('resources[].status.succeeded')
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha
+        kind: Benchmark
+        name: "{{ meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: Benchmark Complete
+          complete: true
+        when: stressng_workload_pod | json_query('resources[].status.succeeded')
+    when: resource_kind == "pod"
 
+  - block:
+      - name: get complete
+        command: "redis-cli get complete"
+        register: complete_status
+      - operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Benchmark Complete
+            complete: true
+        when: complete_status.stdout == "true"
+    when: resource_kind == "vm"
   when: resource_state.resources[0].status.state == "Benchmark running"
