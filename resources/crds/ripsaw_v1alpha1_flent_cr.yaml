@@ -12,7 +12,6 @@ spec:
     # cleanup: true
     name: flent
     args:
-      image: quay.io/joconnel/flent:latest
       serviceip: false
       hostnetwork: false
       multus:
