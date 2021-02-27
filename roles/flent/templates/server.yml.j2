@@ -1,38 +1,47 @@
 ---
-kind: Pod
-apiVersion: v1
+kind: Job
+apiVersion: batch/v1
 metadata:
-  name: 'flent-bench-server-{{ item }}-{{ trunc_uuid }}'
+  name: 'flent-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
-  labels:
-    app : flent-bench-server-{{item}}-{{ trunc_uuid }}
-    type : flent-bench-server-{{ trunc_uuid }}
-{% if workload_args.multus.enabled is sameas true %}
-  annotations:
-    k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
-{% endif %}
 spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app : flent-bench-server-{{item}}-{{ trunc_uuid }}
+        type : flent-bench-server-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+{% endif %}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-  hostNetwork : true
+      hostNetwork: true
+      serviceAccountName: benchmark-operator
 {% endif %}
-  containers:
-  - name: benchmark
-    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/flent:latest') }}
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/flent:latest') }}
 {% if workload_args.server_resources is defined %}
-    resources: {{ workload_args.server_resources | to_json }}
+        resources: {{ workload_args.server_resources | to_json }}
 {% endif %}
-    imagePullPolicy: Always
-    command: ["/bin/sh","-c"]
-    args: ["netserver -D"]
-  restartPolicy: OnFailure
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["netserver -D"]
+      restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
-  nodeSelector:
-    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
 {% if workload_args.serviceip is sameas true %}
-  securityContext:
-    sysctls:
-    - name: net.ipv4.ip_local_port_range
-      value: 12865 12865
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_local_port_range
+          value: 12865 12865
 {% endif %}
 {% include "metadata.yml.j2" %}
