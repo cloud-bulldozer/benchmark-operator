@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: 'flent-bench-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+  name: 'flent-client-{{item.status.podIP}}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   template:
@@ -59,15 +59,10 @@ spec:
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
-{% if workload_args.serviceip is sameas true %}
-          - "export serviceip=true;
-            export h={{item.spec.clusterIP}};
-{% else %}
 {% if workload_args.multus.client is defined %}
           - "export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
 {% else %}
           - "export h={{item.status.podIP}};
-{% endif %}
 {% endif %}
              export hostnet={{workload_args.hostnetwork}};
              cd /tmp/flent-test;

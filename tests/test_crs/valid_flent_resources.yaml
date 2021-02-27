@@ -5,6 +5,9 @@ metadata:
   namespace: my-ripsaw
 spec:
   clustername: myk8scluster
+  elasticsearch:
+    url: ES_SERVER
+    index_name: ripsaw-uperf
   workload:
     # cleanup: true
     name: flent
@@ -20,7 +23,6 @@ spec:
       pin: false
       pin_server: "node-0"
       pin_client: "node-1"
-      serviceip: false
       hostnetwork: false
       multus:
         enabled: false

@@ -35,23 +35,7 @@
       - name = benchmark-operator
   register: bo
 
-- name: Capture ServiceIP
-  k8s_info:
-    kind: Service
-    api_version: v1
-    namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - type = flent-bench-server-{{ trunc_uuid }}
-  register: serviceip
-  when: workload_args.serviceip is defined and workload_args.serviceip
-
 - block:
-
-  - name: Create service for server pods
-    k8s:
-      definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
-    with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
-    when: workload_args.serviceip is defined and workload_args.serviceip
 
   - name: Start Server(s)
     k8s:
@@ -119,13 +103,6 @@
       k8s:
         definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
       with_items: "{{ server_pods.resources }}"
-      when: workload_args.serviceip is defined and not workload_args.serviceip|default('false') and server_pods.resources|length > 0
-
-    - name: Start Client(s) - ServiceIP
-      k8s:
-        definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: "{{ serviceip.resources }}"
-      when: workload_args.serviceip is defined and workload_args.serviceip and serviceip.resources|length > 0
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1

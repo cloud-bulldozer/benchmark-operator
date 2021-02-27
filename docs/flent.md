@@ -24,7 +24,6 @@ spec:
     name: flent
     args:
       #image: quay.io/username/reponame:tagname
-      serviceip: false
       hostnetwork: false
       multus:
         enabled: false
@@ -131,8 +130,6 @@ The tcp_*, udp_, and more should work. tcp_download was the most tested test.
 
 `client_resources` and `server_resources` will create flent client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
-`serviceip` will place the flent server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
-
 `hostnetwork` will test the performance of the node the pod will run on.
 
 *Note:* If you want to run with hostnetwork on `OpenShift`, you will need to execute the following:
@@ -156,7 +153,6 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 [1] https://github.com/intel/multus-cni/tree/master/examples
 
 ```yaml
-  serviceip: false
   hostnetwork: false
   multus:
     enabled: false
@@ -258,7 +254,6 @@ spec:
   workload:
     name: flent
     args:
-      serviceip: false
       hostnetwork: false
       multus:
         enabled: false
@@ -306,7 +301,6 @@ Run : 1
 Flent options:
 
 ```yaml
-  serviceip: false
   hostnetwork: false
   pair: 1
   test_types:

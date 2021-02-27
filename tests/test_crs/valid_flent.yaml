@@ -14,7 +14,6 @@ spec:
     # cleanup: true
     name: flent
     args:
-      serviceip: false
       hostnetwork: false
       multus:
         enabled: false

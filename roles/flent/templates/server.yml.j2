@@ -38,10 +38,4 @@ spec:
       nodeSelector:
         kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
-{% if workload_args.serviceip is sameas true %}
-      securityContext:
-        sysctls:
-        - name: net.ipv4.ip_local_port_range
-          value: 12865 12865
-{% endif %}
 {% include "metadata.yml.j2" %}

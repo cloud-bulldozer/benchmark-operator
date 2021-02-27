@@ -46,5 +46,4 @@ function functional_test_flent {
 
 figlet $(basename $0)
 functional_test_flent "Flent without resources definition" tests/test_crs/valid_flent.yaml
-functional_test_flent "Flent with ServiceIP" tests/test_crs/valid_flent_serviceip.yaml
 functional_test_flent "Flent with resources definition" tests/test_crs/valid_flent_resources.yaml
