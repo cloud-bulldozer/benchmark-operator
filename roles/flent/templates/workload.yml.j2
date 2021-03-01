@@ -47,12 +47,12 @@ spec:
           - name: es_index
             value: "{{ elasticsearch.index_name | default("ripsaw-flent") }}"
 {% endif %}
-{% if flent.pin is sameas true %}
           - name: client_node
-            client_node: {{ flent.pin_client }}
-          - name: client_node
-            server_node: {{ flent.pin_server }}
-{% endif %}
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: server_node
+            value: "{{ flent.pin_server|default("unknown") }}"
 {% if workload_args.client_resources is defined %}
         resources: {{ workload_args.client_resources | to_json }}
 {% endif %}
