@@ -41,6 +41,7 @@ spec:
       kind: pod
       pin_server: "node-0"
       pin_client: "node-1"
+      pair: 1
       multus:
         enabled: false
       samples: 1
@@ -77,6 +78,11 @@ spec:
 
 `pin_client` what node to pin the client pod to.
 
+`pair` how many instances of uperf client-server pairs. `pair` is applicable for `pin: true` only.
+If `pair` is not specified, the operator will use the value in `density_range` to detemine the number of pairs.
+See **Scale** section for more info. `density_range` can do more than `pair` can, but `pair` support is retained 
+for backward compatibility.
+
 `multus[1]` Configure our pods to use multus.
 
 `samples` how many times to run the tests. For example
@@ -85,7 +91,7 @@ spec:
 
 ```yaml
       samples: 3
-      density: [1,1]
+      density_range: [1,1]
       test_types:
         - stream
       protos:
@@ -111,7 +117,7 @@ size.
 For example:
 ```yaml
       samples: 3
-      density: [1,1]
+      density_range: [1,1]
       test_types:
         - rr
       protos:
