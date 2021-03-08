@@ -226,3 +226,13 @@ spec:
   elasticsearch:
     url: https://search-perfscale-dev.server.com:443
 ```
+
+For Long running tasks, its better to set the stats collection interval which would limit the amount of data it collects.
+By default script collects data at every second, this setting would let user to change the resolution.
+
+```yaml
+  workload:
+    name: testpmd
+    args:
+      stats_interval: 10 # Cannot be less than 1 or a float object
+```
