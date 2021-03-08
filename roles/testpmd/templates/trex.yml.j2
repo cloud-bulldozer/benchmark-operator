@@ -97,6 +97,8 @@ spec:
           value: "{{ workload_args.num_stream | default(1) }}"
         - name: NUM_PORT
           value: "{{ item.metadata.annotations.maclist_trex.split(',')|length }}"
+        - name: STATS_INTERVAL
+          value: "{{ workload_args.stats_interval | default(1) }}"
         - name: TREX_NODE
           valueFrom:
             fieldRef:
