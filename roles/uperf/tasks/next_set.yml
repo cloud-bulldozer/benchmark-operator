@@ -61,7 +61,7 @@
     # All done
     #
     - name: Unpause pods to complete
-      command: "redis-cli set start done"
+      command: "redis-cli set start-{{trunc_uuid}} done"
 
     - name: Change state to proceed to exit
       operator_sdk.util.k8s_status:
@@ -79,10 +79,10 @@
     # More round(s) to run.
     #
     - name: Send redis restart signal
-      command: "redis-cli set start restart"
+      command: "redis-cli set start-{{trunc_uuid}} restart"
 
     - name: Reset redis num_completion
-      command: "redis-cli set num_completion 0"
+      command: "redis-cli set num_completion-{{trunc_uuid}} 0"
 
     - name: Change state to run next round
       operator_sdk.util.k8s_status:

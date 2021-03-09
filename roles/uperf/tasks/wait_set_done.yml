@@ -4,7 +4,7 @@
   - block:
     ### <POD> kind
     - name: read pod completion count
-      command: "redis-cli get num_completion"
+      command: "redis-cli get num_completion-{{trunc_uuid}}"
       register: num_completion
 
     - operator_sdk.util.k8s_status:

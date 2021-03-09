@@ -1,10 +1,10 @@
 ---
 
 - name: Clear start flag 
-  command: "redis-cli set start 0"
+  command: "redis-cli set start-{{trunc_uuid}} 0"
 
 - name: Clear num_completion
-  command: "redis-cli set num_completion 0"
+  command: "redis-cli set num_completion-{{trunc_uuid}} 0"
 
 - name: Init node and pod indices in benchmark context
   operator_sdk.util.k8s_status:
