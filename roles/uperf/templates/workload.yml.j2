@@ -123,7 +123,7 @@ items:
                  pod_limit=0;
                  STR='';
                  while true; do
-                   STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                   STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
                    state=$(echo $STR | cut -f1 -d-);
                    if [[ $state =~ 'true' ]]; then
                        node_limit=$(echo $STR | cut -f2 -d-);
@@ -161,9 +161,9 @@ items:
 {% endfor %}
 {% endfor %}
 {% endfor %}
-                       redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion;
+                       redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion-{{trunc_uuid}};
                        while true; do
-                           state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start);
+                           state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
                            if [[ $state =~ 'restart' ]]; then
                               break;
                            elif [[ $state =~ 'done' ]]; then

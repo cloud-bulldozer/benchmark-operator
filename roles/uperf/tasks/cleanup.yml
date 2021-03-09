@@ -29,7 +29,14 @@
       name: "{{ item }}"
     with_items: "{{ clean_pods }}"
     when: cleanup
+
+  - name: Cleanup redis
+     command: "redis-cli del num_completion-{{trunc_uuid}}"
+     command: "redis-cli del start-{{trunc_uuid}}"
+
   when: resource_kind == "pod"
+
+
 
 #
 # no <VM> kind block - We leave VM running
