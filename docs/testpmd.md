@@ -1,6 +1,6 @@
 # TestPMD 
 
-[TestPMD](https://doc.dpdk.org/guides/testpmd_app_ug/index.html) is anapplication  used to test the DPDK in a packet forwarding mode, here this application run inside a pod with SRIOV VF.
+[TestPMD](https://doc.dpdk.org/guides/testpmd_app_ug/index.html) is an application  used to test the DPDK in a packet forwarding mode, here this application run inside a pod with SRIOV VF.
 
 ## Pre-requisites
 
@@ -92,9 +92,9 @@ spec:
    - tsc=reliable
 ```
 
-## Running standalone TestPMD
+## Running TestPMD and TRex pods
 
-A minimum configuration to run testpmd with in a pod, 
+A minimum configuration to run testpmd and trex with in pod, 
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -120,7 +120,7 @@ spec:
             count: 2
 ```
 
-Additional advanced pod and testpmd.trex specification can also be supplied in CR definition yaml(below specs are current defaults)
+Additional testpmd, trex and pod specification can also be supplied in CR definition yaml(below specs are current defaults)
 
 
 Pod specification arguments,
@@ -145,6 +145,7 @@ TestPMD arguments for more description refer [here](https://manpages.debian.org/
     tx_descriptors: 1024
     forward_mode: "mac"
     stats_period: 1
+    disable_rss: true 
 ```
 
 TRex arguments 
