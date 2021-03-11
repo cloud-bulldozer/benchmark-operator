@@ -31,8 +31,10 @@
     when: cleanup
 
   - name: Cleanup redis
-     command: "redis-cli del num_completion-{{trunc_uuid}}"
-     command: "redis-cli del start-{{trunc_uuid}}"
+    command: "{{ item }}"
+    with_items:
+      - redis-cli del num_completion-{{trunc_uuid}}
+      - redis-cli del start-{{trunc_uuid}}
 
   when: resource_kind == "pod"
 
