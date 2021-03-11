@@ -7,7 +7,7 @@ spec:
   clustername: myk8scluster
   elasticsearch:
     url: ES_SERVER
-    index_name: ripsaw-uperf
+    index_name: ripsaw-flent
   workload:
     # cleanup: true
     name: flent
