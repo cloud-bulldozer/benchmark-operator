@@ -2,6 +2,16 @@
 
 - block:
   ### <POD> kind
+  # Cleanup servers, but leave clients around mostly for further examining of results.
+  - name: Get Server Jobs
+    k8s_facts:
+      kind: Job
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = uperf-bench-server-{{ trunc_uuid }}
+    register: server_jobs
+
   - name: Get Server Pods
     k8s_facts:
       kind: Pod
@@ -11,8 +21,14 @@
         - type = uperf-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: Pod names - to clean
+  - name: Server Job and Pod names - to clean
     set_fact:
+      clean_jobs: |
+          [
+          {% for item in server_jobs.resources %}
+            "{{ item['metadata']['name'] }}",
+          {% endfor %}
+          ]
       clean_pods: |
           [
           {% for item in server_pods.resources %}
@@ -20,23 +36,34 @@
           {% endfor %}
           ]
 
-  - name: Cleanup run
+  - name: Cleanup server Job 
     k8s:
-      kind: pod
+      kind: Job
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      state: absent
+      name: "{{ item }}"
+    with_items: "{{ clean_jobs }}"
+
+  - name: Cleanup server Pod 
+    k8s:
+      kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
       state: absent
       name: "{{ item }}"
     with_items: "{{ clean_pods }}"
-    when: cleanup
 
+  when: resource_kind == "pod" and cleanup == True
+
+- block:
   - name: Cleanup redis
     command: "{{ item }}"
     with_items:
       - redis-cli del num_completion-{{trunc_uuid}}
       - redis-cli del start-{{trunc_uuid}}
+  when: resource_kind == "pod" 
 
-  when: resource_kind == "pod"
 
 
 
