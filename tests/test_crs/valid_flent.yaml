@@ -1,0 +1,24 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: flent-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    url: ES_SERVER
+    index_name: ripsaw-flent
+  metadata:
+    collection: true
+  clustername: myk8scluster
+  workload:
+    # cleanup: true
+    name: flent
+    args:
+      hostnetwork: false
+      multus:
+        enabled: false
+      pin: false
+      pair: 1
+      test_types:
+        - tcp_download
+      runtime: 2
