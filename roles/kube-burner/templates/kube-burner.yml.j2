@@ -30,6 +30,9 @@ spec:
       - name: kube-burner
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/kube-burner:latest') }}
         imagePullPolicy: Always
+        env:
+        - name: prom_es
+          value: "{{ prometheus.es_url }}"
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]
         args:
