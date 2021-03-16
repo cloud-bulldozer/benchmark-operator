@@ -5,7 +5,7 @@ a performance baseline of Kubernetes cluster on your provider.
 
 ## Installation
 
-Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires 
+Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
 
 > Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator`
@@ -115,7 +115,7 @@ spec:
 [Installation](docs/installation.md)
 
 ## Contributing
-[Contributing](CONTRIBUTE.md)
+[Contributing](CONTRIBUTING.md)
 
 ## Metadata Collection
 [Metadata Collection](docs/metadata.md)
