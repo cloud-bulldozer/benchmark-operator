@@ -221,7 +221,7 @@ Here is one scale example:
       step_size: log2
       ...
 ```
-Note, the `scale` mode is mutual exlusive to `pin` mode with the `pin` mode has higher precedence.
+Note, the `scale` mode is mutually exlusive to `pin` mode with the `pin` mode having higher precedence.
 In other words, if `pin:true` the test will deploy pods on `pin_server` and `pin_client` nodes
 and ignore `colocate`, `node_range`, and the number of pairs to deploy is specified by the
  `density_range.high` value.
