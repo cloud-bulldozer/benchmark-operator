@@ -63,6 +63,13 @@ Each iteration of this workload creates the following objects:
 Each iteration of this workload creates the following object:
   - 1 pod. (sleep)
 
+- **concurrent-builds**: Creates a buildconfig, imagestream and corresponding build for a set application. **This will create as many namespaces with these objects as the configured job_iterations**. 
+See https://github.com/cloud-bulldozer/e2e-benchmarking/tree/master/workloads/kube-burner/builds for example parameters for each application
+Each iteration of this workload creates the following object:
+  - 1 imagestream (dependent on application type set)
+  - 1 buildconfig (also dependent on application type set)
+  - 1 build created from buildconfig 
+  
 The workload type is specified by the parameter `workload` from the `args` object of the configuration. Each workload supports several configuration parameters, detailed in the [configuration section](#configuration)
 
 ## Configuration

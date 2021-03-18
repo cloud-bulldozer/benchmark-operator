@@ -1,0 +1,51 @@
+---
+global:
+  writeToFile: false
+{% if prometheus is defined and prometheus.prom_url is defined and prometheus.es_url != "" %}
+  indexerConfig:
+    enabled: true
+    esServers: ["{{ prometheus.es_url }}"]
+    insecureSkipVerify: true
+    defaultIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
+    type: elastic
+  measurements:
+    - name: podLatency
+      esIndex: {{ workload_args.default_index|default("ripsaw-kube-burner") }}
+{% endif %}
+
+jobs:
+  - name: concurrent-builds
+    jobIterations: {{ workload_args.job_iterations }}
+    qps: {{ workload_args.qps|default(5) }}
+    burst: {{ workload_args.burst|default(10) }}
+    namespacedIterations: true
+    namespace: svt-{{ uuid }}
+    cleanup: {{ workload_args.cleanup|default(true) }}
+    waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}
+    podWait: {{ workload_args.pod_wait|default(false) }}
+{% if wait_for is defined %}
+    waitFor: {{ wait_for|default(["Build"]) }}
+{% endif %}
+    verifyObjects: {{ workload_args.verify_objects|default(true) }}
+    errorOnVerify: {{ workload_args.error_on_verify|default(false) }}
+    objects:
+      - objectTemplate: imagestream.yml
+        replicas: 1
+        inputVars:
+          prefix: {{ workload_args.build_image_stream|default("") }}
+          image: {{ workload_args.build_image|default("")  }}
+      - objectTemplate: buildconfig_triggers.yml
+        replicas: 1
+        inputVars:
+          imageStream: {{ workload_args.build_image_stream|default("") }}
+          gitUri: {{ workload_args.git_url|default("") }}
+          nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker")}}
+          nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
+{% if source_strat_env is defined and source_strat_env != "" %}
+          sourceStratEnv: {{ workload_args.source_strat_env|default("") }}
+{% endif %}
+          fromSource: {{ workload_args.source_strat_from|default("") }}
+          fromSourceVersion: {{ workload_args.source_strat_from_version|default("latest") }}
+{% if post_commit_script is defined and post_commit_script != "" %}
+          postCommitScript: {{ workload_args.post_commit_script|default("") }}
+{% endif %}

@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: kube-burner-cluster-density-example
+  name: kube-burner-concurrent-builds-example
   namespace: my-ripsaw
 spec:
   # Metadata information
@@ -19,7 +19,7 @@ spec:
     name: kube-burner
     args:
       # Workload name
-      workload: cluster-density
+      workload: concurrent-builds
       # Kube-burner Job timeout
       job_timeout: 7200
       # ES index name
@@ -56,17 +56,17 @@ spec:
       # remote_metrics_profile: http://yourdomain/metrics-profile.yml
       # kube-burner pod tolerations
       # Application to build
-      #app: django
-      #source_strat_env: PIP_INDEX_URL
-      #source_strat_from: python
-      #source_strat_from_version: latest
+      app: django
+      source_strat_env: PIP_INDEX_URL
+      source_strat_from: python
+      source_strat_from_version: latest
       # Script to run after build
-      #post_commit_script: "./manage.py test"
+      post_commit_script: "./manage.py test"
       # Build Image name
-      #build_image_stream: django-psql-example
+      build_image_stream: django-psql-example
       # Git url for application
-      #git_url: https://github.com/sclorg/django-ex.git
-      #build_image: image-registry.openshift-image-registry.svc:5000/svt-django/django-psql-example
+      git_url: https://github.com/sclorg/django-ex.git
+      build_image: image-registry.openshift-image-registry.svc:5000/svt-django/django-psql-example
       tolerations:
       - key: role
         value: workload

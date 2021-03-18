@@ -134,7 +134,24 @@
           metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
           simple-deployment.yml: "{{ lookup('file', 'simple-deployment.yml')}}"
           service.yml: "{{ lookup('file', 'service.yml')}}"
+
     when: workload_args.workload == "max-services"
+
+  - name: Create concurrent builds
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'concurrent-builds.yml.j2')}}"
+          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+          buildconfig_triggers.yml: "{{ lookup('file', 'buildconfig_triggers.yml')}}"
+          configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
+          imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
+    when: workload_args.workload == "concurrent-builds"
 
   - name: Launching kube-burner job
     k8s:

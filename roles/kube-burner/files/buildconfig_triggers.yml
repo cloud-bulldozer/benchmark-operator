@@ -1,0 +1,39 @@
+---
+kind: BuildConfig
+apiVersion: build.openshift.io/v1
+metadata:
+  name: {{.JobName}}-{{.Replica}}
+  annotations:
+    template.alpha.openshift.io/wait-for-ready: 'true'
+spec:
+  nodeSelector:
+    {{.nodeSelectorKey}}: {{.nodeSelectorValue}}
+  triggers:
+  - type: GitHub
+    github:
+      secret: {{.JobName}}-{{.Replica}}
+  - type: ImageChange
+  - type: ConfigChange
+  source:
+    git:
+      uri: {{.gitUri}}
+    type: Git
+  strategy:
+    type: Source
+    sourceStrategy:
+{{ if index . "sourceStratEnv" }}
+      env:
+        - name: {{.sourceStratEnv}}
+{{ end }}
+      from:
+        kind: ImageStreamTag
+        name: {{.fromSource}}:{{.fromSourceVersion}}
+        namespace: 'openshift'
+{{ if index . "postCommitScript" }}
+  postCommit:
+    script: {{.postCommitScript}}
+{{ end }}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: {{.imageStream}}-{{.Replica}}:latest
