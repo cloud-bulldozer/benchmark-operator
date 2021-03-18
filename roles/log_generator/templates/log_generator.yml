@@ -1,0 +1,115 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 'log-generator-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  parallelism: {{ workload_args.pod_count | default(1) | int }}
+  template:
+    metadata:
+      labels:
+        app: log-generator-{{ trunc_uuid }}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.tolerations is defined %}
+      tolerations:
+      - key: {{ workload_args.tolerations.key }}
+        value: {{ workload_args.tolerations.value }}
+        effect: {{ workload_args.tolerations.effect }}
+{% endif %}
+{% if workload_args.label is defined %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ workload_args.label.key }}
+                operator: In
+                values:
+                - {{ workload_args.label.value }}
+{% endif %}
+      containers:
+      - image: {{ workload_args.image | default('quay.io/cloud-bulldozer/log_generator:latest') }}
+        name: log-generator
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.url }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("log-generator") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.verify_cert | default(true) }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default(false) }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.es_url }}"
+          - name: prom_parallel
+            value: "{{ prometheus.es_parallel | default(false) }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+        command: ["/bin/sh", "-c"]
+        args:
+          - > 
+{% if workload_args.pod_count | default(1) | int > 1 %}
+            echo "Waiting for all pods to be Ready";
+            redis-cli -h {{ bo.resources[0].status.podIP }} INCR "log-generator-{{ trunc_uuid }}" > /dev/null 2>&1;
+            pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ trunc_uuid }}"`;
+            while [[ $pods != {{ workload_args.pod_count | int }} ]]; do
+              pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ trunc_uuid }}"`;
+              sleep 1;
+            done;
+{% endif %}
+            run_snafu
+            --tool log_generator
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v
+{% endif %}
+            -u "{{ uuid }}"
+            --size "{{ workload_args.size | default(512) }}"
+{% if workload_args.messages_per_second is defined %}
+            --messages-per-second "{{ workload_args.messages_per_second }}"
+{% endif %}
+{% if workload_args.messages_per_minute is defined %}
+            --messages-per-minue "{{ workload_args.messages_per_minute }}"
+{% endif %}
+            --duration "{{ workload_args.duration | default(10) }}"
+{% if workload_args.es_url is defined %}
+            --es-url "{{ workload_args.es_url }}"
+{% endif %}
+{% if workload_args.es_token is defined %}
+            --es-token "{{ workload_args.es_token }}"
+{% endif %}
+{% if workload_args.cloudwatch_log_group is defined %}
+            --cloudwatch-log-group "{{ workload_args.cloudwatch_log_group }}"
+            --aws-region "{{ workload_args.aws_region }}"
+            --aws-access-key "{{ workload_args.aws_access_key }}"
+            --aws-secret-key "{{ workload_args.aws_secret_key }}"
+{% endif %}
+            --pod-name ${my_pod_name}
+            --timeout "{{ workload_args.timeout | default(600) }}"
+            --pod-count {{ workload_args.pod_count | default(1) | int }}
+      imagePullPolicy: Always
+      restartPolicy: Never
+{% include "metadata.yml.j2" %}
