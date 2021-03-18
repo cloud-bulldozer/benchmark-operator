@@ -55,3 +55,4 @@ functional_test_kubeburner node-density metrics.yaml
 functional_test_kubeburner node-density-heavy metrics.yaml
 functional_test_kubeburner max-namespaces metrics-aggregated.yaml
 functional_test_kubeburner max-services metrics-aggregated.yaml
+functional_test_kubeburner concurrent-builds metrics-aggregated.yaml

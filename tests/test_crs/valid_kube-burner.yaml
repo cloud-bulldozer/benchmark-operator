@@ -32,6 +32,14 @@ spec:
       error_on_verify: true
       step: 30s
       metrics_profile: METRICS_PROFILE
+      app: django
+      source_strat_env: PIP_INDEX_URL
+      source_strat_from: python
+      source_strat_from_version: latest
+      post_commit_script: "./manage.py test"
+      build_image_stream: django-psql-example
+      git_url: https://github.com/sclorg/django-ex.git
+      build_image: image-registry.openshift-image-registry.svc:5000/svt-django/django-psql-example
       node_selector:
         key: node-role.kubernetes.io/worker
         value:
