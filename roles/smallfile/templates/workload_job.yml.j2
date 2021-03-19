@@ -92,7 +92,11 @@ spec:
               --operations $arr 
               --top {{smallfile_path}}/smallfile_test_data 
               --dir /var/tmp/RESULTS 
-              --yaml-input-file /tmp/smallfile/smallfilejob ;
+              --yaml-input-file /tmp/smallfile/smallfilejob 
+{% if workload_args.debug is defined and workload_args.debug %}
+              -v
+{% endif %}
+              ;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:
             - name: config-volume

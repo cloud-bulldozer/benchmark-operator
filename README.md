@@ -85,6 +85,32 @@ spec:
       image: my.location/foo:latest
 ```
 
+## Optional debug out for benchmark-wrapper workloads
+Workloads that are triggered through [benchmark-wrapper](https://github.com/cloud-bulldozer/benchmark-wrapper)
+can optionally pass the debug flag through the workload CR.
+
+NOTE: This is not a required arguement. If omitted it will default to the default logging level of 
+the benchmark-wrapper
+
+For Example:
+
+```
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: example-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    url: "http://my-es.foo.bar:80"
+  metadata_collection: true
+  cleanup: false
+  workload:
+    name: snafu_workload
+    args:
+      debug: true
+```
+
 ## User Provided UUID
 All benchmarks in the benchmark-operator utilize a UUID for tracking and indexing purposes. This UUID is,
 by default, generated when the workload is first started. However, if desired, a user provided UUID can

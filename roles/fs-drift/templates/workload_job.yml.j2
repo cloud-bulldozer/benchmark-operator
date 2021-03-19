@@ -78,12 +78,15 @@ spec:
               cat /tmp/fs-drift/params;
               run_snafu
               --tool fs-drift
+{% if workload_args.debug is defined and workload_args.debug %}
+              -v
+{% endif %}
               --top {{fs_drift_path}}/fs_drift_test_data
               --dir ${TMPDIR}/RESULTS
 {% if workload_args.samples is defined %}
               --samples {{workload_args.samples}}
 {% endif %}
-              --yaml-input-file /tmp/fs-drift/params ;
+              --yaml-input-file /tmp/fs-drift/params;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else echo FAIL ; exit 1 ; fi
           volumeMounts:
             - name: config-volume

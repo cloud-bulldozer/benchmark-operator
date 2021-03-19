@@ -22,3 +22,4 @@ spec:
       max_file_size_kb: 4
       max_files: 1000
       duration: 15
+      debug: true

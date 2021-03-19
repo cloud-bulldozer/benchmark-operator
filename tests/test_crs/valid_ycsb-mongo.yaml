@@ -21,3 +21,4 @@ spec:
         - workloada
       options_load: '-p mongodb.url="mongodb://mongo-0.mongo/ycsb?"' #passed as is to ycsb when loading database
       options_run: '-p mongodb.url="mongodb://mongo-0.mongo/ycsb?" -threads 10 -target 100'
+      debug: true

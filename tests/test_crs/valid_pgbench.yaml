@@ -28,3 +28,4 @@ spec:
           user: ci
           password: ci
           db_name: cidb
+      debug: true

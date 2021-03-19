@@ -66,7 +66,11 @@ spec:
 {% endif %}
           - dnf install -y stress-ng redis git
           - pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper
-          - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
+          - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }} \
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v \
+{% endif %}
+            ;
     name: cloudinitdisk
   - configMap:
       name: "{{ meta.name }}-workload-{{ trunc_uuid }}"

@@ -71,7 +71,11 @@ spec:
              export db_mysql_storage_engine={{workload_args.db_mysql_storage_engine}};
              export db_mysql_partition={{workload_args.db_mysql_partition}};
              cd /hammer; 
-             run_snafu --tool hammerdb -u {{ uuid }}"
+             run_snafu --tool hammerdb -u {{ uuid }}
+{% if workload_args.debug is defined and workload_args.debug %}
+             -v \
+{% endif %}
+             ;"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"

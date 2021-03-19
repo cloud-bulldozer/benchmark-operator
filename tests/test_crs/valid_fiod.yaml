@@ -33,6 +33,7 @@ spec:
       filesize: 10MiB
       log_sample_rate: 2000
       storagesize: 16Mi
+      debug: true
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################

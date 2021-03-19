@@ -54,7 +54,12 @@ spec:
 {% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
-        args: ['run_snafu --tool ycsb -r 1 -d {{ workload_args.driver }} -w {{ ycsb_workload }} -u {{ uuid }} --user {{ test_user | default("ripsaw") }} -x "{{ workload_args.options_run }}"']
+        args: 
+          - run_snafu --tool ycsb
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v
+{% endif %}
+            -r 1 -d {{ workload_args.driver }} -w {{ ycsb_workload }} -u {{ uuid }} --user {{ test_user | default("ripsaw") }} -x "{{ workload_args.options_run }}";
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/ycsb"

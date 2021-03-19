@@ -64,7 +64,11 @@ spec:
 {% endif %}
         command: ["/bin/sh", "-c"]
         args:
-          - "run_snafu --tool scale --scale {{workload_args.scale}} -u {{uuid}} --user {{test_user|default("ripsaw")}} --incluster true --poll_interval {{workload_args.poll_interval|default(5)}};
+          - "run_snafu --tool scale --scale {{workload_args.scale}} -u {{uuid}} --user {{test_user|default("ripsaw")}} --incluster true --poll_interval {{workload_args.poll_interval|default(5)}} \
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v \
+{% endif %}
+            ;
             sleep {{post_sleep|default(0)}}"
       serviceAccountName: {{workload_args.serviceaccount|default("default")}}
       restartPolicy: Never

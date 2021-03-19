@@ -25,4 +25,4 @@ spec:
       vm_bytes: "128M"
       # mem stressor options
       mem_stressors: "1"
-
+      debug: true

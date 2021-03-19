@@ -77,7 +77,11 @@ spec:
              export db_mssql_durability={{workload_args.db_mssql_durability}};
              export db_mssql_checkpoint={{workload_args.db_mssql_checkpoint}};
              cd /hammer;
-             run_snafu --tool hammerdb -u {{ uuid }}"
+             run_snafu --tool hammerdb -u {{ uuid }} \
+{% if workload_args.debug is defined and workload_args.debug %}
+             -v \
+{% endif %}
+             ;"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"

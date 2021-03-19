@@ -13,4 +13,4 @@ spec:
       scale: 0
       serviceaccount: scaler
       poll_interval: 2
-
+      debug: true
