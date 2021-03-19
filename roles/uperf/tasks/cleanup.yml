@@ -9,7 +9,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server-{{ trunc_uuid }}
+        - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_jobs
 
   - name: Get Server Pods
@@ -18,7 +18,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server-{{ trunc_uuid }}
+        - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_pods
 
   - name: Server Job and Pod names - to clean

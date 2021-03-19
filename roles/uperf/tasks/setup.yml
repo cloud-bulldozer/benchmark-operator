@@ -161,7 +161,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - type = uperf-bench-server-{{ trunc_uuid }}
+      - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
   register: serviceip
   when: workload_args.serviceip is defined and workload_args.serviceip
 

@@ -6,7 +6,7 @@ metadata:
   namespace: '{{ operator_namespace }}'
   labels:
     app: uperf-bench-client-{{ trunc_uuid }}
-    type: uperf-bench-client-{{ trunc_uuid }}
+    type: {{ meta.name }}-bench-client-{{ trunc_uuid }}
 spec:
   domain:
     cpu:

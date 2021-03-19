@@ -30,7 +30,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server-{{ trunc_uuid }}
+        - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_pods
 
   - name: Update resource state
@@ -58,7 +58,7 @@
       api_version: kubevirt.io/v1alpha3
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = uperf-bench-server-{{ trunc_uuid }}
+        - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_vms
 
   - name: Update resource state
