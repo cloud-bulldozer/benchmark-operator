@@ -16,7 +16,7 @@ items:
         metadata:
           labels:
             app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(32,true,'') }}-{{ item  }}-{{ trunc_uuid }}
-            type: uperf-bench-server-{{ trunc_uuid }}
+            type: {{ meta.name }}-bench-server-{{ trunc_uuid }}
           annotations:
 {% if workload_args.multus.enabled is sameas true %}
             k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}

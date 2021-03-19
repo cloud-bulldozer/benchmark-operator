@@ -19,7 +19,7 @@ items:
           labels:
             app: uperf-bench-client-{{ trunc_uuid }}
             clientfor: {{ item.metadata.labels.app }}
-            type: uperf-bench-client-{{ trunc_uuid }}
+            type: {{ meta.name }}-bench-client-{{ trunc_uuid }}
 {% if workload_args.multus.enabled is sameas true %}
           annotations:
             k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
