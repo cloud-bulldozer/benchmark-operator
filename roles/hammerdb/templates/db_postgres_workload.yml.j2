@@ -75,7 +75,11 @@ spec:
              export db_postgresql_oracompat={{workload_args.db_postgresql_oracompat}};
              export db_postgresql_storedprocs={{workload_args.db_postgresql_storedprocs}};
              cd /hammer; 
-             run_snafu --tool hammerdb -u {{ uuid }}"
+             run_snafu --tool hammerdb -u {{ uuid }} \
+{% if workload_args.debug is defined and workload_args.debug %}
+             -v \
+{% endif %}
+             ;"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"

@@ -24,3 +24,4 @@ spec:
           workers: 2
           duration: 5
           keepalive: true
+      debug: true

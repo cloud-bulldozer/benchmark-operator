@@ -22,3 +22,4 @@ spec:
       test_types:
         - tcp_download
       runtime: 2
+      debug: true

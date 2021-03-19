@@ -35,3 +35,4 @@ spec:
         - 1
         - 2
       runtime: 2
+      debug: true

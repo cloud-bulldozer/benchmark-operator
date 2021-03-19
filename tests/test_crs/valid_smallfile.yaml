@@ -21,3 +21,4 @@ spec:
       threads: 1
       file_size: 0
       files: 100000
+      debug: true

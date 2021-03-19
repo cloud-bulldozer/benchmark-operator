@@ -75,7 +75,11 @@ spec:
             done
             sleep 0.1
             redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} notready
-            run_snafu --tool vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }}
+            run_snafu --tool vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }} \
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v \
+{% endif %}
+            ;
 {% endfor %}
         volumeMounts:
           - name: targets-volume
