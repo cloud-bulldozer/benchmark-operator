@@ -40,7 +40,7 @@ spec:
             value: "{{ prometheus.es_parallel | default(false) }}"
           - name: prom_token
             value: "{{ prometheus.prom_token | default() }}"
-         - name: prom_url
+          - name: prom_url
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
