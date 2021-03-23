@@ -19,10 +19,11 @@ trap finish EXIT
 function functional_test_uperf {
   wait_clean
   apply_operator
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
-  kubectl apply -f ${cr}
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 
@@ -45,7 +46,7 @@ function functional_test_uperf {
 }
 
 figlet $(basename $0)
-functional_test_uperf "Uperf without resources definition" tests/test_crs/valid_uperf.yaml
+functional_test_uperf "Uperf without resources definition and system-metrics collection" tests/test_crs/valid_uperf.yaml
 functional_test_uperf "Uperf with ServiceIP" tests/test_crs/valid_uperf_serviceip.yaml
 functional_test_uperf "Uperf with resources definition and hostNetwork" tests/test_crs/valid_uperf_resources.yaml
 functional_test_uperf "Uperf with networkpolicy" tests/test_crs/valid_uperf_networkpolicy.yaml
