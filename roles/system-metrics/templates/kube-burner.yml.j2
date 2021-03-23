@@ -15,15 +15,11 @@ spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
-      tolerations: {{ workload_args.tolerations|default([]) }}
       restartPolicy: Never
       containers:
       - name: kube-burner
         image: quay.io/cloud-bulldozer/kube-burner:latest
         imagePullPolicy: Always
-        env:
-        - name: prom_es
-          value: "{{ prometheus.es_url }}"
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]
         args:

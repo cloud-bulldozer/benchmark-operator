@@ -43,9 +43,8 @@ spec:
                     type: boolean
                   prom_url:
                     type: string
+                    default: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
                   prom_token:
-                    type: string
-                  metrics_profile:
                     type: string
               workload:
                 x-kubernetes-preserve-unknown-fields: true

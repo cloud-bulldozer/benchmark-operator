@@ -24,7 +24,7 @@ metadata:
   namespace: my-ripsaw
 spec:
   prometheus:
-	system_metrics_collection: true
+    system_metrics_collection: true
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     system_metrics_index: system-metrics
     es_url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com:443
