@@ -24,6 +24,8 @@ function functional_test_fio {
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   kubectl apply -f ${cr}
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}

@@ -1,6 +1,6 @@
 # System-metrics collection
 
-Benchmark-operator is able to collect prometheus metrics from the cluster at the end of a benchmark. To do so, it creates a k8s job that uses [kube-burner](https://github.com/cloud-bulldozer/kube-burner) to collect the Prometheus metrics given by a configuration file.
+Benchmark-operator is able to collect prometheus metrics from the cluster at the end of a benchmark. To do so, it creates a k8s job that uses [kube-burner](https://github.com/cloud-bulldozer/kube-burner) to collect the Prometheus metrics given by a configuration file. This system metrics collection mechanism in available for all workloads except `kube-burner` and `backpack`.
 
 This feature is disabled by default, it can be enabled by adding the following lines to the prometheus section of the benchmark's CR.
 

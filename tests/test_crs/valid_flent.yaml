@@ -4,6 +4,13 @@ metadata:
   name: flent-benchmark
   namespace: my-ripsaw
 spec:
+  prometheus:
+    system_metrics_collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    system_metrics_index: system-metrics
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
   elasticsearch:
     url: ES_SERVER
     index_name: ripsaw-flent

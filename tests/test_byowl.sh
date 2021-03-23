@@ -20,7 +20,8 @@ trap finish EXIT
 function functional_test_byowl {
   wait_clean
   apply_operator
-  kubectl apply -f tests/test_crs/valid_byowl.yaml
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" tests/test_crs/valid_byowl.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
   

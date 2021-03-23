@@ -46,7 +46,7 @@ function functional_test_uperf {
 }
 
 figlet $(basename $0)
-functional_test_uperf "Uperf without resources definition and system-metrics collection" tests/test_crs/valid_uperf.yaml
+functional_test_uperf "Uperf without resources definition" tests/test_crs/valid_uperf.yaml
 functional_test_uperf "Uperf with ServiceIP" tests/test_crs/valid_uperf_serviceip.yaml
 functional_test_uperf "Uperf with resources definition and hostNetwork" tests/test_crs/valid_uperf_resources.yaml
 functional_test_uperf "Uperf with networkpolicy" tests/test_crs/valid_uperf_networkpolicy.yaml

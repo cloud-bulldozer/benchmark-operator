@@ -21,7 +21,8 @@ function functional_test_iperf {
   wait_clean
   apply_operator
   echo "Performing iperf3: ${1}"
-  sed -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 
