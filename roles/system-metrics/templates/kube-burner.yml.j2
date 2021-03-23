@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: kube-burner-benchmark-{{ trunc_uuid }}
+        app: system-metrics-collector-{{ trunc_uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
