@@ -11,7 +11,7 @@ This feature is disabled by default, it can be enabled by adding the following l
     system_metrics_index: <ES index name, defaults to system-metrics>
     es_url: <valid ES endpoint>
     prom_token: <valid prometheus token, in an OpenShift environment can be obtained with oc sa get-token -n openshift-monitoring prometheus-k8s>
-    metrics_profile: <valid metric profile name or URL of it, by default it node-metrics.yml>
+    metrics_profile: <valid metric profile name or URL pointing to it, by default node-metrics.yml>
 ```
 
 As stated in the example above, `metrics_profile` points to node-metrics.yml, (this file is available within the system-metrics role of this repo), however it can be configured pointing to an external URL like in the example below:
