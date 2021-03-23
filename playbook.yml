@@ -102,8 +102,5 @@
     when:
     - cr_state.resources[0].status.state is defined
     - cr_state.resources[0].status.state == "Complete"
-    - cr_state.resources[0].status.system_metrics == "Not collected"
-    - prometheus is defined
-    - prometheus.system_metrics_collection | bool
-    - prometheus.prom_url is defined
+    - system_metrics.collection | bool
     - workload.name not in ["kube-burner", "backpack"]

@@ -18,7 +18,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: kube-burner
-        image: quay.io/cloud-bulldozer/kube-burner:latest
+        image: {{ system_metrics.image }}
         imagePullPolicy: Always
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]
@@ -27,12 +27,11 @@ spec:
           kube-burner index
           --uuid={{ uuid }}
           -c index.yml
-          -u {{ prometheus.prom_url|default("https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091") }}
-          -t {{ prometheus.prom_token }}
+          -u {{ system_metrics.prom_url }}
+          -t {{ system_metrics.prom_token }}
           --start={{ (cr_state.resources[0].metadata.creationTimestamp|to_datetime('%Y-%m-%dT%H:%M:%SZ')).strftime('%s') }}
-          --end=$(date +%s)
-          -m {{ prometheus.metrics_profile|default("metrics.yml") }}
-          --step={{ workload_args.step|default("30s") }}
+          -m {{ system_metrics.metrics_profile|default("metrics.yml") }}
+          --step={{ system_metrics.step }}
         volumeMounts:
           - name: system-metrics-collector
             mountPath: /tmp/kube-burner
