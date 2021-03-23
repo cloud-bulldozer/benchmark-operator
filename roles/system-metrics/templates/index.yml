@@ -1,0 +1,9 @@
+---
+global:
+  writeToFile: false
+  indexerConfig:
+    enabled: true
+    esServers: ["{{ prometheus.es_url }}"]
+    insecureSkipVerify: true
+    defaultIndex: "{{ workload_args.system_metrics_index|default("system-metrics") }}"
+    type: elastic

@@ -1,0 +1,56 @@
+---
+
+- block:
+
+  - name: Create kube-burner configmap
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: system-metrics-collector-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          index.yml: "{{ lookup('template', 'index.yml')}}"
+          metrics.yml: "{{ lookup('template', 'node-metrics.yml')}}"
+  
+  - name: Launching kube-burner job to index system-metrics
+    k8s:
+      definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
+
+  - name: Get job status
+    k8s_info:
+      kind: Job
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      name: system-metrics-collector-{{ trunc_uuid }}
+    register: job_state
+
+  - name: Set collecting state to system-metrics benchmark
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        system_metrics: Collecting
+
+  when: cr_state.resources[0].status.system_metrics == "Not collected"
+
+- name: Get job status
+  k8s_info:
+    kind: Job
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    name: system-metrics-collector-{{ trunc_uuid }}
+  register: job_state
+
+- name: Set collected state to system-metrics benchmark
+  operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      system_metrics: Collected
+  when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0

@@ -45,6 +45,8 @@ spec:
                     type: string
                   prom_token:
                     type: string
+                  metrics_profile:
+                    type: string
               workload:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
@@ -135,7 +137,9 @@ spec:
                type: string
               node_idx:
                type: string
-
+              system_metrics:
+               type: string
+              default: Not collected
     additionalPrinterColumns:
     - name: Type
       type: string
@@ -153,6 +157,10 @@ spec:
       type: string
       description: If Cerberus is connected or not
       jsonPath: .status.cerberus
+    - name: System metrics
+      type: string
+      description: System metrics collect status
+      jsonPath: .status.system_metrics
     - name: UUID
       type: string
       jsonPath: .status.uuid
