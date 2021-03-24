@@ -37,7 +37,17 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "mkdir -p {{results.path}}/iperf3-{{ uuid }};
-             iperf3 -c {{ item.status.podIP }} -J -p {{ workload_args.port }} --{{ workload_args.transmit_type }} {{ workload_args.transmit_value }} -l {{ workload_args.length_buffer }} -P {{ workload_args.streams }} -w {{ workload_args.window_size }} -M {{ workload_args.mss }} -S {{ workload_args.ip_tos }} -O {{ workload_args.omit_start }} {{ workload_args.extra_options_client }} >> {{results.path}}/iperf3-{{ uuid }}/iperf_result.json"
+             iperf3 -c {{ item.status.podIP }} -J
+             {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
+             {% if workload_args.transmit_type is defined and workload_args.transmit_value is defined %} --{{ workload_args.transmit_type }} {{ workload_args.transmit_value }} {% endif %}
+             {% if workload_args.length_buffer is defined %} -l {{ workload_args.length_buffer }} {% endif %}
+             {% if workload_args.streams is defined %} -P {{ workload_args.streams }} {% endif %}
+             {% if workload_args.window_size is defined %} -w {{ workload_args.window_size }} {% endif %}
+             {% if workload_args.mss is defined %} -M {{ workload_args.mss }} {% endif %}
+             {% if workload_args.ip_tos is defined %}  -S {{ workload_args.ip_tos }} {% endif %}
+             {% if workload_args.omit_start is defined %} -O {{ workload_args.omit_start }} {% endif %}
+             {% if workload_args.extra_options_client is defined %} {{ workload_args.extra_options_client }} {% endif %}
+             >> {{results.path}}/iperf3-{{ uuid }}/iperf_result.json"
         volumeMounts:
           - name: result-data
             mountPath: "{{results.path}}"
