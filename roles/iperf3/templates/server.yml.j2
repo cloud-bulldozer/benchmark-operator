@@ -36,7 +36,9 @@ spec:
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
-          - "iperf3 -s -p {{ workload_args.port }} {{ workload_args.extra_options_server }}"
+          - "iperf3 -s
+            {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
+            {% if workload_args.extra_options_server is defined %} {{ workload_args.extra_options_server }} {% endif %}"
       restartPolicy: OnFailure
 {% if workload_args.pin_server is defined %}
       nodeSelector:
