@@ -7,7 +7,7 @@ items:
   - kind: Job
     apiVersion: batch/v1
     metadata:    
-      name: 'uperf-server-{{worker_node_list[ node_idx_item ] | truncate(32,true,'') }}-{{ item }}-{{ trunc_uuid }}'
+      name: 'uperf-server-{{worker_node_list[ node_idx_item ] | truncate(27,true,'') }}-{{ item }}-{{ trunc_uuid }}'
       namespace: "{{ operator_namespace }}"
     spec:
       ttlSecondsAfterFinished: 600
@@ -15,7 +15,7 @@ items:
       template:
         metadata:
           labels:
-            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(32,true,'') }}-{{ item  }}-{{ trunc_uuid }}
+            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'') }}-{{ item  }}-{{ trunc_uuid }}
             type: {{ meta.name }}-bench-server-{{ trunc_uuid }}
           annotations:
 {% if workload_args.multus.enabled is sameas true %}
