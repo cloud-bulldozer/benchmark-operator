@@ -12,8 +12,7 @@ rbac:
     kubevirt: false
     selfProvisioner: false
 
-  
-operator: 
+operator:
 
   # -- how many replicas for the operator deployment
   replicaCount: 1
@@ -23,13 +22,16 @@ operator:
     pullPolicy: Always
     tag: master
 
+  redisImage:
+    repository: k8s.gcr.io/redis
+    pullPolicy: Always
+    tag: v1
+
   resources:
     limits:
       cpu: "0.1"
 
-
   nodeSelector: {}
-
 
   tolerations:
   # -- schedule on a workload node even if it's tainted

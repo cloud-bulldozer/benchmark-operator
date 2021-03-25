@@ -14,6 +14,9 @@ A Helm chart for Kubernetes
 | operator.image.pullPolicy | string | `"Always"` |  |
 | operator.image.repository | string | `"quay.io/benchmark-operator/benchmark-operator"` |  |
 | operator.image.tag | string | `""` |  |
+| operator.redisImage.pullPolicy | string | `"Always"` |  |
+| operator.redisImage.repository | string | `"k8s.gcr.io/redis"` |  |
+| operator.redisImage.tag | string | `"v1"` |  |
 | operator.nodeSelector | object | `{}` |  |
 | operator.replicaCount | int | `1` | how many replicas for the operator deployment |
 | operator.resources.limits.cpu | string | `"0.1"` |  |
