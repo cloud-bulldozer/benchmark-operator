@@ -5,3 +5,4 @@
   playbook: /opt/ansible/playbook.yml
   reconcilePeriod: 3s
   manageStatus: false
+  snakeCaseParameters: false
