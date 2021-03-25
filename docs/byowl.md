@@ -44,3 +44,11 @@ spec:
 
 This will launch the uperf container, and simply print the messages
 above into the log of the container.
+
+### A generic support:
+You can add any section under `specoptions` and `containeroptions` in `byowl` CRD, which will go under POD's `spec` and `containers` respectively as below:
+
+
+![BYOWL_DOC](https://user-images.githubusercontent.com/4022122/112431010-f31de200-8d64-11eb-9179-e6ae7eb0e2cd.png)
+
+
