@@ -263,9 +263,15 @@ function error {
 
   echo "Error caught. Dumping logs before exiting"
   echo "Benchmark operator Logs"
-  kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator
+  benchmark=$(kubectl -n my-ripsaw logs --tail=40 -l name=benchmark-operator -c benchmark-operator)
+  echo "$benchmark"
+  echo "End Benchmark operator Logs"
+
   echo "Ansible sidecar Logs"
-  kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible
+  ansible=$(kubectl -n my-ripsaw logs -l name=benchmark-operator -c ansible)
+  echo "$ansible"
+  echo "End Ansible sidecar Logs"
+
 }
 
 function wait_for_backpack() {
