@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: benchmark-operator
+  name: benchmark-operator-role
 rules:
 - apiGroups:
   - ""
@@ -11,4 +11,3 @@ rules:
   - get
   - list
   - patch
-
