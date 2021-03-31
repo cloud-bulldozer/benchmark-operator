@@ -7,7 +7,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: '{{ meta.name }}-ycsb-bench'
+      name: '{{ ansible_operator_meta.name }}-ycsb-bench'
       namespace: '{{ operator_namespace }}'
       labels:
         name: 'ycsb-run-{{ trunc_uuid }}'

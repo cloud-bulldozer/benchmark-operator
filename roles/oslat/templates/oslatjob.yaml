@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   template:
@@ -85,7 +85,7 @@ spec:
           path: /dev/cpu_dma_latency
       - name: oslat-volume
         configMap:
-          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0555
       restartPolicy: Never
       serviceAccountName: benchmark-operator

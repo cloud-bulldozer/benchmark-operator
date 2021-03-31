@@ -3,14 +3,14 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: Building
@@ -21,7 +21,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -75,7 +75,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: StartingServers
@@ -97,7 +97,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: StartingClient
@@ -125,7 +125,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: StartingClient
@@ -169,7 +169,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Running
@@ -190,7 +190,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Complete

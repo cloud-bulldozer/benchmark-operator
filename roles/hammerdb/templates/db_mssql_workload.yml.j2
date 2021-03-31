@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
@@ -89,7 +89,7 @@ spec:
       volumes:
       - name: hammerdb-workload-volume
         configMap:
-          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0640
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}

@@ -11,7 +11,7 @@ items:
       namespace: '{{ operator_namespace }}'
       labels:
         app: uperf-bench-server-{{ worker_node_list[ node_idx_item ] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
-        type: {{ meta.name }}-bench-server-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
       annotations:
         node_idx: '{{ node_idx_item }}'
         pod_idx: '{{ item }}'

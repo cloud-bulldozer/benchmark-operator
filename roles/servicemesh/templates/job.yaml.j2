@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ meta.name }}-{{ trunc_uuid }}"
+  name: "{{ ansible_operator_meta.name }}-{{ trunc_uuid }}"
   namespace: '{{ operator_namespace }}'
   ownerReferences: "{{ owner }}"
 spec:
@@ -9,7 +9,7 @@ spec:
   template:
     metadata:
       labels:
-      app: "{{ meta.name }}-{{ trunc_uuid }}"
+      app: "{{ ansible_operator_meta.name }}-{{ trunc_uuid }}"
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -31,4 +31,4 @@ spec:
       - name: files
         configMap:
           defaultMode: 493
-          name: "{{ meta.name }}-test-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-test-{{ trunc_uuid }}"

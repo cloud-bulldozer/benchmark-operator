@@ -112,7 +112,7 @@ to [uperf](docs/uperf.md)
 * Add the link for your workload guide to [installation guide](docs/installation.md#running-workloads)
 * Ensure all resources created are within the `my-ripsaw` namespace, this can be done by setting namespace
 to use `operator_namespace` var. This is to ensure that the resources aren't defaulted to current active
-namespace which is what `meta.namespace` would default to.
+namespace which is what `ansible_operator_meta.namespace` would default to.
 * All resources created as part of your role should use `trunc_uuid` ansible var in their names and labels, so
 for example [fio-client job template](roles/fio-distributed/templates/client.yaml) has the name `fio-client` and label `app: fiod-client`, instead we'll append the var `trunc_uuid` to both
 the name and label so it'll be `fio-client-{{ trunc_uuid }}` and label would be `app:fiod-client-{{ trunc_uuid }}`. The reason for this
