@@ -129,12 +129,10 @@ case of failure or when disabled. This ensures no interference with subsequent w
 
 ### The operator container image
 Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitate a new build of the operator container image.
-The container is built using the [Operator SDK](https://github.com/operator-framework/operator-sdk) (v0.1.5) and pushed to a public repository.
+The benchmark-operator container can be built using [podman](https://podman.io/) and pushed to a public repository.
 The public repository could be [quay](https://quay.io) in which case you'll need to:
 
 ```bash
-$ operator-sdk build quay.io/<username>/benchmark-operator:testing --image-builder podman 
-OR
 $ podman build -f build/Dockerfile -t quay.io/<username>/benchmark-operator:testing .
 
 $ podman push quay.io/<username>/benchmark-operator:testing

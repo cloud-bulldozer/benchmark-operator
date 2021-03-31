@@ -213,7 +213,7 @@ function cleanup_operator_resources {
 
 function update_operator_image {
   tag_name="${NODE_NAME:-master}"
-  if operator-sdk build $image_location/$image_account/benchmark-operator:$tag_name --image-builder podman; then
+  if podman build -f build/Dockerfile -t $image_location/$image_account/benchmark-operator:$tag_name .; then
   # In case we have issues uploading to quay we will retry a few times
     for i in {1..3}; do
       podman push $image_location/$image_account/benchmark-operator:$tag_name && break
