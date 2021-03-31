@@ -6,7 +6,7 @@ metadata:
   namespace: '{{ operator_namespace }}'
   labels:
     app : uperf-bench-server-{{ item }}-{{ trunc_uuid }}
-    type : {{ meta.name }}-bench-server-{{ trunc_uuid }}
+    type : {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
 spec:
   domain:
     cpu:

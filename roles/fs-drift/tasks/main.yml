@@ -4,14 +4,14 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: Starting
@@ -22,7 +22,7 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -83,7 +83,7 @@
         kind: Job
         apiVersion: batch/v1
         metadata:
-          name: "{{ meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
           namespace: "{{ operator_namespace }}"
         spec:
           ttlSecondsAfterFinished: 600
@@ -119,7 +119,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Running
@@ -141,7 +141,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Complete

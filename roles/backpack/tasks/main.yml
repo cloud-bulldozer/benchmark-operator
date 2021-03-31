@@ -3,14 +3,14 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
   register: benchmark_state
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: "Metadata Collecting"
@@ -22,7 +22,7 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
   register: benchmark_state
 
@@ -61,7 +61,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Metadata Collecting"
@@ -73,7 +73,7 @@
     k8s_facts:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
     register: benchmark_state
 
@@ -92,7 +92,7 @@
       - operator_sdk.util.k8s_status:
           api_version: ripsaw.cloudbulldozer.io/v1alpha1
           kind: Benchmark
-          name: "{{ meta.name }}"
+          name: "{{ ansible_operator_meta.name }}"
           namespace: "{{ operator_namespace }}"
           status:
             state: null
@@ -103,7 +103,7 @@
         k8s_facts:
           api_version: ripsaw.cloudbulldozer.io/v1alpha1
           kind: Benchmark
-          name: "{{ meta.name }}"
+          name: "{{ ansible_operator_meta.name }}"
           namespace: "{{ operator_namespace }}"
         register: benchmark_state
 

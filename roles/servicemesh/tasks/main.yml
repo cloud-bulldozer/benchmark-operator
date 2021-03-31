@@ -3,19 +3,19 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
 - name: Define variables
   set_fact:
     servicemesh: "{{ servicemesh_defaults | combine(workload_args, recursive=True) }}"
-    controlplane_namespace: "{{ meta.name }}-controlplane-{{ trunc_uuid }}"
-    workload_namespace: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+    controlplane_namespace: "{{ ansible_operator_meta.name }}-controlplane-{{ trunc_uuid }}"
+    workload_namespace: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
     owner:
       - apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
         kind: Benchmark
-        name: "{{ meta.name }}"
+        name: "{{ ansible_operator_meta.name }}"
         namespace: "{{ operator_namespace }}"
         uid: "{{ resource_state.resources[0].metadata.uid }}"
 
@@ -59,7 +59,7 @@
         apiVersion: hyperfoil.io/v1alpha2
         kind: Hyperfoil
         metadata:
-          name: '{{ meta.name }}-hyperfoil-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-hyperfoil-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
           ownerReferences: "{{ owner }}"
         spec:
@@ -69,7 +69,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Init"
@@ -80,7 +80,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -90,7 +90,7 @@
     k8s_info:
       api_version: hyperfoil.io/v1alpha2
       kind: Hyperfoil
-      name: "{{ meta.name }}-hyperfoil-{{ trunc_uuid }}"
+      name: "{{ ansible_operator_meta.name }}-hyperfoil-{{ trunc_uuid }}"
       namespace: '{{ operator_namespace }}'
     register: hf_state
 
@@ -98,7 +98,7 @@
     k8s_info:
       api_version: maistra.io/v1
       kind: ServiceMeshControlPlane
-      name: '{{ meta.name }}'
+      name: '{{ ansible_operator_meta.name }}'
       namespace: "{{ controlplane_namespace }}"
     register: smcp_state
 
@@ -110,7 +110,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Deploy"
@@ -120,7 +120,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -136,7 +136,7 @@
   when: ingress_route.resources | length > 0
   set_fact:
     #TODO: maybe use trunc_uuid in the hostname?
-    app_route: "{{ meta.name }}-app-{{ trunc_uuid}}{{ ingress_route.resources[0].status.ingress[0].host | regex_replace('^[^.]*', '')}}"
+    app_route: "{{ ansible_operator_meta.name }}-app-{{ trunc_uuid}}{{ ingress_route.resources[0].status.ingress[0].host | regex_replace('^[^.]*', '')}}"
 
 - when: resource_state.resources[0].status.state == "Deploy"
   block:
@@ -200,7 +200,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Ready"
@@ -210,7 +210,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -223,7 +223,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: "{{ meta.name }}-test-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-test-{{ trunc_uuid }}"
           namespace: '{{ operator_namespace }}'
           ownerReferences: "{{ owner }}"
         data:
@@ -236,7 +236,7 @@
       kind: Pod
       namespace: '{{ operator_namespace }}'
       label_selectors:
-      - app = {{ meta.name }}-hyperfoil-{{ trunc_uuid }}
+      - app = {{ ansible_operator_meta.name }}-hyperfoil-{{ trunc_uuid }}
       - role = controller
     register: hf_pod
 
@@ -248,7 +248,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Running"
@@ -258,7 +258,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -269,7 +269,7 @@
       api_version: v1
       kind: Job
       namespace: '{{ operator_namespace }}'
-      name: "{{ meta.name }}-{{ trunc_uuid }}"
+      name: "{{ ansible_operator_meta.name }}-{{ trunc_uuid }}"
     register: job_state
 
   - name: Complete benchmark
@@ -277,7 +277,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Complete"
@@ -288,7 +288,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Failed"
@@ -298,7 +298,7 @@
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -311,7 +311,7 @@
         apiVersion: hyperfoil.io/v1alpha2
         kind: Hyperfoil
         metadata:
-          name: '{{ meta.name }}-hyperfoil-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-hyperfoil-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
 
   - name: Delete config map
@@ -321,7 +321,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-test-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-test-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
 
   - name: Delete workload namespace

@@ -1,4 +1,4 @@
 ---
-operator_namespace: '{{ meta.namespace }}'
+operator_namespace: '{{ ansible_operator_meta.namespace }}'
 clustername: 'myk8scluster'
 kernel_cache_drop_svc_port: 9222

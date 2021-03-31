@@ -3,14 +3,14 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: Building
@@ -21,7 +21,7 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: '{{ meta.name }}'
+    name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
@@ -33,7 +33,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata: 
-          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data: 
           createdb.tcl: "{{ lookup('template', 'createdb_mysql.tcl.j2') }}"
@@ -45,7 +45,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_mssql.tcl.j2') }}"
@@ -57,7 +57,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_pg.tcl.j2') }}"
@@ -69,7 +69,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-mysql.tcl: "{{ lookup('template', 'tpcc-workload-mysql.tcl.j2') }}"
@@ -81,7 +81,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-mssql.tcl: "{{ lookup('template', 'tpcc-workload-mssql.tcl.j2') }}"
@@ -93,7 +93,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+          name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-pg.tcl: "{{ lookup('template', 'tpcc-workload-pg.tcl.j2') }}"
@@ -102,7 +102,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Starting DB
@@ -112,7 +112,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Starting DB Workload
@@ -122,7 +122,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: ConfigMaps Created
@@ -140,7 +140,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: DB Creating
@@ -154,14 +154,14 @@
     k8s_facts:
       kind: Job
       api_version: batch/v1
-      name: '{{ meta.name }}-creator-{{ trunc_uuid }}'
+      name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
       namespace: "{{ operator_namespace }}"
     register: hammerdb_creator_pod
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: Starting DB Workload
@@ -171,7 +171,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: DB Created
@@ -202,7 +202,7 @@
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: DB workload running
@@ -215,14 +215,14 @@
     k8s_facts:
       kind: Job
       api_version: batch/v1
-      name: '{{ meta.name }}-workload-{{ trunc_uuid }}'
+      name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
       namespace: "{{ operator_namespace }}"
     register: hammerdb_workload_pod
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: DB Workload Complete

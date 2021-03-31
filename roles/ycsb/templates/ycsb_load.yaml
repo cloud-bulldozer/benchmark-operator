@@ -7,7 +7,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: '{{ meta.name }}-ycsb-data-load'
+      name: '{{ ansible_operator_meta.name }}-ycsb-data-load'
       namespace: '{{ operator_namespace }}'
       labels:
         name: 'ycsb-load-{{ trunc_uuid }}'

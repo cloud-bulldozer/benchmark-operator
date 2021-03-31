@@ -3,14 +3,14 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
   register: resource_state
 
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: Building
@@ -21,7 +21,7 @@
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
   register: resource_state
 
@@ -44,7 +44,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Running Load"
@@ -54,7 +54,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Starting First Workload"
@@ -82,7 +82,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Starting First Workload"
@@ -92,7 +92,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Complete"
@@ -103,16 +103,16 @@
 - block:
 
   - name: Add the workload list length to redis
-    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb {{ workload_args.workloads|length }}"
+    command: "redis-cli set {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb {{ workload_args.workloads|length }}"
 
   - name: Add the first workload index to redis
-    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current 0"
+    command: "redis-cli set {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current 0"
     
   - name: Update resource state
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Starting Workload"
@@ -122,7 +122,7 @@
 - block:
    
   - name: Get current workload index
-    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    command: "redis-cli get {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current"
     register: wrkload
 
   - name: set ycsb_workload variable
@@ -141,7 +141,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Running Workload"
@@ -151,7 +151,7 @@
 - block:
 
   - name: Get current workload from redis
-    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    command: "redis-cli get {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current"
     register: wrkload
 
   - name: set ycsb_workload variable
@@ -172,7 +172,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Workload Complete"
@@ -183,11 +183,11 @@
 - block:
 
   - name: Get current workload from redis
-    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb-current"
+    command: "redis-cli get {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current"
     register: current_workload
 
   - name: Get list length of workloads from redis
-    command: "redis-cli get {{ meta.name }}-{{ uuid }}-ycsb"
+    command: "redis-cli get {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb"
     register: workload_list
 
   - name: Iterate index
@@ -195,13 +195,13 @@
       new_workload_index: "{{ current_workload.stdout|int + 1 }}"
 
   - name: Update current workload item in redis
-    command: "redis-cli set {{ meta.name }}-{{ uuid }}-ycsb-current {{ new_workload_index }}"
+    command: "redis-cli set {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current {{ new_workload_index }}"
   
   - name: Update resource state
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Starting Workload"
@@ -211,7 +211,7 @@
     operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
-      name: "{{ meta.name }}"
+      name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
         state: "Complete"

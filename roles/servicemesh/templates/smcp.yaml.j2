@@ -1,7 +1,7 @@
 apiVersion: maistra.io/v1
 kind: ServiceMeshControlPlane
 metadata:
-  name: "{{ meta.name }}"
+  name: "{{ ansible_operator_meta.name }}"
   namespace: "{{ controlplane_namespace }}"
 spec:
   istio:

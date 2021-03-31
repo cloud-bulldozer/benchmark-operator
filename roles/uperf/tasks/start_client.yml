@@ -6,7 +6,7 @@
     api_version: v1
     namespace: '{{ operator_namespace }}'
     label_selectors:
-      - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
+      - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
   register: server_pods
 
 - name: Generate uperf xml files
@@ -45,7 +45,7 @@
       api_version: kubevirt.io/v1alpha3
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - type = {{ meta.name }}-bench-server-{{ trunc_uuid }}
+        - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_vms
 
 
@@ -65,7 +65,7 @@
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ meta.name }}"
+    name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
       state: Waiting for Clients
