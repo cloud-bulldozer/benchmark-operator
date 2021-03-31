@@ -56,11 +56,11 @@ the workload template with an init container section that looks like:
 {% if metadata.force is sameas true %}
             --force
 {% endif %}
-{% if metadata.stockpile_tags|length > 0 %}
-            --tags={{ metadata.stockpile_tags|join(",") }}
+{% if metadata.stockpileTags|length > 0 %}
+            --tags={{ metadata.stockpileTags|join(",") }}
 {% endif %}
-{% if metadata.stockpile_skip_tags|length > 0 %}
-            --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+{% if metadata.stockpileSkipTags|length > 0 %}
+            --skip-tags={{ metadata.stockpileSkipTags|join(",") }}
 {% endif %}
 {% if metadata.ssl is sameas true %}
             --sslskipverify

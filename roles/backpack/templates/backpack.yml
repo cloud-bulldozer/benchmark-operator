@@ -50,9 +50,9 @@ spec:
 {% if metadata.force is sameas true %}
             --force
 {% endif %}
-            --tags={{ metadata.stockpile_tags|default(["common", "k8s", "openshift"])|join(",") }}
-{% if metadata.stockpile_skip_tags|length > 0 %}
-            --skip-tags={{ metadata.stockpile_skip_tags|join(",") }}
+            --tags={{ metadata.stockpileTags|default(["common", "k8s", "openshift"])|join(",") }}
+{% if metadata.stockpileSkipTags|length > 0 %}
+            --skip-tags={{ metadata.stockpileSkipTags|join(",") }}
 {% endif %}
 {% if metadata.ssl is sameas true %}
             --sslskipverify True
