@@ -45,6 +45,31 @@ spec:
                     type: string
                   prom_token:
                     type: string
+              system_metrics:
+                type: object
+                properties:
+                  collection:
+                    type: boolean
+                    default: false
+                  es_url:
+                    type: string
+                  index_name:
+                    type: string
+                    default: system-metrics
+                  step:
+                    type: string
+                    default: 30s
+                  metrics_profile:
+                    type: string
+                    default: node-metrics.yml
+                  prom_url:
+                    type: string
+                    default: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+                  image:
+                    type: string
+                    default: quay.io/cloud-bulldozer/kube-burner:latest
+                  prom_token:
+                    type: string
               workload:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
@@ -135,7 +160,9 @@ spec:
                type: string
               node_idx:
                type: string
-
+              system_metrics:
+               type: string
+               default: Not collected
     additionalPrinterColumns:
     - name: Type
       type: string
@@ -153,6 +180,10 @@ spec:
       type: string
       description: If Cerberus is connected or not
       jsonPath: .status.cerberus
+    - name: System metrics
+      type: string
+      description: System metrics collect status
+      jsonPath: .status.system_metrics
     - name: UUID
       type: string
       jsonPath: .status.uuid

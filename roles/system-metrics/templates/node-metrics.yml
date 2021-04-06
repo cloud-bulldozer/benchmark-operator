@@ -1,0 +1,32 @@
+metrics:
+  - query: sum(irate(node_cpu_seconds_total[2m])) by (mode,instance) > 0
+    metricName: nodeCPU
+
+  - query: avg(node_memory_MemAvailable_bytes) by (instance)
+    metricName: nodeMemoryAvailable
+
+  - query: avg(node_memory_Active_bytes) by (instance)
+    metricName: nodeMemoryActive
+
+  - query: avg(node_memory_Cached_bytes) by (instance) + avg(node_memory_Buffers_bytes) by (instance)
+    metricName: nodeMemoryCached+nodeMemoryBuffers
+
+  - query: irate(node_network_receive_bytes_total{device=~"^(ens|eth|bond|team).*"}[2m])
+    metricName: rxNetworkBytes
+
+  - query: irate(node_network_transmit_bytes_total{device=~"^(ens|eth|bond|team).*"}[2m])
+    metricName: txNetworkBytes
+
+  - query: rate(node_disk_written_bytes_total{device!~"^(dm|rb).*"}[2m])
+    metricName: nodeDiskWrittenBytes
+
+  - query: rate(node_disk_read_bytes_total{device!~"^(dm|rb).*"}[2m])
+    metricName: nodeDiskReadBytes
+
+  - query: kube_node_role
+    metricName: nodeRoles
+    instant: true
+
+  - query: cluster_version{type="completed"}
+    metricName: clusterVersion
+    instant: true

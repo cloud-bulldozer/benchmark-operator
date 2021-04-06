@@ -1,0 +1,41 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: system-metrics-collector-{{ trunc_uuid }}
+  namespace: {{ operator_namespace }}
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 3600
+  template:
+    metadata:
+      labels:
+        app: system-metrics-collector-{{ trunc_uuid }}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+      restartPolicy: Never
+      containers:
+      - name: kube-burner
+        image: {{ system_metrics.image }}
+        imagePullPolicy: Always
+        workingDir: /tmp/kube-burner
+        command: ["/bin/sh", "-c"]
+        args:
+        - >
+          kube-burner index
+          --uuid={{ uuid }}
+          -c index.yml
+          -u {{ system_metrics.prom_url }}
+          -t {{ system_metrics.prom_token }}
+          --start={{ (cr_state.resources[0].metadata.creationTimestamp|to_datetime('%Y-%m-%dT%H:%M:%SZ')).strftime('%s') }}
+          -m {{ system_metrics.metrics_profile|default("metrics.yml") }}
+          --step={{ system_metrics.step }}
+        volumeMounts:
+          - name: system-metrics-collector
+            mountPath: /tmp/kube-burner
+      volumes:
+        - name: system-metrics-collector
+          configMap:
+            name: system-metrics-collector-{{ trunc_uuid }}

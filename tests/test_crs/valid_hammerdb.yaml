@@ -4,6 +4,12 @@ metadata:
   name: hammerdb
   namespace: my-ripsaw
 spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
   elasticsearch:
     url: ES_SERVER
     index_name: ripsaw-hammerdb

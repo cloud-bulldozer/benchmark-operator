@@ -23,7 +23,8 @@ function functional_test_fs_drift {
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
-  kubectl apply -f ${cr}
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 

@@ -1,0 +1,9 @@
+---
+global:
+  writeToFile: false
+  indexerConfig:
+    enabled: true
+    esServers: ["{{ system_metrics.es_url }}"]
+    insecureSkipVerify: true
+    defaultIndex: "{{ system_metrics.index_name }}"
+    type: elastic
