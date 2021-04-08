@@ -29,6 +29,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'roles/kube-burner') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/flent') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/log_generator') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/image_pull') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
 
 
     # Check for changes in cr files
@@ -49,6 +50,7 @@ function populate_test_list {
     if [[ $(echo ${item} | grep 'valid_kube-burner*') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_flent*') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'valid_log_generator*') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'valid_image_pull*') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
 
 
     # Check for changes in test scripts
