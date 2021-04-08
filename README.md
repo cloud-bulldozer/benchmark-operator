@@ -50,6 +50,7 @@ helm delete benchmark-operator -n my-ripsaw --purge
 | [testpmd](docs/testpmd.md)         | TestPMD DPDK App      | No           |  Used   | Not Supported          | Preview         | No |
 | [Flent](docs/flent.md)         | Network Performance    | Yes           |  Used, default : 3second  | Not Supported          | Not Supported   | Yes |
 | [Log-Generator](docs/log_generator.md)         | Log Throughput to Backend    | Yes           |  Used, default : 3second  | Not Supported          | Yes  | Yes |
+| [Image-Pull](docs/image_pull.md)         | Time to Pull Image from Container Repo    | Yes           |  Used, default : 3second  | Not Supported          | Yes  | Yes |
 
 ### Reconciliation
 
