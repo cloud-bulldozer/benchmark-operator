@@ -22,7 +22,7 @@ This data will also be indexed if Elasticsearch information is provided.
 
 ### Optional variables:
 
-`pod-count` total number of log generator pods to launch (default: 1)
+`pod_count` total number of log generator pods to launch (default: 1)
 
 `timeout` how long, in seconds, after have been sent to allow the backend service to receive all the messages (default: 600)
 
@@ -41,7 +41,7 @@ Elasticsearch Backend:
 
 AWS CloudWatch:
 
-`cloudwatch-log-group` the aws cloudwatch log group to query
+`cloudwatch_log_group` the aws cloudwatch log group to query
 
 `aws_region` the region that cloudwatch is deployed to
 
