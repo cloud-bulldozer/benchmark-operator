@@ -37,6 +37,7 @@ jobs:
         replicas: 1
         inputVars:
           readinessPeriod: 10
+          livenessPeriod: 10
           nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
           nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
 
