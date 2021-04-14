@@ -46,7 +46,6 @@ spec:
           value: '5432'
         - name: POSTGRESQL_RETRY_INTERVAL
           value: '5'
-        imagePullPolicy: IfNotPresent
         securityContext:
           privileged: false
       restartPolicy: Always
