@@ -1,0 +1,36 @@
+---
+- debug:
+    msg: "in ceph OSD cache dropper role"
+
+- name: ensure Ceph OSD toolbox pod is started
+  k8s:
+    namespace: "{{ rook_ceph_namespace }}"
+    state: present
+    spec:
+      enableCephTools: true  
+
+- name: start ceph OSD cache dropper
+  k8s:
+    definition: "{{ lookup('template', '/opt/ceph_osd_cache_dropper/rook_ceph_drop_cache_pod.yaml') | from_yaml }}"
+
+- name: get pod IP of running ceph toolbox pod
+  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ operator_namespace }}"
+
+- name: get kernel cache dropper pods
+  k8s_facts:
+    kind: Pod
+    label_selectors:
+      - name = ceph-osd-cache-dropper
+    namespace: "{{ operator_namespace }}"
+  register: ceph_osd_cache_drop_pod
+
+- debug:
+    var: ceph_osd_cache_drop_pod
+
+- name: put ip into a var
+  set_fact:
+    ceph_osd_cache_drop_pod_ip: "{{ ceph_osd_cache_drop_pod.status.podIP }}"
+
+- debug:
+    var: ceph_osd_cache_drop_pod_ip
+
