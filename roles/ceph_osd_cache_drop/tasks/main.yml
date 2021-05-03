@@ -5,9 +5,13 @@
 - name: ensure Ceph OSD toolbox pod is started
   k8s:
     namespace: "{{ rook_ceph_namespace }}"
+    name: ocsinit
+    type: OCSInitialization
     state: present
-    spec:
-      enableCephTools: true  
+    apply: true
+    resource_definition:
+      spec:
+        enableCephTools: true  
 
 - name: start ceph OSD cache dropper
   k8s:
