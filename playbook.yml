@@ -8,6 +8,10 @@
       name: "kernel_cache_drop"
     when: workload.args.drop_cache_kernel is defined
 
+  - include_role:
+      name: "ceph_osd_cache_drop"
+    when: workload.args.drop_cache_rook_ceph is defined
+
   - name: Get update from Cerberus if connected
     block:
     - include_role:
