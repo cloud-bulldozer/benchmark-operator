@@ -5,31 +5,33 @@
 
 from kubernetes import client, config
 from sys import argv, exit
+from os import getenv
 import time
 
 NOTOK = 1
 # may have to adjust this based on number of pods
 poll_interval = 2.0
-ceph_osd_cache_drop_pod_name = 'ceph-osd-cache-drop'
 
 def usage(msg):
     print('ERROR: %s' % msg)
-    print('usage: wait_for_pod.py timeout namespace')
+    print('usage: wait_for_pod.py timeout namespace pod-name-pattern')
     exit(NOTOK)
 
 
 # parse command line
 
-if len(argv) < 3:
+if len(argv) < 4:
     usage('too few parameters')
 
 timeout_str = argv[1]
 ns = argv[2]
+pod_name_pattern = argv[3]
 
 # show 'em what we parsed
 
 print('timeout if pods not seen in %s sec' % timeout_str)
 print('namespace: %s' % ns)
+print('pod name pattern: %s' % pod_name_pattern)
 
 timeout = int(timeout_str)
 if timeout <= poll_interval:
@@ -39,13 +41,15 @@ if timeout <= poll_interval:
 # wait for pods
 
 # cannot do this from inside cluster pod: config.load_kube_config()
-config.load_incluster_config()
+if getenv('KUBECONFIG'):
+    config.load_kube_config()
+else:
+    config.load_incluster_config()
 v1 = client.CoreV1Api()
 
 print('waiting for pod...')
 start_time = time.time()
 matching_pods = 0
-generate_name = label + '-'
 
 while True:
     time.sleep(poll_interval)
@@ -58,7 +62,7 @@ while True:
     matching_pods = 0
     for i in ret.items:
         if i.metadata.namespace == ns and \
-           i.metadata.generate_name.__contains__ (ceph_osd_cache_drop_pod) and \
+           i.metadata.generate_name.__contains__ (pod_name_pattern) and \
            i.status.phase == 'Running':
             matching_pods += 1
     if matching_pods >= 1:
