@@ -2,21 +2,53 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: rook-ceph-osd-cache-drop
-  # for openshift, namespace is openshift-storage
-  # for upstream K8S, namespace is rook-ceph
-  namespace: {{ rook_ceph_namespace }}
-  # this yaml leaves namespace blank so that it works for
-  # either one if user specifies namespace correctly
+  namespace: openshift-storage
+  labels:
+    app: rook-ceph-osd-cache-drop
 spec:
   containers:
   - name: rook-ceph-osd-cache-drop
-    image: quay.io/cloud-bulldozer/ceph-cache-dropper:latest
+    image: "{{ ceph_cache_drop_image | default('quay.io/cloud-bulldozer/ceph-cache-dropper:latest') }}"
     imagePullPolicy: Always
     command: [/bin/sh, -c]
     args:
-      - cd /opt/snafu/ceph-cache-dropper; python3 ./osd-cache-drop-websvc.py
+      - cd /opt/ceph_cache_drop; python3 ./osd-cache-drop-websvc.py
     env:
-      - name: ROOK_CEPH_TOOLBOX_POD
-        value: {{ rook_ceph_toolbox_pod }}
-      - name: ROOK_CEPH_NAMESPACE
-        value: {{ rook_ceph_namespace }}
+      - name: ROOK_CEPH_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: rook-ceph-mon
+            key: ceph-username
+      - name: ROOK_CEPH_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: rook-ceph-mon
+            key: ceph-secret
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - mountPath: /dev
+        name: dev
+      - mountPath: /sys/bus
+        name: sysbus
+      - mountPath: /lib/modules
+        name: libmodules
+      - mountPath: /etc/rook
+        name: mon-endpoint-volume
+  hostNetwork: true
+  volumes:
+  - hostPath:
+      path: /dev
+    name: dev
+  - hostPath:
+      path: /sys/bus
+    name: sysbus
+  - hostPath:
+      path: /lib/modules
+    name: libmodules
+  - configMap:
+      items:
+      - key: data
+        path: mon-endpoints
+      name: rook-ceph-mon-endpoints
+    name: mon-endpoint-volume
