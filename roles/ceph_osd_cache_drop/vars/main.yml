@@ -1,2 +1,3 @@
 rook_ceph_namespace: "openshift-storage"
+ceph_cache_drop_pod_port: 9437
 
