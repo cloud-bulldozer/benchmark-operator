@@ -2,30 +2,81 @@
 - debug:
     msg: "in ceph OSD cache dropper role"
 
+- name: get pod info of pre-existing ceph toolbox pod
+  k8s_info:
+    kind: Pod
+    label_selectors:
+      - app = rook-ceph-tools
+    namespace: "{{ rook_ceph_namespace }}"
+  register: ceph_toolbox_already_exists
+
+- debug:
+    var: ceph_toolbox_already_exists
+
 - name: ensure Ceph OSD toolbox pod is started
   k8s:
     namespace: "{{ rook_ceph_namespace }}"
     name: ocsinit
-    type: OCSInitialization
+    kind: OCSInitialization
     state: present
     apply: true
     resource_definition:
       spec:
         enableCephTools: true  
+  when: ceph_toolbox_already_exists.resources | length == 0
+
+- name: wait for toolbox pod to start
+  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} ceph-toolbox"
+  when: ceph_toolbox_already_exists.resources | length == 0
+
+- name: get pod name of running ceph toolbox pod
+  k8s_info:
+    kind: Pod
+    label_selectors:
+      - app = rook-ceph-tools
+    namespace: "{{ rook_ceph_namespace }}"
+  register: ceph_toolbox
+
+- debug:
+    var: ceph_toolbox
+
+- name: put pod id into a var
+  set_fact:
+    rook_ceph_toolbox_pod: "{{ ceph_toolbox.resources[0].metadata.name }}"
+
+- debug:
+    var: rook_ceph_toolbox_pod
+
+
+# now ensure that ceph cache dropper pod is started and we have its IP
+
+- name: get kernel cache dropper pod
+  k8s_info:
+    kind: Pod
+    label_selectors:
+      - app = rook-ceph-osd-cache-drop
+    namespace: "{{ rook_ceph_namespace }}"
+  register: drop_pod_already_exists
+
+- debug:
+    var: drop_pod_already_exists
 
 - name: start ceph OSD cache dropper
   k8s:
-    definition: "{{ lookup('template', '/opt/ceph_osd_cache_dropper/rook_ceph_drop_cache_pod.yaml') | from_yaml }}"
+    definition: "{{ lookup('template', '/opt/ansible/roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml') | from_yaml }}"
+  register: ceph_cache_dropper_start
+  when: drop_pod_already_exists.resources | length == 0
 
-- name: get pod IP of running ceph toolbox pod
-  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ operator_namespace }}"
+- name: wait for cache dropper to start
+  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} rook-ceph-osd-cache-drop"
+  when: drop_pod_already_exists.resources | length == 0
 
-- name: get kernel cache dropper pods
-  k8s_facts:
+- name: get cache dropper pod
+  k8s_info:
     kind: Pod
     label_selectors:
-      - name = ceph-osd-cache-dropper
-    namespace: "{{ operator_namespace }}"
+      - app = rook-ceph-osd-cache-drop
+    namespace: "{{ rook_ceph_namespace }}"
   register: ceph_osd_cache_drop_pod
 
 - debug:
@@ -33,8 +84,15 @@
 
 - name: put ip into a var
   set_fact:
-    ceph_osd_cache_drop_pod_ip: "{{ ceph_osd_cache_drop_pod.status.podIP }}"
+    ceph_cache_drop_pod_ip: "{{ ceph_osd_cache_drop_pod.resources[0].status.podIP }}"
 
 - debug:
-    var: ceph_osd_cache_drop_pod_ip
+    var: ceph_cache_drop_pod_ip
+
+- name: test IP
+  shell: "curl http://{{ ceph_cache_drop_pod_ip }}:{{ ceph_cache_drop_pod_port }}/"
+  register: drop_pod_test
+
+- debug:
+    var: drop_pod_test
 
