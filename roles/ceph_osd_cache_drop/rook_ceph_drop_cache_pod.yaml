@@ -24,6 +24,8 @@ spec:
           secretKeyRef:
             name: rook-ceph-mon
             key: ceph-secret
+      - name: ceph_cache_drop_port
+        value: "{{ ceph_cache_drop_svc_port }}"
     securityContext:
       privileged: true
     volumeMounts:
