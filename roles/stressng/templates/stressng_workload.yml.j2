@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   parallelism: {{ workload_args.instances }}
@@ -12,6 +12,10 @@ spec:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
     spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
@@ -20,6 +24,15 @@ spec:
 {% endif %}
       containers:
       - name: stressng
+{% if workload_args.resources is sameas true %}
+        resources:
+          requests:
+            cpu: {{ workload_args.requests_cpu }}
+            memory: {{ workload_args.requests_memory }}
+          limits:
+            cpu: {{ workload_args.limits_cpu }}
+            memory: {{ workload_args.limits_memory }}
+{% endif %}
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:latest') }}
         imagePullPolicy: Always
         env:
@@ -60,8 +73,6 @@ spec:
             value: "{{ elasticsearch.index_name | default("ripsaw-stressng") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
-          - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default(true) }}"
 {% endif %}
 {% if prometheus is defined %}
           - name: prom_es
@@ -74,12 +85,7 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
-        args: 
-          - run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}
-{% if workload_args.debug is defined and workload_args.debug %}
-            -v
-{% endif %}
-            ;
+        args: ["run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}"]
         volumeMounts:
         - name: stressng-workload-volume
           mountPath: "/workload"
@@ -87,8 +93,7 @@ spec:
       volumes:
       - name: stressng-workload-volume
         configMap:
-          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0660
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}
-

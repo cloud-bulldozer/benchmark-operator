@@ -39,7 +39,7 @@ helm delete benchmark-operator -n my-ripsaw --purge
 | [Pgbench](docs/pgbench.md)     | Postgres Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [Smallfile](docs/smallfile.md) | Storage IO Performance | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Yes            |  Not used                 | Not Supported          | Preview         | Yes |
-| [hammerdb](docs/hammerdb.md)   | Database Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
+| [hammerdb](docs/hammerdb.md)   | Database Performance   | Yes            |  Used, default : 3second  |  Working                | Preview         | Yes |
 | [Service Mesh](docs/servicemesh.md) | Microservices     | No            |  Used, default : 3second   | Not Supported         | Preview         | No |
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [Scale Openshift](docs/scale_openshift.md) | Scale Openshift Cluster       | Yes            |  Used, default : 3second  | Not Supported         | Preview        | Yes |
