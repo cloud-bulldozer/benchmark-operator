@@ -1,20 +1,35 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
+  name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
   template:
     metadata:
       labels:
-        app: hammerdb_creator-{{ trunc_uuid }}
+        app: hammerdb-bench-creator-{{ trunc_uuid }}
+        type: {{ meta.name }}-bench-creator-{{ trunc_uuid }}
+        benchmark-operator-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
       containers:
       - name: hammerdb
+{% if workload_args.resources is sameas true %}
+        resources:
+          requests:
+            cpu: {{ workload_args.requests_cpu }}
+            memory: {{ workload_args.requests_memory }}
+          limits:
+            cpu: {{ workload_args.limits_cpu }}
+            memory: {{ workload_args.limits_memory }}
+{% endif %}
         command: ["/bin/sh", "-c"]
         args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /creator/createdb.tcl"]
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:latest') }}
@@ -26,7 +41,7 @@ spec:
       volumes:
       - name: hammerdb-creator-volume
         configMap:
-          name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
+          name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
           defaultMode: 0640
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}

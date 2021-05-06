@@ -1,0 +1,87 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: hammerdb-vm-benchmark
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    url: http://my.elasticsearch.server:80
+    index_name: ripsaw-hammerdb
+  metadata:
+    collection: false
+  workload:
+    name: hammerdb
+    args:
+      #image: quay.io/ebattat/hammerdb:latest
+      pin: false # true for nodeSelector
+      pin_client: "node1"
+      db_type: "pg"
+      timed_test: true
+      test_type: "tpc-c"
+      db_init: true # true only for first run to build schema
+      db_benchmark: true
+      db_server: "127.0.0.1"
+      db_port: "5432"
+      db_warehouses: 1
+      db_num_workers: 1
+      db_user: "postgres"
+      db_pass: "s3curePasswordString"
+      db_name: "tpcc"
+      transactions: 500000
+      raiseerror: "false"
+      keyandthink: "false"
+      driver: "timed"
+      rampup: 1
+      runtime: 1
+      allwarehouse: false
+      timeprofile: false
+      async_scale: false
+      async_client: 10
+      async_verbose: false
+      async_delay: 1000
+      samples: 1
+      # database specific variables
+      # mssql:
+      db_mssql_tcp: "true"
+      db_mssql_azure: "false"
+      db_mssql_authentication: "windows"
+      db_mssql_linux_authent: "sql"
+      db_mssql_odbc_driver: "ODBC Driver 13 for SQL Server"
+      db_mssql_linux_odbc: "ODBC Driver 17 for SQL Server"
+      db_mssql_imdb: "false"
+      db_mssql_bucket: 1
+      db_mssql_durability: "SCHEMA_AND_DATA"
+      db_mssql_checkpoint: "false"
+      # mysql:
+      db_mysql_storage_engine: "innodb"
+      db_mysql_partition: "false"
+      db_mysql_socket: "/var/lib/mysql/mysql.sock"
+      # postgresql
+      db_postgresql_superuser: "postgres"
+      db_postgresql_superuser_pass: "s3curePasswordString"
+      db_postgresql_defaultdbase: "tpcc"
+      db_postgresql_vacuum: "false"
+      db_postgresql_dritasnap: "false"
+      db_postgresql_oracompat: "false"
+      db_postgresql_storedprocs: "false"
+      kind: vm
+      client_vm:
+        dedicatedcpuplacement: false
+        sockets: 1
+        cores: 4
+        threads: 1
+        #image: kubevirt/fedora-cloud-container-disk-demo:latest
+        image: quay.io/ebattat/centos8-postgres10-container-disk:latest
+        limits:
+          memory: 16Gi
+        requests:
+          memory: 16Gi
+        network:
+          front_end: bridge # or masquerade
+          multiqueue:
+            enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+            queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+        extra_options:
+          - none
+          #- hostpassthrough
+

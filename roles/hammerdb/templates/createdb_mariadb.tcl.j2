@@ -11,6 +11,7 @@ dbset db mysql
 dbset bm TPC-C
 diset connection mysql_host {{workload_args.db_server}}
 diset connection mysql_port {{workload_args.db_port}}
+diset connection mysql_socket {{workload_args.db_mysql_socket}}
 diset tpcc mysql_user {{workload_args.db_user}}
 diset tpcc mysql_pass {{workload_args.db_pass}} 
 diset tpcc mysql_dbase {{workload_args.db_name}}
@@ -22,4 +23,3 @@ puts "CREATING SCHEMA"
 buildschema
 wait_to_complete
 vwait forever
-
