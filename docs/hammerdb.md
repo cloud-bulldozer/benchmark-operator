@@ -5,9 +5,9 @@
 ## Running hammerdb
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_hammerdb_cr.yaml) to your needs.
+you can modify [cr.yaml](../resources/crds/hammerdb_crds/ripsaw_v1alpha1_hammerdb_cr.yaml) to your needs.
 
-The pgbench workload needs to be pointed at an existing MS-SQL databases via the CR file.
+The pgbench workload needs to be pointed at an existing [MSSQL](../resources/crds/hammerdb_crds/mssql), [MARIADB](../resources/crds/hammerdb_crds/mariadb), [POSTGRES](../resources/crds/hammerdb_crds/postgres) databases via the CR file.
 
 An example CR might look like this
 
