@@ -12,7 +12,7 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: quay.io/ebattat/hammerdb:latest
+      #image: # add custom hammerdb image
       pin: false # true for nodeSelector
       pin_client: "node1"
       db_type: "pg"
