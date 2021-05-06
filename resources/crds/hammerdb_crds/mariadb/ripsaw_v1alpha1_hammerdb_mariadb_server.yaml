@@ -21,7 +21,7 @@ data:
         port=3306
         ssl=0
         [mysqld]
-        innodb_file_per_table
+        innodb_file_per_table=1
         innodb_flush_method=O_DIRECT
         innodb_adaptive_flushing=1
 ---

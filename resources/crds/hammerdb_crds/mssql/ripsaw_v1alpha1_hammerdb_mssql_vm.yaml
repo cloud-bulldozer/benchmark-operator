@@ -12,13 +12,12 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: quay.io/ebattat/hammerdb:latest
+      #image: # add custom hammerdb image
       pin: false # true for nodeSelector
       pin_client: "node1"
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
-      # true only for first run to build schema
       db_init: true # true only for first run to build schema
       db_benchmark: true
       db_server: "127.0.0.1"

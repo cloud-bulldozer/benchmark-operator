@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+  name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
