@@ -55,6 +55,8 @@ spec:
 {% if ceph_osd_cache_drop_pod_ip is defined %}
           - name: ceph_osd_cache_drop_pod_ip
             value: "{{ ceph_osd_cache_drop_pod_ip }}"
+          - name: CEPH_CACHE_DROP_PORT_NUM
+            value: "{{ ceph_cache_drop_svc_port }}"
 {% endif %}
 {% endif %}
 {% if elasticsearch is defined %}
