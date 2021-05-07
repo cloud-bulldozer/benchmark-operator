@@ -29,9 +29,9 @@ function functional_test_hammerdb {
   uuid=${long_uuid:0:8}
 
   # Wait for the workload pod to run the actual workload
-  hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
+  hammerdb_workload_pod=$(get_pod "app=hammerdb-bench-workload-mssql-$uuid" 300)
   kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=400s
-  kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace my-ripsaw jobs --timeout=500s
+  kubectl wait --for=condition=complete -l app=hammerdb-bench-workload-mssql-$uuid --namespace my-ripsaw jobs --timeout=500s
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"
