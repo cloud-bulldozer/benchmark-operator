@@ -2,6 +2,27 @@
 - debug:
     msg: "in ceph OSD cache dropper role"
 
+# First ensure that toolbox pod is running
+
+- name: check for existing rook-ceph cluster
+  k8s_info:
+    kind: Pod
+    namespace: "{{ rook_ceph_namespace }}"
+    label_selectors:
+      - app = rook-ceph-mgr
+  register: rook_ceph_mgr_exists
+
+- name: generate boolean for namespace existence
+  set_fact:
+    rook_ceph_cluster_exists: "{{ rook_ceph_mgr_exists.resources | length > 0 }}"
+
+- debug:
+    var: rook_ceph_cluster_exists
+
+- fail:
+    msg: "You are asking for Ceph cache with drop_cache_rook_ceph: true in CR, but there is no ceph cluster!"
+  when: not rook_ceph_cluster_exists
+
 - name: get pod info of pre-existing ceph toolbox pod
   k8s_info:
     kind: Pod
@@ -10,8 +31,13 @@
     namespace: "{{ rook_ceph_namespace }}"
   register: ceph_toolbox_already_exists
 
-- debug:
-    var: ceph_toolbox_already_exists
+#- debug:
+#    var: ceph_toolbox_already_exists
+
+# FIXME: this gets 403 unprivileged error, have to learn how to get around this
+# workaround is to issue oc command (with admin privs) to do it
+#   oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch  
+#      '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
 
 - name: ensure Ceph OSD toolbox pod is started
   k8s:
@@ -37,20 +63,22 @@
     namespace: "{{ rook_ceph_namespace }}"
   register: ceph_toolbox
 
-- debug:
-    var: ceph_toolbox
+#- debug:
+#    var: ceph_toolbox
+
+# this next var is referenced by the YAML that creates the cache dropper pod
 
 - name: put pod id into a var
   set_fact:
     rook_ceph_toolbox_pod: "{{ ceph_toolbox.resources[0].metadata.name }}"
 
-- debug:
-    var: rook_ceph_toolbox_pod
+#- debug:
+#    var: rook_ceph_toolbox_pod
 
 
 # now ensure that ceph cache dropper pod is started and we have its IP
 
-- name: get kernel cache dropper pod
+- name: get pre-existing ceph cache dropper pod
   k8s_info:
     kind: Pod
     label_selectors:
@@ -58,8 +86,12 @@
     namespace: "{{ rook_ceph_namespace }}"
   register: drop_pod_already_exists
 
-- debug:
-    var: drop_pod_already_exists
+#- debug:
+#    var: drop_pod_already_exists
+
+# FIXME: this gets 403 unprivileged error, have to learn how to get around this
+# workaround is to issue oc create -f command (with admin privs) to do it
+# you must substitute a real value for the jinja2 var in this template first
 
 - name: start ceph OSD cache dropper
   k8s:
@@ -69,7 +101,7 @@
 
 - name: wait for cache dropper to start
   shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} rook-ceph-osd-cache-drop"
-  when: drop_pod_already_exists.resources | length == 0
+  when: rook_ceph_cluster_exists and drop_pod_already_exists.resources | length == 0
 
 - name: get cache dropper pod
   k8s_info:
@@ -79,20 +111,20 @@
     namespace: "{{ rook_ceph_namespace }}"
   register: ceph_osd_cache_drop_pod
 
-- debug:
-    var: ceph_osd_cache_drop_pod
+#- debug:
+#    var: ceph_osd_cache_drop_pod
 
 - name: put ip into a var
   set_fact:
-    ceph_cache_drop_pod_ip: "{{ ceph_osd_cache_drop_pod.resources[0].status.podIP }}"
+    ceph_osd_cache_drop_pod_ip: "{{ ceph_osd_cache_drop_pod.resources[0].status.podIP }}"
 
 - debug:
-    var: ceph_cache_drop_pod_ip
+    var: ceph_osd_cache_drop_pod_ip
 
 - name: test IP
-  shell: "curl http://{{ ceph_cache_drop_pod_ip }}:{{ ceph_cache_drop_pod_port }}/"
+  shell: "curl http://{{ ceph_osd_cache_drop_pod_ip }}:{{ ceph_cache_drop_svc_port }}/"
   register: drop_pod_test
 
-- debug:
-    var: drop_pod_test
+#- debug:
+#    var: drop_pod_test
 
