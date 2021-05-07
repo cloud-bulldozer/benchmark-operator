@@ -14,7 +14,7 @@ spec:
     url: ES_SERVER
     index_name: ripsaw-hammerdb
   metadata:
-    collection: true
+    collection: false
   workload:
     name: hammerdb
     args:
@@ -38,7 +38,7 @@ spec:
       db_user: "SA"
       db_pass: "s3curePasswordString"
       db_name: "tpcc"
-      transactions: 100000
+      transactions: 10000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"
