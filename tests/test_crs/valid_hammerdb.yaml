@@ -38,7 +38,7 @@ spec:
       db_user: "SA"
       db_pass: "s3curePasswordString"
       db_name: "tpcc"
-      transactions: 10000
+      transactions: 500000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"
