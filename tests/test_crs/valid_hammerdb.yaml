@@ -14,7 +14,7 @@ spec:
     url: ES_SERVER
     index_name: ripsaw-hammerdb
   metadata:
-    collection: false
+    collection: true
   workload:
     name: hammerdb
     args:
