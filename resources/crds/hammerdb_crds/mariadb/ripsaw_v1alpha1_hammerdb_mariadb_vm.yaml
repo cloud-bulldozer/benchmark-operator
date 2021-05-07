@@ -52,7 +52,7 @@ spec:
       db_mssql_bucket: 1
       db_mssql_durability: "SCHEMA_AND_DATA"
       db_mssql_checkpoint: "false"
-      # mysql:
+      # mariadb:
       db_mysql_storage_engine: "innodb"
       db_mysql_partition: "false"
       db_mysql_socket: "/var/lib/mysql/mysql.sock"
