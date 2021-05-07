@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: rook-ceph-osd-cache-drop
-  namespace: openshift-storage
+  namespace: "{{ rook_ceph_namespace }}"
   labels:
     app: rook-ceph-osd-cache-drop
 spec:
