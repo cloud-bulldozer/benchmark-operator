@@ -8,8 +8,8 @@ spec:
   template:
     metadata:
       labels:
-        app: hammerdb-bench-creator-{{ trunc_uuid }}
-        type: {{ meta.name }}-bench-creator-{{ trunc_uuid }}
+        app: hammerdb_creator-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-creator-{{ trunc_uuid }}
         benchmark-operator-uuid: {{ uuid }}
     spec:
 {% if workload_args.pin is sameas true %}
