@@ -5,8 +5,8 @@ metadata:
   name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
   labels:
-    app: hammerdb-bench-workload-{{ trunc_uuid }}
-    type: hammerdb-bench-workload-{{ trunc_uuid }}
+    app: hammerdb_workload-{{ trunc_uuid }}
+    type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
     benchmark-operator-uuid: {{ uuid }}
 spec:
   domain:
