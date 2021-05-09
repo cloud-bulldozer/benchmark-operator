@@ -26,7 +26,7 @@
   register: benchmark_state
 
 - block:
-  
+
   - name: Create log generator pods
     k8s:
       state: present

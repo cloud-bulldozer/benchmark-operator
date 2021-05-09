@@ -107,9 +107,13 @@ spec:
             --aws-access-key "{{ workload_args.aws_access_key }}"
             --aws-secret-key "{{ workload_args.aws_secret_key }}"
 {% endif %}
+{% if workload_args.kafka_bootstrap_server is defined and workload_args.kafka_topic is defined %}
+            --kafka-bootstrap-server "{{ workload_args.kafka_bootstrap_server }}"
+            --kafka-topic "{{ workload_args.kafka_topic }}"
+{% endif %}
             --pod-name ${my_pod_name}
             --timeout "{{ workload_args.timeout | default(600) }}"
             --pod-count {{ workload_args.pod_count | default(1) | int }}
-      imagePullPolicy: Always
+        imagePullPolicy: Always
       restartPolicy: Never
 {% include "metadata.yml.j2" %}
