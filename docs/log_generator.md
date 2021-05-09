@@ -49,6 +49,12 @@ AWS CloudWatch:
 
 `aws_secret_key` the secret key to use to query cloudwatch
 
+Kafka:
+
+`kafka_bootstrap_server` the connection details to kafka
+
+`kafka_topic` the topic where logs are stored
+
 Your resource file may look like this when using an Elasticsearch Backend:
 
 ```yaml
@@ -73,7 +79,7 @@ spec:
       timeout: 600
       label:
         key: foo
-        value: "
+        value: ""
 ```
 
 Your resource file may look like this when using an AWS CloudWatch Backend:
@@ -102,5 +108,33 @@ spec:
       timeout: 800
       label:
         key: bar
-        value: "
+        value: ""
 ```
+
+Your resource file may look like this when using a Kafka Backend:
+
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: log-generator
+  namespace: my-ripsaw
+spec:
+  elasticsearch:
+    url: "http://es-instance.com:9200"
+    index_name: log-generator
+  workload:
+    name: log_generator
+    args:
+      pod_count: 2
+      size: 512
+      messages_per_second: 10
+      duration: 1
+      kafka_bootstrap_server: "my-cluster-kafka-bootstrap.amq:9092"
+      kafka_topic: "topic-logging-app"
+      timeout: 600
+      label:
+        key: foo
+        value: ""
+```
+
