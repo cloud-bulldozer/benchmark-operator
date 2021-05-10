@@ -137,7 +137,7 @@ function pod_count () {
 
 function apply_operator {
   operator_requirements
-  BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/$image_account/benchmark-operator:snafu_ci"}
+  BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/benchmark-operator/benchmark-operator:master"}
   cat resources/operator.yaml | \
     sed 's#quay.io/benchmark-operator/benchmark-operator:master#'$BENCHMARK_OPERATOR_IMAGE'#' | \
     kubectl apply -f -
