@@ -10,7 +10,7 @@ spec:
     metadata:
       labels:
         app: hammerdb_workload-{{ trunc_uuid }}
-        type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+        type: {{ meta.name }}-bench-workload-{{ trunc_uuid }}
         benchmark-operator-uuid: {{ uuid }}
     spec:
 {% if workload_args.pin is sameas true %}
