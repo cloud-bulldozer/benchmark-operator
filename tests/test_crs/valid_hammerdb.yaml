@@ -29,7 +29,7 @@ spec:
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
-      db_init: true # true only for first run to build schema
+      db_init: false # true only for first run to build schema
       db_benchmark: true
       db_server: "mssql-deployment.sql-server"
       db_port: "1433"
