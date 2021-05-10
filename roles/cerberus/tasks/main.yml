@@ -2,6 +2,7 @@
 - name: Get status from Cerberus
   uri:
     url: "{{ cerberus_url }}"
+    validate_certs: "{{ cerberus_validate_certs |  default('False') }}"
     return_content: yes
   register: result
 
