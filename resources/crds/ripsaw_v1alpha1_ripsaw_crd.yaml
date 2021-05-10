@@ -123,6 +123,8 @@ spec:
                 type: object
               cerberus_url:
                 type: string
+              cerberus_validate_certs:
+                type: boolean
               cleanup:
                 type: boolean
               test_user:
