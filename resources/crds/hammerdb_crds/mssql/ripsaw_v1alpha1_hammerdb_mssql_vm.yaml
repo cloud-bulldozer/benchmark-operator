@@ -12,7 +12,7 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: # add custom hammerdb image
+      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
       pin: false # true for nodeSelector
       pin_client: "node1"
       db_type: "mssql"
@@ -74,7 +74,7 @@ spec:
         limits:
           memory: 16Gi
         requests:
-          memory: 16Gi
+          memory: 100Mi
         network:
           front_end: bridge # or masquerade
           multiqueue:

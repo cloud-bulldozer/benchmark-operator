@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+  name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600
@@ -9,7 +9,7 @@ spec:
     metadata:
       labels:
         app: hammerdb_creator-{{ trunc_uuid }}
-        type: {{ meta.name }}-bench-creator-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-creator-{{ trunc_uuid }}
         benchmark-operator-uuid: {{ uuid }}
     spec:
 {% if workload_args.pin is sameas true %}
@@ -41,7 +41,7 @@ spec:
       volumes:
       - name: hammerdb-creator-volume
         configMap:
-          name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
           defaultMode: 0640
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}

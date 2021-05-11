@@ -18,31 +18,16 @@ spec:
     metadata:
       labels:
         app: mssql
-        type: mssql-database-server
     spec:
-      #nodeSelector:
-        #kubernetes.io/hostname: "node1"
       terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
-        image: mcr.microsoft.com/mssql/rhel/server:2019-latest
-        imagePullPolicy: "IfNotPresent"
+        image: quay.io/cloud-bulldozer/mssql:latest
         ports:
         - containerPort: 1433
         resources:
           requests:
-            cpu: 200m
-            memory: 100Mi
-          limits:
-            cpu: 2
-            memory: 2Gi
-        env:
-          - name: MSSQL_PID
-            value: "Enterprise"
-          - name: ACCEPT_EULA
-            value: "Y"
-          - name: MSSQL_SA_PASSWORD
-            value: "s3curePasswordString"
+            memory: "2048Mi"
 ---
 apiVersion: v1
 kind: Service
