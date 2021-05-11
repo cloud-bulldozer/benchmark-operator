@@ -37,14 +37,6 @@ In the interactive rebase screen, set the first commit to `pick` and all others 
 
 Push your rebased commits (you may need to force), then issue your PR.
 
-## Container Images
-
-Custom container image definitions are maintained in [magazine](https://github.com/cloud-bulldozer/magazine).
-We use quay for all storing all our custom container images, and if you're adding a new
-workload and not sure of where to add/maintain the container image. We highly recommend, to
-add the Dockerfile to magazine, as we've automation setup for updating images in Quay, when
-a git push happens to magazine.
-
 ## Add workload
 
 Adding new workloads are always welcome, but before you submit PR:
