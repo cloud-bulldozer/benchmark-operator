@@ -18,7 +18,7 @@ spec:
   workload:
     name: "hammerdb"
     args:
-      # image: "quay.io/mkarg/hammerdb:latest"
+      # image: "quay.io/test/hammerdb:latest"
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
