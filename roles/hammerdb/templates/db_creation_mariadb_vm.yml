@@ -2,11 +2,11 @@
 apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstance
 metadata:
-  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+  name: {{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}
   namespace: "{{ operator_namespace }}"
   labels:
     app: hammerdb_workload-{{ trunc_uuid }}
-    type: {{ meta.name }}-bench-workload-{{ trunc_uuid }}
+    type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
     benchmark-operator-uuid: {{ uuid }}
 spec:
   domain:
@@ -85,12 +85,12 @@ spec:
           - bash /tmp/hammerdb-mariadb-test/run_mariadb_script.sh
     name: cloudinitdisk
   - configMap:
-      name: "{{ meta.name }}-creator-{{ trunc_uuid }}"
+      name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
     name: hammerdb-creator-volume
   - configMap:
-      name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
+      name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
     name: hammerdb-workload-volume
   - configMap:
-      name: "{{ meta.name }}-mariadb-workload-{{ trunc_uuid }}"
+      name: "{{ ansible_operator_meta.name }}-mariadb-workload-{{ trunc_uuid }}"
     name: hammerdb-mariadb-workload-volume
 status: {}
