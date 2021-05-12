@@ -15,6 +15,7 @@ spec:
     index_name: ripsaw-hammerdb
   metadata:
     collection: true
+  cleanup: false
   workload:
     name: "hammerdb"
     args:
