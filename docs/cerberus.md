@@ -1,9 +1,10 @@
 # Cerberus Integration
 
 How To:
-* [What is it](#what-is-it)
-* [How it Works](#how-it-works)
-* [How to enable Cerberus](#how-to-enable-Cerberus)
+- [Cerberus Integration](#cerberus-integration)
+- [What is it](#what-is-it)
+- [How it Works](#how-it-works)
+- [How to enable Cerberus](#how-to-enable-cerberus)
 
 # What is it
 
@@ -42,12 +43,13 @@ spec:
   elasticsearch:
     url: "http://foo.bar.com:9200"
   cerberus_url: "http://1.2.3.4:8080"
+  cerberus_validate_certs: true
   workload:
     name: byowl
 ...
 ```
 
-NOTE: The cerberus url MUST BE in the format http://[address]:[port]
+NOTE: The cerberus url MUST BE in the format http://[address]:[port] . If the cerberus is not running with proper ssl certificates, set `cerberus_validate_certs` to `false`.
 
 Once Cerberus is enabled the connection status can be viewed by getting the benchmark status. If Cerberus is not
 enabled the connection status will simply be "not connected"
