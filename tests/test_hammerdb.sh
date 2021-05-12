@@ -28,6 +28,11 @@ function functional_test_hammerdb {
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
 
+  # Wait for the creator pod to run the actual create
+  hammerdb_creator_pod=$(get_pod "app=hammerdb_creator-$uuid" 300)
+  kubectl wait --for=condition=Initialized "pods/$hammerdb_creator_pod" --namespace my-ripsaw --timeout=400s
+  kubectl wait --for=condition=complete -l app=hammerdb_creator-$uuid --namespace my-ripsaw jobs --timeout=500s
+
   # Wait for the workload pod to run the actual workload
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
   kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace my-ripsaw --timeout=400s
