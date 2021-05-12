@@ -19,7 +19,7 @@ spec:
   workload:
     name: "hammerdb"
     args:
-      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
+      # image: "quay.io/test/hammerdb:latest"
       pin: false # true for nodeSelector
       pin_client: "node1"
       resources: false # true for resources requests/limits
@@ -30,7 +30,7 @@ spec:
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
-      db_init: true # true only for first run to build schema
+      db_init: false
       db_benchmark: true
       db_server: "mssql-deployment.sql-server"
       db_port: "1433"
@@ -64,10 +64,9 @@ spec:
       db_mssql_bucket: 1
       db_mssql_durability: "SCHEMA_AND_DATA"
       db_mssql_checkpoint: "false"
-      # mariadb:
+      # mysql:
       db_mysql_storage_engine: "innodb"
       db_mysql_partition: "false"
-      db_mysql_socket: "/var/lib/mysql/mysql.sock"
       # postgresql
       db_postgresql_superuser: "SA"
       db_postgresql_superuser_pass: "s3curePasswordString"
