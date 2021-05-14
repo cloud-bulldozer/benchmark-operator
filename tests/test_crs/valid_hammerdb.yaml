@@ -19,7 +19,7 @@ spec:
   workload:
     name: "hammerdb"
     args:
-      # image: "quay.io/test/hammerdb:latest"
+      # image: quay.io/test/hammerdb:latest
       pin: false # true for nodeSelector
       pin_client: "node1"
       resources: false # true for resources requests/limits
