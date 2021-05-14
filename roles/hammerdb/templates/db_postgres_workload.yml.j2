@@ -89,6 +89,11 @@ spec:
              export db_postgresql_dritasnap={{workload_args.db_postgresql_dritasnap}};
              export db_postgresql_oracompat={{workload_args.db_postgresql_oracompat}};
              export db_postgresql_storedprocs={{workload_args.db_postgresql_storedprocs}};
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_db_version={{workload_args.es_db_version}};
+{% endif %}
              cd /hammer;
              run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:

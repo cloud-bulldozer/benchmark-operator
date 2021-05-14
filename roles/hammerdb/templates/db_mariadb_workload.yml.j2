@@ -85,6 +85,11 @@ spec:
              export samples={{workload_args.samples}};
              export db_mysql_storage_engine={{workload_args.db_mysql_storage_engine}};
              export db_mysql_partition={{workload_args.db_mysql_partition}};
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_db_version={{workload_args.es_db_version}};
+{% endif %}
              cd /hammer;
              run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:

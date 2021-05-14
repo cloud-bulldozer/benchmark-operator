@@ -69,3 +69,8 @@ spec:
       db_postgresql_dritasnap: "false"
       db_postgresql_oracompat: "false"
       db_postgresql_storedprocs: "false"
+      # es custom fields
+      es_custom_field: false
+      es_ocp_version: "4.7.0"
+      es_cnv_version: "2.6.2"
+      es_db_version: "10.3.0"
