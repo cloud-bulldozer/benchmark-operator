@@ -91,6 +91,11 @@ spec:
              export db_mssql_bucket={{workload_args.db_mssql_bucket}};
              export db_mssql_durability={{workload_args.db_mssql_durability}};
              export db_mssql_checkpoint={{workload_args.db_mssql_checkpoint}};
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_db_version={{workload_args.es_db_version}};
+{% endif %}
              cd /hammer;
              run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:
