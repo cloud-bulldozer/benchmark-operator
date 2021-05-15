@@ -57,13 +57,13 @@
     k8s:
       definition: "{{ lookup('template', 'stressng_workload.yml.j2') | from_yaml }}"
     register: jobs
-    when: resource_kind == "pod"
+    when: (workload.args.kind | default('pod')) == "pod"
 
   - name: start stressng vm workload job
     k8s:
       definition: "{{ lookup('template', 'stressng_workload_vm.yml.j2') | from_yaml }}"
     register: jobs
-    when: resource_kind == "vm"
+    when: (workload.args.kind | default('pod')) == "vm"
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -95,7 +95,7 @@
           state: Benchmark Complete
           complete: true
         when: stressng_workload_pod | json_query('resources[].status.succeeded')
-    when: resource_kind == "pod"
+    when: (workload.args.kind | default('pod')) == "pod"
 
   - block:
       - name: get complete
@@ -110,5 +110,5 @@
             state: Benchmark Complete
             complete: true
         when: complete_status.stdout == "true"
-    when: resource_kind == "vm"
+    when: (workload.args.kind | default('pod')) == "vm"
   when: resource_state.resources[0].status.state == "Benchmark running"
