@@ -76,7 +76,7 @@ spec:
           - dnf install -y epel-release
           - dnf install -y python3-pip
           - dnf install -y git redis stress-ng
-          - pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper
+          - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
           - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
     name: cloudinitdisk
   - configMap:
