@@ -7,7 +7,7 @@
 Given that you followed instructions to deploy operator,
 you can modify [cr.yaml](../resources/crds/hammerdb_crds/ripsaw_v1alpha1_hammerdb_cr.yaml) to your needs.
 
-The pgbench workload needs to be pointed at an existing [MSSQL](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_cr.yaml), [MARIADB](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_cr.yaml), [POSTGRES](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_cr.yaml) databases via the CR file.
+The hammerdb workload needs to be pointed at an existing [MSSQL](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_cr.yaml), [MARIADB](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_cr.yaml), [POSTGRES](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_cr.yaml) database via the CR file.
 
 An example CR might look like this
 
@@ -36,7 +36,7 @@ spec:
       samples: 1
 ```
 
-The `db_init` feature determines wether the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
+The `db_init` feature determines weather the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
 
 The `db_benchmark` feature is used to run the actual benchmark when set to true. `db_server` either holds the name or the IP address of the DB server, `db_port` the port on which the DB is accessible. If `db_tcp` is set to true the client will use a TCP connection, if it's set to `false` UDP will be used.
 
