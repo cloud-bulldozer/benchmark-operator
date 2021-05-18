@@ -69,6 +69,8 @@ spec:
       es_ocp_version: "4.7.0"
       es_cnv_version: "2.6.2"
       es_db_version: "2019"
+      es_os_version: "centos8"
+      es_kind: "vm"
       kind: vm
       client_vm:
         dedicatedcpuplacement: false

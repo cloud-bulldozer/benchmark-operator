@@ -13,9 +13,6 @@ spec:
     name: hammerdb
     args:
       #image: quay.io/test/hammerdb:latest # add custom hammerdb image
-<<<<<<< HEAD
-
-=======
       pin: false # true for nodeSelector
       pin_client: "node1"
       resources: false # true for resources requests/limits
@@ -23,7 +20,6 @@ spec:
       requests_memory: 100Mi
       limits_cpu: 4
       limits_memory: 16Gi
->>>>>>> cea51f3b07cd4646b7150deea8a5089c3bde687a
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
@@ -78,3 +74,5 @@ spec:
       es_ocp_version: "4.7.0"
       es_cnv_version: "2.6.2"
       es_db_version: "2019"
+      es_os_version: "centos8"
+      es_kind: "pod"
