@@ -89,10 +89,7 @@ spec:
              export es_ocp_version={{workload_args.es_ocp_version}};
              export es_cnv_version={{workload_args.es_cnv_version}};
              export es_db_version={{workload_args.es_db_version}};
-<<<<<<< HEAD:roles/hammerdb/templates/db_mariadb_workload.yml.j2
              export es_os_version={{workload_args.es_os_version}};
-=======
->>>>>>> cea51f3b07cd4646b7150deea8a5089c3bde687a:roles/hammerdb/templates/db_mysql_workload.yml.j2
 {% endif %}
              cd /hammer;
              run_snafu --tool hammerdb -u {{ uuid }}"
