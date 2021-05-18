@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: "job"
 metadata:
-  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   parallelism: {{ workload_args.instances }}
@@ -95,7 +95,7 @@ spec:
       volumes:
       - name: stressng-workload-volume
         configMap:
-          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+          name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0660
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}

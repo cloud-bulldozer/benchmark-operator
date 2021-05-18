@@ -15,10 +15,18 @@ spec:
     index_name: ripsaw-hammerdb
   metadata:
     collection: true
+  cleanup: false
   workload:
     name: "hammerdb"
     args:
       # image: quay.io/test/hammerdb:latest
+      pin: false # true for nodeSelector
+      pin_client: "node1"
+      resources: false # true for resources requests/limits
+      requests_cpu: 200m
+      requests_memory: 100Mi
+      limits_cpu: 4
+      limits_memory: 16Gi
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
@@ -27,7 +35,7 @@ spec:
       db_server: "mssql-deployment.sql-server"
       db_port: "1433"
       db_warehouses: 1
-      db_num_workers: 1 
+      db_num_workers: 1
       db_user: "SA"
       db_pass: "s3curePasswordString"
       db_name: "tpcc"

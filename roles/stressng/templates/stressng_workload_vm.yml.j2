@@ -2,7 +2,7 @@
 apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstance
 metadata:
-  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+  name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   domain:
@@ -80,6 +80,6 @@ spec:
           - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
     name: cloudinitdisk
   - configMap:
-      name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+      name: "{{ meta.name }}-workload-{{ trunc_uuid }}"
     name: stressng-workload-volume
 status: {}
