@@ -19,11 +19,20 @@ spec:
     name: log_generator
     args:
       # Number of log generator pods to launch
-      pod_count: 1
+      pod_count:
+        - 1
+        - 10
+        - 100
       # size of message in bytes
-      size: 512
+      size:
+        - 512
+        - 1024
+        - 2048
       # number of messages per second to send
-      messages_per_second: 10
+      messages_per_second:
+        - 10
+        - 100
+        - 1000
       # duration of time to send messages in minutes
       duration: 1
       # url of the backend elasticsearch to be used for verification

@@ -2,14 +2,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: 'log-generator-{{ trunc_uuid }}'
+  name: 'log-generator-{{ pod_count }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
-  parallelism: {{ workload_args.pod_count | default(1) | int }}
+  parallelism: {{ pod_count | default(1) | int }}
   template:
     metadata:
       labels:
-        app: log-generator-{{ trunc_uuid }}
+        app: log-generator-{{ pod_count }}-{{ trunc_uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -74,27 +74,33 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - > 
-{% if workload_args.pod_count | default(1) | int > 1 %}
-            if [[ "${snafu_disable_logs}" == "False" ]]; then echo "Waiting for all pods to be Ready"; fi;
-            redis-cli -h {{ bo.resources[0].status.podIP }} INCR "log-generator-{{ trunc_uuid }}" > /dev/null 2>&1;
-            pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ trunc_uuid }}"`;
-            while [[ $pods != {{ workload_args.pod_count | int }} ]]; do
-              pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ trunc_uuid }}"`;
+{% if workload_args.messages_per_second is defined %}
+{% set rates = workload_args.messages_per_second %}
+{% elif workload_args.messages_per_minute is defined %}
+{% set rates = workload_args.messages_per_minute %}
+{% endif %}
+{% for size in workload_args.size %}
+{% for rate in rates %}
+{% if pod_count | default(1) | int > 1 %}
+            if [[ "${snafu_disable_logs}" == "False" ]]; then echo "Waiting for {{ pod_count }} pods to be Ready"; fi;
+            redis-cli -h {{ bo.resources[0].status.podIP }} INCR "log-generator-{{ pod_count }}-{{ size }}-{{ rate }}-{{ trunc_uuid }}" > /dev/null 2>&1;
+            pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ pod_count }}-{{ size }}-{{ rate }}-{{ trunc_uuid }}"`;
+            while [[ $pods != {{ pod_count | int }} ]]; do
               sleep 1;
+              pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ pod_count }}-{{ size }}-{{ rate }}-{{ trunc_uuid }}"`;
             done;
 {% endif %}
             run_snafu
             --tool log_generator
 {% if workload_args.debug is defined and workload_args.debug %}
-            -v
-{% endif %}
+            -v {% endif %}
             -u "{{ uuid }}"
-            --size "{{ workload_args.size | default(512) }}"
+            --size "{{ size | default(512) }}"
 {% if workload_args.messages_per_second is defined %}
-            --messages-per-second "{{ workload_args.messages_per_second }}"
+            --messages-per-second "{{ rate }}"
 {% endif %}
 {% if workload_args.messages_per_minute is defined %}
-            --messages-per-minue "{{ workload_args.messages_per_minute }}"
+            --messages-per-minute "{{ rate }}"
 {% endif %}
             --duration "{{ workload_args.duration | default(10) }}"
 {% if workload_args.es_url is defined %}
@@ -115,7 +121,10 @@ spec:
 {% endif %}
             --pod-name ${my_pod_name}
             --timeout "{{ workload_args.timeout | default(600) }}"
-            --pod-count {{ workload_args.pod_count | default(1) | int }}
+            --pod-count {{ pod_count | default(1) | int }};
+{% endfor %}
+{% endfor %}
+             if [[ "${snafu_disable_logs}" == "False" ]]; then echo "Run Finished"; fi
         imagePullPolicy: Always
       restartPolicy: Never
 {% include "metadata.yml.j2" %}

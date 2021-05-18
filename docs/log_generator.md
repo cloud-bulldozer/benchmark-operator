@@ -12,17 +12,17 @@ This data will also be indexed if Elasticsearch information is provided.
 
 ### Required variables:
 
-`size` the size, in bytes, of the message to send
+`size` (list) the size, in bytes, of the message to send
 
 `duration` how long, in minutes, messages should be sent for
 
-`messages_per_second` the number of messages per second (mutually exclusive with messages_per_minute)
+`messages_per_second` (list) the number of messages per second (mutually exclusive with messages_per_minute)
 
-`messages_per_minute` the number of messages per minute (mutually exclusive with messages_per_second)
+`messages_per_minute` (list) the number of messages per minute (mutually exclusive with messages_per_second)
 
 ### Optional variables:
 
-`pod_count` total number of log generator pods to launch (default: 1)
+`pod_count` (list) total number of log generator pods to launch (default: 1)
 
 `timeout` how long, in seconds, after have been sent to allow the backend service to receive all the messages (default: 600)
 
@@ -72,9 +72,12 @@ spec:
   workload:
     name: log_generator
     args:
-      pod_count: 2
-      size: 512
-      messages_per_second: 10
+      pod_count:
+        - 2
+      size:
+        - 512
+      messages_per_second:
+        - 10
       duration: 1
       es_url: "https://my-es-backend.com"
       es_token: "sha256~myToken"
@@ -99,9 +102,12 @@ spec:
   workload:
     name: log_generator
     args:
-      pod_count: 10
-      size: 1024
-      messages_per_second: 100
+      pod_count:
+        - 10
+      size:
+        - 1024
+      messages_per_second:
+        - 100
       duration: 10
       cloudwatch_log_group: "my_log_group"
       aws_region: "us-west-2"
@@ -128,9 +134,12 @@ spec:
   workload:
     name: log_generator
     args:
-      pod_count: 2
-      size: 512
-      messages_per_second: 10
+      pod_count:
+        - 2
+      size:
+        - 512
+      messages_per_second:
+        - 10
       duration: 1
       kafka_bootstrap_server: "my-cluster-kafka-bootstrap.amq:9092"
       kafka_topic: "topic-logging-app"

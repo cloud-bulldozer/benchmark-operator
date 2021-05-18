@@ -10,9 +10,15 @@ spec:
   workload:
     name: log_generator
     args:
-      pod_count: 1
-      size: 512
-      messages_per_second: 1
+      pod_count:
+        - 1
+        - 2
+      size:
+        - 256
+        - 512
+      messages_per_second:
+        - 1
+        - 2
       duration: 1
       es_url: ES_SERVER
       timeout: 600

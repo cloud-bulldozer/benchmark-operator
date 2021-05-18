@@ -7,14 +7,32 @@
     namespace: "{{ operator_namespace }}"
   register: benchmark_state
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: "Starting Log Generator Pods"
-      complete: false
+- name: Set redis pod count list name
+  set_fact:
+    pod_count_list: "{{ ansible_operator_meta.name }}-{{ uuid }}-pod-count-list"
+
+- name: Set redis pod count list index name
+  set_fact:
+    pod_count_list_index: "{{ ansible_operator_meta.name }}-{{ uuid }}-pod-count-list-index"
+
+- block:
+
+  - operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Log Generator Pods"
+        complete: false
+
+  - name: Write pod count list to redis
+    command: "redis-cli rpush {{ pod_count_list }} {{ item }}"
+    loop: "{{ workload_args.pod_count | default(1) }}"
+
+  - name: Initialize pod count list index
+    command: "redis-cli set {{ pod_count_list_index }} 0"
+
   when: benchmark_state.resources[0].status.state is not defined
 
 - name: Get benchmark state 
@@ -24,6 +42,22 @@
     name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
   register: benchmark_state
+
+- name: Get pod count list index
+  command: "redis-cli get {{ pod_count_list_index }}"
+  register: pod_count_index_get
+
+- name: Set pod count index
+  set_fact:
+    pod_count_index: "{{ pod_count_index_get.stdout | int }}"
+
+- name: Get pod count from index
+  command: "redis-cli lindex {{ pod_count_list }} {{ pod_count_index }}"
+  register: pod_count_get
+
+- name: Set pod count 
+  set_fact:
+    pod_count: "{{ pod_count_get.stdout | int }}"
 
 - block:
 
@@ -50,7 +84,7 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = log-generator-{{ trunc_uuid }}
+        - app = log-generator-{{ pod_count }}-{{ trunc_uuid }}
     register: log_pods
 
   - name: Update resource state
@@ -61,7 +95,7 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: "Log Generator Running"
-    when: "workload_args.pod_count|default('1')|int == log_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+    when: "pod_count|default('1')|int == log_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
   
   when: benchmark_state.resources[0].status.state == "Building Pods"
 
@@ -73,17 +107,37 @@
       api_version: v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
-        - app = log-generator-{{ trunc_uuid }}
+        - app = log-generator-{{ pod_count }}-{{ trunc_uuid }}
     register: log_pods
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "workload_args.pod_count|default('1')|int == (log_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
+  - block:
+
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: "Starting Log Generator Pods"
+
+    - name: Increment pod count list index
+      command: "redis-cli incr {{ pod_count_list_index }}"
+
+    when: (pod_count|default('1')|int == (log_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)) and
+          (pod_count_index|int < (workload_args.pod_count|length - 1))
+
+  - block:
+
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: Complete
+          complete: true
+
+    when: (pod_count|default('1')|int == (log_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)) and
+          (pod_count_index|int == (workload_args.pod_count|length - 1))
 
   when: benchmark_state.resources[0].status.state == "Log Generator Running"
