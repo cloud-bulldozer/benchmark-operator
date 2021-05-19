@@ -26,6 +26,8 @@ This data will also be indexed if Elasticsearch information is provided.
 
 `timeout` how long, in seconds, after have been sent to allow the backend service to receive all the messages (default: 600)
 
+`snafu_disable_logs` Disable all logging in the pod from the snafu logger, thereby only leaving the generated log messages on stdout (default: False)
+
 ### Verification variables:
 
 To verify your messages have been received by the backend aggregator you must provide information for ONLY ONE of the supported
