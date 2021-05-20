@@ -49,11 +49,7 @@ spec:
       - name: trex
         command: ["/bin/sh", "-c"]
         args:
-        - run_snafu --tool trex --uuid {{ trunc_uuid }} --user {{ test_user | default('snafu') }} \
-{% if workload_args.debug is defined and workload_args.debug %}
-          -v \
-{% endif %}
-          ;
+        - run_snafu --tool trex --uuid {{ trunc_uuid }} --user {{ test_user | default('snafu') }} {% if workload_args.debug is defined and workload_args.debug %} -v {% endif %};
         image: "{{ workload_args.image_trex | default('quay.io/cloud-bulldozer/trex:latest') }}"
         imagePullPolicy: "{{ workload_args.image_pull_policy | default('Always') }}"
         securityContext:
