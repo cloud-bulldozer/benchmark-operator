@@ -27,6 +27,14 @@
 
 - block:
 
+  - name: Create namespace
+    k8s:
+        api_version: v1
+        name: "{{ workload_args.custom_namespace }}"
+        kind: Namespace
+        state: present
+    when: workload_args.custom_namespace is defined and workload_args.custom_namespace != ""
+
   - name: Create log generator pods
     k8s:
       state: present

@@ -28,6 +28,8 @@ This data will also be indexed if Elasticsearch information is provided.
 
 `snafu_disable_logs` Disable all logging in the pod from the snafu logger, thereby only leaving the generated log messages on stdout (default: False)
 
+`custom_namespace` Useful when you want to create the log generator pods in a custom namespace of you liking, by default they are created in the operator namespace
+
 ### Verification variables:
 
 To verify your messages have been received by the backend aggregator you must provide information for ONLY ONE of the supported

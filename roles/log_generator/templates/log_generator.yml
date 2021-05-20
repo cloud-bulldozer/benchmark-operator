@@ -3,7 +3,11 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: 'log-generator-{{ trunc_uuid }}'
+{% if workload_args.custom_namespace is defined %}
+  namespace: '{{  workload_args.custom_namespace }}'
+{% else %}
   namespace: '{{ operator_namespace }}'
+{% endif %}
 spec:
   parallelism: {{ workload_args.pod_count | default(1) | int }}
   template:
