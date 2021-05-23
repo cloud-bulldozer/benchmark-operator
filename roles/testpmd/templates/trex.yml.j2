@@ -77,6 +77,8 @@ spec:
         volumeMounts:
         - name: hugepage
           mountPath: /dev/hugepages
+        - name: modules
+          mountPath: /lib/modules
         env:
         - name: CLUSTERNAME
           value: "{{ clustername }}"        
@@ -132,6 +134,9 @@ spec:
       - name: hugepage
         emptyDir:
           medium: HugePages
+      - name: modules
+        hostPath:
+          path: /lib/modules
       restartPolicy: OnFailure
       serviceAccountName: benchmark-operator
 {% include "metadata.yml.j2" %}
