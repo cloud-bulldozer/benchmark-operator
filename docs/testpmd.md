@@ -13,6 +13,8 @@ This workload assumes a healthy cluster is runing with SR-IOV and Performance Ad
 
 These are used to create VFs and SRIOV networks, interface might vary. Creating `SriovNetworkNodePolicy` will reboot your worker nodes one by one.
 
+Below node policy is for Intel XXV710 NICs, for a Mellanox NIC to work in Data Plane Development Kit (DPDK) mode, use the `netdevice` driver type and include additional spec `isRdma: true`.
+
 ```yaml
 apiVersion: sriovnetwork.openshift.io/v1
 kind: SriovNetworkNodePolicy
