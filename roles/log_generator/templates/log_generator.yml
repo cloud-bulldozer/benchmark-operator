@@ -112,6 +112,9 @@ spec:
 {% if workload_args.kafka_bootstrap_server is defined and workload_args.kafka_topic is defined %}
             --kafka-bootstrap-server "{{ workload_args.kafka_bootstrap_server }}"
             --kafka-topic "{{ workload_args.kafka_topic }}"
+{% if workload_args.kafka_check is defined and workload_args.kafka_check %}
+            --kafka-check
+{% endif %}
 {% endif %}
             --pod-name ${my_pod_name}
             --timeout "{{ workload_args.timeout | default(600) }}"

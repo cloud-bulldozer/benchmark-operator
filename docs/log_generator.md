@@ -57,6 +57,8 @@ Kafka:
 
 `kafka_topic` the topic where logs are stored
 
+`kafka_check` if you want to verify that log messages made it to kafka sink (requires a high timeout)
+
 Your resource file may look like this when using an Elasticsearch Backend:
 
 ```yaml
