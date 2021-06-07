@@ -2,13 +2,15 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: rook-ceph-osd-cache-drop
-  namespace: "{{ rook_ceph_namespace }}"
+  # if you are using upstream rook-ceph, change the next line
+  #namespace: "{{ rook_ceph_namespace }}"
+  namespace: "openshift-storage"
   labels:
     app: rook-ceph-osd-cache-drop
 spec:
   containers:
   - name: rook-ceph-osd-cache-drop
-    image: "{{ ceph_cache_drop_image | default('quay.io/cloud-bulldozer/ceph-cache-dropper:latest') }}"
+    image: "quay.io/cloud-bulldozer/ceph-cache-dropper:latest"
     imagePullPolicy: Always
     command: [/bin/sh, -c]
     args:
@@ -25,7 +27,8 @@ spec:
             name: rook-ceph-mon
             key: ceph-secret
       - name: ceph_cache_drop_port
-        value: "{{ ceph_cache_drop_svc_port }}"
+        #value: "{{ ceph_cache_drop_svc_port }}"
+        value: 9457
     securityContext:
       privileged: true
     volumeMounts:
