@@ -23,37 +23,37 @@
     msg: "You are asking for Ceph cache with drop_cache_rook_ceph: true in CR, but there is no ceph cluster!"
   when: not rook_ceph_cluster_exists
 
-- name: get pod info of pre-existing ceph toolbox pod
-  k8s_info:
-    kind: Pod
-    label_selectors:
-      - app = rook-ceph-tools
-    namespace: "{{ rook_ceph_namespace }}"
-  register: ceph_toolbox_already_exists
+#- name: get pod info of pre-existing ceph toolbox pod
+#  k8s_info:
+#    kind: Pod
+#    label_selectors:
+#      - app = rook-ceph-tools
+#    namespace: "{{ rook_ceph_namespace }}"
+#  register: ceph_toolbox_already_exists
 
 #- debug:
 #    var: ceph_toolbox_already_exists
 
-# FIXME: this gets 403 unprivileged error, have to learn how to get around this
+# FIXME: next commented-out task gets 403 unprivileged error
 # workaround is to issue oc command (with admin privs) to do it
 #   oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch  
 #      '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
 
-- name: ensure Ceph OSD toolbox pod is started
-  k8s:
-    namespace: "{{ rook_ceph_namespace }}"
-    name: ocsinit
-    kind: OCSInitialization
-    state: present
-    apply: true
-    resource_definition:
-      spec:
-        enableCephTools: true  
-  when: ceph_toolbox_already_exists.resources | length == 0
+#- name: ensure Ceph OSD toolbox pod is started
+#  k8s:
+#    namespace: "{{ rook_ceph_namespace }}"
+#    name: ocsinit
+#    kind: OCSInitialization
+#    state: present
+#    apply: true
+#    resource_definition:
+#      spec:
+#        enableCephTools: true  
+#  when: ceph_toolbox_already_exists.resources | length == 0
 
-- name: wait for toolbox pod to start
-  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} ceph-toolbox"
-  when: ceph_toolbox_already_exists.resources | length == 0
+#- name: wait for toolbox pod to start
+#  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} ceph-toolbox"
+#  when: ceph_toolbox_already_exists.resources | length == 0
 
 - name: get pod name of running ceph toolbox pod
   k8s_info:
@@ -72,36 +72,36 @@
   set_fact:
     rook_ceph_toolbox_pod: "{{ ceph_toolbox.resources[0].metadata.name }}"
 
-#- debug:
-#    var: rook_ceph_toolbox_pod
+- debug:
+    var: rook_ceph_toolbox_pod
 
 
 # now ensure that ceph cache dropper pod is started and we have its IP
 
-- name: get pre-existing ceph cache dropper pod
-  k8s_info:
-    kind: Pod
-    label_selectors:
-      - app = rook-ceph-osd-cache-drop
-    namespace: "{{ rook_ceph_namespace }}"
-  register: drop_pod_already_exists
+#- name: get pre-existing ceph cache dropper pod
+#  k8s_info:
+#    kind: Pod
+#    label_selectors:
+#      - app = rook-ceph-osd-cache-drop
+#    namespace: "{{ rook_ceph_namespace }}"
+#  register: drop_pod_already_exists
 
 #- debug:
 #    var: drop_pod_already_exists
 
-# FIXME: this gets 403 unprivileged error, have to learn how to get around this
+# FIXME: this gets 403 unprivileged error
 # workaround is to issue oc create -f command (with admin privs) to do it
 # you must substitute a real value for the jinja2 var in this template first
 
-- name: start ceph OSD cache dropper
-  k8s:
-    definition: "{{ lookup('template', '/opt/ansible/roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml') | from_yaml }}"
-  register: ceph_cache_dropper_start
-  when: drop_pod_already_exists.resources | length == 0
-
-- name: wait for cache dropper to start
-  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} rook-ceph-osd-cache-drop"
-  when: rook_ceph_cluster_exists and drop_pod_already_exists.resources | length == 0
+#- name: start ceph OSD cache dropper
+#  k8s:
+#    definition: "{{ lookup('template', '/opt/ansible/roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml') | from_yaml }}"
+#  register: ceph_cache_dropper_start
+#  when: drop_pod_already_exists.resources | length == 0
+#
+#- name: wait for cache dropper to start
+#  shell: "python3 /opt/ansible/roles/ceph_osd_cache_drop/wait_for_pod.py 30 {{ rook_ceph_namespace }} rook-ceph-osd-cache-drop"
+#  when: rook_ceph_cluster_exists and drop_pod_already_exists.resources | length == 0
 
 - name: get cache dropper pod
   k8s_info:
