@@ -30,6 +30,8 @@ drop_cache_kernel: true
 drop_cache_rook_ceph: true
 ```
 
+## how to drop kernel cache 
+
 For this to work, you must **label** the nodes that you want to drop kernel cache, for example:
 
 ```
@@ -53,6 +55,24 @@ Benchmarks supported for kernel cache dropping at present are:
 
 - fio
 - smallfile
+
+## how to drop Ceph OSD cache
+
+for this to work with OpenShift Container Storage, you must start both the Ceph toolbox pod in OCS
+and the cache dropper pod.   You can do this with:
+
+```
+oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch \
+  '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
+
+oc create -f roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml
+
+oc -n openshift-storage get pod | awk '/tool/||/drop/'
+```
+
+when you see both of these pods in the running state, then you can use benchmark operator.   The reason that
+you have to manually start these two pods running is that the benchmark-operator does not have authorization
+to run them in the openshift-storage namespace and get access to the secrets needed to do this.
 
 # implementation notes
 
