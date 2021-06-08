@@ -28,7 +28,7 @@ spec:
             key: ceph-secret
       - name: ceph_cache_drop_port
         #value: "{{ ceph_cache_drop_svc_port }}"
-        value: 9457
+        value: "9457"
     securityContext:
       privileged: true
     volumeMounts:
