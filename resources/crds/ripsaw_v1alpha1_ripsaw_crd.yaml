@@ -135,6 +135,8 @@ spec:
                 type: string
               drop_cache_kernel:
                 type: boolean
+              drop_cache_rook_ceph:
+                type: boolean
           status:
             type: object
             properties:
