@@ -7,11 +7,11 @@ spec:
   system_metrics:
     collection: true
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
-    es_url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com/
+    es_url: ES_SERVER
     prom_token: PROMETHEUS_TOKEN
     metrics_profile: node-metrics.yml
   elasticsearch:
-    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com/
+    url: ES_SERVER
     index_name: ripsaw-fio
   metadata:
     collection: true
