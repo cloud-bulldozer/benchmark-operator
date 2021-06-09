@@ -90,3 +90,10 @@ spec:
         extra_options:
           - none
           #- hostpassthrough
+        # PVC
+        #storageclass: ocs-storagecluster-ceph-rbd
+        # Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+        #pvcaccessmode: ReadWriteMany
+        # Can be one of Filesystem,Block Default: Filesystem
+        #pvcvolumemode: Block
+        #storagesize: 5Gi

@@ -25,6 +25,24 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
+- name: Create PVC(s)
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "claim-{{ trunc_uuid }}"
+        namespace: '{{ operator_namespace }}'
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "{{ workload_args.client_vm.storageclass }}"
+      spec:
+        accessModes:
+          - "{{ workload_args.client_vm.pvcaccessmode | default('ReadWriteOnce') }}"
+        volumeMode: "{{ workload_args.client_vm.pvcvolumemode | default('Filesystem') }}"
+        resources:
+          requests:
+            storage: "{{ workload_args.client_vm.storagesize }}"
+  when: workload_args.client_vm.storageclass is defined
 
 - block:
   - name: template mariadb db creation script

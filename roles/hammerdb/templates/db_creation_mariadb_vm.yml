@@ -38,6 +38,13 @@ spec:
         name: hammerdb-mariadb-workload-volume
         # set serial
         serial: CVLY623300HK240E
+{% if workload_args.client_vm.storageclass is defined
+    or workload_args.client_vm.hostpath is defined %}
+      - disk:
+          bus: virtio
+        name: data-volume
+        serial: data
+{% endif %}
       interfaces:
         - name: default
           {{ workload_args.client_vm.network.front_end }}: {}
@@ -75,6 +82,13 @@ spec:
           - "mkdir /tmp/hammerdb-mariadb-test"
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240E | cut -f1 -d' ') /tmp/hammerdb-mariadb-test"
         runcmd:
+{% if workload_args.client_vm.storageclass is defined
+    or workload_args.client_vm.hostpath is defined %}
+          - "mkdir -p /var/lib/mysql || true"
+          - mkfs.ext4 /dev/disk/by-id/virtio-data
+          - "mount /dev/disk/by-id/virtio-data /var/lib/mysql"
+          - "chown -R mysql:mysql /var/lib/mysql"
+{% endif %}
 {% if workload_args.client_vm.network.multiqueue.enabled %}
           - dnf install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
@@ -93,4 +107,15 @@ spec:
   - configMap:
       name: "{{ ansible_operator_meta.name }}-mariadb-workload-{{ trunc_uuid }}"
     name: hammerdb-mariadb-workload-volume
+{% if workload_args.client_vm.storageclass is defined %}
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: claim-{{ trunc_uuid }}
+{% elif workload_args.client_vm.hostpath is defined %}
+  - name: data-volume
+    hostDisk:
+      path: {{ workload_args.hostpath }}
+      capacity: {{ workload_args.storagesize | default("5Gi") }}
+      type: DiskOrCreate
+{% endif %}
 status: {}

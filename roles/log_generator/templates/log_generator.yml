@@ -49,6 +49,8 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
+          - name: snafu_disable_logs
+            value: "{{ workload_args.snafu_disable_logs | default(false) }}"
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.url }}"
@@ -73,7 +75,7 @@ spec:
         args:
           - > 
 {% if workload_args.pod_count | default(1) | int > 1 %}
-            echo "Waiting for all pods to be Ready";
+            if [[ "${snafu_disable_logs}" == "False" ]]; then echo "Waiting for all pods to be Ready"; fi;
             redis-cli -h {{ bo.resources[0].status.podIP }} INCR "log-generator-{{ trunc_uuid }}" > /dev/null 2>&1;
             pods=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "log-generator-{{ trunc_uuid }}"`;
             while [[ $pods != {{ workload_args.pod_count | int }} ]]; do
@@ -110,6 +112,9 @@ spec:
 {% if workload_args.kafka_bootstrap_server is defined and workload_args.kafka_topic is defined %}
             --kafka-bootstrap-server "{{ workload_args.kafka_bootstrap_server }}"
             --kafka-topic "{{ workload_args.kafka_topic }}"
+{% if workload_args.kafka_check is defined and workload_args.kafka_check %}
+            --kafka-check
+{% endif %}
 {% endif %}
             --pod-name ${my_pod_name}
             --timeout "{{ workload_args.timeout | default(600) }}"

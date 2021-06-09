@@ -35,7 +35,7 @@ function functional_test_fio {
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
   wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=500s" "500s" $fio_pod
   wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=700s" "700s" $fio_pod
-
+  kubectl -n my-ripsaw logs $fio_pod > /tmp/$fio_pod.log
   indexes="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${indexes}"
   then
@@ -50,5 +50,17 @@ function functional_test_fio {
 figlet $(basename $0)
 kubectl label nodes -l node-role.kubernetes.io/worker= kernel-cache-dropper=yes --overwrite
 functional_test_fio "Fio distributed" tests/test_crs/valid_fiod.yaml
+openshift_storage_present=$(oc get namespace | awk '/openshift-storage/' | wc -l)
+if [ $openshift_storage_present -gt 0 ] ; then
+   oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch \
+     '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
+   drop_cache_pods=$(oc -n openshift-storage get pod | awk '/drop/' | awk '/unning/' | wc -l)
+   if [ $drop_cache_pods -eq 0 ] ; then
+     oc create -f roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml
+     kubectl wait --for=condition=Initialized pods/rook-ceph-osd-cache-drop -n openshift-storage --timeout=100s
+   fi
+   sleep 5
+   functional_test_fio "Fio cache drop" tests/test_crs/valid_fiod_ocs_cache_drop.yaml
+fi
 functional_test_fio "Fio distributed - bsrange" tests/test_crs/valid_fiod_bsrange.yaml
 functional_test_fio "Fio hostpath distributed" tests/test_crs/valid_fiod_hostpath.yaml

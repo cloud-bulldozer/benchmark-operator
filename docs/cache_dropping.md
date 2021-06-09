@@ -23,11 +23,14 @@ There are different types of caching that occur in the system
 - (Ceph OCS) OSD caching (not yet supported fully)
 
 you can control which type of cache dropping
-is done using these CR fields in the workload args section:
+is done using one or both of these CR fields in the workload args section:
 
 ```
 drop_cache_kernel: true
+drop_cache_rook_ceph: true
 ```
+
+## how to drop kernel cache 
 
 For this to work, you must **label** the nodes that you want to drop kernel cache, for example:
 
@@ -52,6 +55,24 @@ Benchmarks supported for kernel cache dropping at present are:
 
 - fio
 - smallfile
+
+## how to drop Ceph OSD cache
+
+for this to work with OpenShift Container Storage, you must start both the Ceph toolbox pod in OCS
+and the cache dropper pod.   You can do this with:
+
+```
+oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch \
+  '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
+
+oc create -f roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml
+
+oc -n openshift-storage get pod | awk '/tool/||/drop/'
+```
+
+when you see both of these pods in the running state, then you can use benchmark operator.   The reason that
+you have to manually start these two pods running is that the benchmark-operator does not have authorization
+to run them in the openshift-storage namespace and get access to the secrets needed to do this.
 
 # implementation notes
 
@@ -84,3 +105,18 @@ For example, in your workload.yml.j2 where it creates the environment variables 
           - name: KCACHE_DROP_PORT_NUM
             value: "{{ kernel_cache_drop_svc_port }}"
 ```
+
+similarly, for Ceph OSD cache dropping, you must add this to one of your workload pods' environment variables:
+```
+
+{% if ceph_osd_cache_drop_pod_ip is defined %}
+          - name: ceph_osd_cache_drop_pod_ip
+            value: "{{ ceph_osd_cache_drop_pod_ip }}"
+          - name: CEPH_CACHE_DROP_PORT_NUM
+            value: "{{ ceph_cache_drop_svc_port }}"
+{% endif %}
+
+```
+The ansible playbook for benchmark-operator will look up the ceph_osd_cache_drop_pod_ip IP address and fill in this var, 
+all you have to do is pass it in.  See the ceph_osd_cache_drop ansible role for details.
+

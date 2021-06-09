@@ -45,6 +45,16 @@ export es_os_version={{workload_args.es_os_version}};
 export es_kind={{workload_args.es_kind}};
 {% endif %}
 export HOME=/root;
+{% if workload_args.client_vm.storageclass is defined
+    or workload_args.client_vm.hostpath is defined %}
+sudo systemctl stop mariadb.service;
+echo "UPDATE mysql.user SET Password=PASSWORD('mysql') WHERE User='root';" > input;
+echo "GRANT ALL ON *.* to root@'%' IDENTIFIED BY 'mysql';" >> input;
+echo "flush privileges;" >> input;
+echo "exit" >> input;
+sudo systemctl start mariadb.service;
+mysql -u root < input;
+{% endif %}
 cd /hammer;
 ./hammerdbcli auto /creator/createdb.tcl;
 redis-cli set db-creation-{{trunc_uuid}} true;

@@ -17,8 +17,8 @@
     namespace: "{{ operator_namespace }}"
   register: kcache_drop_pod_list
 
-- debug:
-    var: kcache_drop_pod_list
+#- debug:
+#    var: kcache_drop_pod_list
 
 - name: put ip list into a var
   set_fact:
