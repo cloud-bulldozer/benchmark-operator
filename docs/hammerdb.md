@@ -57,7 +57,7 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f <path_to_cr_file>
 ```
 
-## Running hammerdb in VMs through kubevirt/cnv [Preview]
+## Running hammerdb in VMs through kubevirt/cnv [Working]
 Note: this is currently in preview mode.
 
 
