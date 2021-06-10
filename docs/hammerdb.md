@@ -58,7 +58,6 @@ Once done creating/editing the resource file, you can run it by:
 ```
 
 ## Running hammerdb in VMs through kubevirt/cnv [Working]
-Note: this is currently in preview mode.
 
 
 ### changes to cr file
