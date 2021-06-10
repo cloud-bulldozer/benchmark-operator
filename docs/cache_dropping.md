@@ -58,21 +58,35 @@ Benchmarks supported for kernel cache dropping at present are:
 
 ## how to drop Ceph OSD cache
 
-for this to work with OpenShift Container Storage, you must start both the Ceph toolbox pod in OCS
-and the cache dropper pod.   You can do this with:
+for this to work with OpenShift Container Storage, you must do these steps once the benchmark-operator is running:
+and the cache dropper pod, and enable benchmark-operator to see into the openshift-storage namespace.   
+You can do this with:
 
 ```
+
+# enable the benchmark operator to look for pods in the openshift-storage namespace
+oc create -f roles/ceph_osd_cache_drop/ocs-cache-drop-clusterrole.yaml
+
+# start the Ceph toolbox pod in openshift-storage namespace
 oc patch OCSInitialization ocsinit -n openshift-storage --type json --patch \
   '[{ "op": "replace", "path": "/spec/enableCephTools", "value": true }]'
 
+# start the OSD cache dropper pod in openshift-storage namespace
 oc create -f roles/ceph_osd_cache_drop/rook_ceph_drop_cache_pod.yaml
 
+# repeat until you see if the 2 pods are both running
 oc -n openshift-storage get pod | awk '/tool/||/drop/'
+
 ```
 
 when you see both of these pods in the running state, then you can use benchmark operator.   The reason that
 you have to manually start these two pods running is that the benchmark-operator does not have authorization
 to run them in the openshift-storage namespace and get access to the secrets needed to do this.
+
+Benchmarks supported for Ceph OSD cache dropping are:
+
+- fio
+- smallfile
 
 # implementation notes
 
