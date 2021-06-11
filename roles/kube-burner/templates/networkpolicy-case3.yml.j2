@@ -1,0 +1,47 @@
+---
+global:
+  writeToFile: false
+jobs:
+  - name: networkpolicy-case3
+    jobIterations: {{ workload_args.job_iterations|default(400) }}
+    qps: {{ workload_args.qps|default(20) }}
+    burst: {{ workload_args.burst|default(20) }}
+    namespacedIterations: true
+    namespace: np-{{ uuid }}
+    podWait: {{ workload_args.pod_wait|default(false) }}
+    cleanup: {{ workload_args.cleanup|default(false) }}
+    waitWhenFinished: {{ workload_args.wait_when_finished|default(true) }}
+    verifyObjects: {{ workload_args.verify_objects|default(true) }}
+    errorOnVerify: {{ workload_args.error_on_verify|default(false) }}
+    objects:
+
+{% for num in range(5) %}
+      - objectTemplate: nginx.yaml
+        replicas: {{ workload_args.replicas|default(5) }}
+        inputVars:
+          nodeSelectorKey: {{ workload_args.node_selector.key|default("node-role.kubernetes.io/worker") }}
+          nodeSelectorValue: "{{ workload_args.node_selector.value|default("") }}"
+          label1: "foo"
+          label2: "bar"
+{% endfor %}
+
+
+      - objectTemplate: case3-networkpolicy.yaml
+        replicas: {{ workload_args.replicas|default(5) }}
+        inputVars:
+          podselector_label_num: "label1"
+          podselector_label: "foo"
+          ingress_label_num: "label1"
+          ingress_label: "foo"
+
+      - objectTemplate: case3-networkpolicy.yaml
+        replicas: {{ workload_args.replicas|default(5) }}
+        inputVars:
+          podselector_label_num: "label2"
+          podselector_label: "bar"
+          ingress_label_num: "label2"
+          ingress_label: "bar"
+
+      - objectTemplate: networkpolicy-deny-all.yaml
+        replicas: 1
+
