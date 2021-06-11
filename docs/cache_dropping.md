@@ -58,7 +58,7 @@ Benchmarks supported for kernel cache dropping at present are:
 
 ## how to drop Ceph OSD cache
 
-for this to work with OpenShift Container Storage, you must do these steps once the benchmark-operator is running:
+For this to work with OpenShift Container Storage, you must do these steps once the benchmark-operator is running:
 and the cache dropper pod, and enable benchmark-operator to see into the openshift-storage namespace.   
 You can do this with:
 
