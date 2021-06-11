@@ -111,6 +111,68 @@
           secret.yml: "{{ lookup('file', 'secret.yml')}}"
     when: workload_args.workload == "max-namespaces"
 
+  - name: Create networkpolicy-multitenant configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-multitenant.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          networkpolicy-ingress.yaml: "{{ lookup('file', 'networkpolicy-ingress.yaml')}}"
+          networkpolicy-monitoring.yaml: "{{ lookup('file', 'networkpolicy-monitoring.yaml')}}"
+          networkpolicy-same-ns.yaml: "{{ lookup('file', 'networkpolicy-same-ns.yaml')}}"
+    when: workload_args.workload == "networkpolicy-multitenant"
+
+  - name: Create networkpolicy-case2 configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-case2.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          case2-networkpolicy.yaml: "{{ lookup('file', 'case2-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-case2"
+
+  - name: Create networkpolicy-case3 configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-case3.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          case3-networkpolicy.yaml: "{{ lookup('file', 'case3-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-case3"
+
+
+  - name: Create networkpolicy-cross-ns configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-cross-ns.yml.j2')}}"
+          nginx-cross-ns.yaml: "{{ lookup('file', 'nginx-cross-ns.yaml')}}"
+          cross-ns-networkpolicy.yaml: "{{ lookup('file', 'cross-ns-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-cross-ns"
+
   - name: Create max-services configmaps
     k8s:
       definition:

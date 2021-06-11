@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: case2-{{.podselector_label}}{{.Replica}}-{{.ingress_label}}
+spec:
+  podSelector:
+    matchLabels:
+      {{.podselector_label_num}}: {{.podselector_label}}-{{.Replica}}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          {{.ingress_label_num}}: {{.ingress_label}}-{{randInteger 1 5}}
+
