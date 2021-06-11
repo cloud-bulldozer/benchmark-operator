@@ -58,6 +58,14 @@ data:
           </transaction>
       </group>
     {% endif %}
+    {% if ( 'connect' == test ) %}
+      <group nthreads="{{nthr}}">
+          <transaction iterations="{{workload_args.samples}}">
+            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+            <flowop type="disconnect" />
+          </transaction>
+      </group>
+    {% endif %}
     </profile>
 {% endfor %}
 {% endfor %}
