@@ -74,7 +74,7 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
-        args: 
+        args:
           - run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}
 {% if workload_args.debug is defined and workload_args.debug %}
             -v
@@ -91,4 +91,3 @@ spec:
           defaultMode: 0660
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}
-

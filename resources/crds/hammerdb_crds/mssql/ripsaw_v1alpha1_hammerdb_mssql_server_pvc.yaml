@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mssql-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+  namespace: mssql-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+        type: mssql-database-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "worker-0"
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/rhel/server:2019-latest
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 1433
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+          limits:
+            cpu: 6
+            memory: 16Gi
+        env:
+          - name: MSSQL_PID
+            value: "Enterprise"
+          - name: ACCEPT_EULA
+            value: "Y"
+          - name: MSSQL_SA_PASSWORD
+            value: "s3curePasswordString"
+        volumeMounts:
+          - name: mssql-persistent-storage
+            mountPath: /var/opt/mssql
+            readOnly: false
+      volumes:
+        - name: mssql-persistent-storage
+  volumeClaimTemplates:
+  - metadata:
+      name: mssql-persistent-storage
+    spec:
+      storageClassName: ocs-storagecluster-ceph-rbd
+      accessModes: [ "ReadWriteOnce" ]
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-deployment
+  namespace: mssql-db
+spec:
+  selector:
+    app: mssql
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433

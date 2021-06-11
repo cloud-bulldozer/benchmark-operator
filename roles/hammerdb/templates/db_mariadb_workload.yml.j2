@@ -10,12 +10,27 @@ spec:
     metadata:
       labels:
         app: hammerdb_workload-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+        benchmark-operator-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
       containers:
       - name: hammerdb
+{% if workload_args.resources is sameas true %}
+        resources:
+          requests:
+            cpu: {{ workload_args.requests_cpu }}
+            memory: {{ workload_args.requests_memory }}
+          limits:
+            cpu: {{ workload_args.limits_cpu }}
+            memory: {{ workload_args.limits_memory }}
+{% endif %}
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:master') }}
         imagePullPolicy: Always
         env:
@@ -44,9 +59,9 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
-        args: 
+        args:
           - "/usr/local/bin/uid_entrypoint;
-             export db_type={{workload_args.db_type}}; 
+             export db_type={{workload_args.db_type}};
              export timed_test={{workload_args.timed_test}};
              export db_server={{workload_args.db_server}};
              export db_port={{workload_args.db_port}};
@@ -70,12 +85,15 @@ spec:
              export samples={{workload_args.samples}};
              export db_mysql_storage_engine={{workload_args.db_mysql_storage_engine}};
              export db_mysql_partition={{workload_args.db_mysql_partition}};
-             cd /hammer; 
-             run_snafu --tool hammerdb -u {{ uuid }}
-{% if workload_args.debug is defined and workload_args.debug %}
-             -v \
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_db_version={{workload_args.es_db_version}};
+             export es_os_version={{workload_args.es_os_version}};
+             export es_kind={{workload_args.es_kind}};
 {% endif %}
-             ;"
+             cd /hammer;
+             run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"
@@ -87,3 +105,4 @@ spec:
           defaultMode: 0640
       restartPolicy: OnFailure
 {% include "metadata.yml.j2" %}
+

@@ -1,0 +1,56 @@
+{% if elasticsearch is defined %}
+{% if elasticsearch.url is defined %}
+export es={{ elasticsearch.url }};
+export es_index={{ elasticsearch.index_name | default("ripsaw-hammerdb") }};
+export es_verify_cert={{ elasticsearch.verify_cert | default("true") }};
+export parallel={{ elasticsearch.parallel | default("false") }};
+export uuid={{uuid}};
+{% endif %}
+{% endif %}
+{% if workload_args.client_vm.network.multiqueue.enabled %}
+dnf install -y ethtool;
+ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }};
+{% endif %}
+dnf install -y epel-release git python3-pip;
+pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper;
+export db_type={{workload_args.db_type}};
+export timed_test={{workload_args.timed_test}};
+export db_server={{workload_args.db_server}};
+export db_port={{workload_args.db_port}};
+export db_warehouses={{workload_args.db_warehouses}};
+export db_num_workers={{workload_args.db_num_workers}};
+export db_user={{workload_args.db_user}};
+export db_name={{workload_args.db_name}};
+export transactions={{workload_args.transactions}};
+export raiseerror={{workload_args.raiseerror}};
+export keyandthink={{workload_args.keyandthink}};
+export driver={{workload_args.driver}};
+export rampup={{workload_args.rampup}};
+export runtime={{workload_args.runtime}};
+export allwarehouse={{workload_args.allwarehouse}};
+export timeprofile={{workload_args.timeprofile}};
+export async_scale={{workload_args.async_scale}};
+export async_client={{workload_args.async_client}};
+export async_verbose={{workload_args.async_verbose}};
+export async_delay={{workload_args.async_delay}};
+export samples={{workload_args.samples}};
+export db_postgresql_defaultdbase={{workload_args.db_postgresql_defaultdbase}};
+export db_postgresql_superuser={{workload_args.db_postgresql_superuser}};
+export db_postgresql_superuser_pass={{workload_args.db_postgresql_superuser_pass}};
+export db_postgresql_vacuum={{workload_args.db_postgresql_vacuum}};
+export db_postgresql_dritasnap={{workload_args.db_postgresql_dritasnap}};
+export db_postgresql_oracompat={{workload_args.db_postgresql_oracompat}};
+export db_postgresql_storedprocs={{workload_args.db_postgresql_storedprocs}};
+{% if workload_args.es_custom_field is sameas true %}
+export es_ocp_version={{workload_args.es_ocp_version}};
+export es_cnv_version={{workload_args.es_cnv_version}};
+export es_db_version={{workload_args.es_db_version}};
+export es_os_version={{workload_args.es_os_version}};
+export es_kind={{workload_args.es_kind}};
+{% endif %}
+export HOME=/root;
+cd /hammer;
+./hammerdbcli auto /creator/createdb.tcl;
+redis-cli set db-creation-{{trunc_uuid}} true;
+run_snafu --tool hammerdb -u {{ uuid }};
+redis-cli set complete true;

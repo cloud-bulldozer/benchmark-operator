@@ -94,7 +94,7 @@ Note: this is currently in preview mode.
 ```
 
 The above is the additional changes required to run stressng in vms.
-Currently, we only support images that can be used as [containerDisk](https://kubevirt.io/user-guide/docs/latest/creating-virtual-machines/disks-and-volumes.html#containerdisk).
+Currently, we only support images that can be used as [containerDisk](https://docs.openshift.com/container-platform/4.6/virt/virtual_machines/virtual_disks/virt-using-container-disks-with-vms.html#virt-preparing-container-disk-for-vms_virt-using-container-disks-with-vms).
 
 You can easily make your own container-disk-image as follows by downloading your qcow2 image of choice.
 You can then make changes to your qcow2 image as needed using virt-customize.

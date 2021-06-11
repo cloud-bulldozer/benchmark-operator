@@ -25,19 +25,37 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
+- name: Create PVC(s)
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "claim-{{ trunc_uuid }}"
+        namespace: '{{ operator_namespace }}'
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "{{ workload_args.client_vm.storageclass }}"
+      spec:
+        accessModes:
+          - "{{ workload_args.client_vm.pvcaccessmode | default('ReadWriteOnce') }}"
+        volumeMode: "{{ workload_args.client_vm.pvcvolumemode | default('Filesystem') }}"
+        resources:
+          requests:
+            storage: "{{ workload_args.client_vm.storagesize }}"
+  when: workload_args.client_vm.storageclass is defined
 
 - block:
-  - name: template mysql db creation script
-    k8s: 
+  - name: template mariadb db creation script
+    k8s:
       definition:
         apiVersion: v1
         kind: ConfigMap
-        metadata: 
+        metadata:
           name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
-        data: 
-          createdb.tcl: "{{ lookup('template', 'createdb_mysql.tcl.j2') }}"
-    when: (workload_args.db_type == "mysql") 
+        data:
+          createdb.tcl: "{{ lookup('template', 'createdb_mariadb.tcl.j2') }}"
+    when: (workload_args.db_type == "mariadb")
 
   - name: template mssql db creation script
     k8s:
@@ -49,7 +67,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_mssql.tcl.j2') }}"
-    when: (workload_args.db_type == "mssql") 
+    when: (workload_args.db_type == "mssql")
 
   - name: template postgresql db creation script
     k8s:
@@ -61,9 +79,9 @@
           namespace: '{{ operator_namespace }}'
         data:
           createdb.tcl: "{{ lookup('template', 'createdb_pg.tcl.j2') }}"
-    when: (workload_args.db_type == "pg") 
+    when: (workload_args.db_type == "pg")
 
-  - name: template mysql db workload script
+  - name: template mariadb db workload script
     k8s:
       definition:
         apiVersion: v1
@@ -72,8 +90,8 @@
           name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
-          tpcc-workload-mysql.tcl: "{{ lookup('template', 'tpcc-workload-mysql.tcl.j2') }}"
-    when: (workload_args.db_type == "mysql") 
+          tpcc-workload-mariadb.tcl: "{{ lookup('template', 'tpcc-workload-mariadb.tcl.j2') }}"
+    when: (workload_args.db_type == "mariadb")
 
   - name: template mssql db workload script
     k8s:
@@ -85,7 +103,7 @@
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-mssql.tcl: "{{ lookup('template', 'tpcc-workload-mssql.tcl.j2') }}"
-    when: (workload_args.db_type == "mssql") 
+    when: (workload_args.db_type == "mssql")
 
   - name: template postgresql db workload script
     k8s:
@@ -97,7 +115,43 @@
           namespace: '{{ operator_namespace }}'
         data:
           tpcc-workload-pg.tcl: "{{ lookup('template', 'tpcc-workload-pg.tcl.j2') }}"
-    when: (workload_args.db_type == "pg") 
+    when: (workload_args.db_type == "pg")
+
+  - name: template mssql workload vm
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ ansible_operator_meta.name }}-mssql-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          run_mssql_script.sh: "{{ lookup('template', 'db_mssql_workload_vm.sh.j2') }}"
+    when: workload_args.db_type == "mssql" and (workload.args.kind | default('pod')) == "vm"
+
+  - name: template mariadb workload vm
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ ansible_operator_meta.name }}-mariadb-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          run_mariadb_script.sh: "{{ lookup('template', 'db_mariadb_workload_vm.sh.j2') }}"
+    when: workload_args.db_type == "mariadb" and (workload.args.kind | default('pod')) == "vm"
+
+  - name: template postgresql workload vm
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: '{{ ansible_operator_meta.name }}-postgres-workload-{{ trunc_uuid }}'
+          namespace: '{{ operator_namespace }}'
+        data:
+          run_postgres_script.sh: "{{ lookup('template', 'db_postgres_workload_vm.sh.j2') }}"
+    when: workload_args.db_type == "pg" and (workload.args.kind | default('pod')) == "vm"
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -108,7 +162,7 @@
         state: Starting DB
         complete: false
     when: workload_args.db_init is defined and workload_args.db_init
-    
+
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -132,11 +186,38 @@
   when: resource_state.resources[0].status.state == "Building"
 
 - block:
-  - name: start db creation job
-    k8s:
-      state: present
-      definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
-  
+  - block:
+    - name: start db creation job
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'db_creation.yml') | from_yaml }}"
+
+    when: (workload.args.kind | default('pod')) == "pod"
+
+  - block:
+    - name: set complete to false
+      command: "redis-cli set db-creation-{{trunc_uuid}} false"
+
+    - name: start mssql db creation vm job
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'db_creation_mssql_vm.yml') | from_yaml }}"
+      when: (workload_args.db_type == "mssql")
+
+    - name: start mariadb db creation vm job
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'db_creation_mariadb_vm.yml') | from_yaml }}"
+      when: (workload_args.db_type == "mariadb")
+
+    - name: start postgres db creation vm job
+      k8s:
+        state: present
+        definition: "{{ lookup('template', 'db_creation_postgres_vm.yml') | from_yaml }}"
+      when: (workload_args.db_type == "pg")
+
+    when: (workload.args.kind | default('pod')) == "vm"
+
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark
@@ -150,54 +231,84 @@
 
 
 - block:
-  - name: wait for db creation job to finish
-    k8s_facts:
-      kind: Job
-      api_version: batch/v1
-      name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
-      namespace: "{{ operator_namespace }}"
-    register: hammerdb_creator_pod
+  - block:
+    - name: wait for db creation job to finish
+      k8s_facts:
+        kind: Job
+        api_version: batch/v1
+        name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'
+        namespace: "{{ operator_namespace }}"
+      register: hammerdb_creator_pod
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Starting DB Workload
-        complete: false
-    when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and workload_args.db_benchmark is defined and workload_args.db_benchmark
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: Starting DB Workload
+          complete: false
+      when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and workload_args.db_benchmark is defined and workload_args.db_benchmark
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: DB Created
-        complete: true
-    when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and (workload_args.db_benchmark is not defined or not workload_args.db_benchmark)
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: DB Created
+          complete: true
+      when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and (workload_args.db_benchmark is not defined or not workload_args.db_benchmark)
+    when: (workload.args.kind | default('pod')) == "pod"
 
+  - block:
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: Starting DB Workload
+          complete: false
+
+    - name: get complete
+      command: "redis-cli get db-creation-{{trunc_uuid}}"
+      register: db_creation_status
+
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: DB Created
+          complete: false
+      when: db_creation_status.stdout == "true"
+    when: (workload.args.kind | default('pod')) == "vm"
   when: resource_state.resources[0].status.state == "DB Creating"
-  
+
 - block:
+  - name: set complete to false
+    command: "redis-cli set complete false"
+    when: (workload.args.kind | default('pod')) == "vm"
+
   - name: start mssql db workload job
     k8s:
       state: present
       definition: "{{ lookup('template', 'db_mssql_workload.yml.j2') | from_yaml }}"
-    when: (workload_args.db_type == "mssql")
+    when: workload_args.db_type == "mssql" and (workload.args.kind | default('pod')) == "pod"
 
-  - name: start mysql db workload job
+  - name: start mariadb db workload job
     k8s:
       state: present
-      definition: "{{ lookup('template', 'db_mysql_workload.yml.j2') | from_yaml }}"
-    when: (workload_args.db_type == "mysql")
+      definition: "{{ lookup('template', 'db_mariadb_workload.yml.j2') | from_yaml }}"
+    when: workload_args.db_type == "mariadb" and (workload.args.kind | default('pod')) == "pod"
 
   - name: start postgresql db workload job
     k8s:
       state: present
       definition: "{{ lookup ('template', 'db_postgres_workload.yml.j2') | from_yaml }}"
-    when: (workload_args.db_type == "pg")
+    when: workload_args.db_type == "pg" and (workload.args.kind | default('pod')) == "pod"
 
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -211,22 +322,40 @@
   when: resource_state.resources[0].status.state == "Starting DB Workload"
 
 - block:
-  - name: wait for db workload job to finish
-    k8s_facts:
-      kind: Job
-      api_version: batch/v1
-      name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
-      namespace: "{{ operator_namespace }}"
-    register: hammerdb_workload_pod
+  - block:
+    - name: wait for db workload job to finish
+      k8s_facts:
+        kind: Job
+        api_version: batch/v1
+        name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
+        namespace: "{{ operator_namespace }}"
+      register: hammerdb_workload_pod
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: DB Workload Complete
-        complete: true
-    when: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: DB Workload Complete
+          complete: true
+      when: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
+    when: (workload.args.kind | default('pod')) == "pod"
+
+  - block:
+    - name: get complete
+      command: "redis-cli get complete"
+      register: complete_status
+
+    - operator_sdk.util.k8s_status:
+        api_version: ripsaw.cloudbulldozer.io/v1alpha1
+        kind: Benchmark
+        name: "{{ ansible_operator_meta.name }}"
+        namespace: "{{ operator_namespace }}"
+        status:
+          state: DB Workload Complete
+          complete: true
+      when: complete_status.stdout == "true"
+    when: (workload.args.kind | default('pod')) == "vm"
 
   when: resource_state.resources[0].status.state == "DB workload running"

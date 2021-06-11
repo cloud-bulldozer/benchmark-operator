@@ -43,7 +43,7 @@ diset tpcc mysql_async_scale {{workload_args.async_scale}}
 diset tpcc mysql_async_client {{workload_args.async_client}}
 diset tpcc mysql_async_verbose {{workload_args.async_verbose}}
 diset tpcc mysql_async_delay {{workload_args.async_delay}}
-
+diset connection mysql_socket {{workload_args.db_mysql_socket}}
 vuset logtotemp 1
 
 loadscript
