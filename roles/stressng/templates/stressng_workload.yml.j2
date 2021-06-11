@@ -12,10 +12,6 @@ spec:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
     spec:
-{% if workload_args.pin is sameas true %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
-{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
@@ -24,15 +20,6 @@ spec:
 {% endif %}
       containers:
       - name: stressng
-{% if workload_args.resources is sameas true %}
-        resources:
-          requests:
-            cpu: {{ workload_args.requests_cpu }}
-            memory: {{ workload_args.requests_memory }}
-          limits:
-            cpu: {{ workload_args.limits_cpu }}
-            memory: {{ workload_args.limits_memory }}
-{% endif %}
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/stressng:latest') }}
         imagePullPolicy: Always
         env:
@@ -87,7 +74,12 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
-        args: ["run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}"]
+        args:
+          - run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v
+{% endif %}
+            ;
         volumeMounts:
         - name: stressng-workload-volume
           mountPath: "/workload"

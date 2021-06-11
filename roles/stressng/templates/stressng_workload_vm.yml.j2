@@ -60,24 +60,17 @@ spec:
           - "mkdir /tmp/stressng-test/jobfile"
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240D | cut -f1 -d' ') /tmp/stressng-test"
         runcmd:
-{% if elasticsearch is defined %}
-{% if elasticsearch.url is defined %}
-          - export es={{ elasticsearch.url }};
-          - export es_index={{ elasticsearch.index_name | default("ripsaw-stressng") }};
-          - export es_verify_cert={{ elasticsearch.verify_cert | default("true") }};
-          - export parallel={{ elasticsearch.parallel | default("false") }};
-          - export uuid={{uuid}};
-{% endif %}
-{% endif %}
 {% if workload_args.client_vm.network.multiqueue.enabled %}
           - dnf install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
 {% endif %}
-          - dnf install -y epel-release
-          - dnf install -y python3-pip
-          - dnf install -y git redis stress-ng
-          - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
-          - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
+          - dnf install -y stress-ng redis git
+          - pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper
+          - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }} \
+{% if workload_args.debug is defined and workload_args.debug %}
+            -v \
+{% endif %}
+            ;
     name: cloudinitdisk
   - configMap:
       name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
