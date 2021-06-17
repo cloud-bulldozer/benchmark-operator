@@ -115,3 +115,6 @@ metrics:
   - query: cluster_version{type="completed"}
     metricName: clusterVersion
     instant: true
+
+  - query: topk(10,ALERTS{severity!="none"})
+    metricName: alerts
