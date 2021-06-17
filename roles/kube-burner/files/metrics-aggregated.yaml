@@ -182,3 +182,6 @@ metrics:
   
   - query: go_gc_duration_seconds{job=~"apiserver|api|etcd",quantile="1"}
     metricName: goGCDurationSeconds
+
+  - query: topk(10,ALERTS{severity!="none"})
+    metricName: alerts
