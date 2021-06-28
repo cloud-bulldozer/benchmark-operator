@@ -20,7 +20,7 @@ spec:
         type: mssql-database-server
     spec:
       nodeSelector:
-              kubernetes.io/hostname: "worker-0"
+              kubernetes.io/hostname: "master-0"
       terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
@@ -42,6 +42,8 @@ spec:
             value: "Y"
           - name: MSSQL_SA_PASSWORD
             value: "s3curePasswordString"
+      securityContext:
+        privileged: true
         volumeMounts:
           - name: mssql-persistent-storage
             mountPath: /var/opt/mssql
@@ -51,14 +53,39 @@ spec:
           persistentVolumeClaim:
             claimName: mssql-persistent-storage
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pvdb
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: localblock
+  local:
+    # mkdir inside node
+    path: /var/opt/mssql
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - master-0
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
     name: mssql-persistent-storage
     namespace: mssql-db
 spec:
-    storageClassName: ocs-storagecluster-ceph-rbd
-    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: localblock
+    accessModes:
+      - ReadWriteOnce
     volumeMode: Filesystem
     resources:
       requests:

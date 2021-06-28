@@ -42,12 +42,12 @@ spec:
           ports:
             - containerPort: 5432
           resources:
-            limits:
-            cpu: 200m
-            memory: 100Mi
             requests:
-              cpu: 14
-              memory: 16Gi
+              cpu: 200m
+              memory: 100Mi
+            limits:
+              cpu: 2
+              memory: 4Gi
           env:
             - name: POSTGRESQL_USER
               value: "test"
@@ -69,16 +69,21 @@ spec:
           configMap:
             name: postgres-custom-config
         - name: postgres-persistent-storage
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-persistent-storage
-    spec:
-      storageClassName: ocs-storagecluster-ceph-rbd
-      accessModes: [ "ReadWriteOnce" ]
-      volumeMode: Filesystem
-      resources:
-        requests:
-          storage: 5Gi
+          persistentVolumeClaim:
+            claimName: postgres-persistent-storage
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: postgres-persistent-storage
+    namespace: postgres-db
+spec:
+    storageClassName: ocs-storagecluster-ceph-rbd
+    accessModes: [ "ReadWriteOnce" ]
+    volumeMode: Filesystem
+    resources:
+      requests:
+        storage: 10Gi
 ---
 apiVersion: v1
 kind: Service

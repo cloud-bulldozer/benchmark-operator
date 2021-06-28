@@ -41,7 +41,7 @@ spec:
         type: mariadb-database-server
     spec:
       nodeSelector:
-        kubernetes.io/hostname: "node1"
+        kubernetes.io/hostname: "worker-0"
       terminationGracePeriodSeconds: 10
       containers:
       - name: mariadb
@@ -63,14 +63,51 @@ spec:
              value: "test"
            - name: MYSQL_ROOT_PASSWORD
              value: "mysql"
+      securityContext:
+        privileged: true
         volumeMounts:
           - name: mariadb-custom-config
             mountPath: /etc/my.cnf
             subPath: custom.conf #should be the name used in the ConfigMap
+          - name: maria-persistent-storage
+            mountPath: /var/lib/mysql
+            readOnly: false
       volumes:
         - name: mariadb-custom-config
           configMap:
             name: mariadb-custom-config
+        - name: maria-persistent-storage
+          persistentVolumeClaim:
+            claimName: maria-persistent-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pvdb
+  labels:
+    type: local
+spec:
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: maria-persistent-storage
+    namespace: mariadb-db
+spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 10Gi
+    storageClassName: manual
 ---
 apiVersion: v1
 kind: Service

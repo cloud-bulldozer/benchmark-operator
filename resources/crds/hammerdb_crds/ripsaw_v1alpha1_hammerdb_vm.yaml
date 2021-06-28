@@ -76,11 +76,11 @@ spec:
       client_vm:
         dedicatedcpuplacement: false
         sockets: 1
-        cores: 4
+        cores: 2
         threads: 1
         image: quay.io/ebattat/centos8-mssql2019-container-disk:latest
         limits:
-          memory: 16Gi
+          memory: 4Gi
         requests:
           memory: 100Mi
         network:
@@ -91,3 +91,15 @@ spec:
         extra_options:
           - none
           #- hostpassthrough
+        ## OCS PVC
+        pvc: false # enable for OCS PVC
+        pvc_storageclass: ocs-storagecluster-ceph-rbd
+        # Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+        pvc_pvcaccessmode: ReadWriteMany
+        # Can be one of Filesystem,Block Default: Filesystem
+        pvc_pvcvolumemode: Block
+        pvc_storagesize: 10Gi
+        ## HostPath - Configuring SELinux on cluster workers
+        hostpath: false # enable for hostpath
+        hostpath_path: /var/tmp/disk.img
+        hostpath_storagesize: 10Gi

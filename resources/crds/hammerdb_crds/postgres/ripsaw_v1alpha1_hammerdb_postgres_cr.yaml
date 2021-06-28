@@ -12,14 +12,14 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: # add custom hammerdb image
+      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
       pin: false # true for nodeSelector
       pin_client: "node1"
       resources: false # true for resources requests/limits
       requests_cpu: 200m
       requests_memory: 100Mi
-      limits_cpu: 4
-      limits_memory: 16Gi
+      limits_cpu: 2
+      limits_memory: 4Gi
       db_type: "pg"
       timed_test: true
       test_type: "tpc-c"
@@ -32,7 +32,7 @@ spec:
       db_user: "postgres"
       db_pass: "postgres"
       db_name: "tpcc"
-      transactions: 500000
+      transactions: 10000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"

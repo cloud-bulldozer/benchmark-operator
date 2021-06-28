@@ -42,6 +42,8 @@ spec:
             value: "Y"
           - name: MSSQL_SA_PASSWORD
             value: "s3curePasswordString"
+      securityContext:
+        privileged: true
         volumeMounts:
           - name: mssql-persistent-storage
             mountPath: /var/opt/mssql
@@ -51,18 +53,34 @@ spec:
           persistentVolumeClaim:
             claimName: mssql-persistent-storage
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pvdb
+  labels:
+    type: local
+spec:
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /tmp
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
     name: mssql-persistent-storage
     namespace: mssql-db
 spec:
-    storageClassName: ocs-storagecluster-ceph-rbd
-    accessModes: [ "ReadWriteOnce" ]
-    volumeMode: Filesystem
+    accessModes:
+      - ReadWriteOnce
     resources:
       requests:
         storage: 10Gi
+    storageClassName: manual
 ---
 apiVersion: v1
 kind: Service
