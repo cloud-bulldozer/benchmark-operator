@@ -25,6 +25,21 @@ spec:
       clients: 2
       operation: ["create", "read", "append", "delete"]
       threads: 1
-      file_size: 0
+      file_size: 2
+      record_size: 1
+      xattr_size: 50
+      pause: 2
+      stonewall: n
+      finish: y
+      prefix: abc
+      hash_into_dirs: true
+      same_dir: y
+      incompressible: y
+      verify_read: y
+      xattr_count: 10
+      fsync: true
+      files_per_dir: 2000
+      dirs_per_dir: 4
       files: 100000
+      cleanup_delay_usec_per_file: 200
       debug: true
