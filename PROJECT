@@ -1,0 +1,16 @@
+domain: cloudbulldozer.io
+layout:
+- ansible.sdk.operatorframework.io/v1
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: ripsaw
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: cloudbulldozer.io
+  group: ripsaw
+  kind: Benchmark
+  version: v1alpha1
+version: "3"
