@@ -48,5 +48,18 @@ spec:
             port: 6789
           initialDelaySeconds: 5
           periodSeconds: 10
+      - name: redis-master
+        image: k8s.gcr.io/redis:v1
+        env:
+          - name: MASTER
+            value: "true"
+        ports:
+          - containerPort: 6379
+        resources:
+          limits:
+            cpu: "2.0"
+        volumeMounts:
+          - mountPath: /redis-master-data
+            name: data
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
