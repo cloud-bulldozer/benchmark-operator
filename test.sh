@@ -80,6 +80,8 @@ do
   cp -pr gold/* $ci_dir/
 done
 
+delete_operator || true
+kubectl delete benchmarks -n benchmark-operator --ignore-not-found --all
 apply_operator
 
 
