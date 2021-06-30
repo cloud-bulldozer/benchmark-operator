@@ -18,8 +18,6 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_fs_drift {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
@@ -30,8 +28,8 @@ function functional_test_fs_drift {
 
   count=0
   while [[ $count -lt 24 ]]; do
-    if [[ `kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client` ]]; then
-      fsdrift_pod=$(kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client)
+    if [[ `kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace ripsaw-system -o name | cut -d/ -f2 | grep client` ]]; then
+      fsdrift_pod=$(kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace ripsaw-system -o name | cut -d/ -f2 | grep client)
       count=30
     fi
     if [[ $count -ne 30 ]]; then
@@ -40,8 +38,8 @@ function functional_test_fs_drift {
     fi
   done
   echo fsdrift_pod $fs_drift_pod
-  wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n my-ripsaw --timeout=500s" "500s" $fsdrift_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n my-ripsaw --timeout=100s" "200s" $fsdrift_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n ripsaw-system --timeout=500s" "500s" $fsdrift_pod
+  wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n ripsaw-system --timeout=100s" "200s" $fsdrift_pod
 
   indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
   if check_es "${long_uuid}" "${indexes}"
@@ -49,7 +47,7 @@ function functional_test_fs_drift {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$fsdrift_pod" -n my-ripsaw
+    kubectl logs "$fsdrift_pod" -n ripsaw-system
     exit 1
   fi
 }

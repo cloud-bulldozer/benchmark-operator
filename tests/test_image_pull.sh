@@ -17,8 +17,6 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_image_pull {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
   
@@ -28,7 +26,7 @@ function functional_test_image_pull {
   uuid=${long_uuid:0:8}
 
   pod_count "app=image-pull-$uuid" 2 300
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=image-pull-$uuid jobs --timeout=500s" "500s"
+  wait_for "kubectl wait -n ripsaw-system --for=condition=complete -l app=image-pull-$uuid jobs --timeout=500s" "500s"
 
   index="image-pull-results"
   if check_es "${long_uuid}" "${index}"

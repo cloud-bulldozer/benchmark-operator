@@ -10,16 +10,13 @@ function finish {
   fi
 
   echo "Cleaning up iperf3"
-  kubectl delete -f tests/test_crs/valid_iperf3.yaml
-  delete_operator
+  wait_clean
 }
 
 trap error ERR
 trap finish EXIT
 
 function functional_test_iperf {
-  wait_clean
-  apply_operator
   echo "Performing iperf3: ${1}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
@@ -27,13 +24,13 @@ function functional_test_iperf {
   uuid=${long_uuid:0:8}
 
   iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
+  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
   iperf_client_pod=$(get_pod "app=iperf3-bench-client-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
-  wait_for "kubectl -n my-ripsaw wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
+  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
+  wait_for "kubectl -n ripsaw-system wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
   sleep 5
   # ensuring that iperf actually ran and we can access metrics
-  kubectl logs "$iperf_client_pod" --namespace my-ripsaw | grep "iperf Done."
+  kubectl logs "$iperf_client_pod" --namespace ripsaw-system | grep "iperf Done."
   echo "iperf ${1}: Success"
 }
 

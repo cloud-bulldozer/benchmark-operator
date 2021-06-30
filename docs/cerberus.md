@@ -38,7 +38,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   elasticsearch:
     url: "http://foo.bar.com:9200"
@@ -55,7 +55,7 @@ Once Cerberus is enabled the connection status can be viewed by getting the benc
 enabled the connection status will simply be "not connected"
 
 ```
-$ kubectl -n my-ripsaw get benchmarks.ripsaw.cloudbulldozer.io
+$ kubectl -n ripsaw-system get benchmarks.ripsaw.cloudbulldozer.io
 NAME              TYPE    STATE   METADATA STATE   CERBERUS    UUID                                   AGE
 byowl-benchmark   byowl   Error   Complete         Connected   11faec65-4009-58e8-ac36-0233f0fc822d   10m
 ```

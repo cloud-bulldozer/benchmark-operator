@@ -112,7 +112,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   elasticsearch:
     url: "http://my.elastic.server.foo:9200"
@@ -165,7 +165,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   workload:
     name: byowl
@@ -181,7 +181,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   metadata:
     collection: true
@@ -202,7 +202,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: byowl-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   elasticsearch:
     url: "http://my.elastic.server.foo:9200"
@@ -293,13 +293,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: backpack-view
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: backpack-view
-  namespace: my-ripsaw
+  namespace: ripsaw-system
   annotations:
     kubernetes.io/service-account.name: backpack-view
 type: kubernetes.io/service-account-token
@@ -308,7 +308,7 @@ kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: backpack-view
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -316,7 +316,7 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: backpack-view
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 ```
 
 Once the `backpack-view` service account is created you can modify the default backpack service account setting:

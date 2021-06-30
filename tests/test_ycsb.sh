@@ -23,7 +23,7 @@ apiVersion: v1
 kind: Service
 metadata:
  name: mongo
- namespace: my-ripsaw
+ namespace: ripsaw-system
  labels:
    name: mongo
 spec:
@@ -39,7 +39,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
  name: mongo
- namespace: my-ripsaw
+ namespace: ripsaw-system
 spec:
  selector:
    matchLabels:
@@ -70,8 +70,8 @@ EOF
   uuid=${long_uuid:0:8}
 
   ycsb_load_pod=$(get_pod "name=ycsb-load-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n my-ripsaw --timeout=500s" "500s" $ycsb_load_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load-$uuid -n my-ripsaw --timeout=300s" "300s" $ycsb_load_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n ripsaw-system --timeout=500s" "500s" $ycsb_load_pod
+  wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load-$uuid -n ripsaw-system --timeout=300s" "300s" $ycsb_load_pod
 
   indexes="ripsaw-ycsb-summary ripsaw-ycsb-results"
   if check_es "${long_uuid}" "${indexes}"
@@ -79,11 +79,10 @@ EOF
     echo "ycsb test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs -n my-ripsaw $ycsb_load_pod
+    kubectl logs -n ripsaw-system $ycsb_load_pod
     exit 1
   fi
 }
 
 figlet $(basename $0)
-apply_operator
 functional_test_ycsb

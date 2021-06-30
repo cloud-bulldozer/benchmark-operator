@@ -15,8 +15,8 @@ An example CR might look like this
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: hammerdb-benchmark
-  namespace: my-ripsaw
+  name: hammerdb
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: http://my.elasticsearch.server:80

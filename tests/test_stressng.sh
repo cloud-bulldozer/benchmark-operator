@@ -10,15 +10,12 @@ function finish {
     error
   fi
   echo "Cleaning up stressng"
-  kubectl delete -f tests/test_crs/valid_stressng.yaml
-  delete_operator
+  wait_clean
 }
 
 trap finish EXIT
 
 function functional_test_stressng {
-  wait_clean
-  apply_operator
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" tests/test_crs/valid_stressng.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
@@ -26,8 +23,8 @@ function functional_test_stressng {
 
   # Wait for the workload pod to run the actual workload
   stressng_workload_pod=$(get_pod "app=stressng_workload-$uuid" 300)
-  kubectl wait --for=condition=Initialized "pods/$stressng_workload_pod" --namespace my-ripsaw --timeout=400s
-  kubectl wait --for=condition=complete -l app=stressng_workload-$uuid --namespace my-ripsaw jobs --timeout=500s
+  kubectl wait --for=condition=Initialized "pods/$stressng_workload_pod" --namespace ripsaw-system --timeout=400s
+  kubectl wait --for=condition=complete -l app=stressng_workload-$uuid --namespace ripsaw-system jobs --timeout=500s
 
   index="ripsaw-stressng-results"
   if check_es "${long_uuid}" "${index}"
@@ -35,7 +32,7 @@ function functional_test_stressng {
     echo "StressNG test: Success"
   else
     echo "Failed to find data for StressNG test in ES"
-    kubectl logs "$stressng_workload_pod" --namespace my-ripsaw
+    kubectl logs "$stressng_workload_pod" --namespace ripsaw-system
     exit 1
   fi
 }

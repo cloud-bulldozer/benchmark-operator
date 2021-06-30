@@ -18,7 +18,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: stressng
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"

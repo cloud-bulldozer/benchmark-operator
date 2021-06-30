@@ -17,8 +17,6 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_flent {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
@@ -29,10 +27,10 @@ function functional_test_flent {
 
   pod_count "type=flent-bench-server-$uuid" 1 900
   flent_server_pod=$(get_pod "app=flent-bench-server-0-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=flent-bench-server-0-$uuid pods --timeout=300s" "300s" $flent_server_pod
+  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized -l app=flent-bench-server-0-$uuid pods --timeout=300s" "300s" $flent_server_pod
   flent_client_pod=$(get_pod "app=flent-bench-client-$uuid" 900)
-  wait_for "kubectl wait -n my-ripsaw --for=condition=Initialized pods/$flent_client_pod --timeout=500s" "500s" $flent_client_pod
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=flent-bench-client-$uuid jobs --timeout=500s" "500s" $flent_client_pod
+  wait_for "kubectl wait -n ripsaw-system --for=condition=Initialized pods/$flent_client_pod --timeout=500s" "500s" $flent_client_pod
+  wait_for "kubectl wait -n ripsaw-system --for=condition=complete -l app=flent-bench-client-$uuid jobs --timeout=500s" "500s" $flent_client_pod
 
   index="ripsaw-flent-results"
   if check_es "${long_uuid}" "${index}"
@@ -40,7 +38,7 @@ function functional_test_flent {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$flent_client_pod" -n my-ripsaw
+    kubectl logs "$flent_client_pod" -n ripsaw-system
     exit 1
   fi
 }

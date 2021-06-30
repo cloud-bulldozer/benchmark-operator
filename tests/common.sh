@@ -63,10 +63,8 @@ function populate_test_list {
 function wait_clean {
   if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
   then
-    kubectl delete benchmarks -n my-ripsaw --all --ignore-not-found
+    kubectl delete benchmarks -n ripsaw-system --all --ignore-not-found
   fi
-  kubectl delete -f deploy/25_role.yaml -f deploy/35_role_binding.yaml --ignore-not-found
-  kubectl delete namespace my-ripsaw --ignore-not-found
 }
 
 # The argument is 'timeout in seconds'
@@ -77,7 +75,7 @@ function get_uuid () {
   counter_max=6
   uuid="False"
   until [ $uuid != "False" ] ; do
-    uuid=$(kubectl -n my-ripsaw get benchmarks -o jsonpath='{.items[0].status.uuid}')
+    uuid=$(kubectl -n ripsaw-system get benchmarks -o jsonpath='{.items[0].status.uuid}')
     if [ -z $uuid ]; then
       sleep $sleep_time
       uuid="False"
@@ -100,7 +98,7 @@ function get_pod () {
   pod_name="False"
   until [ $pod_name != "False" ] ; do
     sleep $sleep_time
-    pod_name=$(kubectl get pods -l $1 --namespace ${3:-my-ripsaw} -o name | cut -d/ -f2)
+    pod_name=$(kubectl get pods -l $1 --namespace ${3:-ripsaw-system} -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
     fi
@@ -122,7 +120,7 @@ function pod_count () {
   export $1
   until [ $pod_count == $2 ] ; do
     sleep $sleep_time
-    pod_count=$(kubectl get pods -n my-ripsaw -l $1 -o name | wc -l)
+    pod_count=$(kubectl get pods -n ripsaw-system -l $1 -o name | wc -l)
     if [ -z $pod_count ]; then
       pod_count=0
     fi
@@ -136,53 +134,15 @@ function pod_count () {
 }
 
 function apply_operator {
-  operator_requirements
-  BENCHMARK_OPERATOR_IMAGE=${BENCHMARK_OPERATOR_IMAGE:-"quay.io/benchmark-operator/benchmark-operator:master"}
-  cat resources/operator.yaml | \
-    sed 's#quay.io/benchmark-operator/benchmark-operator:master#'$BENCHMARK_OPERATOR_IMAGE'#' | \
-    kubectl apply -f -
-  kubectl wait --for=condition=available "deployment/benchmark-operator" -n my-ripsaw --timeout=300s
+  tag_name="${NODE_NAME:-master}"
+  make podman-build podman-push deploy IMG=$image_location/$image_account/benchmark-operator:$tag_name
+  kubectl wait --for=condition=available "deployment/ripsaw-controller-manager" -n ripsaw-system --timeout=300s
 }
 
 function delete_operator {
-  kubectl delete -f resources/operator.yaml
+  make undeploy
 }
 
-function marketplace_setup {
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/01_namespace.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/02_catalogsourceconfig.crd.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/03_operatorsource.crd.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/04_service_account.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/05_role.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/06_role_binding.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/07_upstream_operatorsource.cr.yaml
-  kubectl apply -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/08_operator.yaml
-}
-
-function marketplace_cleanup {
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/07_upstream_operatorsource.cr.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/08_operator.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/06_role_binding.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/05_role.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/04_service_account.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/03_operatorsource.crd.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/02_catalogsourceconfig.crd.yaml
-  kubectl delete -f https://raw.githubusercontent.com/operator-framework/operator-marketplace/master/deploy/upstream/01_namespace.yaml
-}
-
-function operator_requirements {
-  kubectl apply -f resources/namespace.yaml
-  kubectl apply -f deploy
-  kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-  kubectl -n my-ripsaw get roles
-  kubectl -n my-ripsaw get rolebindings
-  kubectl -n my-ripsaw get podsecuritypolicies
-  kubectl -n my-ripsaw get serviceaccounts
-  kubectl -n my-ripsaw get serviceaccount benchmark-operator -o yaml
-  kubectl -n my-ripsaw get role benchmark-operator -o yaml
-  kubectl -n my-ripsaw get rolebinding benchmark-operator -o yaml
-  kubectl -n my-ripsaw get podsecuritypolicy privileged -o yaml
-}
 
 function backpack_requirements {
   kubectl apply -f resources/backpack_role.yaml
@@ -190,48 +150,21 @@ function backpack_requirements {
   then
     if [[ `oc get securitycontextconstraints.security.openshift.io` ]]
     then
-      oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator
-      oc adm policy -n my-ripsaw add-scc-to-user privileged -z backpack-view
+      oc adm policy -n ripsaw-system add-scc-to-user privileged -z ripsaw-controller-manager
+      oc adm policy -n ripsaw-system add-scc-to-user privileged -z backpack-view
     fi
   fi
 }
 
-function create_operator {
-  operator_requirements
-  apply_operator
-}
-
-function cleanup_resources {
-  echo "Exiting after cleanup of resources"
-  kubectl delete -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-  kubectl delete -f deploy
-}
 
 function cleanup_operator_resources {
   delete_operator
-  cleanup_resources
   wait_clean
-}
-
-function update_operator_image {
-  tag_name="${NODE_NAME:-master}"
-  if podman build -f build/Dockerfile -t $image_location/$image_account/benchmark-operator:$tag_name .; then
-  # In case we have issues uploading to quay we will retry a few times
-    for i in {1..3}; do
-      podman push $image_location/$image_account/benchmark-operator:$tag_name && break
-      echo "Could not upload image to quay. Exiting"
-      exit 1
-    done
-  else
-    echo "Could not build image. Exiting"
-    exit 1
-  fi
-  sed -i "s|          image: quay.io/benchmark-operator/benchmark-operator:master*|          image: $image_location/$image_account/benchmark-operator:$tag_name # |" resources/operator.yaml
 }
 
 function check_log(){
   for i in {1..10}; do
-    if kubectl logs -f $1 --namespace my-ripsaw | grep -q $2 ; then
+    if kubectl logs -f $1 --namespace ripsaw-system | grep -q $2 ; then
       break;
     else
       sleep 10
@@ -240,7 +173,7 @@ function check_log(){
 }
 
 # Takes 2 or more arguments: 'command to run', 'time to wait until true'
-# Any additional arguments will be passed to kubectl -n my-ripsaw logs to provide logging if a timeout occurs
+# Any additional arguments will be passed to kubectl -n ripsaw-system logs to provide logging if a timeout occurs
 function wait_for() {
   if ! timeout -k $2 $2 $1
   then
@@ -250,7 +183,7 @@ function wait_for() {
       until [ $counter -gt $# ]
       do
         echo "Logs from "${@:$counter}
-        kubectl -n my-ripsaw logs --tail=40 ${@:$counter}
+        kubectl -n ripsaw-system logs --tail=40 ${@:$counter}
         counter=$(( counter+1 ))
       done
       return 1
@@ -268,7 +201,7 @@ function error {
 
   echo "Error caught. Dumping logs before exiting"
   echo "Benchmark operator Logs"
-  kubectl -n my-ripsaw logs --tail=200 -l name=benchmark-operator -c benchmark-operator
+  kubectl -n ripsaw-system logs --tail=200 -l name=benchmark-operator -c benchmark-operator
 }
 
 function wait_for_backpack() {
@@ -279,10 +212,10 @@ function wait_for_backpack() {
   max_count=60
   while [[ $count -lt $max_count ]]
   do
-    if [[ `kubectl -n my-ripsaw get daemonsets backpack-$uuid` ]]
+    if [[ `kubectl -n ripsaw-system get daemonsets backpack-$uuid` ]]
     then
-      desired=`kubectl -n my-ripsaw get daemonsets backpack-$uuid | grep -v NAME | awk '{print $2}'`
-      ready=`kubectl -n my-ripsaw get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'`
+      desired=`kubectl -n ripsaw-system get daemonsets backpack-$uuid | grep -v NAME | awk '{print $2}'`
+      ready=`kubectl -n ripsaw-system get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'`
       if [[ $desired -eq $ready ]]
       then
         echo "Backpack complete. Starting benchmark"

@@ -16,7 +16,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: vegeta-benchmark
-  namespace: my-ripsaw
+  namespace: ripsaw-system
 spec:
   elasticsearch:
     url: "http://esinstance.com:9200"

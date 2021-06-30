@@ -10,7 +10,6 @@ function finish {
   fi
 
   echo "Cleaning up smallfile"
-  kubectl delete -f resources/kernel-cache-drop-clusterrole.yaml  --ignore-not-found
   wait_clean
 }
 
@@ -19,9 +18,6 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_smallfile {
-  wait_clean
-  apply_operator
-  kubectl apply -f resources/kernel-cache-drop-clusterrole.yaml
   test_name=$1
   cr=$2
   echo "Performing: ${test_name}"
@@ -32,8 +28,8 @@ function functional_test_smallfile {
 
   count=0
   while [[ $count -lt 24 ]]; do
-    if [[ `kubectl get pods -l app=smallfile-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client` ]]; then
-      smallfile_pod=$(kubectl get pods -l app=smallfile-benchmark-$uuid --namespace my-ripsaw -o name | cut -d/ -f2 | grep client)
+    if [[ `kubectl get pods -l app=smallfile-benchmark-$uuid --namespace ripsaw-system -o name | cut -d/ -f2 | grep client` ]]; then
+      smallfile_pod=$(kubectl get pods -l app=smallfile-benchmark-$uuid --namespace ripsaw-system -o name | cut -d/ -f2 | grep client)
       count=30
     fi
     if [[ $count -ne 30 ]]; then
@@ -42,8 +38,8 @@ function functional_test_smallfile {
     fi
   done
   echo "smallfile_pod ${smallfile_pod}"
-  wait_for "kubectl wait --for=condition=Initialized -l app=smallfile-benchmark-$uuid pods --namespace my-ripsaw --timeout=500s" "500s"
-  wait_for "kubectl wait --for=condition=complete -l app=smallfile-benchmark-$uuid jobs --namespace my-ripsaw --timeout=100s" "100s"
+  wait_for "kubectl wait --for=condition=Initialized -l app=smallfile-benchmark-$uuid pods --namespace ripsaw-system --timeout=500s" "500s"
+  wait_for "kubectl wait --for=condition=complete -l app=smallfile-benchmark-$uuid jobs --namespace ripsaw-system --timeout=100s" "100s"
 
   indexes="ripsaw-smallfile-results ripsaw-smallfile-rsptimes"
   if check_es "${long_uuid}" "${indexes}"
@@ -52,7 +48,7 @@ function functional_test_smallfile {
   else
     echo "Failed to find data for ${test_name} in ES"
     for pod in ${smallfile_pod}; do
-      kubectl logs ${pod} --namespace my-ripsaw | grep "RUN STATUS"
+      kubectl logs ${pod} --namespace ripsaw-system | grep "RUN STATUS"
     done
     exit 1
   fi
