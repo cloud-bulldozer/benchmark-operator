@@ -27,7 +27,7 @@
       api_version: v1
       namespace: "{{ operator_namespace }}"
       label_selectors:
-        - name = benchmark-operator
+        - control-plane = controller-manager
     register: bo
 
   - debug:
@@ -35,21 +35,25 @@
 
   - name: Set Workload UUID
     block:
-    - include_role:
-        name: "uuid"
+      - include_role:
+          name: "uuid"
 
-    - name: Setting the uuid for the benchmark
-      operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          uuid: "{{ uuid }}"
-          complete: false
-          suuid: "{{ trunc_uuid }}"
-          metadata: "not collected"
-          cerberus: "not connected"
+      - name: Setting the uuid for the benchmark
+        operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            uuid: "{{ uuid }}"
+            complete: false
+            suuid: "{{ trunc_uuid }}"
+            metadata: "not collected"
+            cerberus: "not connected"
+    rescue:
+      - include_role:
+          name: benchmark_state
+          tasks_from: failure
     
     when: workload is defined and (cr_state.resources[0].status is not defined or cr_state.resources[0].status.uuid is not defined)
 
@@ -59,8 +63,11 @@
       trunc_uuid: "{{ cr_state.resources[0].status.suuid }}"
 
   - name: Run Workload
+    rescue:
+      - include_role:
+          name: benchmark_state
+          tasks_from: failure
     block:
-    
     - block:
       
       - include_role:
@@ -94,6 +101,7 @@
 
   - include_role:
       name: system-metrics
+    
     vars:
       workload_args: "{{ workload.args }}"
     when:
