@@ -63,3 +63,8 @@ spec:
             name: data
       serviceAccountName: controller-manager
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: runner
+          emptyDir: {}
