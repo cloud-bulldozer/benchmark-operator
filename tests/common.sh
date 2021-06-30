@@ -136,7 +136,7 @@ function pod_count () {
 function apply_operator {
   tag_name="${NODE_NAME:-master}"
   make podman-build podman-push deploy IMG=$image_location/$image_account/benchmark-operator:$tag_name
-  kubectl wait --for=condition=available "deployment/ripsaw-controller-manager" -n benchmark-operator --timeout=300s
+  kubectl wait --for=condition=available "deployment/benchmark-controller-manager" -n benchmark-operator --timeout=300s
 }
 
 function delete_operator {
