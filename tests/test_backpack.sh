@@ -28,8 +28,8 @@ function functional_test_backpack {
     wait_for_backpack $uuid
   else
     byowl_pod=$(get_pod "app=byowl-$uuid" 300)
-    wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized pods/$byowl_pod --timeout=500s" "500s" $byowl_pod
-    wait_for "kubectl -n ripsaw-system  wait --for=condition=complete -l app=byowl-$uuid jobs --timeout=500s" "500s" $byowl_pod
+    wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized pods/$byowl_pod --timeout=500s" "500s" $byowl_pod
+    wait_for "kubectl -n benchmark-operator  wait --for=condition=complete -l app=byowl-$uuid jobs --timeout=500s" "500s" $byowl_pod
   fi
   
   indexes="cpu_vulnerabilities-metadata cpuinfo-metadata dmidecode-metadata k8s_nodes-metadata lspci-metadata meminfo-metadata sysctl-metadata ocp_network_operator-metadata ocp_install_config-metadata ocp_kube_apiserver-metadata ocp_dns-metadata ocp_kube_controllermanager-metadata"

@@ -56,13 +56,13 @@ First we'll need to clone the operator:
 # export KUBECONFIG=<your_kube_config> # if not already done
 ```
 
-We try to maintain all resources created/required by ripsaw in the namespace `ripsaw-system`,
+We try to maintain all resources created/required by ripsaw in the namespace `benchmark-operator`,
 as this would be the namespace, ripsaw would be installed into if deployed through operatorhub.io.
 
 Note: But in case you've a specific usecase where you want the resources to be in a different namespace, you'll just need to edit the namespace in deploy/
 as well as the operator definition.
 
-But for sake of the documentation, let's proceed with the namespace `ripsaw-system`
+But for sake of the documentation, let's proceed with the namespace `benchmark-operator`
 
 so we'll create the namespace as follows
 
@@ -70,7 +70,7 @@ so we'll create the namespace as follows
 # kubectl apply -f resources/namespace.yaml
 ```
 
-or if you're used to `oc` it'd be `oc new-project ripsaw-system` and `oc project ripsaw-system`
+or if you're used to `oc` it'd be `oc new-project benchmark-operator` and `oc project benchmark-operator`
 
 We'll now apply the permissions and operator definitions.
 

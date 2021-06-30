@@ -8,20 +8,20 @@ a performance baseline of Kubernetes cluster on your provider.
 Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
 
-> Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n ripsaw-system add-scc-to-user privileged -z benchmark-operator`
+> Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator`
 
 
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
 cd benchmark-operator/charts/benchmark-operator
-helm install benchmark-operator . -n ripsaw-system --create-namespace
+helm install benchmark-operator . -n benchmark-operator --create-namespace
 ```
 
 To delete this release, you can do so with the following command:
 
 ```bash
-helm delete benchmark-operator -n ripsaw-system --purge
+helm delete benchmark-operator -n benchmark-operator --purge
 ```
 
 
@@ -75,7 +75,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://my-es.foo.bar:80"
@@ -101,7 +101,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://my-es.foo.bar:80"
@@ -126,7 +126,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   uuid: 6060004a-7515-424e-93bb-c49844600dde
   elasticsearch:

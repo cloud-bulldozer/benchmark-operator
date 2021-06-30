@@ -9,7 +9,7 @@ function finish {
     error
   fi
 
-  [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n ripsaw-system
+  [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n benchmark-operator
   echo "Cleaning up kube-burner"
   kubectl delete -f resources/kube-burner-role.yml --ignore-not-found
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
@@ -34,7 +34,7 @@ function functional_test_kubeburner {
 
   pod_count "app=kube-burner-benchmark-$uuid" 1 900
   check_logs=1
-  wait_for "kubectl wait -n ripsaw-system --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
+  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
 
   index="ripsaw-kube-burner"
   if check_es "${long_uuid}" "${index}"

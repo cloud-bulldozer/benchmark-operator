@@ -9,7 +9,7 @@ function finish {
     error
   fi
 
-  [[ $check_logs == 1 ]] && kubectl logs -l app=vegeta-benchmark-$uuid -n ripsaw-system
+  [[ $check_logs == 1 ]] && kubectl logs -l app=vegeta-benchmark-$uuid -n benchmark-operator
   echo "Cleaning up vegeta"
   wait_clean
 }
@@ -29,7 +29,7 @@ function functional_test_vegeta {
   uuid=${long_uuid:0:8}
 
   pod_count "app=vegeta-benchmark-$uuid" 2 900
-  wait_for "kubectl wait -n ripsaw-system --for=condition=complete -l app=vegeta-benchmark-$uuid jobs --timeout=500s" "500s"
+  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=vegeta-benchmark-$uuid jobs --timeout=500s" "500s"
   check_logs=1
 
   index="ripsaw-vegeta-results"

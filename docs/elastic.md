@@ -72,7 +72,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: smallfile-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   test_user: homer_simpson
   clustername: test_ci
@@ -118,7 +118,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: smallfile-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   test_user: homer_simpson
   clustername: test_ci
@@ -158,9 +158,9 @@ cluster-monitoring-view ,or use the Prometheus user account's token.
 Command to setup a service account and retrieve token: 
 
 ```
-oc create serviceaccount snafu -n ripsaw-system
-oc create clusterrolebinding grafana-cluster-monitoring-view --clusterrole=cluster-monitoring-view --serviceaccount=ripsaw-system:snafu
-oc sa get-token snafu -n ripsaw-system
+oc create serviceaccount snafu -n benchmark-operator
+oc create clusterrolebinding grafana-cluster-monitoring-view --clusterrole=cluster-monitoring-view --serviceaccount=benchmark-operator:snafu
+oc sa get-token snafu -n benchmark-operator
 ```
 
 *NOTE:* User tokens can expire, for long running test it is recommend to either set the necessary permissions

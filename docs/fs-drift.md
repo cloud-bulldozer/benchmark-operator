@@ -18,7 +18,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: fs-drift
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   workload:
     name: fs-drift

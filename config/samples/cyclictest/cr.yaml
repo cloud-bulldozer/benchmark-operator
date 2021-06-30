@@ -2,7 +2,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: cyclictest-example
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   # where elastic search is running
   elasticsearch:

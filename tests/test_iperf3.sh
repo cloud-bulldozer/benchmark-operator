@@ -24,13 +24,13 @@ function functional_test_iperf {
   uuid=${long_uuid:0:8}
 
   iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)
-  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
+  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
   iperf_client_pod=$(get_pod "app=iperf3-bench-client-$uuid" 300)
-  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
-  wait_for "kubectl -n ripsaw-system wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
+  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
+  wait_for "kubectl -n benchmark-operator wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
   sleep 5
   # ensuring that iperf actually ran and we can access metrics
-  kubectl logs "$iperf_client_pod" --namespace ripsaw-system | grep "iperf Done."
+  kubectl logs "$iperf_client_pod" --namespace benchmark-operator | grep "iperf Done."
   echo "iperf ${1}: Success"
 }
 

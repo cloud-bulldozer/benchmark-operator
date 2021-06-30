@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kernel-cache-dropper
-  namespace: ripsaw-system
+  namespace: benchmark-operator
   labels:
     app: kernel-cache-dropper
 spec:

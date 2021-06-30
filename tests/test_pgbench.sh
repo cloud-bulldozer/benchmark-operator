@@ -24,7 +24,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-config
-  namespace: ripsaw-system
+  namespace: benchmark-operator
   labels:
     app: postgres
 data:
@@ -38,7 +38,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   selector:
     matchLabels:
@@ -68,7 +68,7 @@ EOF
   counter=0
   until [[ $postgres_ip =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ||  $counter -eq 10 ]]; do
     let counter+=1
-    postgres_ip=$(kubectl get pod -n ripsaw-system $postgres_pod --template={{.status.podIP}})
+    postgres_ip=$(kubectl get pod -n benchmark-operator $postgres_pod --template={{.status.podIP}})
     sleep 2
   done
   # deploy the test CR with the postgres pod IP
@@ -77,9 +77,9 @@ EOF
   uuid=${long_uuid:0:8}
 
   pgbench_pod=$(get_pod "app=pgbench-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n ripsaw-system --timeout=360s" "360s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n ripsaw-system --timeout=60s" "60s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client-$uuid -n ripsaw-system --timeout=300s" "300s" $pgbench_pod
+  wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n benchmark-operator --timeout=360s" "360s" $pgbench_pod
+  wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n benchmark-operator --timeout=60s" "60s" $pgbench_pod
+  wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client-$uuid -n benchmark-operator --timeout=300s" "300s" $pgbench_pod
 
   index="ripsaw-pgbench-summary ripsaw-pgbench-raw"
   if check_es "${long_uuid}" "${index}"
@@ -87,7 +87,7 @@ EOF
     echo "pgbench test: Success"
   else
     echo "Failed to find data for PGBench in ES"
-    kubectl logs -n ripsaw-system $pgbench_pod
+    kubectl logs -n benchmark-operator $pgbench_pod
     exit 1
   fi
 }

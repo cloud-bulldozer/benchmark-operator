@@ -20,7 +20,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: oslat
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     server: <ES_SERVER>
@@ -50,7 +50,7 @@ You can look at the results from the oslat benchmark by doing
 
 ```bash
 NAME=oslat-workload-xxxxxxx
-oc logs -n ripsaw-system $NAME
+oc logs -n benchmark-operator $NAME
 ```
 
 ## Cleanup

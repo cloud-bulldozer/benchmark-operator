@@ -12,7 +12,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: flent-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   #elasticsearch:
@@ -244,7 +244,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
@@ -279,7 +279,7 @@ By default we will utilize the `flent-results` index for Elasticsearch.
 Deploying the above(assuming pairs is set to 1) would result in
 
 ```bash
-# oc get pods -n ripsaw-system
+# oc get pods -n benchmark-operator
 NAME                                            READY   STATUS      RESTARTS   AGE
 benchmark-operator-f84bdbd8f-n6cnc              3/3     Running     0          34m
 flent-bench-client-10.116.0.54-533b6892-dc5cd   0/1     Completed   0          32m

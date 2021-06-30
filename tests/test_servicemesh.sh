@@ -30,18 +30,18 @@ function functional_test_servicemesh {
   max_count=60
   while [[ $count -lt $max_count ]]
   do
-    if kubectl get --namespace ripsaw-system job example-benchmark-$uuid; then
+    if kubectl get --namespace benchmark-operator job example-benchmark-$uuid; then
         break
     fi
     sleep 15
     count=$((count + 1))
   done
 
-  wait_for "kubectl -n ripsaw-system wait --for=condition=complete jobs --timeout=300s example-benchmark-$uuid" "300s"
+  wait_for "kubectl -n benchmark-operator wait --for=condition=complete jobs --timeout=300s example-benchmark-$uuid" "300s"
 
   job_pod=$(get_pod app=example-benchmark-$uuid 30)
   # ensuring that uperf actually ran and we can access metrics
-  INFO=$(kubectl logs $job_pod --namespace ripsaw-system | jq .info)
+  INFO=$(kubectl logs $job_pod --namespace benchmark-operator | jq .info)
   if [ -n "$INFO" ]; then
     echo "Successful: $INFO"
   else

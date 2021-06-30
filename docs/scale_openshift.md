@@ -35,7 +35,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: scale
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -86,13 +86,13 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: scaler
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: scaler
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -100,5 +100,5 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: scaler
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 ```

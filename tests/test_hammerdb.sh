@@ -28,8 +28,8 @@ function functional_test_hammerdb {
 
   # Wait for the workload pod to run the actual workload
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
-  kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace ripsaw-system --timeout=400s
-  kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace ripsaw-system jobs --timeout=500s
+  kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace benchmark-operator --timeout=400s
+  kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace benchmark-operator jobs --timeout=500s
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"
@@ -37,7 +37,7 @@ function functional_test_hammerdb {
     echo "Hammerdb test: Success"
   else
     echo "Failed to find data for HammerDB test in ES"
-    kubectl logs "$hammerdb_workload_pod" --namespace ripsaw-system
+    kubectl logs "$hammerdb_workload_pod" --namespace benchmark-operator
     exit 1
   fi
 }

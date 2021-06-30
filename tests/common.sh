@@ -63,7 +63,7 @@ function populate_test_list {
 function wait_clean {
   if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
   then
-    kubectl delete benchmarks -n ripsaw-system --all --ignore-not-found
+    kubectl delete benchmarks -n benchmark-operator --all --ignore-not-found
   fi
 }
 
@@ -75,7 +75,7 @@ function get_uuid () {
   counter_max=6
   uuid="False"
   until [ $uuid != "False" ] ; do
-    uuid=$(kubectl -n ripsaw-system get benchmarks -o jsonpath='{.items[0].status.uuid}')
+    uuid=$(kubectl -n benchmark-operator get benchmarks -o jsonpath='{.items[0].status.uuid}')
     if [ -z $uuid ]; then
       sleep $sleep_time
       uuid="False"
@@ -98,7 +98,7 @@ function get_pod () {
   pod_name="False"
   until [ $pod_name != "False" ] ; do
     sleep $sleep_time
-    pod_name=$(kubectl get pods -l $1 --namespace ${3:-ripsaw-system} -o name | cut -d/ -f2)
+    pod_name=$(kubectl get pods -l $1 --namespace ${3:-benchmark-operator} -o name | cut -d/ -f2)
     if [ -z $pod_name ]; then
       pod_name="False"
     fi
@@ -120,7 +120,7 @@ function pod_count () {
   export $1
   until [ $pod_count == $2 ] ; do
     sleep $sleep_time
-    pod_count=$(kubectl get pods -n ripsaw-system -l $1 -o name | wc -l)
+    pod_count=$(kubectl get pods -n benchmark-operator -l $1 -o name | wc -l)
     if [ -z $pod_count ]; then
       pod_count=0
     fi
@@ -136,7 +136,7 @@ function pod_count () {
 function apply_operator {
   tag_name="${NODE_NAME:-master}"
   make podman-build podman-push deploy IMG=$image_location/$image_account/benchmark-operator:$tag_name
-  kubectl wait --for=condition=available "deployment/ripsaw-controller-manager" -n ripsaw-system --timeout=300s
+  kubectl wait --for=condition=available "deployment/ripsaw-controller-manager" -n benchmark-operator --timeout=300s
 }
 
 function delete_operator {
@@ -150,8 +150,8 @@ function backpack_requirements {
   then
     if [[ `oc get securitycontextconstraints.security.openshift.io` ]]
     then
-      oc adm policy -n ripsaw-system add-scc-to-user privileged -z ripsaw-controller-manager
-      oc adm policy -n ripsaw-system add-scc-to-user privileged -z backpack-view
+      oc adm policy -n benchmark-operator add-scc-to-user privileged -z ripsaw-controller-manager
+      oc adm policy -n benchmark-operator add-scc-to-user privileged -z backpack-view
     fi
   fi
 }
@@ -164,7 +164,7 @@ function cleanup_operator_resources {
 
 function check_log(){
   for i in {1..10}; do
-    if kubectl logs -f $1 --namespace ripsaw-system | grep -q $2 ; then
+    if kubectl logs -f $1 --namespace benchmark-operator | grep -q $2 ; then
       break;
     else
       sleep 10
@@ -173,7 +173,7 @@ function check_log(){
 }
 
 # Takes 2 or more arguments: 'command to run', 'time to wait until true'
-# Any additional arguments will be passed to kubectl -n ripsaw-system logs to provide logging if a timeout occurs
+# Any additional arguments will be passed to kubectl -n benchmark-operator logs to provide logging if a timeout occurs
 function wait_for() {
   if ! timeout -k $2 $2 $1
   then
@@ -183,7 +183,7 @@ function wait_for() {
       until [ $counter -gt $# ]
       do
         echo "Logs from "${@:$counter}
-        kubectl -n ripsaw-system logs --tail=40 ${@:$counter}
+        kubectl -n benchmark-operator logs --tail=40 ${@:$counter}
         counter=$(( counter+1 ))
       done
       return 1
@@ -201,7 +201,7 @@ function error {
 
   echo "Error caught. Dumping logs before exiting"
   echo "Benchmark operator Logs"
-  kubectl -n ripsaw-system logs --tail=200 -l name=benchmark-operator -c benchmark-operator
+  kubectl -n benchmark-operator logs --tail=200 -l control-plane=controller-manager -c manager
 }
 
 function wait_for_backpack() {
@@ -212,10 +212,10 @@ function wait_for_backpack() {
   max_count=60
   while [[ $count -lt $max_count ]]
   do
-    if [[ `kubectl -n ripsaw-system get daemonsets backpack-$uuid` ]]
+    if [[ `kubectl -n benchmark-operator get daemonsets backpack-$uuid` ]]
     then
-      desired=`kubectl -n ripsaw-system get daemonsets backpack-$uuid | grep -v NAME | awk '{print $2}'`
-      ready=`kubectl -n ripsaw-system get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'`
+      desired=`kubectl -n benchmark-operator get daemonsets backpack-$uuid | grep -v NAME | awk '{print $2}'`
+      ready=`kubectl -n benchmark-operator get daemonsets backpack-$uuid | grep -v NAME | awk '{print $4}'`
       if [[ $desired -eq $ready ]]
       then
         echo "Backpack complete. Starting benchmark"

@@ -23,8 +23,8 @@ function functional_test_stressng {
 
   # Wait for the workload pod to run the actual workload
   stressng_workload_pod=$(get_pod "app=stressng_workload-$uuid" 300)
-  kubectl wait --for=condition=Initialized "pods/$stressng_workload_pod" --namespace ripsaw-system --timeout=400s
-  kubectl wait --for=condition=complete -l app=stressng_workload-$uuid --namespace ripsaw-system jobs --timeout=500s
+  kubectl wait --for=condition=Initialized "pods/$stressng_workload_pod" --namespace benchmark-operator --timeout=400s
+  kubectl wait --for=condition=complete -l app=stressng_workload-$uuid --namespace benchmark-operator jobs --timeout=500s
 
   index="ripsaw-stressng-results"
   if check_es "${long_uuid}" "${index}"
@@ -32,7 +32,7 @@ function functional_test_stressng {
     echo "StressNG test: Success"
   else
     echo "Failed to find data for StressNG test in ES"
-    kubectl logs "$stressng_workload_pod" --namespace ripsaw-system
+    kubectl logs "$stressng_workload_pod" --namespace benchmark-operator
     exit 1
   fi
 }

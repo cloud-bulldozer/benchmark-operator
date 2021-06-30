@@ -2,7 +2,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: iperf3-benchmark-example
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   workload:
     name: iperf3

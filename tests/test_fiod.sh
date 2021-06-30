@@ -28,18 +28,18 @@ function functional_test_fio {
   uuid=${long_uuid:0:8}
 
   pod_count "app=fio-benchmark-$uuid" 2 300  
-  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
+  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n ripsaw-system --timeout=500s" "500s" $fio_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n ripsaw-system --timeout=700s" "700s" $fio_pod
-  kubectl -n ripsaw-system logs $fio_pod > /tmp/$fio_pod.log
+  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n benchmark-operator --timeout=500s" "500s" $fio_pod
+  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n benchmark-operator --timeout=700s" "700s" $fio_pod
+  kubectl -n benchmark-operator logs $fio_pod > /tmp/$fio_pod.log
   indexes="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${indexes}"
   then
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$fio_pod" -n ripsaw-system
+    kubectl logs "$fio_pod" -n benchmark-operator
     exit 1
   fi
 }

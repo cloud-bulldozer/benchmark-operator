@@ -2,7 +2,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   clustername: test-cluster
   test_user: user # user is a key that points to user triggering ripsaw, useful to search results in ES

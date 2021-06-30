@@ -66,7 +66,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -93,7 +93,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -122,7 +122,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"

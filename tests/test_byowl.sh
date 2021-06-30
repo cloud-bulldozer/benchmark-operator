@@ -23,9 +23,9 @@ function functional_test_byowl {
   uuid=${long_uuid:0:8}
   
   byowl_pod=$(get_pod "app=byowl-$uuid" 300)
-  wait_for "kubectl -n ripsaw-system wait --for=condition=Initialized pods/$byowl_pod --timeout=500s" "500s" $byowl_pod
-  wait_for "kubectl -n ripsaw-system  wait --for=condition=complete -l app=byowl-$uuid jobs --timeout=300s" "300s" $byowl_pod
-  kubectl -n ripsaw-system logs "$byowl_pod" | grep "Test"
+  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized pods/$byowl_pod --timeout=500s" "500s" $byowl_pod
+  wait_for "kubectl -n benchmark-operator  wait --for=condition=complete -l app=byowl-$uuid jobs --timeout=300s" "300s" $byowl_pod
+  kubectl -n benchmark-operator logs "$byowl_pod" | grep "Test"
   echo "BYOWL test: Success"
 }
 

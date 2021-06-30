@@ -2,7 +2,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: ripsaw-system
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     # Elastic search instance with full URL format. https://elastic.apps.org:9200
