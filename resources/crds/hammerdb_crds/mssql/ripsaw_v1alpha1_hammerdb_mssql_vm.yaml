@@ -12,7 +12,7 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
+      #image: quay.io/user/hammerdb:latest # add custom hammerdb image
       pin: false # true for nodeSelector
       pin_client: "node1"
       db_type: "mssql"
@@ -77,7 +77,7 @@ spec:
         sockets: 1
         cores: 2
         threads: 1
-        image: quay.io/ebattat/centos8-mssql2019-container-disk:latest
+        image: quay.io/cloud-bulldozer/centos8-mssql2019-container-disk:latest
         requests:
           memory: 100Mi
         limits:

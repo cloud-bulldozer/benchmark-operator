@@ -71,8 +71,7 @@ spec:
         sockets: 1
         cores: 2
         threads: 1
-        #image: kubevirt/fedora-cloud-container-disk-demo:latest
-        image: quay.io/ebattat/centos8-mariadb103-container-disk:latest
+        image: quay.io/cloud-bulldozer/centos8-mariadb103-container-disk:latest
         requests:
           memory: 100Mi
         limits:
