@@ -81,6 +81,7 @@ do
 done
 
 delete_operator || true
+oc delete namespace benchmark-operator --ignore-not-found
 kubectl delete benchmarks -n benchmark-operator --ignore-not-found --all
 apply_operator
 
