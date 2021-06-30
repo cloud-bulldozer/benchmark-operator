@@ -66,5 +66,3 @@ spec:
       volumes:
         - name: data
           emptyDir: {}
-        - name: runner
-          emptyDir: {}

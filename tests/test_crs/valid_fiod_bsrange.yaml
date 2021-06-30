@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
+  name: fiod-bsrange-benchmark
   namespace: benchmark-operator
 spec:
   system_metrics:

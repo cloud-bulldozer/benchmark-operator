@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf
+  name: uperf-serviceip
   namespace: benchmark-operator
 spec:
   system_metrics:
