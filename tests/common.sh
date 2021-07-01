@@ -60,8 +60,8 @@ function populate_test_list {
   done
 }
 
-function delete_benchmark{
-  cat $1 | kubectl delete -f
+function delete_benchmark {
+  kubectl delete -f $1 --ignore-not-found=true
 }
 
 function wait_clean {
