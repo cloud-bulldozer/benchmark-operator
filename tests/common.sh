@@ -63,7 +63,7 @@ function populate_test_list {
 function wait_clean {
   if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
   then
-    kubectl delete benchmarks -n benchmark-operator --ignore-not-found --field-selector=status.complete=true
+    echo "skipping cleanup"
   fi
 }
 
