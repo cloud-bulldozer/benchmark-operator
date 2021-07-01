@@ -17,6 +17,7 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_sysbench {
+  delete_benchmark tests/test_crs/valid_sysbench.yaml
   kubectl apply -f tests/test_crs/valid_sysbench.yaml
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}

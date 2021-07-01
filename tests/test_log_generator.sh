@@ -19,7 +19,7 @@ trap finish EXIT
 function functional_test_log_generator {
   test_name=$1
   cr=$2
-  
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
   long_uuid=$(get_uuid 20)

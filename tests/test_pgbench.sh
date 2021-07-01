@@ -72,6 +72,7 @@ EOF
     sleep 2
   done
   # deploy the test CR with the postgres pod IP
+  delete_benchmark tests/test_crs/valid_pgbench.yaml
   sed s/host:/host:\ ${postgres_ip}/ tests/test_crs/valid_pgbench.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}

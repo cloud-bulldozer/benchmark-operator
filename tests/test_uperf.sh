@@ -20,6 +20,7 @@ function functional_test_uperf {
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   test_name=$1
   cr=$2
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)

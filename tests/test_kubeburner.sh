@@ -28,6 +28,7 @@ function functional_test_kubeburner {
   check_logs=0
   kubectl apply -f resources/kube-burner-role.yml
   echo "Performing kube-burner: ${workload_name}"
+  cat $cr | kubectl delete -f -
   sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/METRICS_PROFILE/${metrics_profile}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}

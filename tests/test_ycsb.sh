@@ -65,6 +65,7 @@ spec:
            - containerPort: 27017
 EOF
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  delete_benchmark tests/test_crs/valid_ycsb-mongo.yaml
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" tests/test_crs/valid_ycsb-mongo.yaml | kubectl apply -f -
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}

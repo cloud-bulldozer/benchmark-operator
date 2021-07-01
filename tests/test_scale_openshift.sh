@@ -20,7 +20,7 @@ trap finish EXIT
 function functional_test_scale_openshift {
   test_name=$1
   cr=$2
-  
+  delete_benchmark $cr
   # Apply scale role and service account
   kubectl apply -f resources/scale_role.yaml
   

@@ -60,6 +60,10 @@ function populate_test_list {
   done
 }
 
+function delete_benchmark{
+  cat $1 | kubectl delete -f
+}
+
 function wait_clean {
   if [[ `kubectl get benchmarks.ripsaw.cloudbulldozer.io --all-namespaces` ]]
   then

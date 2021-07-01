@@ -20,6 +20,7 @@ function functional_test_fio {
   wait_clean
   test_name=$1
   cr=$2
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -

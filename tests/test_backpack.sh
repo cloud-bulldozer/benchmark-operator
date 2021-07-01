@@ -19,6 +19,7 @@ trap finish EXIT
 
 function functional_test_backpack {
   backpack_requirements
+  delete_benchmark $1
   kubectl apply -f $1
   long_uuid=$(get_uuid 20)
   uuid=${long_uuid:0:8}
