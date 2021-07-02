@@ -167,6 +167,9 @@ spec:
               system_metrics:
                type: string
                default: Not collected
+              message:
+                type: string
+                default: None
     additionalPrinterColumns:
     - name: Type
       type: string

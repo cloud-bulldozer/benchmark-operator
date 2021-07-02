@@ -1,3 +1,4 @@
+---
 - name: Failure State
   operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1

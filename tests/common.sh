@@ -9,55 +9,60 @@ echo "using container image location $image_location and account $image_account"
 function populate_test_list {
   rm -f tests/iterate_tests
 
-  for item in $@
-  do
-    # Check for changes in roles
-    if [[ $(echo ${item} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/uperf') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/fio_distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/iperf3') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/byowl') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/ycsb') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/backpack') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/smallfile') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/stressng') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/scale_openshift') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/kube-burner') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/flent') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/log_generator') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'roles/image_pull') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
+  if [ -n $1 ]; then 
+    echo $1 >> tests/iterate_tests
+  else
+
+    for item in $@
+    do
+      # Check for changes in roles
+      if [[ $(echo ${item} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/uperf') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/fio_distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/iperf3') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/byowl') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/sysbench') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/pgbench') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/ycsb') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/backpack') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/hammerdb') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/smallfile') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/vegeta') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/stressng') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/scale_openshift') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/kube-burner') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/flent') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/log_generator') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'roles/image_pull') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
 
 
-    # Check for changes in cr files
-    if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_byowl*') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_fiod*') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_fs_drift*') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_hammerdb*') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_iperf3*') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_pgbench*') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_smallfile*') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_sysbench*') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_uperf*') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_stressng*') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_scale*') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_kube-burner*') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_flent*') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_log_generator*') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
-    if [[ $(echo ${item} | grep 'valid_image_pull*') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
+      # Check for changes in cr files
+      if [[ $(echo ${item} | grep 'valid_backpack*') ]]; then echo "test_backpack.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_byowl*') ]]; then echo "test_byowl.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_fiod*') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_fs_drift*') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_hammerdb*') ]]; then echo "test_hammerdb.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_iperf3*') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_pgbench*') ]]; then echo "test_pgbench.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_smallfile*') ]]; then echo "test_smallfile.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_sysbench*') ]]; then echo "test_sysbench.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_uperf*') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_ycsb*') ]]; then echo "test_ycsb.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_vegeta*') ]]; then echo "test_vegeta.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_stressng*') ]]; then echo "test_stressng.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_scale*') ]]; then echo "test_scale_openshift.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_kube-burner*') ]]; then echo "test_kubeburner.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_flent*') ]]; then echo "test_flent.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_log_generator*') ]]; then echo "test_log_generator.sh" >> tests/iterate_tests; fi
+      if [[ $(echo ${item} | grep 'valid_image_pull*') ]]; then echo "test_image_pull.sh" >> tests/iterate_tests; fi
 
 
-    # Check for changes in test scripts
-    test_check=`echo $item | awk -F / '{print $2}'`
+      # Check for changes in test scripts
+      test_check=`echo $item | awk -F / '{print $2}'`
 
-    if [[ $(echo ${test_check} | grep 'test_.*.sh') ]]; then echo ${test_check} >> tests/iterate_tests; fi
-  done
+      if [[ $(echo ${test_check} | grep 'test_.*.sh') ]]; then echo ${test_check} >> tests/iterate_tests; fi
+    done
+  fi
 }
 
 function delete_benchmark {

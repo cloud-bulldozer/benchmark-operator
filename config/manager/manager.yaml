@@ -61,7 +61,7 @@ spec:
         volumeMounts:
           - mountPath: /redis-master-data
             name: data
-      serviceAccountName: controller-manager
+      serviceAccountName: operator
       terminationGracePeriodSeconds: 10
       volumes:
         - name: data
