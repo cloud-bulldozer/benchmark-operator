@@ -80,7 +80,7 @@ spec:
         threads: 1
         image: quay.io/cloud-bulldozer/centos8-mssql2019-container-disk:latest
         limits:
-          memory: 16Gi
+          memory: 16Gi # at least 16Gi for VM
         requests:
           memory: 100Mi
         network:

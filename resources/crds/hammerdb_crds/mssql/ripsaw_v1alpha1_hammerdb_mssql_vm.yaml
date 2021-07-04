@@ -81,7 +81,7 @@ spec:
         requests:
           memory: 100Mi
         limits:
-          memory: 16Gi
+          memory: 16Gi # at least 16Gi for VM
         network:
           front_end: bridge # or masquerade
           multiqueue:
