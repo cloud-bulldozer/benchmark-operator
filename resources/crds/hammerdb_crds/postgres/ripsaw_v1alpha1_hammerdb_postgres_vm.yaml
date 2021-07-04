@@ -81,7 +81,7 @@ spec:
         requests:
           memory: 100Mi
         limits:
-          memory: 4Gi
+          memory: 16Gi
         network:
           front_end: bridge # or masquerade
           multiqueue:

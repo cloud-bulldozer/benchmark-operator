@@ -18,8 +18,8 @@ spec:
       resources: false # true for resources requests/limits
       requests_cpu: 200m
       requests_memory: 100Mi
-      limits_cpu: 2
-      limits_memory: 4Gi
+      limits_cpu: 4
+      limits_memory: 16Gi
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
