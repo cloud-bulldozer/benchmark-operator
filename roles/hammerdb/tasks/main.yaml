@@ -25,24 +25,23 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- block:
-  - name: Create PVC(s)
-    k8s:
-      definition:
-        kind: PersistentVolumeClaim
-        apiVersion: v1
-        metadata:
-          name: "claim-{{ trunc_uuid }}"
-          namespace: '{{ operator_namespace }}'
-          annotations:
-            volume.beta.kubernetes.io/storage-class: "{{ workload_args.client_vm.pvc_storageclass }}"
-        spec:
-          accessModes:
-            - "{{ workload_args.client_vm.pvc_pvcaccessmode | default('ReadWriteOnce') }}"
-          volumeMode: "{{ workload_args.client_vm.pvc_pvcvolumemode | default('Filesystem') }}"
-          resources:
-            requests:
-              storage: "{{ workload_args.client_vm.pvc_storagesize }}"
+- name: Create PVC(s)
+  k8s:
+    definition:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: "claim-{{ trunc_uuid }}"
+        namespace: '{{ operator_namespace }}'
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "{{ workload_args.client_vm.pvc_storageclass }}"
+      spec:
+        accessModes:
+          - "{{ workload_args.client_vm.pvc_pvcaccessmode | default('ReadWriteOnce') }}"
+        volumeMode: "{{ workload_args.client_vm.pvc_pvcvolumemode | default('Filesystem') }}"
+        resources:
+          requests:
+            storage: "{{ workload_args.client_vm.pvc_storagesize }}"
 
   when: workload_args.client_vm.pvc is sameas true
 
