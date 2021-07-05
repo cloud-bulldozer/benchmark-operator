@@ -65,6 +65,13 @@ spec:
       db_postgresql_dritasnap: "false"
       db_postgresql_oracompat: "false"
       db_postgresql_storedprocs: "false"
+      # ElasticSearch custom fields
+      es_custom_field: false
+      es_ocp_version: "4.7.0"
+      es_cnv_version: "2.6.2"
+      es_db_version: "10.3.0"
+      es_os_version: "centos8"
+      es_kind: "vm"
       kind: vm
       client_vm:
         dedicatedcpuplacement: false
