@@ -20,20 +20,22 @@ function functional_test_fio {
   wait_clean
   test_name=$1
   cr=$2
+  benchmark_name=$(get_benchmark_name $cr)
   delete_benchmark $cr
   echo "Performing: ${test_name}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
-  kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   pod_count "app=fio-benchmark-$uuid" 2 300  
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n benchmark-operator --timeout=500s" "500s" $fio_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n benchmark-operator --timeout=700s" "700s" $fio_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
   kubectl -n benchmark-operator logs $fio_pod > /tmp/$fio_pod.log
+
+
+
+
   indexes="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${indexes}"
   then

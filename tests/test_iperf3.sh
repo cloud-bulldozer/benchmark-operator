@@ -19,9 +19,11 @@ trap finish EXIT
 function functional_test_iperf {
   echo "Performing iperf3: ${1}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
-  delete_benchmark tests/test_crs/valid_iperf3.yaml
+  cr=tests/test_crs/valid_iperf3.yaml
+  delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)

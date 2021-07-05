@@ -22,7 +22,8 @@ function functional_test_image_pull {
   delete_benchmark $cr
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  benchmark_name=$(get_benchmark_name $cr)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   pod_count "app=image-pull-$uuid" 2 300

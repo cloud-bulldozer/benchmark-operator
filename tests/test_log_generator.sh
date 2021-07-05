@@ -20,9 +20,10 @@ function functional_test_log_generator {
   test_name=$1
   cr=$2
   delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   log_gen_pod=$(get_pod "app=log-generator-$uuid" 300)

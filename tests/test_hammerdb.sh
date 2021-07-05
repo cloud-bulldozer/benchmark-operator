@@ -22,9 +22,10 @@ trap finish EXIT
 function functional_test_hammerdb {
   initdb_pod
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
-  delete_benchmark tests/test_crs/valid_hammerdb.yaml
-  sed -e "s/PROMETHEUS_TOKEN/${token}/g" tests/test_crs/valid_hammerdb.yaml | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" $cr | kubectl apply -f -
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   # Wait for the workload pod to run the actual workload

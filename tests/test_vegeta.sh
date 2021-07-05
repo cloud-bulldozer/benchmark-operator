@@ -22,11 +22,12 @@ function functional_test_vegeta {
   check_logs=0
   test_name=$1
   cr=$2
+  benchmark_name=$(get_benchmark_name $cr)
   delete_benchmark $cr
   echo "Performing: ${test_name}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   pod_count "app=vegeta-benchmark-$uuid" 2 900

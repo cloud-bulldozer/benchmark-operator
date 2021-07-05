@@ -26,11 +26,12 @@ function functional_test_kubeburner {
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   cr=tests/test_crs/valid_kube-burner.yaml
   delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
   check_logs=0
   kubectl apply -f resources/kube-burner-role.yml
   echo "Performing kube-burner: ${workload_name}"
   sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/METRICS_PROFILE/${metrics_profile}/g" ${cr} | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   pod_count "app=kube-burner-benchmark-$uuid" 1 900

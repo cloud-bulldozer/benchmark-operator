@@ -21,7 +21,8 @@ function functional_test_backpack {
   backpack_requirements
   delete_benchmark $1
   kubectl apply -f $1
-  long_uuid=$(get_uuid 20)
+  benchmark_name=$(get_benchmark_name $1)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   if [[ $1 == "tests/test_crs/valid_backpack_daemonset.yaml" ]]

@@ -16,6 +16,11 @@ do
     esac
 done
 
+if ! command -v yq &> /dev/null
+then
+    echo "yq not installed, installing"
+    wget https://github.com/mikefarah/yq/releases/download/v4.9.6/yq_linux_amd64 -O /usr/local/bin/yq && chmod +x /usr/local/bin/yq
+fi
 
 
 source tests/common.sh

@@ -20,13 +20,14 @@ trap finish EXIT
 function functional_test_scale_openshift {
   test_name=$1
   cr=$2
+  benchmark_name=$(get_benchmark_name $cr)
   delete_benchmark $cr
   # Apply scale role and service account
   kubectl apply -f resources/scale_role.yaml
   
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   scale_pod=$(get_pod "app=scale-$uuid" 300)

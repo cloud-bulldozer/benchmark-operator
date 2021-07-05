@@ -78,13 +78,14 @@ function wait_clean {
 
 # The argument is 'timeout in seconds'
 function get_uuid () {
-  sleep_time=$1
+  sleep_time=20
+  benchmark_name=$1
   sleep $sleep_time
   counter=0
   counter_max=6
   uuid="False"
   until [ $uuid != "False" ] ; do
-    uuid=$(kubectl -n benchmark-operator get benchmarks -o jsonpath='{.items[0].status.uuid}')
+    uuid=$(kubectl -n benchmark-operator get benchmark/$benchmark_name -o jsonpath='{.status.uuid}')
     if [ -z $uuid ]; then
       sleep $sleep_time
       uuid="False"
@@ -181,6 +182,41 @@ function check_log(){
   done
 }
 
+function get_benchmark_name() {
+  benchmark_file=$1
+  echo $(yq e '.metadata.name' $benchmark_file)
+}
+
+function wait_for_benchmark() {
+  benchmark_name=$1
+  desired_state=$2
+  until [[ $(kubectl -n benchmark-operator get benchmark/$benchmark_name -o jsonpath={.status.state}) == "$desired_state" ]]; do 
+    sleep 5
+  done 
+}
+
+function check_benchmark_for_desired_state(){
+  benchmark_name=$1
+  desired_state=$2
+  timeout=${3:-500s}
+  export -f wait_for_benchmark
+  if ! timeout -k $timeout $timeout bash -c "wait_for_benchmark $benchmark_name $desired_state"
+  then
+      echo "Timeout exceeded for: "$benchmark_name
+
+      counter=3
+      until [ $counter -gt $# ]
+      do
+        echo "Logs from "${@:$counter}
+        kubectl -n benchmark-operator logs --tail=40 ${@:$counter}
+        counter=$(( counter+1 ))
+      done
+      return 1
+  fi
+  echo $(kubectl -n benchmark-operator get benchmark/$benchmark_name -o jsonpath={.status.state})
+
+}
+
 # Takes 2 or more arguments: 'command to run', 'time to wait until true'
 # Any additional arguments will be passed to kubectl -n benchmark-operator logs to provide logging if a timeout occurs
 function wait_for() {
@@ -212,6 +248,8 @@ function error {
   echo "Benchmark operator Logs"
   kubectl -n benchmark-operator logs --tail=200 -l control-plane=controller-manager -c manager
 }
+
+
 
 function wait_for_backpack() {
   echo "Waiting for backpack to complete before starting benchmark test"

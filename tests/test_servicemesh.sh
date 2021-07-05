@@ -21,9 +21,10 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_servicemesh {
-  delete_benchmark tests/test_crs/valid_servicemesh.yaml
+  cr=tests/test_crs/valid_servicemesh.yaml
+  delete_benchmark $cr
   kubectl apply -f tests/test_crs/valid_servicemesh.yaml
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   # wait until the job appears
