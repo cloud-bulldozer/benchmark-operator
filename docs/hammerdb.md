@@ -15,37 +15,106 @@ An example CR might look like this
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: hammerdb
+  name: hammerdb-benchmark
   namespace: my-ripsaw
 spec:
+  elasticsearch:
+    url: http://my.elasticsearch.server:80
+    index_name: ripsaw-hammerdb
+  metadata:
+    collection: false
   workload:
-    name: "hammerdb"
+    name: hammerdb
     args:
-      db_init: false
+      #image: quay.io/user/hammerdb:latest # add custom hammerdb image
+      pin: false # true for nodeSelector
+      pin_client: "node1"
+      resources: false # true for resources requests/limits
+      requests_cpu: 200m
+      requests_memory: 100Mi
+      limits_cpu: 4
+      limits_memory: 16Gi
+      db_type: "mssql"
+      timed_test: true
+      test_type: "tpc-c"
+      db_init: true # true only for first run to build schema
       db_benchmark: true
-      db_server: "mssql-deployment.sql-server"
-      db_port: "1443"
-      db_tcp: "true"
-      db_user: "SA"
-      db_pass: "s3curePasswordString"
+      db_server: "mssql-deployment.mssql-db"
+      db_port: "1433"
       db_warehouses: 1
       db_num_workers: 1
-      transactions: 20000
-      runtime: 1
+      db_user: "SA"
+      db_pass: "s3curePasswordString"
+      db_name: "tpcc"
+      transactions: 10000
+      raiseerror: "false"
+      keyandthink: "false"
+      driver: "timed"
       rampup: 1
+      runtime: 1
+      allwarehouse: false
+      timeprofile: false
+      async_scale: false
+      async_client: 10
+      async_verbose: false
+      async_delay: 1000
       samples: 1
+      # database specific variables
+      # mssql:
+      db_mssql_tcp: "true"
+      db_mssql_azure: "false"
+      db_mssql_authentication: "windows"
+      db_mssql_linux_authent: "sql"
+      db_mssql_odbc_driver: "ODBC Driver 13 for SQL Server"
+      db_mssql_linux_odbc: "ODBC Driver 17 for SQL Server"
+      db_mssql_imdb: "false"
+      db_mssql_bucket: 1
+      db_mssql_durability: "SCHEMA_AND_DATA"
+      db_mssql_checkpoint: "false"
+      # mariadb:
+      db_mysql_storage_engine: "innodb"
+      db_mysql_partition: "false"
+      db_mysql_socket: "/var/lib/mysql/mysql.sock"
+      # postgresql
+      db_postgresql_superuser: "SA"
+      db_postgresql_superuser_pass: "s3curePasswordString"
+      db_postgresql_defaultdbase: "postgres"
+      db_postgresql_vacuum: "false"
+      db_postgresql_dritasnap: "false"
+      db_postgresql_oracompat: "false"
+      db_postgresql_storedprocs: "false"
+      # ElasticSearch custom fields
+      es_custom_field: false
+      es_ocp_version: "4.7.0"
+      es_cnv_version: "2.6.2"
+      es_db_version: "2019"
+      es_os_version: "centos8"
+      es_kind: "pod"
 ```
+The `pin` feature is `true` for node selector, `pin_node` is the node name
+
+The `resource` feature is `true` for resources configurations: `requests_cpu`, `requests_memory`, `limits_cpu`, `limits_memory`
+
+The `db_type` is the database type: mariadb, pg or mssql
 
 The `db_init` feature determines wether the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
 
-The `db_benchmark` feature is used to run the actual benchmark when set to true. `db_server` either holds the name or the IP address of the DB server, `db_port` the port on which the DB is accessible. If `db_tcp` is set to true the client will use a TCP connection, if it's set to `false` UDP will be used.
+The `db_benchmark` feature used to run the actual benchmark when set to true. 
 
-`db_user` and `db_pass` need to be set identical to the settings on the DB server side. 
+The `db_server` either holds the name or the IP address of the DB server, 
 
-The tpcc benchmark which we use can set up an arbitrary number of warehouses between which goods will be transferred in order to simulate a real-world scenario. The higher the number of warehouses is, the more complex and load-heavy the benchmark can get. `db_warehouses` is used to define this number. 
-`db_num_workers` controls the number of virtual users, acting upon the warehouses and the goods in them. This number needs to lesser or equal to the number of warehouses.
+The `db_port` the port on which the DB is accessible. If `db_mssql_tcp` is set to true the client will use a TCP connection, if it's set to `false` UDP will be used.
+
+The `db_user` and `db_pass` need to be set identical to the settings on the DB server side. 
+
+The tpcc benchmark which we use can set up an arbitrary number of warehouses between which goods will be transferred in order to simulate a real-world scenario. The higher the number of warehouses is, the more complex and load-heavy the benchmark can get. 
+The `db_warehouses` is used to define this number. 
+The `db_num_workers` is used to controls the number of virtual users, acting upon the warehouses and the goods in them. This number needs to lesser or equal to the number of warehouses.
+* db_warehouses >= db_num_workers: virtual users must be less than or equal to number of warehouses
 
 With `runtime`, `rampup` and `samples` the time for a single run, the rampup time per run and the number of runs can be controlled. 
+
+The `es_custom_field` feature is true to enable distribute the following fields to Elastic Search: `es_ocp_version`, `es_cnv_version`, `es_db_version`, `es_os_version`, `es_kind`
 
 The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
@@ -70,10 +139,10 @@ Once done creating/editing the resource file, you can run it by:
         cores: 2
         threads: 1
         image: kubevirt/fedora-cloud-container-disk-demo:latest
-        limits:
-          memory: 4Gi
         requests:
-          memory: 4Gi
+          memory: 100Mi
+        limits:
+          memory: 16Gi # at least 16Gi for VM
         network:
           front_end: bridge # or masquerade
           multiqueue:
@@ -102,3 +171,4 @@ podman push <imageurl>
 
 You can either access results by indexing them directly or by accessing the console.
 The results are stored in /tmp/ directory
+You can console into VM by running `virtctl console vmi_name`

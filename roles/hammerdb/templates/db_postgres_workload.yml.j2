@@ -15,7 +15,7 @@ spec:
     spec:
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
 {% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"

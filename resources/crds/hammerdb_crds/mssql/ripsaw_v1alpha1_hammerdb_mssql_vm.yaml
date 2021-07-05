@@ -14,7 +14,7 @@ spec:
     args:
       #image: quay.io/user/hammerdb:latest # add custom hammerdb image
       pin: false # true for nodeSelector
-      pin_client: "node1"
+      pin_node: "node1"
       db_type: "mssql"
       timed_test: true
       test_type: "tpc-c"
