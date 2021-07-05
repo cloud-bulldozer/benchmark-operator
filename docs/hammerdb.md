@@ -97,13 +97,13 @@ The `resource` feature is `true` for resources configurations: `requests_cpu`, `
 
 The `db_type` is the database type: mariadb, pg or mssql
 
-The `db_init` feature determines wether the database has already been initialized (false) or needs to be initialized (true). If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
+The `db_init` feature determines wether the database has already been initialized `false` or needs to be initialized `true`. If the DB has been used previously to run benchmarks against it, it needs to be set to `false`.
 
-The `db_benchmark` feature used to run the actual benchmark when set to true. 
+The `db_benchmark` feature used to run the actual benchmark when set to `true`. 
 
 The `db_server` either holds the name or the IP address of the DB server, 
 
-The `db_port` the port on which the DB is accessible. If `db_mssql_tcp` is set to true the client will use a TCP connection, if it's set to `false` UDP will be used.
+The `db_port` the port on which the DB is accessible. If `db_mssql_tcp` is set to `true` the client will use a TCP connection, if it's set to `false` UDP will be used.
 
 The `db_user` and `db_pass` need to be set identical to the settings on the DB server side. 
 
@@ -114,7 +114,7 @@ The `db_num_workers` is used to controls the number of virtual users, acting upo
 
 With `runtime`, `rampup` and `samples` the time for a single run, the rampup time per run and the number of runs can be controlled. 
 
-The `es_custom_field` feature is true to enable distribute the following fields to Elastic Search: `es_ocp_version`, `es_cnv_version`, `es_db_version`, `es_os_version`, `es_kind`
+The `es_custom_field` feature is `true` to enable distribute the following fields to Elastic Search: `es_ocp_version`, `es_cnv_version`, `es_db_version`, `es_os_version`, `es_kind`
 
 The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
