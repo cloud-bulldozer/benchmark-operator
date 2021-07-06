@@ -27,22 +27,8 @@ function functional_test_fs_drift {
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  count=0
-  while [[ $count -lt 24 ]]; do
-    if [[ `kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace benchmark-operator -o name | cut -d/ -f2 | grep client` ]]; then
-      fsdrift_pod=$(kubectl get pods -l app=fs-drift-benchmark-$uuid --namespace benchmark-operator -o name | cut -d/ -f2 | grep client)
-      count=30
-    fi
-    if [[ $count -ne 30 ]]; then
-      sleep 5
-      count=$((count + 1))
-    fi
-  done
-  echo fsdrift_pod $fs_drift_pod
-  wait_for "kubectl wait --for=condition=Initialized pods/$fsdrift_pod -n benchmark-operator --timeout=500s" "500s" $fsdrift_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fs-drift-benchmark-$uuid jobs -n benchmark-operator --timeout=100s" "200s" $fsdrift_pod
-
+  fsdrift_pod=$(get_pod "app=fs-drift-benchmark-$uuid" 300)
+  check_benchmark_for_desired_state $benchmark_name Complete 600s
   indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
   if check_es "${long_uuid}" "${indexes}"
   then
@@ -52,6 +38,7 @@ function functional_test_fs_drift {
     kubectl logs "$fsdrift_pod" -n benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

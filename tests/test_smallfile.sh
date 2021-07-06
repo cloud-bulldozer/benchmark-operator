@@ -27,21 +27,9 @@ function functional_test_smallfile {
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  count=0
-  while [[ $count -lt 24 ]]; do
-    if [[ `kubectl get pods -l app=smallfile-benchmark-$uuid --namespace benchmark-operator -o name | cut -d/ -f2 | grep client` ]]; then
-      smallfile_pod=$(kubectl get pods -l app=smallfile-benchmark-$uuid --namespace benchmark-operator -o name | cut -d/ -f2 | grep client)
-      count=30
-    fi
-    if [[ $count -ne 30 ]]; then
-      sleep 5
-      count=$((count + 1))
-    fi
-  done
+  smallfile_pod=$(get_pod "app=smallfile-benchmark-$uuid" 300)
   echo "smallfile_pod ${smallfile_pod}"
-  wait_for "kubectl wait --for=condition=Initialized -l app=smallfile-benchmark-$uuid pods --namespace benchmark-operator --timeout=500s" "500s"
-  wait_for "kubectl wait --for=condition=complete -l app=smallfile-benchmark-$uuid jobs --namespace benchmark-operator --timeout=100s" "100s"
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   indexes="ripsaw-smallfile-results ripsaw-smallfile-rsptimes"
   if check_es "${long_uuid}" "${indexes}"
@@ -54,6 +42,7 @@ function functional_test_smallfile {
     done
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

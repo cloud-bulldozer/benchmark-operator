@@ -33,10 +33,8 @@ function functional_test_kubeburner {
   sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/METRICS_PROFILE/${metrics_profile}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  pod_count "app=kube-burner-benchmark-$uuid" 1 900
   check_logs=1
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
+  check_benchmark_for_desired_state $benchmark_name Complete 1800s
 
   index="ripsaw-kube-burner"
   if check_es "${long_uuid}" "${index}"
@@ -47,6 +45,7 @@ function functional_test_kubeburner {
     exit 1
   fi
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

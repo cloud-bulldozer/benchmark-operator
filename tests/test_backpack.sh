@@ -19,9 +19,10 @@ trap finish EXIT
 
 function functional_test_backpack {
   backpack_requirements
-  delete_benchmark $1
-  kubectl apply -f $1
-  benchmark_name=$(get_benchmark_name $1)
+  cr=$1
+  delete_benchmark $cr
+  kubectl apply -f $cr
+  benchmark_name=$(get_benchmark_name $cr)
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
@@ -42,6 +43,7 @@ function functional_test_backpack {
     echo "Failed to find data in ES"
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

@@ -22,8 +22,9 @@ trap finish EXIT
 
 function functional_test_servicemesh {
   cr=tests/test_crs/valid_servicemesh.yaml
+  benchmark_name=$(get_benchmark_name $cr)
   delete_benchmark $cr
-  kubectl apply -f tests/test_crs/valid_servicemesh.yaml
+  kubectl apply -f $cr
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
@@ -50,6 +51,7 @@ function functional_test_servicemesh {
     echo "Failed to verify benchmark results"
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 functional_test_servicemesh

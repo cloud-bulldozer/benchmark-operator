@@ -45,6 +45,7 @@ function functional_test_fio {
     kubectl logs "$fio_pod" -n benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

@@ -27,8 +27,7 @@ function functional_test_log_generator {
   uuid=${long_uuid:0:8}
 
   log_gen_pod=$(get_pod "app=log-generator-$uuid" 300)
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=log-generator-$uuid pods --timeout=300s" "300s" $log_gen_pod
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=log-generator-$uuid jobs --timeout=300s" "300s" $log_gen_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   index="log-generator-results"
   if check_es "${long_uuid}" "${index}"
@@ -39,7 +38,7 @@ function functional_test_log_generator {
     kubectl logs "$log_gen_pod" -n benchmark-operator
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

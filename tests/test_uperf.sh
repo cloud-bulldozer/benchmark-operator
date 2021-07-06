@@ -31,8 +31,9 @@ function functional_test_uperf {
   uperf_server_pod=$(get_pod "type=uperf-bench-server-${uuid}" 300)
   wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l type=uperf-bench-server-${uuid} pods --timeout=300s" "300s" $uperf_server_pod
   uperf_client_pod=$(get_pod "app=uperf-bench-client-$uuid" 900)
-  wait_for "kubectl wait -n benchmark-operator --for=condition=Initialized pods/$uperf_client_pod --timeout=500s" "500s" $uperf_client_pod
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=uperf-bench-client-$uuid jobs --timeout=500s" "500s" $uperf_client_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 800s
+  
+
 
   index="ripsaw-uperf-results"
   if check_es "${long_uuid}" "${index}"
@@ -43,6 +44,7 @@ function functional_test_uperf {
     kubectl logs "$uperf_client_pod" -n benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

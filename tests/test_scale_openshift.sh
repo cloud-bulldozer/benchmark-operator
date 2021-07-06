@@ -31,8 +31,6 @@ function functional_test_scale_openshift {
   uuid=${long_uuid:0:8}
 
   scale_pod=$(get_pod "app=scale-$uuid" 300)
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=scale-$uuid pods --timeout=300s" "300s" $scale_pod
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=scale-$uuid jobs --timeout=500s" "500s" $scale_pod
 
   index="openshift-cluster-timings"
   if check_es "${long_uuid}" "${index}"
@@ -43,7 +41,7 @@ function functional_test_scale_openshift {
     kubectl logs "$scale_pod" -n benchmark-operator
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

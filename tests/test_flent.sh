@@ -27,12 +27,7 @@ function functional_test_flent {
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
-  pod_count "type=flent-bench-server-$uuid" 1 900
-  flent_server_pod=$(get_pod "app=flent-bench-server-0-$uuid" 300)
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=flent-bench-server-0-$uuid pods --timeout=300s" "300s" $flent_server_pod
-  flent_client_pod=$(get_pod "app=flent-bench-client-$uuid" 900)
-  wait_for "kubectl wait -n benchmark-operator --for=condition=Initialized pods/$flent_client_pod --timeout=500s" "500s" $flent_client_pod
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=flent-bench-client-$uuid jobs --timeout=500s" "500s" $flent_client_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 800s
 
   index="ripsaw-flent-results"
   if check_es "${long_uuid}" "${index}"
@@ -43,6 +38,7 @@ function functional_test_flent {
     kubectl logs "$flent_client_pod" -n benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

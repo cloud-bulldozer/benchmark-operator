@@ -26,8 +26,7 @@ function functional_test_image_pull {
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
-  pod_count "app=image-pull-$uuid" 2 300
-  wait_for "kubectl wait -n benchmark-operator --for=condition=complete -l app=image-pull-$uuid jobs --timeout=500s" "500s"
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   index="image-pull-results"
   if check_es "${long_uuid}" "${index}"
@@ -37,7 +36,7 @@ function functional_test_image_pull {
     echo "Failed to find data for ${test_name} in ES"
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

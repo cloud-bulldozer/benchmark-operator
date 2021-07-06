@@ -30,8 +30,7 @@ function functional_test_hammerdb {
 
   # Wait for the workload pod to run the actual workload
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
-  kubectl wait --for=condition=Initialized "pods/$hammerdb_workload_pod" --namespace benchmark-operator --timeout=400s
-  kubectl wait --for=condition=complete -l app=hammerdb_workload-$uuid --namespace benchmark-operator jobs --timeout=500s
+  check_benchmark_for_desired_state $benchmark_name Complete 900s
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"
@@ -42,6 +41,7 @@ function functional_test_hammerdb {
     kubectl logs "$hammerdb_workload_pod" --namespace benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

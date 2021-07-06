@@ -73,8 +73,7 @@ EOF
   uuid=${long_uuid:0:8}
 
   ycsb_load_pod=$(get_pod "name=ycsb-load-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$ycsb_load_pod -n benchmark-operator --timeout=500s" "500s" $ycsb_load_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l name=ycsb-load-$uuid -n benchmark-operator --timeout=300s" "300s" $ycsb_load_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   indexes="ripsaw-ycsb-summary ripsaw-ycsb-results"
   if check_es "${long_uuid}" "${indexes}"
@@ -85,6 +84,7 @@ EOF
     kubectl logs -n benchmark-operator $ycsb_load_pod
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

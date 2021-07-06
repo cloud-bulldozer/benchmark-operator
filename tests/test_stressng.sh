@@ -26,8 +26,8 @@ function functional_test_stressng {
 
   # Wait for the workload pod to run the actual workload
   stressng_workload_pod=$(get_pod "app=stressng_workload-$uuid" 300)
-  kubectl wait --for=condition=Initialized "pods/$stressng_workload_pod" --namespace benchmark-operator --timeout=400s
-  kubectl wait --for=condition=complete -l app=stressng_workload-$uuid --namespace benchmark-operator jobs --timeout=500s
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
+
 
   index="ripsaw-stressng-results"
   if check_es "${long_uuid}" "${index}"
@@ -38,6 +38,8 @@ function functional_test_stressng {
     kubectl logs "$stressng_workload_pod" --namespace benchmark-operator
     exit 1
   fi
+
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

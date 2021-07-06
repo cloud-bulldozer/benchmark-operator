@@ -80,9 +80,7 @@ EOF
   uuid=${long_uuid:0:8}
 
   pgbench_pod=$(get_pod "app=pgbench-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$pgbench_pod -n benchmark-operator --timeout=360s" "360s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Ready pods/$pgbench_pod -n benchmark-operator --timeout=60s" "60s" $pgbench_pod
-  wait_for "kubectl wait --for=condition=Complete jobs -l app=pgbench-client-$uuid -n benchmark-operator --timeout=300s" "300s" $pgbench_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   index="ripsaw-pgbench-summary ripsaw-pgbench-raw"
   if check_es "${long_uuid}" "${index}"
@@ -93,6 +91,7 @@ EOF
     kubectl logs -n benchmark-operator $pgbench_pod
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

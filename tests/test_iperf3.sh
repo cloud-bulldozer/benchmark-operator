@@ -22,19 +22,19 @@ function functional_test_iperf {
   cr=tests/test_crs/valid_iperf3.yaml
   delete_benchmark $cr
   benchmark_name=$(get_benchmark_name $cr)
-  sed -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/hostnetwork:.*/${1}/g" tests/test_crs/valid_iperf3.yaml | kubectl apply -f -
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/hostnetwork:.*/${1}/g" $cr | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   iperf_server_pod=$(get_pod "app=iperf3-bench-server-$uuid" 300)
   wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l app=iperf3-bench-server-$uuid pods --timeout=300s" "300s" $iperf_server_pod
   iperf_client_pod=$(get_pod "app=iperf3-bench-client-$uuid" 300)
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized pods/$iperf_client_pod --timeout=500s" "500s" $iperf_client_pod
-  wait_for "kubectl -n benchmark-operator wait --for=condition=complete -l app=iperf3-bench-client-$uuid jobs --timeout=100s" "100s" $iperf_client_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 600s
   sleep 5
   # ensuring that iperf actually ran and we can access metrics
   kubectl logs "$iperf_client_pod" --namespace benchmark-operator | grep "iperf Done."
   echo "iperf ${1}: Success"
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)
