@@ -22,6 +22,7 @@ trap finish EXIT
 function functional_test_hammerdb {
   initdb_pod
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
+  cr=tests/test_crs/valid_hammerdb.yaml
   delete_benchmark $cr
   benchmark_name=$(get_benchmark_name $cr)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" $cr | kubectl apply -f -
@@ -41,7 +42,7 @@ function functional_test_hammerdb {
     kubectl logs "$hammerdb_workload_pod" --namespace benchmark-operator
     exit 1
   fi
-  delete_benchmark $cr
+  delete_benchmark $crz
 }
 
 figlet $(basename $0)
