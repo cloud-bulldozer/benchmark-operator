@@ -18,6 +18,8 @@ spec:
       #tolerations:
       #- key: node-role.kubernetes.io/master
       #  effect: NoSchedule
+      nodeSelector:
+        kernel-cache-dropper: "yes"
       containers:
       - name: kernel-cache-dropper
         image: quay.io/cloud-bulldozer/kernel_cache_dropper:latest
