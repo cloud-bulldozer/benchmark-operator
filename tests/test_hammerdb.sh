@@ -31,7 +31,7 @@ function functional_test_hammerdb {
 
   # Wait for the workload pod to run the actual workload
   hammerdb_workload_pod=$(get_pod "app=hammerdb_workload-$uuid" 300)
-  check_benchmark_for_desired_state $benchmark_name Complete 900s
+  check_benchmark_for_desired_state $benchmark_name "DB Workload Complete" 900s
 
   index="ripsaw-hammerdb-results"
   if check_es "${long_uuid}" "${index}"
