@@ -42,7 +42,7 @@ function functional_test_hammerdb {
     kubectl logs "$hammerdb_workload_pod" --namespace benchmark-operator
     exit 1
   fi
-  delete_benchmark $crz
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)
