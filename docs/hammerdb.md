@@ -125,16 +125,19 @@ Local: The data will be stored on local disk on separate disk, separate disk fro
 PVC: The data will be stored on Container Storage, it's required a Pre-installed Container Storage
 
 MSSQL examples:
+[MSSQL ephemeral](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server.yaml),
 [MSSQL HostPath](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_hostpath.yaml),
 [MSSQL Local](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_local.yaml),
 [MSSQL PVC](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_pvc.yaml)
 
 Postgres examples:
+[Postgres ephemeral](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server.yaml),
 [Postgres HostPath](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_hostpath.yaml),
 [Postgres Local](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_local.yaml),
 [Postgres PVC](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_pvc.yaml)
 
 Mariadb examples:
+[Mariadb ephemeral](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server.yaml),
 [Mariadb HostPath](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_hostpath.yaml),
 [Mariadb Local](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_local.yaml),
 [Mariadb PVC](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_pvc.yaml)
