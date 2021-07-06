@@ -125,18 +125,21 @@ Local: The data will be stored on local disk on separate disk, separate disk fro
 PVC: The data will be stored on Container Storage, it's required a Pre-installed Container Storage
 
 MSSQL examples:
+
 [MSSQL ephemeral](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server.yaml),
 [MSSQL HostPath](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_hostpath.yaml),
 [MSSQL Local](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_local.yaml),
 [MSSQL PVC](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_pvc.yaml)
 
 Postgres examples:
+
 [Postgres ephemeral](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server.yaml),
 [Postgres HostPath](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_hostpath.yaml),
 [Postgres Local](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_local.yaml),
 [Postgres PVC](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_pvc.yaml)
 
 Mariadb examples:
+
 [Mariadb ephemeral](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server.yaml),
 [Mariadb HostPath](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_hostpath.yaml),
 [Mariadb Local](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_local.yaml),
@@ -192,22 +195,27 @@ Once done creating/editing the resource file, you can run it by:
 
 The above is the additional changes required to run hammerdb in vms.
 
-There several options to store database data on VM, the default on is ephemeral:
+There several options to store database data on VM, the default one is ephemeral:
 
 PVC: The data will be stored on Container Storage, it's required a Pre-installed Container Storage
 
 The `pvc` feature is `true` for enabling container storage PVC on VM, 
 there several parameters that must be configured: 
+
 `pvc_storageclass` for pvc storage class (`kubectl get sc`)
+
 `pvc_pvcaccessmode` can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+
 `pvc_pvcvolumemode` can be one of Filesystem,Block Default: Filesystem
+
 `pvc_storagesize` the PVC storage size
 
 HostPath: The data will be stored on the local disk where the OS is placed.
 
-The `hostpath` feature is `true` for enabling HostPath on VM, 
-there several parameters that must be configured: 
+The `hostpath` feature is `true` for enabling HostPath on VM, there several parameters that must be configured: 
+
 `hostpath_path` The image path to hold the hostPath 
+
 `hostpath_storagesize` the HostPath storage size
 
 examples:
