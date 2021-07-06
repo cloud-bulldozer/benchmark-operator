@@ -116,6 +116,30 @@ With `runtime`, `rampup` and `samples` the time for a single run, the rampup tim
 
 The `es_custom_field` feature is `true` to enable distribute the following fields to Elastic Search: `es_ocp_version`, `es_cnv_version`, `es_db_version`, `es_os_version`, `es_kind`
 
+There are several options to store database data on Pod, the default one is ephemeral:
+
+HostPath: The data will be stored on a local disk where the OS is placed.
+
+Local: The data will be stored on local disk on separate disk, separate disk from OS. 
+
+PVC: The data will be stored on Container Storage, it's required installation
+
+MSSQL examples:
+[MSSQL HostPath](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_hostpath.yaml),
+[MSSQL Local](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_local.yaml),
+[MSSQL PVC](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_pvc.yaml)
+
+Postgres examples:
+[Postgres HostPath](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_hostpath.yaml),
+[Postgres Local](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_local.yaml),
+[Postgres PVC](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_pvc.yaml)
+
+Mariadb examples:
+[Mariadb HostPath](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_hostpath.yaml),
+[Mariadb Local](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_local.yaml),
+[Mariadb PVC](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_pvc.yaml)
+
+
 The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
@@ -151,9 +175,44 @@ Once done creating/editing the resource file, you can run it by:
         extra_options:
           - none
           #- hostpassthrough
+-       ## OCS PVC
+        pvc: false # enable for OCS PVC
+        pvc_storageclass: ocs-storagecluster-ceph-rbd
+        pvc_pvcaccessmode: ReadWriteMany
+        pvc_pvcvolumemode: Block
+        pvc_storagesize: 10Gi
+        ## HostPath - Configuring SELinux on cluster workers
+        hostpath: false # enable for hostPath
+        hostpath_path: /var/tmp/disk.img
+        hostpath_storagesize: 10Gi
 ```
 
 The above is the additional changes required to run hammerdb in vms.
+
+There several options to store database data on VM, the default on is ephemeral:
+
+PVC: The data will be stored on Container Storage, it's required installation
+
+The `pvc` feature is `true` for enabling container storage PVC on VM, 
+there several parameters that must be configured: 
+`pvc_storageclass` for pvc storage class (`kubectl get sc`)
+`pvc_pvcaccessmode` can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+`pvc_pvcvolumemode` can be one of Filesystem,Block Default: Filesystem
+`pvc_storagesize` the PVC storage size
+
+HostPath: The data will be stored on the local disk where the OS is placed.
+
+The `hostpath` feature is `true` for enabling HostPath on VM, 
+there several parameters that must be configured: 
+`hostpath_path` The image path to hold the hostPath 
+`hostpath_storagesize` the HostPath storage size
+
+examples:
+[MSSQL](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_vm.yaml),
+[Postgres](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_vm.yaml),
+[Mariadb](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_vm.yaml),
+
+
 Currently, we only support images that can be used as [containerDisk](https://docs.openshift.com/container-platform/4.6/virt/virtual_machines/virtual_disks/virt-using-container-disks-with-vms.html#virt-preparing-container-disk-for-vms_virt-using-container-disks-with-vms).
 
 You can easily make your own container-disk-image as follows by downloading your qcow2 image of choice.

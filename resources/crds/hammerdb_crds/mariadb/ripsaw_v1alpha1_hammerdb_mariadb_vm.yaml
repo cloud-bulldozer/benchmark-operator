@@ -100,6 +100,6 @@ spec:
         pvc_pvcvolumemode: Block
         pvc_storagesize: 10Gi
         ## HostPath - Configuring SELinux on cluster workers
-        hostpath: false # enable for hostpath
+        hostpath: false # enable for hostPath
         hostpath_path: /var/tmp/disk.img
         hostpath_storagesize: 10Gi
