@@ -26,7 +26,7 @@ function functional_test_scale_openshift {
   kubectl apply -f resources/scale_role.yaml
   
   echo "Performing: ${test_name}"
-  kubectl apply -f ${cr}
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" $cr | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 

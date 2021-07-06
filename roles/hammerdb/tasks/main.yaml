@@ -338,7 +338,7 @@
         name: "{{ ansible_operator_meta.name }}"
         namespace: "{{ operator_namespace }}"
         status:
-          state: DB Workload Complete
+          state: Complete
           complete: true
       when: "hammerdb_workload_pod | json_query('resources[].status.succeeded')"
     when: resource_kind == "pod"
@@ -354,7 +354,7 @@
         name: "{{ ansible_operator_meta.name }}"
         namespace: "{{ operator_namespace }}"
         status:
-          state: DB Workload Complete
+          state: Complete
           complete: true
       when: complete_status.stdout == "true"
     when: resource_kind == "vm"

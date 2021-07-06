@@ -187,10 +187,15 @@ function get_benchmark_name() {
   echo $(yq e '.metadata.name' $benchmark_file)
 }
 
+function get_benchmark_state() {
+  benchmark_name=$1
+  kubectl -n benchmark-operator get benchmark/$benchmark_name -o jsonpath={.status.state}
+}
+
 function wait_for_benchmark() {
   benchmark_name=$1
   desired_state=$2
-  until [[ $(kubectl -n benchmark-operator get benchmark/$benchmark_name -o jsonpath={.status.state}) == "$desired_state" ]]; do 
+  until [[ $(get_benchmark_state $benchmark_name) == "$desired_state" ]]; do 
     sleep 5
   done 
 }
@@ -200,6 +205,7 @@ function check_benchmark_for_desired_state(){
   desired_state=$2
   timeout=${3:-500s}
   export -f wait_for_benchmark
+  export -f get_benchmark_state
   if ! timeout -k $timeout $timeout bash -c "wait_for_benchmark $benchmark_name $desired_state"
   then
       echo "Timeout exceeded for: "$benchmark_name
