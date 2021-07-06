@@ -122,7 +122,7 @@ HostPath: The data will be stored on a local disk where the OS is placed.
 
 Local: The data will be stored on local disk on separate disk, separate disk from OS. 
 
-PVC: The data will be stored on Container Storage, it's required installation
+PVC: The data will be stored on Container Storage, it's required a Pre-installed Container Storage
 
 MSSQL examples:
 [MSSQL HostPath](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_hostpath.yaml),
@@ -191,7 +191,7 @@ The above is the additional changes required to run hammerdb in vms.
 
 There several options to store database data on VM, the default on is ephemeral:
 
-PVC: The data will be stored on Container Storage, it's required installation
+PVC: The data will be stored on Container Storage, it's required a Pre-installed Container Storage
 
 The `pvc` feature is `true` for enabling container storage PVC on VM, 
 there several parameters that must be configured: 
