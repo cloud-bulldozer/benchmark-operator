@@ -12,9 +12,9 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
+      #image: quay.io/user/hammerdb:latest # add custom hammerdb image
       pin: false # true for nodeSelector
-      pin_client: "node1"
+      pin_node: "node1"
       resources: false # true for resources requests/limits
       requests_cpu: 200m
       requests_memory: 100Mi
@@ -32,7 +32,7 @@ spec:
       db_user: "SA"
       db_pass: "s3curePasswordString"
       db_name: "tpcc"
-      transactions: 500000
+      transactions: 10000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"
@@ -69,7 +69,7 @@ spec:
       db_postgresql_dritasnap: "false"
       db_postgresql_oracompat: "false"
       db_postgresql_storedprocs: "false"
-      # es custom fields
+      # ElasticSearch custom fields
       es_custom_field: false
       es_ocp_version: "4.7.0"
       es_cnv_version: "2.6.2"

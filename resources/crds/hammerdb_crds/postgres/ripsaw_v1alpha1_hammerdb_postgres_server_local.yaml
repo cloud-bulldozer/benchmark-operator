@@ -33,7 +33,7 @@ spec:
         type: postgres-database-server
     spec:
       nodeSelector:
-        kubernetes.io/hostname: "worker-0"
+        kubernetes.io/hostname: "master-0"
       terminationGracePeriodSeconds: 10
       containers:
         - name: postgres
@@ -57,6 +57,8 @@ spec:
               value: "test"
             - name: POSTGRESQL_ADMIN_PASSWORD
               value: "postgres"
+      securityContext:
+          privileged: true
           volumeMounts:
             - name: postgres-custom-config
               mountPath: /var/lib/pgsql/data/pg_hba.conf
@@ -72,14 +74,39 @@ spec:
           persistentVolumeClaim:
             claimName: postgres-persistent-storage
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pvdb
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: localblock
+  local:
+    # mkdir inside node
+    path: /var/lib/pgsql/data
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - master-0
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
     name: postgres-persistent-storage
     namespace: postgres-db
 spec:
-    storageClassName: ocs-storagecluster-ceph-rbd
-    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: localblock
+    accessModes:
+      - ReadWriteOnce
     volumeMode: Filesystem
     resources:
       requests:

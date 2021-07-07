@@ -12,13 +12,14 @@ spec:
   workload:
     name: hammerdb
     args:
-      #image: quay.io/test/hammerdb:latest # add custom hammerdb image
-      pin: false # true for nodeSelector
-      pin_client: "node1"
+      # image: "quay.io/test/hammerdb:latest" # add custom hammerdb image
+      pin: false # enable for nodeSelector
+      pin_node: "node1"
       db_type: "mariadb"
       timed_test: true
       test_type: "tpc-c"
-      db_init: true # true only for first run to build schema
+      # true only for first run to build schema
+      db_init: true
       db_benchmark: true
       db_server: "127.0.0.1"
       db_port: "3306"
@@ -27,7 +28,7 @@ spec:
       db_user: "root"
       db_pass: "mysql"
       db_name: "tpcc"
-      transactions: 500000
+      transactions: 10000
       raiseerror: "false"
       keyandthink: "false"
       driver: "timed"
@@ -64,7 +65,7 @@ spec:
       db_postgresql_dritasnap: "false"
       db_postgresql_oracompat: "false"
       db_postgresql_storedprocs: "false"
-      # es custom fields
+      # ElasticSearch custom fields
       es_custom_field: false
       es_ocp_version: "4.7.0"
       es_cnv_version: "2.6.2"
@@ -75,13 +76,13 @@ spec:
       client_vm:
         dedicatedcpuplacement: false
         sockets: 1
-        cores: 4
+        cores: 2
         threads: 1
-        image: quay.io/ebattat/centos8-mariadb10-3-container-disk:latest
-        limits:
-          memory: 16Gi
+        image: quay.io/cloud-bulldozer/centos8-mariadb103-container-disk:latest
         requests:
           memory: 100Mi
+        limits:
+          memory: 16Gi # at least 16Gi for VM
         network:
           front_end: bridge # or masquerade
           multiqueue:
@@ -90,10 +91,15 @@ spec:
         extra_options:
           - none
           #- hostpassthrough
-        # PVC
-        #storageclass: ocs-storagecluster-ceph-rbd
+        ## OCS PVC
+        pvc: false # enable for OCS PVC
+        pvc_storageclass: ocs-storagecluster-ceph-rbd
         # Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
-        #pvcaccessmode: ReadWriteMany
+        pvc_pvcaccessmode: ReadWriteMany
         # Can be one of Filesystem,Block Default: Filesystem
-        #pvcvolumemode: Block
-        #storagesize: 5Gi
+        pvc_pvcvolumemode: Block
+        pvc_storagesize: 10Gi
+        ## HostPath - Configuring SELinux on cluster workers
+        hostpath: false # enable for hostPath
+        hostpath_path: /var/tmp/disk.img
+        hostpath_storagesize: 10Gi
