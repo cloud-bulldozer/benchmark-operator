@@ -26,12 +26,7 @@ function functional_test_uperf {
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  pod_count "type=uperf-bench-server-$uuid" 1 900
-  uperf_server_pod=$(get_pod "type=uperf-bench-server-${uuid}" 300)
-  wait_for "kubectl -n benchmark-operator wait --for=condition=Initialized -l type=uperf-bench-server-${uuid} pods --timeout=300s" "300s" $uperf_server_pod
-  uperf_client_pod=$(get_pod "app=uperf-bench-client-$uuid" 900)
-  check_benchmark_for_desired_state $benchmark_name Complete 800s
+  check_benchmark_for_desired_state $benchmark_name Complete 1200s
   
 
 
@@ -41,7 +36,6 @@ function functional_test_uperf {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$uperf_client_pod" -n benchmark-operator
     exit 1
   fi
   delete_benchmark $cr
