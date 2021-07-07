@@ -13,7 +13,6 @@ function initdb_pod {
 function finish {
   echo "Cleaning up hammerdb"
   kubectl delete -f tests/mssql.yaml 
-  kubectl delete -f tests/test_crs/valid_hammerdb.yaml
   wait_clean
 }
 

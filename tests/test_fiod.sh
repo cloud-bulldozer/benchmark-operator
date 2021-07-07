@@ -30,7 +30,7 @@ function functional_test_fio {
 
   pod_count "app=fio-benchmark-$uuid" 2 300  
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
-  check_benchmark_for_desired_state $benchmark_name Complete 500s
+  check_benchmark_for_desired_state $benchmark_name Complete 1200s
   kubectl -n benchmark-operator logs $fio_pod > /tmp/$fio_pod.log
 
 

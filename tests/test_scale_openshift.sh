@@ -31,7 +31,7 @@ function functional_test_scale_openshift {
   uuid=${long_uuid:0:8}
 
   scale_pod=$(get_pod "app=scale-$uuid" 300)
-
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
   index="openshift-cluster-timings"
   if check_es "${long_uuid}" "${index}"
   then

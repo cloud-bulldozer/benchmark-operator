@@ -196,6 +196,10 @@ function wait_for_benchmark() {
   benchmark_name=$1
   desired_state=$2
   until [[ $(get_benchmark_state $benchmark_name) == "$desired_state" ]]; do 
+    if [[ $(get_benchmark_state $benchmark_name) == "Failed" ]]; then
+      echo "Benchmark $benchmark_name failed"
+      return 1
+    fi
     sleep 5
   done 
 }
