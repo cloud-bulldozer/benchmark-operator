@@ -160,7 +160,7 @@ function backpack_requirements {
   then
     if [[ `oc get securitycontextconstraints.security.openshift.io` ]]
     then
-      oc adm policy -n benchmark-operator add-scc-to-user privileged -z ripsaw-controller-manager
+      oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator
       oc adm policy -n benchmark-operator add-scc-to-user privileged -z backpack-view
     fi
   fi
