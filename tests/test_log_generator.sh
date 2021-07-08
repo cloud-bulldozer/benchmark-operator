@@ -27,7 +27,7 @@ function functional_test_log_generator {
   uuid=${long_uuid:0:8}
 
   log_gen_pod=$(get_pod "app=log-generator-$uuid" 300)
-  check_benchmark_for_desired_state $benchmark_name Complete 500s
+  check_benchmark_for_desired_state $benchmark_name Complete 800s
 
   index="log-generator-results"
   if check_es "${long_uuid}" "${index}"

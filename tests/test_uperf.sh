@@ -26,7 +26,7 @@ function functional_test_uperf {
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-  check_benchmark_for_desired_state $benchmark_name Complete 1200s
+  check_benchmark_for_desired_state $benchmark_name Complete 1800s
   
 
 
