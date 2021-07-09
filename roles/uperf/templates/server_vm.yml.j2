@@ -5,6 +5,9 @@ metadata:
   name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
+    benchmark-operator-uuid: {{ uuid }}
+    benchmark-operator-workload: uperf
+    benchmark-operator-role: server
     app : uperf-bench-server-{{ item }}-{{ trunc_uuid }}
     type : {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
 spec:
