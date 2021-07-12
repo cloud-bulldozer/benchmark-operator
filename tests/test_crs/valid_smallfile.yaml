@@ -37,7 +37,7 @@ spec:
       incompressible: y
       verify_read: y
       xattr_count: 10
-      fsync: true
+      fsync: false
       files_per_dir: 2000
       dirs_per_dir: 4
       files: 100000
