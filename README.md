@@ -3,7 +3,25 @@
 The intent of this Operator is to deploy common workloads to establish
 a performance baseline of Kubernetes cluster on your provider.
 
-## Installation
+
+## Installation (Default)
+The easiest way to install the operator is through the operator-sdk methods provided in the `Makefile`. 
+
+```bash
+git clone https://github.com/cloud-bulldozer/benchmark-operator
+make deploy IMG=quay.io/benchmark-operator/benchmark-operator:master
+```
+
+If you wish to build a version of the operator from your local copy of the repo, you can run
+
+```bash
+git clone https://github.com/cloud-bulldozer/benchmark-operator
+make podman-build podman-push deploy IMG=$YOUR_IMAGE
+```
+
+> Note: building the image requires podman 
+
+## Installation (Helm) 
 
 Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
