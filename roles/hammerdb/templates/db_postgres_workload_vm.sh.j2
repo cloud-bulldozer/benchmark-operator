@@ -49,6 +49,21 @@ export es_os_version={{workload_args.es_os_version}};
 export es_kind={{workload_args.es_kind}};
 {% endif %}
 export HOME=/root;
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
+sudo systemctl stop postgresql;
+sudo postgresql-setup initdb;
+/sbin/restorecon -v /var/lib/pgsql;
+echo local   all             all                                     trust > /var/lib/pgsql/data/pg_hba.conf;
+echo host    all             all             all            trust >> /var/lib/pgsql/data/pg_hba.conf;
+echo max_connections = 100 > /var/lib/pgsql/data/postgresql.conf
+echo max_prepared_transactions = 0 >> /var/lib/pgsql/data/postgresql.conf
+echo shared_buffers = 4096MB >> /var/lib/pgsql/data/postgresql.conf
+echo effective_cache_size = 8192MB >> /var/lib/pgsql/data/postgresql.conf
+sudo systemctl start postgresql;
+echo "alter role postgres password 'postgres'" > input
+psql -U postgres -d postgres < input
+{% endif %}
 cd /hammer;
 ./hammerdbcli auto /creator/createdb.tcl;
 redis-cli set db-creation-{{trunc_uuid}} true;

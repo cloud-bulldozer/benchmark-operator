@@ -51,13 +51,13 @@ export es_os_version={{workload_args.es_os_version}};
 export es_kind={{workload_args.es_kind}};
 {% endif %}
 export HOME=/root;
-{% if workload_args.client_vm.storageclass is defined
-    or workload_args.client_vm.hostpath is defined %}
-systemctl stop mssql-server
-sudo ACCEPT_EULA='Y' MSSQL_PID='Enterprise' MSSQL_SA_PASSWORD='s3curePasswordString' /opt/mssql/bin/mssql-conf setup
-sudo firewall-cmd --zone=public --add-port=1433/tcp --permanent
-sudo firewall-cmd --reload
-systemctl start mssql-server
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
+sudo systemctl stop mssql-server;
+sudo ACCEPT_EULA='Y' MSSQL_PID='Enterprise' MSSQL_SA_PASSWORD='s3curePasswordString' /opt/mssql/bin/mssql-conf setup;
+sudo firewall-cmd --zone=public --add-port=1433/tcp --permanent;
+sudo firewall-cmd --reload;
+sudo systemctl start mssql-server;
 {% endif %}
 cd /hammer;
 ./hammerdbcli auto /creator/createdb.tcl;

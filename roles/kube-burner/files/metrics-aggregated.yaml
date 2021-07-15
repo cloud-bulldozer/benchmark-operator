@@ -140,7 +140,7 @@ metrics:
     metricName: P99APIEtcdRequestLatency
 
 # Cluster metrics
-  - query: count(kube_namespace_created)
+  - query: sum(kube_namespace_status_phase) by (phase) > 0
     metricName: namespaceCount
 
   - query: sum(kube_pod_status_phase{}) by (phase)
@@ -182,3 +182,6 @@ metrics:
   
   - query: go_gc_duration_seconds{job=~"apiserver|api|etcd",quantile="1"}
     metricName: goGCDurationSeconds
+
+  - query: topk(10,ALERTS{severity!="none"})
+    metricName: alerts

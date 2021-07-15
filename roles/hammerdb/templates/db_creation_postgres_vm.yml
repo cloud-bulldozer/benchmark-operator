@@ -38,8 +38,8 @@ spec:
         name: hammerdb-postgres-workload-volume
         # set serial
         serial: CVLY623300HK240E
-{% if workload_args.client_vm.storageclass is defined
-    or workload_args.client_vm.hostpath is defined %}
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
       - disk:
           bus: virtio
         name: data-volume
@@ -59,7 +59,7 @@ spec:
   terminationGracePeriodSeconds: 0
 {% if workload_args.pin is sameas true %}
   nodeSelector:
-    kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+    kubernetes.io/hostname: '{{ workload_args.pin_node }}'
 {% endif %}
   networks:
     - name: default
@@ -81,8 +81,8 @@ spec:
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240D | cut -f1 -d' ') /workload"
           - "mkdir /tmp/hammerdb-postgres-test"
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240E | cut -f1 -d' ') /tmp/hammerdb-postgres-test"
-{% if workload_args.client_vm.storageclass is defined
-    or workload_args.client_vm.hostpath is defined %}
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
           - "mkdir -p /var/lib/pgsql || true"
           - mkfs.ext4 /dev/disk/by-id/virtio-data
           - "mount /dev/disk/by-id/virtio-data /var/lib/pgsql"
@@ -107,15 +107,15 @@ spec:
   - configMap:
       name: "{{ ansible_operator_meta.name }}-postgres-workload-{{ trunc_uuid }}"
     name: hammerdb-postgres-workload-volume
-{% if workload_args.client_vm.storageclass is defined %}
+{% if workload_args.client_vm.pvc is sameas true %}
   - name: data-volume
     persistentVolumeClaim:
       claimName: claim-{{ trunc_uuid }}
-{% elif workload_args.client_vm.hostpath is defined %}
+{% elif workload_args.client_vm.hostpath is sameas true %}
   - name: data-volume
     hostDisk:
-      path: {{ workload_args.hostpath }}
-      capacity: {{ workload_args.storagesize | default("5Gi") }}
+      path: {{ workload_args.client_vm.hostpath_path }}
+      capacity: {{ workload_args.client_vm.hostpath_storagesize | default("10Gi") }}
       type: DiskOrCreate
 {% endif %}
 status: {}

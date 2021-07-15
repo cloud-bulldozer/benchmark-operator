@@ -42,10 +42,10 @@ spec:
           ports:
             - containerPort: 5432
           resources:
-            limits:
+            requests:
               cpu: 200m
               memory: 100Mi
-            requests:
+            limits:
               cpu: 4
               memory: 16Gi
           env:

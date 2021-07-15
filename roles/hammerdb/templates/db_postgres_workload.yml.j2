@@ -15,7 +15,7 @@ spec:
     spec:
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
 {% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -25,8 +25,8 @@ spec:
 {% if workload_args.resources is sameas true %}
         resources:
           requests:
-            cpu: {{ workload_args.requests_cpu }}
-            memory: {{ workload_args.requests_memory }}
+            cpu: {{ workload_args.requests_cpu | default("200m") }}
+            memory: {{ workload_args.requests_memory | default("100Mi") }}
           limits:
             cpu: {{ workload_args.limits_cpu }}
             memory: {{ workload_args.limits_memory }}
