@@ -32,6 +32,7 @@ spec:
         - stream
         - rr
         - bidirec
+        - connect
       protos:
         - tcp
         - udp

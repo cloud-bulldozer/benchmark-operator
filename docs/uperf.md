@@ -132,6 +132,35 @@ For example:
 Will run the `rr` test with `tcp`, first with a symmectic size of `1024` and then with an
 asymmetric size of `8192` write and `4096` read.
 
+### Connect
+
+For the connect `test_type`, it is possible to provide the `sizes` values as a list of two values where the first value is the write size and the second value is the read size.
+
+It is also possible to define a zero size in order to test connections/second (CPS) (the number of L4 connections established per second). If there is a size defined, the metric obtained will be request/second (RPS) or transactions/second (TPS) (the number of L5/L7 requests satisfied per second).
+
+For this kind of testing, it is necessary to apply some sysctl tunning, both to the worker nodes and to the pods (see [Using sysctls in containers](https://docs.openshift.com/container-platform/4.7/nodes/containers/nodes-containers-sysctls.html)). If these parameters are not applied, two things can happen as a result of port exhaustion issues:
+ - The uperf client pod will crash
+ - The results will be too low
+
+Enable the `tuned` parameter in order to get sysctl pod level tunning:
+```yaml       
+      test_types:
+        - connect
+      protos:
+        - tcp
+      sizes:
+        - [0, 128]
+      nthrs:
+        - 1
+      runtime: 20
+      tuned: true
+```
+
+For this `tuned` parameter to work, the `KubeletConfig` should allow the following sysctl parameters configuration:
+ - `net.ipv4.ip_local_port_range`
+ - `net.ipv4.tcp_tw_reuse`
+ - `net.netfilter.nf_conntrack_tcp_timeout_time_wait`
+
 ### Multus
 
 If the user desires to test with Multus, use the below Multus `NetworkAtachmentDefinition`

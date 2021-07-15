@@ -23,3 +23,5 @@ spec:
     rule: 'RunAsAny'
   fsGroup:
     rule: 'RunAsAny'
+  allowedUnsafeSysctls:
+  - "*"

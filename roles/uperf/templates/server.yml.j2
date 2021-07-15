@@ -57,6 +57,18 @@ items:
             - name: net.ipv4.ip_local_port_range
               value: 20000 20011
 {% endif %}
+{% if workload_args.tuned is sameas true %}
+          serviceAccountName: benchmark-operator
+          securityContext:
+            privileged: true
+            sysctls:
+            - name: net.ipv4.ip_local_port_range
+              value: 1024 65535
+            - name: net.ipv4.tcp_tw_reuse
+              value: "1"
+            - name: net.netfilter.nf_conntrack_tcp_timeout_time_wait
+              value: "1"
+{% endif %}
 {% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
     {{ metadata()|indent }}
 {% endmacro %}

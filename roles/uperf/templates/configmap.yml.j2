@@ -8,12 +8,17 @@ data:
 {% for test in workload_args.test_types %}
 {% for proto in workload_args.protos %}
 {% for size in workload_args.sizes %}
+{% if size is defined %}
 {% if size is iterable %}
 {% set wsize = size[0] %}
 {% set rsize = size[1] %}
 {% else %}
 {% set wsize = size %}
 {% set rsize = size %}
+{% endif %}
+{% else %}
+{% set wsize = 0 %}
+{% set rsize = 0 %}
 {% endif %}
 {% for nthr in workload_args.nthrs %}
   uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} : |
@@ -55,6 +60,20 @@ data:
           </transaction>
           <transaction iterations="1">
             <flowop type=disconnect />
+          </transaction>
+      </group>
+    {% endif %}
+    {% if ( 'connect' == test ) %}
+      <group nthreads="{{nthr}}">
+          <transaction duration="{{workload_args.runtime}}" iterations="{{workload_args.samples}}">
+            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+            {% if rsize != 0 %}
+            <flowop type=read options="size={{rsize}}"/>
+            {% endif %}
+            {% if wsize != 0 %}
+            <flowop type=write options="size={{wsize}}"/>
+            {% endif %}
+            <flowop type="disconnect" />
           </transaction>
       </group>
     {% endif %}
