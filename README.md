@@ -9,7 +9,7 @@ The easiest way to install the operator is through the operator-sdk methods prov
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
-make deploy IMG=quay.io/benchmark-operator/benchmark-operator:master
+make deploy
 ```
 
 If you wish to build a version of the operator from your local copy of the repo, you can run

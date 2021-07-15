@@ -36,7 +36,7 @@ IMAGE_TAG_BASE ?= cloudbulldozer.io/ripsaw
 BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
 # Image URL to use all building/pushing image targets
-IMG ?= controller:latest
+IMG ?= quay.io/benchmark-operator/benchmark-operator:master
 
 all: docker-build
 
