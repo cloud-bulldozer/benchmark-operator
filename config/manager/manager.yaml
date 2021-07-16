@@ -34,6 +34,20 @@ spec:
         env:
         - name: ANSIBLE_GATHERING
           value: explicit
+        - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: "benchmark-operator"
+        - name: MAX_CONCURRENT_RECONCILES_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+          value: "1"
+        - name: ANSIBLE_VERBOSITY_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+          value: "4"
         securityContext:
           allowPrivilegeEscalation: false
         livenessProbe:
