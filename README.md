@@ -39,7 +39,7 @@ helm install benchmark-operator . -n benchmark-operator --create-namespace
 To delete this release, you can do so with the following command:
 
 ```bash
-helm delete benchmark-operator -n benchmark-operator --purge
+helm uninstall benchmark-operator -n benchmark-operator
 ```
 
 
