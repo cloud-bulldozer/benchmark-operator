@@ -1,0 +1,15 @@
+---
+- name: Failure State
+  operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ ansible_operator_meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      uuid: "{{ uuid }}"
+      complete: True
+      state: Failed
+      message: "Reconcile failed on {{ ansible_failed_task.name }} {{ ansible_failed_task.action }} \n ```{{ ansible_failed_result | to_nice_json }}```"
+      suuid: "{{ trunc_uuid }}"
+      metadata: "not collected"
+      cerberus: "not connected"

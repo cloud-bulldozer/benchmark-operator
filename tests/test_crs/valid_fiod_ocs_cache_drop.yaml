@@ -1,8 +1,8 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: example-benchmark
-  namespace: my-ripsaw
+  name: fiod-ocs-benchmark
+  namespace: benchmark-operator
 spec:
   system_metrics:
     collection: true

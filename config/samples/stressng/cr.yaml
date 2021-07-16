@@ -1,0 +1,32 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: stressng-benchmark
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: http://es.server.com:80
+  metadata:
+    collection: false
+  workload:
+    name: stressng
+    args:
+      # general options
+      runtype: "parallel"
+      timeout: "30"
+      instances: 1
+      pin: false # true for nodeSelector
+      pin_client: "node1"
+      resources: false # true for resources requests/limits
+      requests_cpu: 200m
+      requests_memory: 100Mi
+      limits_cpu: 2
+      limits_memory: 4Gi
+      # cpu stressor options
+      cpu_stressors: "1"
+      cpu_percentage: "100"
+      # vm stressor option
+      vm_stressors: "1"
+      vm_bytes: "128M"
+      # mem stressor options
+      mem_stressors: "1"

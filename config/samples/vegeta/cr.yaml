@@ -1,0 +1,30 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vegeta-benchmark
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    # Elastic search instance with full URL format. https://elastic.apps.org:9200
+    url: https://elastic.apps.org:9200
+# test_user: username_to_attach_to_metadata
+  clustername: myk8scluster
+  workload:
+    name: vegeta
+    args:
+      hostnetwork: false
+      clients: 2
+      targets:
+        - name: 100w-ka
+          urls:
+            - GET https://mydomain.com/test.png
+            - GET http://myunsecuredomain.com
+          samples: 2
+          workers: 100
+          duration: 10
+          keepalive: true
+        - name: 20w
+          urls:
+            - GET https://domain.com/api/endpoint
+          workers: 20
+          duration: 10

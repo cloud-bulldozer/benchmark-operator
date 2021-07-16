@@ -1,0 +1,33 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- ripsaw_v1alpha1_benchmark.yaml
+- byowl/cr.yaml
+- concurrent-builds/cr.yaml
+- cyclictest/cr.yaml
+- fio/cr.yaml
+- fio/vm-cr.yaml
+- fs-drift/cr.yaml
+- hammerdb/cr.yaml
+- hammerdb/vm-cr.yaml
+- hammerdb/mariadb/cr.yaml
+- hammerdb/mariadb/vm-cr.yaml
+- hammerdb/mssql/cr.yaml
+- hammerdb/mssql/vm-cr.yaml
+- hammerdb/postgres/cr.yaml
+- hammerdb/postgres/vm-cr.yaml
+- iperf3/cr.yaml
+- kube-burner/cr.yaml
+- log-generator/cr.yaml
+- oslat/cr.yaml
+- pgbench/cr.yaml
+- servicemesh/cr.yaml
+- smallfile/cr.yaml
+- stressng/cr.yaml
+- stressng/vm-cr.yaml
+- sysbench/cr.yaml
+- testpmd/cr.yaml
+- uperf/cr.yaml
+- uperf/vm-cr.yaml
+- vegeta/cr.yaml
+- ycsb/cr.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

@@ -21,7 +21,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: cyclictest
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     server: <ES_SERVER>
@@ -51,7 +51,7 @@ You can look at the results from the cyclictest benchmark by doing
 
 ```bash
 NAME=cyclictest-workload-xxxxxxx
-oc logs -n my-ripsaw $NAME
+oc logs -n benchmark-operator $NAME
 ```
 
 ## Cleanup

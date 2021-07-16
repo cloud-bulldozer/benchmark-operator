@@ -1,0 +1,42 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: fs-drift-example
+  namespace: benchmark-operator
+spec:
+  # where elastic search is running
+  elasticsearch:
+    url: http://my.elasticsearch.server:80
+    verify_cert: false
+    parallel: false
+  # clustername: myk8scluster
+  # test_user: ripsaw
+  workload:
+    name: fs-drift
+    args:
+      # increase samples to 3 to measure variance in results
+      samples: 1
+      # specify as many pods as you like
+      worker_pods: 2
+      # in CI, use the default storageclass (local storage)
+      # if you are on a real system, you can use Ceph or whatever
+      # by filling in storage class
+      storageclass: rook-ceph-block
+      #storageclass: csi-cephfs
+      # the access mode for the PV must match the storage class
+      # for block storage use ReadWriteOnce
+      # for shared-filesystem storage use ReadWriteMany
+      access_mode: ReadWriteOnce
+      # 5 threads x 100 files/thread x 64 KB/file ~= 300 MB << 1 GiB
+      storagesize: 1Gi
+      # -- below are fs-drift.py parameters defined in fs-drift README.md
+      # duration only 30 sec by default, should be much longer
+      duration: 30
+      # OPTIONAL - fs-drift sub-processes per pod
+      threads: 5
+      # OPTIONAL - files no bigger than maximum file size in KB
+      max_file_size_kb: 64
+      # OPTIONAL
+      # at most this many files in each pod if RWO (e.g. RBD)
+      # at most this many files per cluster if RWX (e.g. Cephfs)
+      max_files: 100

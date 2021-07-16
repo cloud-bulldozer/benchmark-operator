@@ -1,7 +1,0 @@
-sudo: required
-services: docker
-language: python
-install:
-  - pip install docker molecule openshift
-script:
-  - molecule test -s test-local

@@ -43,7 +43,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: smallfile-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   test_user: homer_simpson
   clustername: test_ci

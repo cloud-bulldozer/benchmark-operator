@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kernel-cache-dropper
-  namespace: my-ripsaw
+  namespace: benchmark-operator
   labels:
     app: kernel-cache-dropper
 spec:
@@ -14,6 +14,8 @@ spec:
       labels:
         name: kernel-cache-dropper
     spec:
+      nodeSelector:
+        kernel-cache-dropper: "yes"
       serviceAccountName: benchmark-operator
       #tolerations:
       #- key: node-role.kubernetes.io/master
@@ -29,7 +31,6 @@ spec:
               value: "{{ kernel_cache_drop_svc_port }}"
         command: ["/usr/bin/python3"]
         args: ["/opt/kernel_cache_drop/kernel-cache-drop-websvc.py"]
-        imagePullPolicy: Always
         securityContext:
           privileged: true
         # we don't need all the same volumes as the toolbox pod

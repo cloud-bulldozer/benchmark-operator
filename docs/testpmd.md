@@ -53,7 +53,7 @@ spec:
   spoofChk: "on"
   trust: "on"
   resourceName: intelnics
-  networkNamespace: my-ripsaw
+  networkNamespace: benchmark-operator
 
 ```
 
@@ -103,7 +103,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: testpmd-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   workload:

@@ -23,7 +23,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   system_metrics:
     enabled: true

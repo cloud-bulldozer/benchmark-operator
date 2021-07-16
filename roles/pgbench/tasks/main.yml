@@ -25,15 +25,6 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- name: Capture benchmark operator information
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - name = benchmark-operator
-  register: bo
-
 - name: Generate list of database counts
   include_tasks: generate_num_databases.yml
 

@@ -25,15 +25,6 @@
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
-
-- name: Capture operator information
-  k8s_facts:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - name = benchmark-operator
-  register: bo
   
 - block:
     #
