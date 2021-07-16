@@ -16,7 +16,7 @@ spec:
       timeout: "30"
       instances: 1
       pin: false # true for nodeSelector
-      pin_client: "node1"
+      pin_node: "node1"
       resources: false # true for resources requests/limits
       requests_cpu: 200m
       requests_memory: 100Mi
