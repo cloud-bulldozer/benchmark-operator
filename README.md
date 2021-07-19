@@ -157,9 +157,6 @@ spec:
       image: my.location/foo:latest
 ```
 
-## Installation
-[Installation](docs/installation.md)
-
 ## Contributing
 [Contributing](CONTRIBUTING.md)
 
