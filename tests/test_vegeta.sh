@@ -9,7 +9,7 @@ function finish {
     error
   fi
 
-  [[ $check_logs == 1 ]] && kubectl logs -l app=vegeta-benchmark-$uuid -n my-ripsaw
+  [[ $check_logs == 1 ]] && kubectl logs -l app=vegeta-benchmark-$uuid -n benchmark-operator
   echo "Cleaning up vegeta"
   wait_clean
 }
@@ -20,18 +20,16 @@ trap finish EXIT
 
 function functional_test_vegeta {
   check_logs=0
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
+  benchmark_name=$(get_benchmark_name $cr)
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  pod_count "app=vegeta-benchmark-$uuid" 2 900
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=vegeta-benchmark-$uuid jobs --timeout=500s" "500s"
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
   check_logs=1
 
   index="ripsaw-vegeta-results"
@@ -42,6 +40,8 @@ function functional_test_vegeta {
     echo "Failed to find data for ${test_name} in ES"
     exit 1
   fi
+  delete_benchmark $cr
+  
 }
 
 figlet $(basename $0)

@@ -10,28 +10,27 @@ function finish {
   fi
 
   echo "Cleaning up sysbench"
-  kubectl delete -f tests/test_crs/valid_sysbench.yaml
-  delete_operator
+  wait_clean
 }
 
 trap error ERR
 trap finish EXIT
 
 function functional_test_sysbench {
-  wait_clean
-  apply_operator
-  kubectl apply -f tests/test_crs/valid_sysbench.yaml
-  long_uuid=$(get_uuid 20)
+  cr=tests/test_crs/valid_sysbench.yaml
+  delete_benchmark $cr
+  kubectl apply -f $cr
+  benchmark_name=$(get_benchmark_name $cr)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   sysbench_pod=$(get_pod "app=sysbench-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$sysbench_pod --namespace my-ripsaw --timeout=500s" "500s" $sysbench_pod
-  # Higher timeout as it takes longer
-  wait_for "kubectl wait --for=condition=complete -l app=sysbench-$uuid --namespace my-ripsaw jobs" "300s" $sysbench_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 800s
   # sleep isn't needed as the sysbench is kind: job so once it's complete we can access logs
   # ensuring the run has actually happened
-  kubectl logs "$sysbench_pod" --namespace my-ripsaw | grep "execution time"
+  kubectl logs "$sysbench_pod" --namespace benchmark-operator | grep "execution time"
   echo "Sysbench test: Success"
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

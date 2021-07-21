@@ -1,2 +1,12 @@
-# Ignore
+
+# Binaries for programs and plugins
+*.dll
+*.so
+*.dylib
+bin
+
+# editor and IDE paraphernalia
+.idea
 *.swp
+*.swo
+*~

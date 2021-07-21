@@ -9,7 +9,7 @@ function finish {
     error
   fi
 
-  [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n my-ripsaw
+  [[ $check_logs == 1 ]] && kubectl logs -l app=kube-burner-benchmark-$uuid -n benchmark-operator
   echo "Cleaning up kube-burner"
   kubectl delete -f resources/kube-burner-role.yml --ignore-not-found
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
@@ -25,18 +25,16 @@ function functional_test_kubeburner {
   metrics_profile=$2
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   cr=tests/test_crs/valid_kube-burner.yaml
+  delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
   check_logs=0
-  wait_clean
-  apply_operator
   kubectl apply -f resources/kube-burner-role.yml
   echo "Performing kube-burner: ${workload_name}"
   sed -e "s/WORKLOAD/${workload_name}/g" -e "s/PROMETHEUS_TOKEN/${token}/g" -e "s/METRICS_PROFILE/${metrics_profile}/g" ${cr} | kubectl apply -f -
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-
-  pod_count "app=kube-burner-benchmark-$uuid" 1 900
   check_logs=1
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=kube-burner-benchmark-$uuid jobs --timeout=500s" "500s"
+  check_benchmark_for_desired_state $benchmark_name Complete 1800s
 
   index="ripsaw-kube-burner"
   if check_es "${long_uuid}" "${index}"
@@ -47,6 +45,7 @@ function functional_test_kubeburner {
     exit 1
   fi
   kubectl delete ns -l kube-burner-uuid=${long_uuid}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

@@ -18,33 +18,30 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_scale_openshift {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
-  
+  benchmark_name=$(get_benchmark_name $cr)
+  delete_benchmark $cr
   # Apply scale role and service account
   kubectl apply -f resources/scale_role.yaml
-  
+  token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   echo "Performing: ${test_name}"
-  kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  sed -e "s/PROMETHEUS_TOKEN/${token}/g" $cr | kubectl apply -f -
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   scale_pod=$(get_pod "app=scale-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=scale-$uuid pods --timeout=300s" "300s" $scale_pod
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=scale-$uuid jobs --timeout=500s" "500s" $scale_pod
-
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
   index="openshift-cluster-timings"
   if check_es "${long_uuid}" "${index}"
   then
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$scale_pod" -n my-ripsaw
+    kubectl logs "$scale_pod" -n benchmark-operator
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

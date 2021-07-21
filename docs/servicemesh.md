@@ -29,7 +29,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: servicemesh
@@ -71,7 +71,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: servicemesh-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: servicemesh
@@ -117,7 +117,7 @@ While the output from benchmark is a JSON, you can easily display
 
 ```bash
 NAME=servicemesh-benchmark-xxxxxxx
-oc logs -n my-ripsaw $NAME > /tmp/$NAME.json
+oc logs -n benchmark-operator $NAME > /tmp/$NAME.json
 cat /tmp/$NAME.json | docker run -i --rm quay.io/hyperfoil/hyperfoil-report /opt/report.sh > /tmp/$NAME.html
 ```
 

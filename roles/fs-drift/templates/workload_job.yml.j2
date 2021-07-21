@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: "{{ ansible_operator_meta.name }}-fs-drift-client-benchmark-{{ trunc_uuid }}-pod-{{ item }}"
+  name: "{{ ansible_operator_meta.name }}-client-{{ trunc_uuid }}-{{ item }}"
   namespace: "{{ operator_namespace }}"
 spec:
   ttlSecondsAfterFinished: 600

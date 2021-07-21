@@ -1,8 +1,8 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: flent-benchmark
-  namespace: my-ripsaw
+  name: flent-resources-benchmark
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   system_metrics:

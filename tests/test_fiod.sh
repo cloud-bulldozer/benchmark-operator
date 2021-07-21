@@ -10,7 +10,6 @@ function finish {
   fi
 
   echo "Cleaning up fio"
-  kubectl delete -f resources/kernel-cache-drop-clusterrole.yaml  --ignore-not-found
   wait_clean
 }
 
@@ -19,32 +18,34 @@ trap finish EXIT
 
 function functional_test_fio {
   wait_clean
-  apply_operator
-  kubectl apply -f resources/kernel-cache-drop-clusterrole.yaml
   test_name=$1
   cr=$2
+  benchmark_name=$(get_benchmark_name $cr)
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
-  kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   pod_count "app=fio-benchmark-$uuid" 2 300  
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=fio-benchmark-$uuid pods --timeout=300s" "300s"
   fio_pod=$(get_pod "app=fiod-client-$uuid" 300)
-  wait_for "kubectl wait --for=condition=Initialized pods/$fio_pod -n my-ripsaw --timeout=500s" "500s" $fio_pod
-  wait_for "kubectl wait --for=condition=complete -l app=fiod-client-$uuid jobs -n my-ripsaw --timeout=700s" "700s" $fio_pod
-  kubectl -n my-ripsaw logs $fio_pod > /tmp/$fio_pod.log
+  check_benchmark_for_desired_state $benchmark_name Complete 1200s
+  kubectl -n benchmark-operator logs $fio_pod > /tmp/$fio_pod.log
+
+
+
+
   indexes="ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result"
   if check_es "${long_uuid}" "${indexes}"
   then
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$fio_pod" -n my-ripsaw
+    kubectl logs "$fio_pod" -n benchmark-operator
     exit 1
   fi
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

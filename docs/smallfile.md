@@ -10,7 +10,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: smallfile
@@ -31,7 +31,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: smallfile

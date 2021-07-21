@@ -3,25 +3,43 @@
 The intent of this Operator is to deploy common workloads to establish
 a performance baseline of Kubernetes cluster on your provider.
 
-## Installation
+
+## Installation (Default)
+The easiest way to install the operator is through the operator-sdk methods provided in the `Makefile`. 
+
+```bash
+git clone https://github.com/cloud-bulldozer/benchmark-operator
+make deploy
+```
+
+If you wish to build a version of the operator from your local copy of the repo, you can run
+
+```bash
+git clone https://github.com/cloud-bulldozer/benchmark-operator
+make podman-build podman-push deploy IMG=$YOUR_IMAGE
+```
+
+> Note: building the image requires podman 
+
+## Installation (Helm) 
 
 Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
 
-> Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n my-ripsaw add-scc-to-user privileged -z benchmark-operator`
+> Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator`
 
 
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
 cd benchmark-operator/charts/benchmark-operator
-helm install benchmark-operator . -n my-ripsaw --create-namespace
+helm install benchmark-operator . -n benchmark-operator --create-namespace
 ```
 
 To delete this release, you can do so with the following command:
 
 ```bash
-helm delete benchmark-operator -n my-ripsaw --purge
+helm uninstall benchmark-operator -n benchmark-operator
 ```
 
 
@@ -75,7 +93,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://my-es.foo.bar:80"
@@ -101,7 +119,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://my-es.foo.bar:80"
@@ -126,7 +144,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   uuid: 6060004a-7515-424e-93bb-c49844600dde
   elasticsearch:
