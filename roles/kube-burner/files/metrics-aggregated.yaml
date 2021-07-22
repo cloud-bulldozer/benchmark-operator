@@ -106,6 +106,12 @@
 - query: avg(rate(node_disk_read_bytes_total{device!~"^(dm|rb).*"}[2m]) and on (instance) label_replace(kube_node_role{role="infra"}, "instance", "$1", "node", "(.+)")) by (device)
   metricName: nodeDiskReadBytes-AggregatedInfra
 
+- query: irate(container_runtime_crio_operations_latency_microseconds{operation_type="network_setup_pod"}[2m]) > 0
+  metricName: containerNetworkSetupLatency
+
+- query: irate(container_runtime_crio_operations_latency_microseconds{operation_type="network_setup_overall"}[2m]) > 0
+  metricName: containerNetworkSetupOverallLatency
+
 # Etcd metrics
 - query: sum(rate(etcd_server_leader_changes_seen_total[2m]))
   metricName: etcdLeaderChangesRate
