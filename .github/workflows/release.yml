@@ -1,0 +1,39 @@
+name: Release benchmark-operator container images
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "*" # triggers only if push new tag version
+
+jobs:
+  containers:
+    name: Build container images
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+         - arm64
+         - amd64
+         - ppc64le
+    steps:
+
+      - name: Install dependencies required for multi-arch builds
+        run: sudo apt-get install qemu-user-static podman fuse-overlayfs
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build benchmark-operator container
+        run: make image-build
+        env:
+          ARCH: ${{ matrix.arch }}
+
+  manifest:
+    name: Build container manifest
+    runs-on: ubuntu-latest
+    needs: containers
+    steps:
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
