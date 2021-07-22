@@ -47,10 +47,10 @@ IMG = $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
 # Containers
-ifeq (, $(shell command -v docker))
-  ENGINE := podman
-else
+ifeq (, $(shell which podman))
   ENGINE := docker
+else
+  ENGINE := podman
 endif
 
 all: image-build
