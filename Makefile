@@ -87,8 +87,8 @@ manifest: manifest-build ## Builds a container manifest and push it to the regis
 
 manifest-build:
 	$(ENGINE) manifest create $(IMG)
-	for arch in $(MANIFEST_ARCHS); do \
-		@echo "Adding $(IMG)-$${arch}; to manifest ${IMG}"
+	@for arch in $(MANIFEST_ARCHS); do \
+		echo "Adding $(IMG)-$${arch} to manifest ${IMG}"; \
 		$(ENGINE) manifest add $(IMG) $(IMG)-$${arch}; \
 	done
 
