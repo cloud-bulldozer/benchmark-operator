@@ -29,11 +29,19 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}
 
+      - name: Push benchmark-operator container
+        run: make image-push
+
   manifest:
     name: Build container manifest
     runs-on: ubuntu-latest
+    env:
+      MANIFEST_ARCHS: amd64 arm64 ppc64le
     needs: containers
     steps:
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+
+      - name: Build and push container manifest
+        run: make manifest
