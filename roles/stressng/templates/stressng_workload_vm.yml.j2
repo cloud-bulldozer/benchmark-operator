@@ -4,6 +4,11 @@ kind: VirtualMachineInstance
 metadata:
   name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
+  labels:
+    app: stressng_workload-{{ trunc_uuid }}
+    type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+    benchmark-operator-uuid: {{ uuid }}
+    benchmark-operator-workload: stressng
 spec:
   domain:
     cpu:
@@ -40,7 +45,7 @@ spec:
   terminationGracePeriodSeconds: 0
 {% if workload_args.pin is sameas true %}
   nodeSelector:
-    kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+    kubernetes.io/hostname: '{{ workload_args.pin_node }}'
 {% endif %}
   networks:
     - name: default

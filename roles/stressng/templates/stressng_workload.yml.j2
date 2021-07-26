@@ -11,10 +11,13 @@ spec:
     metadata:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+        benchmark-operator-uuid: {{ uuid }}
+        benchmark-operator-workload: stressng
     spec:
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
 {% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
