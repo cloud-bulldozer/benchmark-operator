@@ -5,7 +5,7 @@
 ## Running YCSB
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_ycsb_cr.yaml) to your needs.
+you can modify [cr.yaml](../config/samples/ycsb/cr.yaml) to your needs.
 
 YCSB is a workload that requires a database/key-value store to run workloads against and benchmark.
 

@@ -5,9 +5,9 @@
 ## Running hammerdb
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/hammerdb_crds/ripsaw_v1alpha1_hammerdb_cr.yaml) to your needs.
+you can modify [cr.yaml](../config/samples/hammerdb/cr.yaml) to your needs.
 
-The hammerdb workload needs to be pointed at an existing [MSSQL](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_cr.yaml), [MARIADB](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_cr.yaml), [POSTGRES](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_cr.yaml) database via the CR file.
+The hammerdb workload needs to be pointed at an existing [MSSQL](../config/samples/hammerdb/mssql/cr.yaml), [MARIADB](../config/samples/hammerdb/mariadb/cr.yaml), [POSTGRES](../config/samples/hammerdb/postgres/cr.yaml) database via the CR file.
 
 An example CR might look like this
 
@@ -126,24 +126,24 @@ PVC: The data will be stored on Container Storage, it's required a Pre-installed
 
 MSSQL examples:
 
-[MSSQL ephemeral](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server.yaml),
-[MSSQL HostPath](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_hostpath.yaml),
-[MSSQL Local](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_local.yaml),
-[MSSQL PVC](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_server_pvc.yaml)
+[MSSQL ephemeral](../config/samples/hammerdb/mssql/cr.yaml),
+[MSSQL HostPath](../config/samples/hammerdb/mssql/hostpath-cr.yaml),
+[MSSQL Local](../config/samples/hammerdb/mssql/local-cr.yaml),
+[MSSQL PVC](../config/samples/hammerdb/mssql/vm-cr.yaml)
 
 Postgres examples:
 
-[Postgres ephemeral](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server.yaml),
-[Postgres HostPath](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_hostpath.yaml),
-[Postgres Local](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_local.yaml),
-[Postgres PVC](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_server_pvc.yaml)
+[Postgres ephemeral](../config/samples/hammerdb/postgres/cr.yaml),
+[Postgres HostPath](../config/samples/hammerdb/postgres/hostpath-cr.yaml),
+[Postgres Local](../config/samples/hammerdb/postgres/local-cr.yaml),
+[Postgres PVC](../config/samples/hammerdb/postgres/vm-cr.yaml)
 
 Mariadb examples:
 
-[Mariadb ephemeral](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server.yaml),
-[Mariadb HostPath](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_hostpath.yaml),
-[Mariadb Local](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_local.yaml),
-[Mariadb PVC](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_server_pvc.yaml)
+[Mariadb ephemeral](../config/samples/hammerdb/mariadb/cr.yaml),
+[Mariadb HostPath](../config/samples/hammerdb/mariadb/hostpath-cr.yaml),
+[Mariadb Local](../config/samples/hammerdb/mariadb/local-cr.yaml),
+[Mariadb PVC](../config/samples/hammerdb/mariadb/vm-cr.yaml)
 
 
 The option **runtime_class** can be set to specify an optional
@@ -219,9 +219,9 @@ The `hostpath` feature is `true` for enabling HostPath on VM, there several para
 `hostpath_storagesize` the HostPath storage size
 
 examples:
-[MSSQL](../resources/crds/hammerdb_crds/mssql/ripsaw_v1alpha1_hammerdb_mssql_vm.yaml),
-[Postgres](../resources/crds/hammerdb_crds/postgres/ripsaw_v1alpha1_hammerdb_postgres_vm.yaml),
-[Mariadb](../resources/crds/hammerdb_crds/mariadb/ripsaw_v1alpha1_hammerdb_mariadb_vm.yaml),
+[MSSQL](../config/samples/hammerdb/mssql/vm-cr.yaml),
+[Postgres](../config/samples/hammerdb/postgres/vm-cr.yaml),
+[Mariadb](../config/samples/hammerdb/mariadb/vm-cr.yaml),
 
 
 Currently, we only support images that can be used as [containerDisk](https://docs.openshift.com/container-platform/4.6/virt/virtual_machines/virtual_disks/virt-using-container-disks-with-vms.html#virt-preparing-container-disk-for-vms_virt-using-container-disks-with-vms).

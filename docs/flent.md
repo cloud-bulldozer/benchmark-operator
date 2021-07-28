@@ -5,7 +5,7 @@
 ## Running Flent
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_flent_cr.yaml)
+you can modify [cr.yaml](../config/samples/flent/cr.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
