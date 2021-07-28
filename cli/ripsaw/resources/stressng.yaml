@@ -1,0 +1,34 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: stressng
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: http://elastic:62cuyJA229jfFl604nUC54TV@perf-results-elastic.apps.keith-cluster.perfscale.devcluster.openshift.com:80
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: http://elastic:62cuyJA229jfFl604nUC54TV@perf-results-elastic.apps.keith-cluster.perfscale.devcluster.openshift.com:80
+    index_name: ripsaw-stressng
+  metadata:
+    collection: true
+  workload:
+    name: "stressng"
+    args:
+      # general options
+      runtype: "parallel"
+      timeout: "30"
+      instances: 1
+      # nodeselector: 
+      # cpu stressor options
+      cpu_stressors: "1"
+      cpu_percentage: "100"
+      # vm stressor option
+      vm_stressors: "1"
+      vm_bytes: "128M"
+      # mem stressor options
+      mem_stressors: "1"
+      debug: true

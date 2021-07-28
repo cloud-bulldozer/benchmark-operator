@@ -1,0 +1,16 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: byowl-benchmark
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com:443
+  metadata:
+    collection: true
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: "echo Test"

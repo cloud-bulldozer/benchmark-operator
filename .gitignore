@@ -10,3 +10,5 @@ bin
 *.swp
 *.swo
 *~
+
+*venv/
