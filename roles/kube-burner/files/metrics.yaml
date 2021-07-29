@@ -5,14 +5,28 @@
 - query: sum(irate(apiserver_request_total{apiserver="kube-apiserver",verb!="WATCH",subresource!="log"}[2m])) by (verb,instance,resource,code) > 0
   metricName: APIRequestRate
 
-- query: sum(apiserver_current_inflight_requests{}) by (request_kind) > 0
-  metricName: APIInflightRequests
+# P&F
+- query: rate(apiserver_flowcontrol_dispatched_requests_total[2m]) > 0
+  metricName: APIFlowControlDispatchedRequests
+
+- query: sum(apiserver_flowcontrol_current_executing_requests) by (instance, priority_level,flow_schema) > 0
+  metricName: APIFlowControlCurrentExecutingRequests
+
+- query: rate(apiserver_flowcontrol_rejected_requests_total[2m]) > 0
+  metricName: APIFlowControlRejectedRequests
+
+- query: sum(apiserver_flowcontrol_current_inqueue_requests) by (instance, flow_schema, priority_level) > 0
+  metricName: APIFlowControlInqueueRequests
+
+- query: avg(apiserver_flowcontrol_request_concurrency_limit{}) by (priority_level)
+  metricName: APIFlowControlRequestConcurrencyLimit
+  instant: true
 
 # Containers & pod metrics
-- query: sum(irate(container_cpu_usage_seconds_total{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler|monitoring|logging|image-registry)"}[2m]) * 100) by (container, pod, namespace, node)
+- query: sum(irate(container_cpu_usage_seconds_total{name!="",container!="POD",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler|monitoring|image-registry|operator-lifecycle-manager)"}[2m]) * 100) by (container, pod, namespace, node)
   metricName: containerCPU
 
-- query: sum(container_memory_rss{name!="",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler|monitoring|logging|image-registry)"}) by (container, pod, namespace, node)
+- query: sum(container_memory_rss{name!="",container!="POD",namespace=~"openshift-(etcd|oauth-apiserver|.*apiserver|ovn-kubernetes|sdn|ingress|authentication|.*controller-manager|.*scheduler|monitoring|image-registry|operator-lifecycle-manager)"}) by (container, pod, namespace, node)
   metricName: containerMemory
 
 - query: (sum(rate(container_fs_writes_bytes_total{container!="",device!~".+dm.+"}[5m])) by (device, container, node) and on (node) kube_node_role{role="master"}) > 0
@@ -44,8 +58,9 @@
 - query: avg(node_memory_MemAvailable_bytes) by (instance)
   metricName: nodeMemoryAvailable
 
-- query: avg(node_memory_Active_bytes) by (instance)
-  metricName: nodeMemoryActive
+- query: avg(node_memory_MemTotal_bytes) by (instance)
+  metricName: nodeMemoryTotal
+  instant: true
 
 - query: avg(node_memory_Cached_bytes) by (instance) + avg(node_memory_Buffers_bytes) by (instance)
   metricName: nodeMemoryCached+nodeMemoryBuffers
