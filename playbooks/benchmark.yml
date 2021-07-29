@@ -30,8 +30,6 @@
         - control-plane = controller-manager
     register: bo
 
-  - debug:
-      msg: "{{ cr_state }}"
 
   - name: Set Workload UUID
     block:
@@ -61,6 +59,10 @@
   - set_fact:
       uuid: "{{ cr_state.resources[0].status.uuid }}"
       trunc_uuid: "{{ cr_state.resources[0].status.suuid }}"
+    when:
+    - cr_state.resources[0].status is defined
+    - cr_state.resources[0].status.uuid is defined
+    - cr_state.resources[0].status.uuid != ""
 
   - name: Run Workload
     rescue:
