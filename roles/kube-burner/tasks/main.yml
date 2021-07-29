@@ -42,8 +42,6 @@
     when: 
       - workload_args.remote_config is defined
       - workload_args.remote_config
-      - workload_args.remote_metrics_profile is not defined
-      - workload_args.remote_metrics_profile
 
   - name: Create cluster-density configmaps
     k8s:
