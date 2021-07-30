@@ -4,7 +4,7 @@
   group: ripsaw.cloudbulldozer.io
   kind: Benchmark
   playbook: ./playbooks/benchmark.yml
-  reconcilePeriod: 1m
+  reconcilePeriod: 3s
   manageStatus: true
   snakeCaseParameters: false
   # FIXME: Specify the role or playbook for this resource.
