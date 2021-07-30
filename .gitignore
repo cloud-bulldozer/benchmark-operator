@@ -13,4 +13,7 @@ bin
 
 *venv/
 *.pyc
-*__pycache
+*__pycache__
+.pytest-kind
+.pytest_cache
+*.egg-info

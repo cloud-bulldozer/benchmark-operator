@@ -8,8 +8,8 @@ from ripsaw.util import logging
 logger = logging.get_logger(__name__)
 
 class Cluster:
-    def __init__(self):
-        config.load_kube_config()
+    def __init__(self, kubeconfig_path=None):
+        config.load_kube_config(config_file=kubeconfig_path)
         self.api_client = client.ApiClient()
         self.core_client = client.CoreV1Api()
         self.batch_client = client.BatchV1Api()
@@ -35,14 +35,13 @@ class Cluster:
         pods = self.get_pods_by_label(label_selector, namespace).items
         return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
 
-    def get_nodes(self, label_selector):
+    def get_nodes(self, label_selector=None):
         return self.core_client.list_node(label_selector=label_selector)
 
-    def get_node_names(self, label_selector):
+    def get_node_names(self, label_selector=None):
         return [node.metadata.name for node in self.get_nodes(label_selector).items]
 
-    def get_namespaces_with_label(self, label_key, label_value):
-        label_selector = f"{label_key}={label_value}"
+    def get_namespaces(self, label_selector=None):
         return self.core_client.list_namespace(label_selector=label_selector)
 
     def get_benchmark(self, name, namespace):

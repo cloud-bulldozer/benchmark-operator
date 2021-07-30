@@ -15,7 +15,7 @@ import elasticsearch
 import sys
 import ssl
 import urllib3
-from util import logging
+from ripsaw.util import logging
 logger = logging.get_logger(__name__)
 
 def check_index(server, uuid, index, es_ssl=False):
