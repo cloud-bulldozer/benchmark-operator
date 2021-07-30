@@ -38,11 +38,11 @@ OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH ?= $(shell uname -m | sed 's/x86_64/amd64/')
 
 # Image URL to use all building/pushing image targets
-REGISTRY = quay.io
+REGISTRY ?= quay.io
 ORG ?= cloud-bulldozer
 # Get the current branch/tag name
 # In case this is the master branch, rename it to latest
-VERSION ?= $(shell git rev-parse --symbolic-full-name --abbrev-ref HEAD | sed 's/master/latest/')
+VERSION ?= $(shell hack/tag_name.sh)
 IMG = $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
