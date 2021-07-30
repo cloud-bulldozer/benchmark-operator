@@ -5,6 +5,3 @@
 
 - name: set the truncated uuid
   set_fact: trunc_uuid={{ uuid.split("-")[0] }}
-
-- debug:
-    msg: " The results of current execution of the workload {{ workload.name }} will be associated with uuid: {{ uuid }}"
