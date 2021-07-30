@@ -6,11 +6,14 @@ import subprocess
 import tempfile
 from ripsaw.clients.k8s import Cluster
 from ripsaw.util import logging
+
 logger = logging.get_logger(__name__)
+default_repo = "https://github.com/cloud-bulldozer/benchmark-operator"
+default_branch = "master"
 
 @click.group()
-@click.option('--repo', help="Repo URL for benchmark-operator", show_default=True, default="https://github.com/cloud-bulldozer/benchmark-operator")
-@click.option('--branch', help="Branch to checkout", show_default=True, default="master")
+@click.option('--repo', help="Repo URL for benchmark-operator", show_default=True, default=default_repo)
+@click.option('--branch', help="Branch to checkout", show_default=True, default=default_branch)
 @click.pass_context
 def operator(ctx, repo, branch):
     ctx.obj = {
@@ -32,14 +35,14 @@ def _delete_operator(ctx):
 
 
 
-def install(repo, branch, command=["make", "deploy"]):
+def install(repo=default_repo, branch=default_branch, command=["make", "deploy"]):
     click.echo(f"Installing Operator from repo {repo} and branch {branch}")
     _perform_operator_action(repo, branch, command)
     wait_for_operator()
     click.secho("Operator Running", fg='green')
 
 
-def delete(repo, branch, command=["make", "kustomize", "undeploy"]):
+def delete(repo=default_repo, branch=default_branch, command=["make", "kustomize", "undeploy"]):
     click.echo("Deleting Operator")
     _perform_operator_action(repo, branch, command)
     click.secho("Operator Deleted", fg='green')
@@ -47,7 +50,7 @@ def delete(repo, branch, command=["make", "kustomize", "undeploy"]):
 def wait_for_operator(namespace="benchmark-operator"):
     cluster = Cluster()
     label_selector = "control-plane=controller-manager"
-    cluster.wait_for_pods_by_label(label_selector, namespace)
+    cluster.wait_for_pods(label_selector, namespace)
     
 
 def _perform_operator_action(repo, branch, command):

@@ -16,4 +16,5 @@ bin
 *__pycache__
 .pytest-kind
 .pytest_cache
+.kube
 *.egg-info

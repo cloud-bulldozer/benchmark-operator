@@ -2,7 +2,7 @@ from kubernetes import client, config, watch, utils
 import json
 import time
 import yaml
-from ripsaw.util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError
+from ripsaw.util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError, PodsNotFoundError
 from ripsaw.util import logging
 
 logger = logging.get_logger(__name__)
@@ -15,25 +15,17 @@ class Cluster:
         self.batch_client = client.BatchV1Api()
         self.crd_client = client.CustomObjectsApi()
 
-    # Get Functions
-    def get_pods_by_app(self, app, namespace):
-        label_selector = f"app={app}"
+    def get_pods(self, label_selector, namespace):
         return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
 
-    def get_pod_logs_by_app(self, app, namespace, container):
-        pods = self.get_pods_by_app(app, namespace).items
+    def get_pod_logs(self, label_selector, namespace, container):
+        pods = self.get_pods(label_selector, namespace).items
         return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
-
-    def get_jobs_by_app(self, app, namespace):
-        label_selector = f"app={app}"
+    
+    
+    def get_jobs(self, label_selector, namespace):
         return self.batch_client.list_namespaced_job(namespace, label_selector=label_selector, watch=False)
     
-    def get_pods_by_label(self, label_selector, namespace):
-        return self.core_client.list_namespaced_pod(namespace, label_selector=label_selector, watch=False)
-
-    def get_pod_logs_by_label(self, label_selector, namespace, container):
-        pods = self.get_pods_by_label(label_selector, namespace).items
-        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
 
     def get_nodes(self, label_selector=None):
         return self.core_client.list_node(label_selector=label_selector)
@@ -44,7 +36,7 @@ class Cluster:
     def get_namespaces(self, label_selector=None):
         return self.core_client.list_namespace(label_selector=label_selector)
 
-    def get_benchmark(self, name, namespace):
+    def get_benchmark(self, name, namespace="benchmark-operator"):
         return self.crd_client.get_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
             version="v1alpha1",
@@ -53,19 +45,18 @@ class Cluster:
             name=name
         )
 
-    def get_benchmark_metadata(self, benchmark_name, benchmark_namespace):
-        benchmark = self.get_benchmark(benchmark_name, benchmark_namespace)
+    def get_benchmark_metadata(self, name, namespace="benchmark-operator"):
+        benchmark = self.get_benchmark(name, namespace)
         return {
             'name': benchmark['metadata']['name'],
             'namespace': benchmark['metadata']['namespace'],
-            'uuid': benchmark['status'].get('uuid', "Not Assigned Yet"),
-            'suuid': benchmark['status'].get('suuid', "Not Assigned Yet"),
-            'related_job': f"{benchmark['spec']['workload']['name']}-{benchmark['status']['suuid']}",
-            'status': benchmark['status'].get('state', "")
+            'uuid': benchmark.get('status', {}).get('uuid', "Not Assigned Yet"),
+            'suuid': benchmark.get('status', {}).get('suuid', "Not Assigned Yet"),
+            'status': benchmark.get('status', {}).get('state', "")
         }
 
     # Waiters
-    def wait_for_pods_by_label(self, label_selector, namespace, timeout=300):
+    def wait_for_pods(self, label_selector, namespace, timeout=300):
         waiting_for_pods = True
         timeout_interval = 0
         while waiting_for_pods:
@@ -83,7 +74,7 @@ class Cluster:
                 waiting_for_pods = (
                     any([pod.status.phase != "Running" for pod in pods]))
 
-    def wait_for_benchmark(self, name, namespace, desired_state="Completed", timeout=300):
+    def wait_for_benchmark(self, name, namespace="benchmark-operator", desired_state="Completed", timeout=300):
         waiting_for_benchmark = True
         logger.info(f"Waiting for state: {desired_state}")
         timeout_interval = 0
@@ -137,12 +128,10 @@ class Cluster:
         else:
             return self.get_benchmark_metadata(benchmark['metadata']['name'], benchmark['metadata']['namespace'])
 
-    def create_from_yaml(self, yaml_file):
-        return utils.create_from_yaml(self.api_client, yaml_file)
 
     # Delete Functions
 
-    def delete_benchmark(self, name, namespace):
+    def delete_benchmark(self, name, namespace="benchmark-operator"):
         logger.info(f"Deleting benchmark {name} in namespace {namespace}")
         self.crd_client.delete_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
@@ -153,7 +142,7 @@ class Cluster:
         )
         logger.info(f"Deleted benchmark {name} in namespace {namespace}")
 
-    def delete_all_benchmarks(self, namespace):
+    def delete_all_benchmarks(self, namespace="benchmark-operator"):
         all_benchmarks = self.crd_client.list_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
             version="v1alpha1",
@@ -165,12 +154,8 @@ class Cluster:
          for benchmark in all_benchmarks.get('items', [])]
 
     def delete_namespace(self, namespace):
-        return self.core_client.delete_namespace(namespace, client.V1DeleteOptions())
+        return self.core_client.delete_namespace(namespace)
 
-    def delete_namespaces_with_label(self, label_key, label_value):
-        [self.core_client.delete_namespace(
-            namespace.metadata.name) for namespace in self.get_namespaces_with_label(label_key, label_value).items]
-    
-    # Patch Functions
-    def patch_node(self, node, patch):
-        return self.core_client.patch_node(node, patch)
+    def delete_namespaces_with_label(self, label_selector):
+        return [self.core_client.delete_namespace(
+            namespace.metadata.name) for namespace in self.get_namespaces(label_selector=label_selector).items]
