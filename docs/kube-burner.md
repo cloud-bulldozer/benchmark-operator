@@ -103,7 +103,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **``step``**: Prometheus step size, useful for long benchmarks. Defaults to 30s
 - **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in node-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
 - **``runtime_class``** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
-- **``extra_env_vars``** : List of dictionaries that will be injected to the kube-burner pod as environment variables. e.g. `extra_env_vars: [{"foo": "bar}, {"foo2": "bar2"}]`
+- **``extra_env_vars``** : This dictionary defines a set of fields that will be injected to the kube-burner pod as environment variables. e.g. `extra_env_vars: {"foo": "bar", "foo2": "bar2"}`
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch. This feature can be configured by the prometheus object of kube-burner's CR.
 
@@ -187,15 +187,15 @@ Keep in mind that the object templated declared in this remote configuration fil
       replicas: 1
 ```
 
-> `kube-burner` is able to use go template based configuration files, in addition to the default behaviour, this template can reference environment variables using the syntax `{{ .MY_ENV_VAR }}`. The kube-burner job created by `benchmark-operator` always injects a list of environment variables which can be defined with the parameter `extra_env_vars`. This can be useful to parametrize remote configuration files as shown in the code snippet below.
+> `kube-burner` is able to use go template based configuration files, in addition to the default behaviour, this template can reference environment variables using the syntax `{{ .MY_ENV_VAR }}`. The kube-burner job created by `benchmark-operator` always injects a list of environment variables which can be defined with the parameter `extra_env_vars` mentioned previously. This can be useful to parametrize remote configuration files as shown in the code snippet below.
 
 Supossing a CR with `extra_env_vars` configured as:
 ```yaml
 workload:
   args:
     extra_env_vars:
-    - INDEXING: true
-    - ES_SERVER: https://example-es.instance.com:9200
+      INDEXING: true
+      ES_SERVER: https://example-es.instance.com:9200
 ```
 
 ```yaml
