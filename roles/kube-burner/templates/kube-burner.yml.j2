@@ -32,7 +32,7 @@ spec:
         imagePullPolicy: Always
 {% if workload_args.extra_env_vars is defined and workload_args.extra_env_vars is mapping %}
         env:
-{% for name, value in extra_env_vars.items() %}
+{% for name, value in workload_args.extra_env_vars.items() %}
         - name: {{ name }}
           value: "{{ value }}"
 {% endfor %}
