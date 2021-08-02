@@ -5,7 +5,7 @@
 ## Running Vegeta
 
 Given that you followed instructions to deploy operator,
-you can modify Vegeta's [cr.yaml](../resources/crds/ripsaw_v1alpha1_vegeta_cr.yaml) to make it fit with your requirements.
+you can modify Vegeta's [cr.yaml](../config/samples/vegeta/cr.yaml) to make it fit with your requirements.
 
 The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily

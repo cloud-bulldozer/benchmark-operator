@@ -19,7 +19,7 @@ The benchmark-operator integration here is meant to run only some workloads usef
 ## Running kube-burner
 
 Given that you followed instructions to deploy benchmark-operator. Kube-burner needs an additional serviceaccount and clusterrole to run. Available at [kube-burner-role.yml](../resources/kube-burner-role.yml)
-You can modify kube-burner's [cr.yaml](../resources/crds/ripsaw_v1alpha1_kube-burner_cr.yaml) to fit your requirements.
+You can modify kube-burner's [cr.yaml](../config/samples/kube-burner/cr.yaml) to fit your requirements.
 
 ----
 
@@ -64,7 +64,7 @@ Each iteration of this workload creates the following object:
   - 1 pod. (sleep)
 
 - **concurrent-builds**: Creates a buildconfig, imagestream and corresponding build for a set application. **This will create as many namespaces with these objects as the configured job_iterations**. 
-See https://github.com/cloud-bulldozer/e2e-benchmarking/tree/master/workloads/kube-burner/builds for example parameters for each application
+See https://github.com/cloud-bulldozer/e2e-benchmarking/tree/master/workloads/kube-burner for example parameters for each application
 Each iteration of this workload creates the following object:
   - 1 imagestream (dependent on application type set)
   - 1 buildconfig (also dependent on application type set)

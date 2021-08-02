@@ -5,7 +5,7 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)
+you can modify [cr.yaml](../config/samples/uperf/cr.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1

@@ -5,7 +5,7 @@ The goal of the oslat workload in the benchmark-operator is to run oslat inside 
 
 ## Running oslat
 
-Given that you followed instructions to deploy operator, you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_oslat.yaml) to your needs.
+Given that you followed instructions to deploy operator, you can modify [cr.yaml](../config/samples/oslat/cr.yaml) to your needs.
 It is recommended to define pod requests and limits when running oslat test, to give guaranteed CPUs to the pods. It is also expected to have the
 realtime kernel installed with required isolation for pods using the [Performance Add-On Operator](https://github.com/openshift-kni/performance-addon-operators).
 

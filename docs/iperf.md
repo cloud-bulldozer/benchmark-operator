@@ -5,7 +5,7 @@
 ## Running iperf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_iperf3_cr.yaml)
+you can modify [cr.yaml](../config/samples/iperf3/cr.yaml)
 
 
 ```yaml

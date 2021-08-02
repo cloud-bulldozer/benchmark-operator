@@ -3,7 +3,7 @@
 [Smallfile](https://github.com/distributed-system-analysis/smallfile) is a python-based distributed POSIX workload generator which can be used to quickly measure performance for a variety of metadata-intensive workloads across an entire cluster.
 
 ## Running Smallfile Benchmark using Ripsaw
-Once the operator has been installed following the instructions, one needs to modify the clients parameter(which is currently set to 0), to value greater than 0 in  [ripsaw_v1alpha1_smallfile_cr.yaml](../resources/crds/ripsaw_v1alpha1_smallfile_cr.yaml) to run default "create" the test. Also, in addtion to that, smallfile operator is completely dependent on storageclass and storagesize. Please make sure to double check the parameters in CRD file.
+Once the operator has been installed following the instructions, one needs to modify the clients parameter(which is currently set to 0), to value greater than 0 in  [ripsaw_v1alpha1_smallfile_cr.yaml](../config/samples/smallfile/cr.yaml) to run default "create" the test. Also, in addtion to that, smallfile operator is completely dependent on storageclass and storagesize. Please make sure to double check the parameters in CRD file.
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -24,7 +24,7 @@ spec:
       storagesize: 5Gi # Provide if PV is needed
 ```
 
-Smallfile operator also gives the leverage to run multiple test operations in a user-defined sequence. Like in the [Custom Resource Definition file](../resources/crds/ripsaw_v1alpha1_smallfile_cr.yaml), the series of operation can be mentioned as:
+Smallfile operator also gives the leverage to run multiple test operations in a user-defined sequence. Like in the [Custom Resource Definition file](../config/samples/smallfile/cr.yaml), the series of operation can be mentioned as:
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1

@@ -22,7 +22,7 @@ intended for Kata containers.
 
 ## Running the benchmark
 
-Here is an example of the [benchmark CR](../resources/crds/ripsaw_v1alpha1_servicemesh_cr.yaml):
+Here is an example of the [benchmark CR](../config/samples/servicemesh/cr.yaml):
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -108,7 +108,7 @@ spec:
 You can run it by:
 
 ```bash
-oc apply -f resources/crds/ripsaw_v1alpha1_servicemesh_cr.yaml # if edited the original one
+oc apply -f config/samples/servicemesh/cr.yaml # if edited the original one
 ```
 
 ## Visualize the report

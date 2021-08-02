@@ -11,7 +11,7 @@ tree - see the benchmark documentation for details.  fs-drift requires that a st
 
 Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fs-drift_cr.yaml) to customize workload parameters - the defaults are selected to demonstrate its operation and are not intended to specify a long-duration test.
 
-The parameters in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fs-drift_cr.yaml) would look similar to this example:
+The parameters in [cr.yaml](../config/samples/fs-drift/cr.yaml) would look similar to this example:
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
