@@ -1,5 +1,6 @@
 import kubernetes
 import pytest
+from ripsaw.util.exceptions import BenchmarkTimeoutError
 
 class TestCluster():
     def test_get_pods(self, cluster):
@@ -11,7 +12,7 @@ class TestCluster():
     def test_get_pod_logs(self, cluster):
         label_selector = "component=etcd"
         logs = cluster.get_pod_logs(label_selector=label_selector, namespace="kube-system", container="etcd")
-        assert "/health OK" in logs[0]
+        assert len(logs) > 0
 
     def test_get_jobs(self, cluster, test_job): 
         label_selector = "app=test-job"
@@ -49,17 +50,27 @@ class TestCluster():
             "status": ""
         }
 
-    # def test_wait_for_pods_by_label(self):
-    #     assert 0
+    def test_wait_for_pods(self, cluster, test_job):
+        label_selector = "job-name=busybox"
+        namespace = "default"
+        cluster.wait_for_pods(label_selector, namespace)
+        pods = cluster.get_pods(label_selector, namespace)
+        assert len(pods.items) == 1
+        assert pods.items[0].status.phase == "Running"
+        
 
-    # def test_wait_for_benchmark(self):
-    #     assert 0
+    def test_create_benchmark_async(self, cluster, test_benchmark_model):
+        name = test_benchmark_model.name
+        namespace = test_benchmark_model.namespace
+        cluster.create_benchmark(test_benchmark_model.yaml)
+        assert name == cluster.get_benchmark(name, namespace)['metadata']['name']
 
-    # def test_create_benchmark_async(self):
-    #     assert 0
 
-    # def test_create_benchmark(self):
-    #     assert 0
+    def test_wait_for_benchmark_timeout(self, cluster, test_benchmark):
+        name = "byowl"
+        namespace = "benchmark-operator"
+        with pytest.raises(BenchmarkTimeoutError) as e_info:
+            cluster.wait_for_benchmark(name, namespace, timeout=5)
 
     def test_delete_benchmark(self, cluster, test_benchmark):
         name = "byowl"
@@ -69,8 +80,12 @@ class TestCluster():
             cluster.get_benchmark(name,namespace)
         
     
-    # def test_delete_all_benchmarks(self):
-    #     assert 0
+    def test_delete_all_benchmarks(self, cluster, test_benchmark):
+        name = "byowl"
+        namespace = "benchmark-operator"
+        cluster.delete_all_benchmarks(namespace)
+        with pytest.raises(kubernetes.client.exceptions.ApiException) as e_info:
+            cluster.get_benchmark(name,namespace)
 
     def test_delete_namespace(self, cluster, test_namespace):
         expected_name = test_namespace[0]

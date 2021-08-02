@@ -2,6 +2,7 @@ import pytest
 import pytest_kind
 import time
 from ripsaw.clients.k8s import Cluster
+from ripsaw.models.benchmark import Benchmark
 
 
 # Kind Cluster Fixtures
@@ -11,16 +12,19 @@ def cluster(kind_cluster):
     time.sleep(15)
     return Cluster(kubeconfig_path=str(kind_cluster.kubeconfig_path.resolve()))
 
+@pytest.fixture(scope="session")
+def kind_kubeconfig(kind_cluster):
+    return str(kind_cluster.kubeconfig_path.resolve())
 
 @pytest.fixture(scope="function")
 def test_job(kind_cluster):
     yield kind_cluster.kubectl("apply", "-f", "tests/resources/job.yaml")
-    kind_cluster.kubectl("delete", "-f", "tests/resources/job.yaml")
+    kind_cluster.kubectl("delete", "-f", "tests/resources/job.yaml", "--ignore-not-found")
 
 @pytest.fixture(scope="session")
 def benchmark_crd(kind_cluster):
     yield kind_cluster.kubectl("apply", "-f", "../config/crd/bases/ripsaw.cloudbulldozer.io_benchmarks.yaml")
-    kind_cluster.kubectl("delete", "-f", "../config/crd/bases/ripsaw.cloudbulldozer.io_benchmarks.yaml")
+    kind_cluster.kubectl("delete", "-f", "../config/crd/bases/ripsaw.cloudbulldozer.io_benchmarks.yaml", "--ignore-not-found")
 
 @pytest.fixture(scope="session")
 def benchmark_namespace(kind_cluster):
@@ -34,7 +38,7 @@ def test_benchmark(kind_cluster, benchmark_crd, benchmark_namespace):
 
 @pytest.fixture(scope="function")
 def test_benchmark_path(kind_cluster, benchmark_crd, benchmark_namespace):
-    return "test/resources/benchmark.yaml"
+    return "tests/resources/benchmark.yaml"
 
 @pytest.fixture(scope="function")
 def test_namespace(kind_cluster):
@@ -55,3 +59,8 @@ def test_multiple_namespaces(kind_cluster):
     [kind_cluster.kubectl("label", "namespaces", namespace, label) for namespace in namespaces]
     yield namespaces, label
     [kind_cluster.kubectl("delete", "namespace", namespace, "--ignore-not-found") for namespace in namespaces]
+
+@pytest.fixture(scope="function")
+def test_benchmark_model(kind_cluster, cluster, test_benchmark_path):
+    yield Benchmark(test_benchmark_path, cluster)
+    kind_cluster.kubectl("delete", "benchmark", "byowl", "-n", "benchmark-operator", "--ignore-not-found")

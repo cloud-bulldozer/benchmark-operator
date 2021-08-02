@@ -30,6 +30,7 @@ pyasn1-modules==0.2.8
 pykube-ng==21.3.0
 pyparsing==2.4.7
 pytest==6.2.4
+pytest-env==0.6.2
 pytest-kind==21.1.3
 python-benedict==0.24.0
 python-dateutil==2.8.2

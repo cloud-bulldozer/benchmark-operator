@@ -62,8 +62,7 @@ class Cluster:
         while waiting_for_pods:
             if timeout_interval >= timeout:
                 raise TimeoutError()
-            time.sleep(3)
-            pods = self.get_pods_by_label(label_selector, namespace).items
+            pods = self.get_pods(label_selector, namespace).items
             if len(pods) == 0 and timeout_interval < 60:
                 continue
             elif len(pods) == 0:
@@ -73,6 +72,8 @@ class Cluster:
                     f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods]
                 waiting_for_pods = (
                     any([pod.status.phase != "Running" for pod in pods]))
+            time.sleep(3)
+            timeout_interval += 3
 
     def wait_for_benchmark(self, name, namespace="benchmark-operator", desired_state="Completed", timeout=300):
         waiting_for_benchmark = True
@@ -102,7 +103,7 @@ class Cluster:
 
     # Create Functions
 
-    def create_benchmark_async(self, benchmark):
+    def create_benchmark(self, benchmark):
         self.crd_client.create_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
             version="v1alpha1",
@@ -110,24 +111,6 @@ class Cluster:
             plural="benchmarks",
             body=benchmark
         )
-
-    def create_benchmark(self, benchmark, desired_state="Running", timeout=300):
-        self.crd_client.create_namespaced_custom_object(
-            group="ripsaw.cloudbulldozer.io",
-            version="v1alpha1",
-            namespace=benchmark['metadata']['namespace'],
-            plural="benchmarks",
-            body=benchmark
-        )
-
-        try:
-            self.wait_for_benchmark(
-                benchmark['metadata']['name'], benchmark['metadata']['namespace'], desired_state=desired_state, timeout=timeout)
-        except BenchmarkFailedError:
-            logger.error("error, benchmark failed")
-        else:
-            return self.get_benchmark_metadata(benchmark['metadata']['name'], benchmark['metadata']['namespace'])
-
 
     # Delete Functions
 

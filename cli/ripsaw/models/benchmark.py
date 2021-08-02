@@ -20,7 +20,7 @@ class Benchmark:
 
 
     def run(self, timeout=600):
-        self.metadata = self.cluster.create_benchmark_async(self.yaml)
+        self.metadata = self.cluster.create_benchmark(self.yaml)
         logger.info(f"Benchmark {self.name} created")
         self.wait(timeout=timeout)
         return self.metadata

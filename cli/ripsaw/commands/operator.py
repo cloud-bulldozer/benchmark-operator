@@ -35,38 +35,51 @@ def _delete_operator(ctx):
 
 
 
-def install(repo=default_repo, branch=default_branch, command=["make", "deploy"]):
+def install(repo=default_repo, branch=default_branch, command="make deploy", kubeconfig=None):
     click.echo(f"Installing Operator from repo {repo} and branch {branch}")
-    _perform_operator_action(repo, branch, command)
-    wait_for_operator()
+    _perform_operator_action(repo, branch, command, kubeconfig)
+    wait_for_operator(kubeconfig=kubeconfig)
     click.secho("Operator Running", fg='green')
 
 
-def delete(repo=default_repo, branch=default_branch, command=["make", "kustomize", "undeploy"]):
+def delete(repo=default_repo, branch=default_branch, command="make kustomize undeploy", kubeconfig=None):
     click.echo("Deleting Operator")
-    _perform_operator_action(repo, branch, command)
+    _perform_operator_action(repo, branch, command, kubeconfig)
     click.secho("Operator Deleted", fg='green')
 
-def wait_for_operator(namespace="benchmark-operator"):
-    cluster = Cluster()
+def wait_for_operator(namespace="benchmark-operator", kubeconfig=None):
+    cluster = Cluster(kubeconfig_path=kubeconfig)
     label_selector = "control-plane=controller-manager"
-    cluster.wait_for_pods(label_selector, namespace)
+    cluster.wait_for_pods(label_selector, namespace, timeout=60)
     
 
-def _perform_operator_action(repo, branch, command):
-    temp_dir = tempfile.TemporaryDirectory(dir=".")
-    _clone_repo(repo, branch, temp_dir.name)
-    result = subprocess.run(command, shell=False, cwd=temp_dir.name, capture_output=True)
-    temp_dir.cleanup()
+def _perform_operator_action(repo, branch, command, kubeconfig=None):
+    shell_env = os.environ.copy()
+    if kubeconfig is not None:
+        shell_env['KUBECONFIG'] = kubeconfig
+    local_git_repo = find_git_repo(os.getcwd())
+    result = None
+    if "benchmark-operator" in local_git_repo:
+        logger.info("Detected CLI is running from local repo, using that instead of remote")
+        result = subprocess.run(command.split(" "), shell=False, env=shell_env, cwd=local_git_repo, capture_output=True, check=True, encoding='utf-8')
+    else:
+        temp_dir = tempfile.TemporaryDirectory(dir=".")
+        _clone_repo(repo, branch, temp_dir.name)
+        result = subprocess.run(command.split(" "), shell=False, env=shell_env, cwd=temp_dir.name, capture_output=True, check=True, encoding='utf-8')
+        temp_dir.cleanup()
+        
     if result.stderr:
-        raise subprocess.CalledProcessError(
-                returncode = result.returncode,
-                cmd = result.args,
-                stderr = result.stderr
-                )
+        logger.warning(result.stderr)
     if result.stdout:
-        logger.debug("Command Result: {}".format(result.stdout.decode('utf-8')))
+        logger.debug("Command Result: {}".format(result.stdout))
    
 
 def _clone_repo(repo, branch, directory):
     git.Repo.clone_from(url=repo, single_branch=True, depth=1, to_path=directory, branch=branch)
+
+
+def find_git_repo(path):
+    try:
+        return git.Repo(path, search_parent_directories=True).working_dir
+    except git.exc.InvalidGitRepositoryError:
+        return None
