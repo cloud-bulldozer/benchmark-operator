@@ -30,7 +30,7 @@ spec:
           -u {{ system_metrics.prom_url }}
           -t {{ system_metrics.prom_token }}
           --start={{ (cr_state.resources[0].metadata.creationTimestamp|to_datetime('%Y-%m-%dT%H:%M:%SZ')).strftime('%s') }}
-          -m {{ system_metrics.metrics_profile|default("metrics.yml") }}
+          -m {{ system_metrics.metrics_profile|default("node-metrics.yml") }}
           --step={{ system_metrics.step }}
         volumeMounts:
           - name: system-metrics-collector
