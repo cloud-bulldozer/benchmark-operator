@@ -3,6 +3,9 @@ import pytest_kind
 import time
 from ripsaw.clients.k8s import Cluster
 
+
+# Kind Cluster Fixtures
+
 @pytest.fixture(scope="session")
 def cluster(kind_cluster):
     time.sleep(15)
@@ -27,8 +30,11 @@ def benchmark_namespace(kind_cluster):
 @pytest.fixture(scope="function")
 def test_benchmark(kind_cluster, benchmark_crd, benchmark_namespace):
     yield kind_cluster.kubectl("apply", "-f", "tests/resources/benchmark.yaml")
-    kind_cluster.kubectl("delete", "-f", "tests/resources/benchmark.yaml")
+    kind_cluster.kubectl("delete", "-f", "tests/resources/benchmark.yaml", "--ignore-not-found")
 
+@pytest.fixture(scope="function")
+def test_benchmark_path(kind_cluster, benchmark_crd, benchmark_namespace):
+    return "test/resources/benchmark.yaml"
 
 @pytest.fixture(scope="function")
 def test_namespace(kind_cluster):
@@ -49,5 +55,3 @@ def test_multiple_namespaces(kind_cluster):
     [kind_cluster.kubectl("label", "namespaces", namespace, label) for namespace in namespaces]
     yield namespaces, label
     [kind_cluster.kubectl("delete", "namespace", namespace, "--ignore-not-found") for namespace in namespaces]
-
-

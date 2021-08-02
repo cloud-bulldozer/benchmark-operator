@@ -5,6 +5,7 @@ certifi==2021.5.30
 charset-normalizer==2.0.3
 click==8.0.1
 dill==0.3.4
+ElasticMock==1.8.0
 elasticsearch==7.13.4
 ftfy==6.0.3
 gitdb==4.0.7
@@ -15,6 +16,7 @@ idna==3.2
 iniconfig==1.1.1
 kubernetes==17.17.0
 mailchecker==4.0.11
+mock==4.0.3
 oauthlib==3.1.1
 packaging==21.0
 parver==0.3.1

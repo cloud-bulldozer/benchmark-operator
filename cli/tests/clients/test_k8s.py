@@ -1,3 +1,6 @@
+import kubernetes
+import pytest
+
 class TestCluster():
     def test_get_pods(self, cluster):
         label_selector = "component=etcd"
@@ -58,8 +61,13 @@ class TestCluster():
     # def test_create_benchmark(self):
     #     assert 0
 
-    # def test_delete_benchmark(self):
-    #     assert 0
+    def test_delete_benchmark(self, cluster, test_benchmark):
+        name = "byowl"
+        namespace = "benchmark-operator"
+        cluster.delete_benchmark(name, namespace)
+        with pytest.raises(kubernetes.client.exceptions.ApiException) as e_info:
+            cluster.get_benchmark(name,namespace)
+        
     
     # def test_delete_all_benchmarks(self):
     #     assert 0

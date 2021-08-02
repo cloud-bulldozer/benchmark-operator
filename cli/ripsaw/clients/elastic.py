@@ -35,29 +35,3 @@ def check_index(server, uuid, index, es_ssl=False):
     else:
         print("No result found in ES")
         return False
-
-# def main():
-#     parser = argparse.ArgumentParser(description="Script to verify uploads to ES")
-#     parser.add_argument(
-#         '-s', '--server',
-#         help='Provide elastic server information')
-#     parser.add_argument(
-#         '-p', '--port',
-#         help='Provide elastic port information')
-#     parser.add_argument(
-#         '-u', '--uuid',
-#         help='UUID to provide to search')
-#     parser.add_argument(
-#         '-i', '--index',
-#         help='Index to provide to search')
-#     parser.add_argument(
-#         '--sslskipverify',
-#         help='if es is setup with ssl, but can disable tls cert verification',
-#         default=False)
-#     args = parser.parse_args()
-
-#     sys.exit(_check_index(args.server,args.port,args.uuid,args.index,args.sslskipverify))
-
-
-# if __name__ == '__main__':
-#     sys.exit(main())
