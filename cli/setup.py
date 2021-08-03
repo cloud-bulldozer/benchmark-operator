@@ -1,16 +1,15 @@
-from setuptools import setup, find_packages
+# -*- coding: utf-8 -*-
+import sys
 
-setup(
-    name='ripsaw-cli',
-    version='0.1.0',
-    packages=find_packages(),
-    include_package_data=True,
-    install_requires=[
-        'Click',
-    ],
-    entry_points={
-        'console_scripts': [
-            'ripsaw = ripsaw.cli:cli',
-        ],
-    },
-)
+from pkg_resources import VersionConflict, require
+from setuptools import setup
+
+try:
+    require("setuptools>=38.3")
+except VersionConflict:
+    print("Error: version of setuptools is too old (<38.3)!")
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    setup()

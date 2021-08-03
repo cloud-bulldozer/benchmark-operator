@@ -1,10 +1,24 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
 from os import listdir
 from os.path import isfile, join
-from ripsaw.models.benchmark import BenchmarkRun
-from clients.k8s import Cluster
-from util import logger
+from ripsaw.models.benchmark import Benchmark
+from ripsaw.clients.k8s import Cluster
+from ripsaw.util import logging
 
-logger = logger.get_logger(__name__)
+logger = logging.get_logger(__name__)
 
 class Workload:
     def __init__(self, name, cluster, benchmark_dir):
@@ -12,7 +26,7 @@ class Workload:
         self.cluster = cluster
         self.workload_dir = f"{benchmark_dir}/{name}"
         self.benchmarks = [
-            BenchmarkRun(f.split('.')[0], join(self.workload_dir, f), self.cluster)
+            Benchmark(f.split('.')[0], join(self.workload_dir, f), self.cluster)
             for f in listdir(self.workload_dir) 
             if isfile(join(self.workload_dir, f)) and f.endswith(".yaml")
         ]
