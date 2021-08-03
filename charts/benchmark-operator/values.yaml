@@ -18,7 +18,7 @@ operator:
   replicaCount: 1
 
   image:
-    repository: quay.io/benchmark-operator/benchmark-operator
+    repository: quay.io/cloud-bulldozer/benchmark-operator
     pullPolicy: Always
     tag: master
 

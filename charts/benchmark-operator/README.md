@@ -12,7 +12,7 @@ A Helm chart for Kubernetes
 | nameOverride | string | `""` |  |
 | operator.affinity.nodeAffinity | object | `{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"node-role.kubernetes.io/workload","operator":"In","values":[""]}]},"weight":100}]}` | nodeAffinity is set to make the operator run on workload nodes, but it's not required |
 | operator.image.pullPolicy | string | `"Always"` |  |
-| operator.image.repository | string | `"quay.io/benchmark-operator/benchmark-operator"` |  |
+| operator.image.repository | string | `"quay.io/cloud-bulldozer/benchmark-operator"` |  |
 | operator.image.tag | string | `""` |  |
 | operator.redisImage.pullPolicy | string | `"Always"` |  |
 | operator.redisImage.repository | string | `"k8s.gcr.io/redis"` |  |
