@@ -3,7 +3,6 @@
 # To re-generate a bundle for another specific version without changing the standard setup, you can:
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
-VERSION ?= 0.0.1
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "preview,fast,stable")
@@ -35,10 +34,26 @@ IMAGE_TAG_BASE ?= cloudbulldozer.io/ripsaw
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
 BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 
-# Image URL to use all building/pushing image targets
-IMG ?= quay.io/benchmark-operator/benchmark-operator:master
+OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ARCH ?= $(shell uname -m | sed 's/x86_64/amd64/')
 
-all: docker-build
+# Image URL to use all building/pushing image targets
+REGISTRY ?= quay.io
+ORG ?= cloud-bulldozer
+# Get the current branch/tag name
+# In case this is the master branch, rename it to latest
+VERSION ?= $(shell hack/tag_name.sh)
+IMG = $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
+MANIFEST_ARCHS ?= amd64 arm64 ppc64le
+
+# Containers
+ifeq (, $(shell which podman))
+  ENGINE := docker
+else
+  ENGINE := podman
+endif
+
+all: image-build
 
 ##@ General
 
@@ -61,17 +76,21 @@ help: ## Display this help.
 run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kube/config
 	$(ANSIBLE_OPERATOR) run
 
-docker-build: ## Build docker image with the manager.
-	docker build -t ${IMG} .
+image-build: ## Build container image with the manager.
+	${ENGINE} build --arch=$(ARCH) -t ${IMG}-${ARCH} .
 
-docker-push: ## Push docker image with the manager.
-	docker push ${IMG}
+image-push: ## Push container image with the manager.
+	${ENGINE} push ${IMG}-${ARCH}
 
-podman-build: ## Build docker image with the manager.
-	podman build -t ${IMG} .
+manifest: manifest-build ## Builds a container manifest and push it to the registry
+	$(ENGINE) manifest push $(IMG) $(IMG)
 
-podman-push: ## Push docker image with the manager.
-	podman push ${IMG}
+manifest-build:
+	$(ENGINE) manifest create $(IMG)
+	@for arch in $(MANIFEST_ARCHS); do \
+		echo "Adding $(IMG)-$${arch} to manifest ${IMG}"; \
+		$(ENGINE) manifest add $(IMG) $(IMG)-$${arch}; \
+	done
 
 ##@ Deployment
 
@@ -88,8 +107,6 @@ deploy: kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/c
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
-OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
-ARCH := $(shell uname -m | sed 's/x86_64/amd64/')
 
 .PHONY: kustomize
 KUSTOMIZE = $(shell pwd)/bin/kustomize
@@ -132,11 +149,11 @@ bundle: kustomize ## Generate bundle manifests and metadata, then validate gener
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	${ENGINE} build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+	$(MAKE) image-push IMG=$(BUNDLE_IMG)
 
 .PHONY: opm
 OPM = ./bin/opm
@@ -176,4 +193,4 @@ catalog-build: opm ## Build a catalog image.
 # Push the catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
-	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+	$(MAKE) image-push IMG=$(CATALOG_IMG)

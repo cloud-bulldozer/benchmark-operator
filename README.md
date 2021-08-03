@@ -16,7 +16,7 @@ If you wish to build a version of the operator from your local copy of the repo,
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
-make podman-build podman-push deploy IMG=$YOUR_IMAGE
+make image-build image-push deploy IMG=$YOUR_IMAGE
 ```
 
 > Note: building the image requires podman 
@@ -156,9 +156,6 @@ spec:
     args:
       image: my.location/foo:latest
 ```
-
-## Installation
-[Installation](docs/installation.md)
 
 ## Contributing
 [Contributing](CONTRIBUTING.md)
