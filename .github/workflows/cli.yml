@@ -11,7 +11,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: cli
+    working-directory: ${{ github.workspace }}/cli
 
 jobs:
   unit_tests:
