@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyver: [py38, py39]
+        pyver: [8, 9]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -26,13 +26,13 @@ jobs:
           kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
         working-directory: cli
       - name: Run Tox
-        run: tox -e ${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
         working-directory: cli    
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
         with:
-          name: coverage-${{ matrix.pyver }}
-          path: ./coverage-${{ matrix.pyver }}
+          name: coverage-py3${{ matrix.pyver }}
+          path: ./cli/.coverage-py3${{ matrix.pyver }}
   coverage_report:
     needs: unit_tests
     runs-on: ubuntu-latest
