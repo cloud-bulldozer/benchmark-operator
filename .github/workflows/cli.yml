@@ -34,6 +34,7 @@ jobs:
           name: coverage-py3${{ matrix.pyver }}
           path: cli/.coverage-py3${{ matrix.pyver }}
   coverage_report:
+    needs: unit_tests
     runs-on: ubuntu-latest
     steps:
       - name: Download coverage artifacts
