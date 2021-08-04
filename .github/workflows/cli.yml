@@ -27,11 +27,10 @@ jobs:
         run: pip install tox
       - name: Install Kind Cluster
         run: |
-          mkdir -p .pytest-kind/pytest-kind
-          kind create cluster --name=pytest-kind --kubeconfig .pytest-kind/pytest-kind/kubeconfig
+          which kind
         working-directory: cli
       - name: Run Tox
-        run: tox -e py3${{ matrix.pyver }}-unit
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin $(which kind)
         working-directory: cli    
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
