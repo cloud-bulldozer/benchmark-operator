@@ -42,6 +42,10 @@ jobs:
     needs: unit_tests
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
       - name: Download coverage artifacts
         uses: actions/download-artifact@v2
         with:
