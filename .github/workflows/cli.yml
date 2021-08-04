@@ -37,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: coverage-py3${{ matrix.pyver }}
-          path: cli/.coverage-py3${{ matrix.pyver }}-unit
+          path: cli/.coverage.py3${{ matrix.pyver }}-unit
   coverage_report:
     needs: unit_tests
     runs-on: ubuntu-latest
