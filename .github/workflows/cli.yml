@@ -8,6 +8,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+    working-directory: cli
+
 jobs:
   unit_tests:
     runs-on: ubuntu-latest
@@ -24,17 +29,15 @@ jobs:
       - name: Install Kind Cluster
         run: |
           kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
-        working-directory: cli
       - name: Run Tox
         run: | 
           tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
-          ls
-        working-directory: cli    
+          ls 
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
         with:
           name: coverage-py3${{ matrix.pyver }}
-          path: cli/.coverage-py3${{ matrix.pyver }}
+          path: ${{ github.workspace }}/cli/.coverage-py3${{ matrix.pyver }}
   coverage_report:
     needs: unit_tests
     runs-on: ubuntu-latest
