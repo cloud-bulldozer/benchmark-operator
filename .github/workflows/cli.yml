@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Download coverage artifacts
         uses: actions/download-artifact@v2
+        with:
+          path: cli
       - name: Unpack artifact
         run: find . -name ".coverage*" -exec mv {} . \;
       - name: Create coverage report
