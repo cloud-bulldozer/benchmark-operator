@@ -11,7 +11,7 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: ${{ github.workspace }}/cli
+    working-directory: cli
 
 jobs:
   unit_tests:
@@ -32,12 +32,12 @@ jobs:
       - name: Run Tox
         run: | 
           tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
-          ls 
+          ls -la
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
         with:
           name: coverage-py3${{ matrix.pyver }}
-          path: ${{ github.workspace }}/cli/.coverage-py3${{ matrix.pyver }}
+          path: cli/.coverage-py3${{ matrix.pyver }}-unit
   coverage_report:
     needs: unit_tests
     runs-on: ubuntu-latest
