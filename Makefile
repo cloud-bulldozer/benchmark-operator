@@ -43,7 +43,7 @@ ORG ?= cloud-bulldozer
 # Get the current branch/tag name
 # In case this is the master branch, rename it to latest
 VERSION ?= $(shell hack/tag_name.sh)
-IMG = $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
+IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)-$(ARCH)
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
 # Containers
@@ -77,10 +77,10 @@ run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kub
 	$(ANSIBLE_OPERATOR) run
 
 image-build: ## Build container image with the manager.
-	${ENGINE} build --arch=$(ARCH) -t ${IMG}-${ARCH} .
+	${ENGINE} build --arch=$(ARCH) -t $(IMG) .
 
 image-push: ## Push container image with the manager.
-	${ENGINE} push ${IMG}-${ARCH}
+	${ENGINE} push $(IMG)
 
 manifest: manifest-build ## Builds a container manifest and push it to the registry
 	$(ENGINE) manifest push $(IMG) $(IMG)
