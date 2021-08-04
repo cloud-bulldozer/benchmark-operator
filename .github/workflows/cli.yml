@@ -27,12 +27,9 @@ jobs:
       - name: Install tox
         run: pip install tox
       - name: Install Kind Cluster
-        run: |
-          kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
+        run: kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
       - name: Run Tox
-        run: | 
-          tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
-          ls -la
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
         with:
@@ -51,16 +48,11 @@ jobs:
         with:
           path: cli
       - name: Unpack artifact
-        run: |
-          ls -la
-          find . -name ".coverage*" -exec mv {} . \;
-          ls -la
+        run: find . -name ".coverage*" -exec mv {} . \;
       - name: Install tox
         run: pip install tox
       - name: Create coverage report
-        run: |
-          tox -e coverage
-          ls -la
+        run: tox -e coverage
       - name: Upload coverage report
         uses: codecov/codecov-action@v1
         with:
