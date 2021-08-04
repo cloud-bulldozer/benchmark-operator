@@ -16,10 +16,6 @@ jobs:
         pyver: [8, 9]
     steps:
       - uses: actions/checkout@v2
-      - name: install podman
-        run: | 
-          sudo apt-get -y update
-          sudo apt-get -y install podman
       - uses: actions/setup-python@v2
         with:
           python-version: 3.${{ matrix.pyver }}
@@ -30,7 +26,7 @@ jobs:
           kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
         working-directory: cli
       - name: Run Tox
-        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
         working-directory: cli    
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2

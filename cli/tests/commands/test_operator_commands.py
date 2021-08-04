@@ -16,7 +16,7 @@ from ripsaw.commands import operator
 import pytest
 
 
-@pytest.mark.unit
+@pytest.mark.integration
 class TestOperatorCommands():
     def test_operator_commands(self, kind_kubeconfig, cluster, benchmark_namespace):
         operator.install(kubeconfig=kind_kubeconfig)
