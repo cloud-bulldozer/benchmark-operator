@@ -15,7 +15,9 @@
 import kubernetes
 import pytest
 from ripsaw.util.exceptions import BenchmarkTimeoutError
+import pytest 
 
+@pytest.mark.unit
 class TestCluster():
     def test_get_pods(self, cluster):
         label_selector = "component=etcd"

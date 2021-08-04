@@ -13,7 +13,10 @@
 #   limitations under the License.
 
 from ripsaw.commands import operator
+import pytest
 
+
+@pytest.mark.unit
 class TestOperatorCommands():
     def test_operator_commands(self, kind_kubeconfig, cluster, benchmark_namespace):
         operator.install(kubeconfig=kind_kubeconfig)

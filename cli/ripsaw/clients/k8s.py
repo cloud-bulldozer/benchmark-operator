@@ -21,6 +21,9 @@ from ripsaw.util import logging
 
 logger = logging.get_logger(__name__)
 
+# how many seconds to sleep before looping back in wait commands
+default_wait_time = 1
+
 class Cluster:
     def __init__(self, kubeconfig_path=None):
         config.load_kube_config(config_file=kubeconfig_path)
@@ -86,8 +89,8 @@ class Cluster:
                     f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods]
                 waiting_for_pods = (
                     any([pod.status.phase != "Running" for pod in pods]))
-            time.sleep(3)
-            timeout_interval += 3
+            time.sleep(default_wait_time)
+            timeout_interval += default_wait_time
 
     def wait_for_benchmark(self, name, namespace="benchmark-operator", desired_state="Completed", timeout=300):
         waiting_for_benchmark = True
@@ -109,9 +112,9 @@ class Cluster:
                     benchmark['metadata']['name'], benchmark['status']['uuid'])
 
             waiting_for_benchmark = (current_state != desired_state)
-            time.sleep(3)
+            time.sleep(default_wait_time)
 
-            timeout_interval += 3
+            timeout_interval += default_wait_time
         logger.info(
             f"{benchmark['metadata']['name']} with uuid {uuid} has reached the desired state {desired_state}")
 

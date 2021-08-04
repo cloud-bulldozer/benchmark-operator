@@ -15,7 +15,9 @@
 from elasticmock import elasticmock
 from ripsaw.clients import elastic
 import elasticsearch
+import pytest 
 
+@pytest.mark.unit
 class TestElastic():
 
     @elasticmock

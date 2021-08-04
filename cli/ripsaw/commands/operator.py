@@ -64,7 +64,7 @@ def delete(repo=default_repo, branch=default_branch, command="make kustomize und
 def wait_for_operator(namespace="benchmark-operator", kubeconfig=None):
     cluster = Cluster(kubeconfig_path=kubeconfig)
     label_selector = "control-plane=controller-manager"
-    cluster.wait_for_pods(label_selector, namespace, timeout=60)
+    cluster.wait_for_pods(label_selector, namespace, timeout=120)
     
 
 def _perform_operator_action(repo, branch, command, kubeconfig=None):
@@ -74,6 +74,7 @@ def _perform_operator_action(repo, branch, command, kubeconfig=None):
     local_git_repo = find_git_repo(os.getcwd())
     result = None
     if "benchmark-operator" in local_git_repo:
+        shell_env['VERSION'] = "master"
         logger.info("Detected CLI is running from local repo, using that instead of remote")
         result = subprocess.run(command.split(" "), shell=False, env=shell_env, cwd=local_git_repo, capture_output=True, check=True, encoding='utf-8')
     else:
