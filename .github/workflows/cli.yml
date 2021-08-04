@@ -58,8 +58,10 @@ jobs:
       - name: Install tox
         run: pip install tox
       - name: Create coverage report
-        run: tox -e coverage
+        run: |
+          tox -e coverage
+          ls -la
       - name: Upload coverage report
         uses: codecov/codecov-action@v1
         with:
-          files: coverage.xml
+          files: cli/coverage.xml
