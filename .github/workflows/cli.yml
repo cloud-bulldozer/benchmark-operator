@@ -22,9 +22,8 @@ jobs:
       - name: Install tox
         run: pip install tox
       - name: Run Tox
-        with:
-          path: cli 
         run: tox -e py3${{ matrix.pyver }}-unit
+        working-directory: cli    
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
         with:
@@ -37,9 +36,11 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Unpack artifact
         run: find . -name ".coverage*" -exec mv {} . \;
+        working-directory: cli    
       - name: Create coverage report
         run: tox -e coverage
+        working-directory: cli    
       - name: Upload coverage report
         uses: codecov/codecov-action@v1
         with:
-          files: ./coverage.xml
+          files: ./cli/coverage.xml
