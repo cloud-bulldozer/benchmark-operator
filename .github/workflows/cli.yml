@@ -47,7 +47,12 @@ jobs:
         with:
           path: cli
       - name: Unpack artifact
-        run: find . -name ".coverage*" -exec mv {} . \;
+        run: |
+          ls -la
+          find . -name ".coverage*" -exec mv {} . \;
+          ls -la
+      - name: Install tox
+        run: pip install tox
       - name: Create coverage report
         run: tox -e coverage
       - name: Upload coverage report
