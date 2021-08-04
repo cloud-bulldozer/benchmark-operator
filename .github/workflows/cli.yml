@@ -25,12 +25,9 @@ jobs:
           python-version: 3.${{ matrix.pyver }}
       - name: Install tox
         run: pip install tox
-      - name: Install Kind Cluster
-        run: |
-          which kind
         working-directory: cli
       - name: Run Tox
-        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin $(which kind)
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind
         working-directory: cli    
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v2
