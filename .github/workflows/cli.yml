@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: coverage-py3${{ matrix.pyver }}
-          path: cli/.coverage-py3${{ matrix.pyver }}
+          path: .coverage-py3${{ matrix.pyver }}
   coverage_report:
     needs: unit_tests
     runs-on: ubuntu-latest
@@ -41,11 +41,9 @@ jobs:
         uses: actions/download-artifact@v2
       - name: Unpack artifact
         run: find . -name ".coverage*" -exec mv {} . \;
-        working-directory: cli    
       - name: Create coverage report
         run: tox -e coverage
-        working-directory: cli    
       - name: Upload coverage report
         uses: codecov/codecov-action@v1
         with:
-          files: ./cli/coverage.xml
+          files: coverage.xml
