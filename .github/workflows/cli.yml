@@ -16,6 +16,10 @@ jobs:
         pyver: [8, 9]
     steps:
       - uses: actions/checkout@v2
+      - name: install podman
+        run: | 
+          sudo apt-get -y update
+          sudo apt-get -y install podman
       - uses: actions/setup-python@v2
         with:
           python-version: 3.${{ matrix.pyver }}
