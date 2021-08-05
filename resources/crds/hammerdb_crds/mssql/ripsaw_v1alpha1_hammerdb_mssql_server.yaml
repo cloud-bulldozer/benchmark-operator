@@ -20,7 +20,7 @@ spec:
         type: mssql-database-server
     spec:
       nodeSelector:
-              kubernetes.io/hostname: "worker-0"
+        kubernetes.io/hostname: "node1"
       terminationGracePeriodSeconds: 10
       containers:
       - name: mssql
@@ -42,27 +42,6 @@ spec:
             value: "Y"
           - name: MSSQL_SA_PASSWORD
             value: "s3curePasswordString"
-        volumeMounts:
-          - name: mssql-persistent-storage
-            mountPath: /var/opt/mssql
-            readOnly: false
-      volumes:
-        - name: mssql-persistent-storage
-          persistentVolumeClaim:
-            claimName: mssql-persistent-storage
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-    name: mssql-persistent-storage
-    namespace: mssql-db
-spec:
-    storageClassName: ocs-storagecluster-ceph-rbd
-    accessModes: [ "ReadWriteOnce" ]
-    volumeMode: Filesystem
-    resources:
-      requests:
-        storage: 10Gi
 ---
 apiVersion: v1
 kind: Service
@@ -76,3 +55,5 @@ spec:
     - protocol: TCP
       port: 1433
       targetPort: 1433
+
+
