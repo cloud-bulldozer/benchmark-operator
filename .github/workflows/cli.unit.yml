@@ -15,6 +15,7 @@ defaults:
 
 jobs:
   unit_tests:
+    name: Run Unit Tests -- Python 3.${{ matrix.pyver }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
