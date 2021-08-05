@@ -12,30 +12,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+import elasticsearch
+import pytest
 from elasticmock import elasticmock
 from ripsaw.clients import elastic
-import elasticsearch
-import pytest 
+
 
 @pytest.mark.unit
-class TestElastic():
-
+class TestElastic:
     @elasticmock
     def test_check_index(self):
-        server = "http://localhost:9200"
+        server_url = "http://localhost:9200"
         index = "test-index"
-        document = {
-            "uuid": "foo",
-            "data": "bar"
-        }
+        document = {"uuid": "foo", "data": "bar"}
 
-        es = elasticsearch.Elasticsearch(hosts=[{'host': 'localhost', 'port': 9200}])
-        es_object = es.index(index, document)
-        assert elastic.check_index(server, document['uuid'], index)
-        assert not elastic.check_index(server, "random-uuid", index)
-
-
-        
-
-
-
+        elastic_client = elasticsearch.Elasticsearch(hosts=[{"host": "localhost", "port": 9200}])
+        elastic_client.index(index, document)
+        assert elastic.check_index(server_url, document["uuid"], index)
+        assert not elastic.check_index(server_url, "random-uuid", index)

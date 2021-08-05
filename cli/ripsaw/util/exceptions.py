@@ -12,33 +12,35 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+
 class BenchmarkFailedError(Exception):
     def __init__(self, name, uuid, msg=None):
         if msg is None:
             msg = f"The benchmark {name} with uuid {uuid} failed"
-        super(BenchmarkFailedError, self).__init__(msg)
+        super(BenchmarkFailedError, self).__init__(msg)  # pylint: disable=super-with-arguments
         self.name = name
         self.uuid = uuid
+
 
 class BenchmarkNotStartedError(Exception):
     def __init__(self, name, msg=None):
         if msg is None:
             msg = f"The benchmark {name} has not started yet"
-        
-        super(BenchmarkNotStartedError, self).__init__(msg)
+
+        super(BenchmarkNotStartedError, self).__init__(msg)  # pylint: disable=super-with-arguments
+
 
 class BenchmarkTimeoutError(Exception):
     def __init__(self, name, msg=None):
         if msg is None:
             msg = f"The benchmark {name} timed out"
-        
-        super(BenchmarkTimeoutError, self).__init__(msg)
-        self.name = name
 
+        super(BenchmarkTimeoutError, self).__init__(msg)  # pylint: disable=super-with-arguments
+        self.name = name
 
 
 class PodsNotFoundError(Exception):
     def __init__(self, msg=None):
         if msg is None:
-            msg = f"No Pods found"
-        super(PodsNotFoundError, self).__init__(msg)
+            msg = "No Pods found"
+        super(PodsNotFoundError, self).__init__(msg)  # pylint: disable=super-with-arguments

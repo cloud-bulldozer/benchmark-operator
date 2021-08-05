@@ -12,17 +12,17 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from kubernetes import client, config, watch, utils
-import json
 import time
-import yaml
-from ripsaw.util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError, PodsNotFoundError
+
+from kubernetes import client, config
 from ripsaw.util import logging
+from ripsaw.util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError, PodsNotFoundError
 
 logger = logging.get_logger(__name__)
 
 # how many seconds to sleep before looping back in wait commands
-default_wait_time = 1
+DEFAULT_WAIT_TIME = 1
+
 
 class Cluster:
     def __init__(self, kubeconfig_path=None):
@@ -37,12 +37,15 @@ class Cluster:
 
     def get_pod_logs(self, label_selector, namespace, container):
         pods = self.get_pods(label_selector, namespace).items
-        return [ self.core_client.read_namespaced_pod_log(name=pod.metadata.name, namespace=namespace, container=container) for pod in pods ]
-    
-    
+        return [
+            self.core_client.read_namespaced_pod_log(
+                name=pod.metadata.name, namespace=namespace, container=container
+            )
+            for pod in pods
+        ]
+
     def get_jobs(self, label_selector, namespace):
         return self.batch_client.list_namespaced_job(namespace, label_selector=label_selector, watch=False)
-    
 
     def get_nodes(self, label_selector=None):
         return self.core_client.list_node(label_selector=label_selector)
@@ -59,17 +62,17 @@ class Cluster:
             version="v1alpha1",
             namespace=namespace,
             plural="benchmarks",
-            name=name
+            name=name,
         )
 
     def get_benchmark_metadata(self, name, namespace="benchmark-operator"):
         benchmark = self.get_benchmark(name, namespace)
         return {
-            'name': benchmark['metadata']['name'],
-            'namespace': benchmark['metadata']['namespace'],
-            'uuid': benchmark.get('status', {}).get('uuid', "Not Assigned Yet"),
-            'suuid': benchmark.get('status', {}).get('suuid', "Not Assigned Yet"),
-            'status': benchmark.get('status', {}).get('state', "")
+            "name": benchmark["metadata"]["name"],
+            "namespace": benchmark["metadata"]["namespace"],
+            "uuid": benchmark.get("status", {}).get("uuid", "Not Assigned Yet"),
+            "suuid": benchmark.get("status", {}).get("suuid", "Not Assigned Yet"),
+            "status": benchmark.get("status", {}).get("state", ""),
         }
 
     # Waiters
@@ -82,41 +85,45 @@ class Cluster:
             pods = self.get_pods(label_selector, namespace).items
             if len(pods) == 0 and timeout_interval < 60:
                 continue
-            elif len(pods) == 0:
-                raise PodsNotFoundError(f"Found no pods with label selector {label_selector}")
-            else:
-                [logger.info(
-                    f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}") for pod in pods]
-                waiting_for_pods = (
-                    any([pod.status.phase != "Running" for pod in pods]))
-            time.sleep(default_wait_time)
-            timeout_interval += default_wait_time
 
-    def wait_for_benchmark(self, name, namespace="benchmark-operator", desired_state="Completed", timeout=300):
+            if len(pods) == 0 and timeout_interval > 60:
+                raise PodsNotFoundError(f"Found no pods with label selector {label_selector}")
+
+            _ = [
+                logger.info(f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}")
+                for pod in pods
+            ]
+            waiting_for_pods = any(  # pylint: disable=use-a-generator
+                [pod.status.phase != "Running" for pod in pods]
+            )
+            time.sleep(DEFAULT_WAIT_TIME)
+            timeout_interval += DEFAULT_WAIT_TIME
+
+    def wait_for_benchmark(
+        self, name, namespace="benchmark-operator", desired_state="Completed", timeout=300
+    ):
         waiting_for_benchmark = True
         logger.info(f"Waiting for state: {desired_state}")
         timeout_interval = 0
-        logger.info(
-                f"BENCHMARK\tUUID\t\t\t\t\tSTATE")
+        logger.info("BENCHMARK\tUUID\t\t\t\t\tSTATE")
         while waiting_for_benchmark:
             if timeout_interval >= timeout:
                 raise BenchmarkTimeoutError(name)
             benchmark = self.get_benchmark(name, namespace)
-            bench_status = benchmark.get('status', {})
-            uuid = bench_status.get('uuid', "Not Assigned Yet")
-            current_state = bench_status.get('state', "")
-            logger.info(
-                f"{benchmark['metadata']['name']}\t{uuid}\t{current_state}")
+            bench_status = benchmark.get("status", {})
+            uuid = bench_status.get("uuid", "Not Assigned Yet")
+            current_state = bench_status.get("state", "")
+            logger.info(f"{benchmark['metadata']['name']}\t{uuid}\t{current_state}")
             if current_state == "Failed":
-                raise BenchmarkFailedError(
-                    benchmark['metadata']['name'], benchmark['status']['uuid'])
+                raise BenchmarkFailedError(benchmark["metadata"]["name"], benchmark["status"]["uuid"])
 
-            waiting_for_benchmark = (current_state != desired_state)
-            time.sleep(default_wait_time)
+            waiting_for_benchmark = current_state != desired_state
+            time.sleep(DEFAULT_WAIT_TIME)
 
-            timeout_interval += default_wait_time
+            timeout_interval += DEFAULT_WAIT_TIME
         logger.info(
-            f"{benchmark['metadata']['name']} with uuid {uuid} has reached the desired state {desired_state}")
+            f"{benchmark['metadata']['name']} with uuid {uuid} has reached the desired state {desired_state}"
+        )
 
     # Create Functions
 
@@ -124,9 +131,9 @@ class Cluster:
         self.crd_client.create_namespaced_custom_object(
             group="ripsaw.cloudbulldozer.io",
             version="v1alpha1",
-            namespace=benchmark['metadata']['namespace'],
+            namespace=benchmark["metadata"]["namespace"],
             plural="benchmarks",
-            body=benchmark
+            body=benchmark,
         )
 
     # Delete Functions
@@ -138,24 +145,25 @@ class Cluster:
             version="v1alpha1",
             namespace=namespace,
             plural="benchmarks",
-            name=name
+            name=name,
         )
         logger.info(f"Deleted benchmark {name} in namespace {namespace}")
 
     def delete_all_benchmarks(self, namespace="benchmark-operator"):
         all_benchmarks = self.crd_client.list_namespaced_custom_object(
-            group="ripsaw.cloudbulldozer.io",
-            version="v1alpha1",
-            namespace=namespace,
-            plural="benchmarks"
+            group="ripsaw.cloudbulldozer.io", version="v1alpha1", namespace=namespace, plural="benchmarks"
         )
 
-        [self.delete_benchmark(benchmark['metadata']['name'], namespace)
-         for benchmark in all_benchmarks.get('items', [])]
+        _ = [
+            self.delete_benchmark(benchmark["metadata"]["name"], namespace)
+            for benchmark in all_benchmarks.get("items", [])
+        ]
 
     def delete_namespace(self, namespace):
         return self.core_client.delete_namespace(namespace)
 
     def delete_namespaces_with_label(self, label_selector):
-        return [self.core_client.delete_namespace(
-            namespace.metadata.name) for namespace in self.get_namespaces(label_selector=label_selector).items]
+        return [
+            self.core_client.delete_namespace(namespace.metadata.name)
+            for namespace in self.get_namespaces(label_selector=label_selector).items
+        ]

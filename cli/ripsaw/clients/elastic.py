@@ -12,12 +12,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import elasticsearch
-import sys
 import ssl
+
+import elasticsearch
 import urllib3
 from ripsaw.util import logging
+
 logger = logging.get_logger(__name__)
+
 
 def check_index(server, uuid, index, es_ssl=False):
 
@@ -26,13 +28,15 @@ def check_index(server, uuid, index, es_ssl=False):
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl.CERT_NONE
-        es = elasticsearch.Elasticsearch([server], send_get_body_as='POST', ssl_context=ssl_ctx, use_ssl=True)
+        es_client = elasticsearch.Elasticsearch(
+            [server], send_get_body_as="POST", ssl_context=ssl_ctx, use_ssl=True
+        )
     else:
-        es = elasticsearch.Elasticsearch([server], send_get_body_as='POST')
-    es.indices.refresh(index=index)
-    results = es.search(index=index, body={'query': {'term': {'uuid.keyword': uuid}}}, size=1)
-    if results['hits']['total']['value'] > 0:
+        es_client = elasticsearch.Elasticsearch([server], send_get_body_as="POST")
+    es_client.indices.refresh(index=index)
+    results = es_client.search(index=index, body={"query": {"term": {"uuid.keyword": uuid}}}, size=1)
+    if results["hits"]["total"]["value"] > 0:
         return True
-    else:
-        print("No result found in ES")
-        return False
+
+    print("No result found in ES")
+    return False

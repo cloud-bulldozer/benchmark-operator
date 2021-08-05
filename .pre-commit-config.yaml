@@ -60,7 +60,7 @@ repos:
     rev: 1.7.0
     hooks:
       - id: bandit
-        args: ["--exclude", "tests/", "--skip", "B404"]
+        args: ["--exclude", "cli/tests/", "--skip", "B404,B603"]
 
 ci:
     autofix_commit_msg: |

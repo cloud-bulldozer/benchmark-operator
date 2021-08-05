@@ -15,25 +15,23 @@
 
 import logging
 
+
 class DuplicateFilter(logging.Filter):
     def filter(self, record):
         # add other fields if you need more granular comparison, depends on your app
         current_log = (record.module, record.levelno, record.msg)
         if current_log != getattr(self, "last_log", None):
-            self.last_log = current_log
+            self.last_log = current_log  # pylint: disable=attribute-defined-outside-init
             return True
         return False
 
-logging.basicConfig(level=logging.INFO, format='ripsaw-cli:%(name)s:%(levelname)s :: %(message)s')
+
+logging.basicConfig(level=logging.INFO, format="ripsaw-cli:%(name)s:%(levelname)s :: %(message)s")
 logger = logging.getLogger()  # get the root logger
 logger.addFilter(DuplicateFilter())
 
+
 def get_logger(name):
-    logger = logging.getLogger(name)
-    logger.addFilter(DuplicateFilter())
-    return logger
-
- 
-
-
-
+    new_logger = logging.getLogger(name)
+    new_logger.addFilter(DuplicateFilter())
+    return new_logger

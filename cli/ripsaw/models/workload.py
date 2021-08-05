@@ -14,20 +14,25 @@
 
 from os import listdir
 from os.path import isfile, join
-from ripsaw.models.benchmark import Benchmark
+
 from ripsaw.clients.k8s import Cluster
+from ripsaw.models.benchmark import Benchmark
 from ripsaw.util import logging
 
 logger = logging.get_logger(__name__)
 
+
 class Workload:
-    def __init__(self, name, cluster, benchmark_dir):
-        self.name = name 
-        self.cluster = cluster
+    def __init__(self, name, cluster=None, benchmark_dir="."):
+        self.name = name
+        if cluster is None:
+            self.cluster = Cluster()
+        else:
+            self.cluster = cluster
         self.workload_dir = f"{benchmark_dir}/{name}"
         self.benchmarks = [
-            Benchmark(f.split('.')[0], join(self.workload_dir, f), self.cluster)
-            for f in listdir(self.workload_dir) 
+            Benchmark(join(self.workload_dir, f), self.cluster)
+            for f in listdir(self.workload_dir)
             if isfile(join(self.workload_dir, f)) and f.endswith(".yaml")
         ]
 
@@ -39,13 +44,12 @@ class Workload:
             runs.append(run.metadata)
         return runs
 
-    def run(self, run_name): 
+    def run(self, run_name):
         run = next((run for run in self.benchmarks if run.name == run_name), None)
         run.start()
         run.wait()
         return run.metadata
 
-    
     def inject_overrides(self, overrides):
         for run in self.benchmarks:
-            [run.update_spec(key, value) for key, value in overrides.items()]
+            _ = [run.update_spec(key, value) for key, value in overrides.items()]

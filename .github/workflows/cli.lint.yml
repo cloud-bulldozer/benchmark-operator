@@ -23,6 +23,6 @@ jobs:
       - name: Set up Python environment
         uses: actions/setup-python@v1
         with:
-          python-version: "3.8"
+          python-version: "3.9"
       - name: Run pre-commit
         uses: pre-commit/action@v2.0.3

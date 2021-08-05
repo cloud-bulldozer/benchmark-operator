@@ -1,0 +1,11 @@
+[flake8]
+ignore=
+    E123,E125,E731,E722,W503,W605,  # Black takes care of these
+    D202,  # no blank lines after docstring
+    D203,  # blank line before class docstring
+    D212,  # multi-line summary starts at first line
+    D401,  # imperitive mood
+    D413,  # blank line after last section
+max-line-length=110
+docstring-convention=numpy
+select=E,W,F

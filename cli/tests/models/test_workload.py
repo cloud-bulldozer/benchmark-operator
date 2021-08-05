@@ -11,10 +11,11 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-import pytest 
+import pytest
+
 
 @pytest.mark.integration
-class TestWorkload():
+class TestWorkload:
     def test_run(self):
         pass
 
@@ -23,4 +24,3 @@ class TestWorkload():
 
     def test_inject_overrides(self):
         pass
-        
