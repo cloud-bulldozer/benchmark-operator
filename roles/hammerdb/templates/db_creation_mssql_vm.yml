@@ -98,6 +98,7 @@ spec:
           - systemctl start redis
           - systemctl enable redis
           - bash /tmp/hammerdb-mssql-test/run_mssql_script.sh
+          - redis-cli -h {{bo.resources[0].status.podIP}} set complete true
     name: cloudinitdisk
   - configMap:
       name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
