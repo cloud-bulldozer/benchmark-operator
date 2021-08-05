@@ -82,6 +82,7 @@ spec:
           - dnf install -y git redis stress-ng
           - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
           - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
+          - redis-cli -h {{bo.resources[0].status.podIP}} set complete true
     name: cloudinitdisk
   - configMap:
       name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"

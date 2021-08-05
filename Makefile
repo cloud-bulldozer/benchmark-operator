@@ -44,6 +44,8 @@ ORG ?= cloud-bulldozer
 # In case this is the master branch, rename it to latest
 VERSION ?= $(shell hack/tag_name.sh)
 IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)-$(ARCH)
+IMG_NOARCH ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
+MANIFEST ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
 # Containers
@@ -83,13 +85,13 @@ image-push: ## Push container image with the manager.
 	${ENGINE} push $(IMG)
 
 manifest: manifest-build ## Builds a container manifest and push it to the registry
-	$(ENGINE) manifest push $(IMG) $(IMG)
+	$(ENGINE) manifest push $(MANIFEST) $(MANIFEST)
 
 manifest-build:
-	$(ENGINE) manifest create $(IMG)
+	$(ENGINE) manifest create $(MANIFEST)
 	@for arch in $(MANIFEST_ARCHS); do \
-		echo "Adding $(IMG)-$${arch} to manifest ${IMG}"; \
-		$(ENGINE) manifest add $(IMG) $(IMG)-$${arch}; \
+		echo "Adding $(IMG_NOARCH)-$${arch} to manifest ${MANIFEST}"; \
+		$(ENGINE) manifest add $(MANIFEST) $(IMG_NOARCH)-$${arch}; \
 	done
 
 ##@ Deployment
