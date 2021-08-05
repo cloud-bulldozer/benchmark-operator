@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'cli/**'
-      - 'workflows/lint.yml'
+      - 'workflows/cli.*.yml'
   pull_request:
   workflow_dispatch:
 
