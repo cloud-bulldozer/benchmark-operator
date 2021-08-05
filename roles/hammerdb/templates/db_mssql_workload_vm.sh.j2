@@ -63,4 +63,4 @@ cd /hammer;
 ./hammerdbcli auto /creator/createdb.tcl;
 redis-cli set db-creation-{{trunc_uuid}} true;
 run_snafu --tool hammerdb -u {{ uuid }};
-redis-cli set complete true;
+
