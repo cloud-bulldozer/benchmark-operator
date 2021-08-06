@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: quay.io/cloud-bulldozer/benchmark-operator
-  newTag: master
+  newTag: latest-amd64

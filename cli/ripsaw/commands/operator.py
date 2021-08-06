@@ -72,7 +72,7 @@ def _perform_operator_action(repo, branch, command, kubeconfig=None):
     local_git_repo = find_git_repo(os.getcwd())
     result = None
     if "benchmark-operator" in local_git_repo:
-        shell_env["VERSION"] = "master"
+        shell_env["VERSION"] = "latest"
         logger.info("Detected CLI is running from local repo, using that instead of remote")
         result = subprocess.run(
             command.split(" "),

@@ -31,30 +31,12 @@ jobs:
         run: kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
       - name: Run Tox
         run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
-      - name: Upload coverage report artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-py3${{ matrix.pyver }}
-          path: cli/.coverage.py3${{ matrix.pyver }}-unit
-  coverage_report:
-    needs: unit_tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Download coverage artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: cli
-      - name: Unpack artifact
-        run: find . -name ".coverage*" -exec mv {} . \;
-      - name: Install tox
-        run: pip install tox
-      - name: Create coverage report
+      - name: Generate Coverage Report
+        if: matrix.pyver == 9
         run: tox -e coverage
-      - name: Upload coverage report
+      - name: Upload Coverage Report
+        if: matrix.pyver == 9
         uses: codecov/codecov-action@v1
         with:
           files: cli/coverage.xml
+          flags: unit,gha,python-3.${{ matrix.pyver }}
