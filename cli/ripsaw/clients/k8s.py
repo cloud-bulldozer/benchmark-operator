@@ -93,9 +93,8 @@ class Cluster:
                 logger.info(f"{pod.metadata.namespace}\t{pod.metadata.name}\t{pod.status.phase}")
                 for pod in pods
             ]
-            waiting_for_pods = any(  # pylint: disable=use-a-generator
-                [pod.status.phase != "Running" for pod in pods]
-            )
+            waiting_for_pods = any(pod.status.phase != "Running" for pod in pods)
+
             time.sleep(DEFAULT_WAIT_TIME)
             timeout_interval += DEFAULT_WAIT_TIME
 
