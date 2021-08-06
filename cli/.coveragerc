@@ -2,4 +2,3 @@
 omit =
     **/__init__.py
     ripsaw/cli.py
-    ripsaw/commands/*.py
