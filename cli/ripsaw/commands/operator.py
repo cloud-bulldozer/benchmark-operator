@@ -26,7 +26,7 @@ DEFAULT_REPO = "https://github.com/cloud-bulldozer/benchmark-operator"
 DEFAULT_BRANCH = "master"
 
 
-@click.group()
+@click.group("operator")
 @click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
 @click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
 @click.pass_context
