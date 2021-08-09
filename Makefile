@@ -42,10 +42,9 @@ REGISTRY ?= quay.io
 ORG ?= cloud-bulldozer
 # Get the current branch/tag name
 # In case this is the master branch, rename it to latest
-VERSION ?= $(shell hack/tag_name.sh)
-IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)-$(ARCH)
-IMG_NOARCH ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
-MANIFEST ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
+VERSION ?= $(shell git describe --tags 2>/dev/null || git rev-parse --abbrev-ref HEAD | sed 's/master/latest/g')
+IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
+IMG_ARCH = $(IMG)-$(ARCH)
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
 # Containers
@@ -79,19 +78,19 @@ run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kub
 	$(ANSIBLE_OPERATOR) run
 
 image-build: ## Build container image with the manager.
-	${ENGINE} build --arch=$(ARCH) -t $(IMG) .
+	${ENGINE} build --arch=$(ARCH) -t $(IMG_ARCH) .
 
 image-push: ## Push container image with the manager.
-	${ENGINE} push $(IMG)
+	${ENGINE} push $(IMG_ARCH)
 
 manifest: manifest-build ## Builds a container manifest and push it to the registry
-	$(ENGINE) manifest push $(MANIFEST) $(MANIFEST)
+	$(ENGINE) manifest push $(IMG) $(IMG)
 
 manifest-build:
-	$(ENGINE) manifest create $(MANIFEST)
+	$(ENGINE) manifest create $(IMG)
 	@for arch in $(MANIFEST_ARCHS); do \
-		echo "Adding $(IMG_NOARCH)-$${arch} to manifest ${MANIFEST}"; \
-		$(ENGINE) manifest add $(MANIFEST) $(IMG_NOARCH)-$${arch}; \
+		echo "Adding $(IMG)-$${arch} to manifest ${IMG}"; \
+		$(ENGINE) manifest add $(IMG) $(IMG)-$${arch}; \
 	done
 
 ##@ Deployment
