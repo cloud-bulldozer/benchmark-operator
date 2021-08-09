@@ -11,6 +11,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+"""
+Create portable functions around interacting with ES hosting benchmark data
+
+Functions:
+
+    check_index(string, string, string, Optional[bool]=False) -> bool
+
+Misc. Variables:
+
+    logger
+
+"""
+
 
 import ssl
 
@@ -22,6 +35,7 @@ logger = logging.get_logger(__name__)
 
 
 def check_index(server, uuid, index, es_ssl=False):
+    """Checks index on ES Server for benchmark with a specific uuid"""
 
     if es_ssl:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)

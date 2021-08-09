@@ -11,6 +11,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+"""
+Main Entrypoint Module for the CLI
+
+Functions:
+    cli()
+
+
+Misc Variables:
+
+    logger
+
+"""
+
 
 import click
 from ripsaw.commands import benchmark, operator

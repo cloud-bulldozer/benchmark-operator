@@ -11,6 +11,26 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+"""
+CLI Commands for benchmark operations
+
+Functions:
+
+    operator_group()
+    install(string, string, Optional[string], Optional[string])
+    delete(string, string, Optional[string], Optional[string])
+    wait_for_operator(string, Optional[string])
+    _perform_operator_action(string, string, Optional[string], Optional[string])
+    _clone_repo(string, string, string)
+    _find_git_repo(string) -> string
+
+Misc Variables:
+
+    logger
+    DEFAULT_REPO
+    DEFAULT_BRANCH
+
+"""
 
 import os
 import subprocess
@@ -27,49 +47,46 @@ DEFAULT_BRANCH = "master"
 
 
 @click.group("operator")
-@click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
-@click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
-@click.pass_context
-def operator_group(ctx, repo, branch):
-    ctx.obj = {"repo": repo, "branch": branch}
+def operator_group():
+    """Passthrough function for Click CLI group, used as a decorator to declare functions for the CLI"""
 
 
 @operator_group.command("install")
-@click.pass_context
-def _install_operator(ctx):
-    install(ctx.obj["repo"], ctx.obj["branch"])
-
-
-@operator_group.command("delete")
-@click.pass_context
-def _delete_operator(ctx):
-    delete(ctx.obj["repo"], ctx.obj["branch"])
-
-
+@click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
+@click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
+@click.option("--kubeconfig", help=" path to kubeconfig of cluster", default=None)
 def install(repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, command="make deploy", kubeconfig=None):
+    """installs the operator from repo into specified cluster"""
     click.echo(f"Installing Operator from repo {repo} and branch {branch}")
     _perform_operator_action(repo, branch, command, kubeconfig)
     wait_for_operator(kubeconfig=kubeconfig)
     click.secho("Operator Running", fg="green")
 
 
+@operator_group.command("delete")
+@click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
+@click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
+@click.option("--kubeconfig", help="kubeconfig of cluster", default=None)
 def delete(repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, command="make kustomize undeploy", kubeconfig=None):
+    """delete the operator from configured cluster"""
     click.echo("Deleting Operator")
     _perform_operator_action(repo, branch, command, kubeconfig)
     click.secho("Operator Deleted", fg="green")
 
 
 def wait_for_operator(namespace="benchmark-operator", kubeconfig=None):
+    """wait for operator pods to be ready"""
     cluster = Cluster(kubeconfig_path=kubeconfig)
     label_selector = "control-plane=controller-manager"
     cluster.wait_for_pods(label_selector, namespace, timeout=120)
 
 
 def _perform_operator_action(repo, branch, command, kubeconfig=None):
+    """run command from operator repo"""
     shell_env = os.environ.copy()
     if kubeconfig is not None:
         shell_env["KUBECONFIG"] = kubeconfig
-    local_git_repo = find_git_repo(os.getcwd())
+    local_git_repo = _find_git_repo(os.getcwd())
     result = None
     if "benchmark-operator" in local_git_repo:
         shell_env["VERSION"] = "latest"
@@ -104,10 +121,12 @@ def _perform_operator_action(repo, branch, command, kubeconfig=None):
 
 
 def _clone_repo(repo, branch, directory):
+    """clone git repo into directory"""
     git.Repo.clone_from(url=repo, single_branch=True, depth=1, to_path=directory, branch=branch)
 
 
-def find_git_repo(path):
+def _find_git_repo(path):
+    """get working dir of first git root on tree, return None otherwise"""
     try:
         return git.Repo(path, search_parent_directories=True).working_dir
     except git.exc.InvalidGitRepositoryError:

@@ -12,6 +12,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+"""
+Defines a Class representing a Benchmark
+
+Classes:
+
+    Benchmark
+
+Misc Variables:
+
+    logger
+
+"""
+
+
 import yaml
 from benedict import benedict
 from ripsaw.clients.k8s import Cluster

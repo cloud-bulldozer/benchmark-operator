@@ -13,7 +13,6 @@ disable=
     logging-fstring-interpolation,
     no-self-use,
     missing-function-docstring,
-    missing-module-docstring,
     missing-class-docstring,
     logging-format-interpolation
 
