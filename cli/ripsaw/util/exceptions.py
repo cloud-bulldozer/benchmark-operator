@@ -11,20 +11,13 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Defines Custom Exceptions
 
-Classes:
-
-    BenchmarkFailedError
-    BenchmarkNotStartedError
-    BenchmarkTimeoutError
-    PodsNotFoundError
-
-"""
+"""Defines Custom Exceptions"""
 
 
 class BenchmarkFailedError(Exception):
+    """Exception raised when Benchmark hits a Failed State"""
+
     def __init__(self, name, uuid, msg=None):
         if msg is None:
             msg = f"The benchmark {name} with uuid {uuid} failed"
@@ -34,6 +27,8 @@ class BenchmarkFailedError(Exception):
 
 
 class BenchmarkNotStartedError(Exception):
+    """Exception raised when Benchmark doesn't hit the Running state before timeout"""
+
     def __init__(self, name, msg=None):
         if msg is None:
             msg = f"The benchmark {name} has not started yet"
@@ -42,6 +37,8 @@ class BenchmarkNotStartedError(Exception):
 
 
 class BenchmarkTimeoutError(Exception):
+    """Exception raised when Benchmark doesn't hit the Completed state before timeout"""
+
     def __init__(self, name, msg=None):
         if msg is None:
             msg = f"The benchmark {name} timed out"
@@ -51,6 +48,8 @@ class BenchmarkTimeoutError(Exception):
 
 
 class PodsNotFoundError(Exception):
+    """Exception raised when query for pods returns none"""
+
     def __init__(self, msg=None):
         if msg is None:
             msg = "No Pods found"

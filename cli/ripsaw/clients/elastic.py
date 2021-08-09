@@ -11,18 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Create portable functions around interacting with ES hosting benchmark data
-
-Functions:
-
-    check_index(string, string, string, Optional[bool]=False) -> bool
-
-Misc. Variables:
-
-    logger
-
-"""
+"""Create portable functions around interacting with ES hosting benchmark data"""
 
 
 import ssl

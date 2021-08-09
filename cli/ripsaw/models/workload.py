@@ -11,18 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Defines a Class representing a Workload
 
-Classes:
-
-    Workload
-
-Misc Variables:
-
-    logger
-
-"""
+"""Defines a Class representing a Workload"""
 
 
 from os import listdir
@@ -36,6 +26,8 @@ logger = logging.get_logger(__name__)
 
 
 class Workload:
+    """Defines a Class representing a Workload"""
+
     def __init__(self, name, cluster=None, benchmark_dir="."):
         self.name = name
         if cluster is None:
@@ -50,6 +42,7 @@ class Workload:
         ]
 
     def run_all(self):
+        """Run all benchmarks in workload"""
         runs = []
         for run in self.benchmarks:
             run.start()
@@ -58,11 +51,13 @@ class Workload:
         return runs
 
     def run(self, run_name):
+        """Run a benchmark"""
         run = next((run for run in self.benchmarks if run.name == run_name), None)
         run.start()
         run.wait()
         return run.metadata
 
     def inject_overrides(self, overrides):
+        """Override all benchmark specs with overrides"""
         for run in self.benchmarks:
             _ = [run.update_spec(key, value) for key, value in overrides.items()]

@@ -11,18 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Main Entrypoint Module for the CLI
-
-Functions:
-    cli()
-
-
-Misc Variables:
-
-    logger
-
-"""
+"""Main Entrypoint Module for the CLI"""
 
 
 import click
@@ -34,7 +23,7 @@ logger = logging.get_logger(__name__)
 
 @click.group()
 def cli():
-    pass
+    """Click passthrough function for CLI"""
 
 
 cli.add_command(operator.operator_group)

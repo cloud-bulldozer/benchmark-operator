@@ -12,19 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""
-Defines a Class representing a Benchmark
-
-Classes:
-
-    Benchmark
-
-Misc Variables:
-
-    logger
-
-"""
-
+"""Defines a Class representing a Benchmark"""
 
 import yaml
 from benedict import benedict
@@ -36,7 +24,20 @@ logger = logging.get_logger(__name__)
 
 
 class Benchmark:
+    """
+    This class represents a Benchmark to run against a specified cluster
+
+    Attributes:
+        file (file): Benchmark CR
+        cluster (ripsaw.clients.k8s.Cluster): Kubernetes/Openshift Cluster
+        name (str): Name of the benchmark, defined in the file
+        namespace (str): Namespace for the benchmark, defined in the file
+        metadata (dict): Metadata from the benchmark
+
+    """
+
     def __init__(self, file, cluster=None):
+        """Initialize Benchmark Class"""
         self.yaml = benedict(yaml.full_load(file), keypath_separator=",")
         if cluster is None:
             self.cluster = Cluster()
@@ -47,15 +48,18 @@ class Benchmark:
         self.metadata = {}
 
     def update_spec(self, key_path, new_value):
+        """Update YAML Key Path with new value"""
         self.yaml[key_path] = new_value
 
     def run(self, timeout=600):
+        """Run benchmark with specified timeout in seconds (default: 600)"""
         self.metadata = self.cluster.create_benchmark(self.yaml)
         logger.info(f"Benchmark {self.name} created")
         self.wait(timeout=timeout)
         return self.metadata
 
     def wait(self, desired_state="Complete", timeout=600):
+        """Wait for benchmark to enter desired state with specified timeout in seconds (default: 600)"""
         if self.metadata == {}:
             raise BenchmarkNotStartedError(self.name)
         self.cluster.wait_for_benchmark(
@@ -65,7 +69,9 @@ class Benchmark:
         return self.metadata
 
     def cleanup(self):
+        """Delete this benchmark from the cluster"""
         self.cluster.delete_benchmark(self.name, self.namespace)
 
     def get_metadata(self):
+        """Fetch Benchmark Metadata from the cluster"""
         return self.cluster.get_benchmark_metadata(self.name, self.namespace)

@@ -11,22 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-CLI Commands for benchmark operations
-
-Functions:
-
-    benchmark_group()
-    run_benchmark(file, timeout, check_es)
-    delete_benchmark(string, string)
-    _check_es(Benchmark)
-    _get_es_hostname(string) -> string
-
-Misc Variables:
-
-    logger
-
-"""
+"""CLI Commands for benchmark operations"""
 
 
 import json

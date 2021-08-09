@@ -11,26 +11,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-CLI Commands for benchmark operations
-
-Functions:
-
-    operator_group()
-    install(string, string, Optional[string], Optional[string])
-    delete(string, string, Optional[string], Optional[string])
-    wait_for_operator(string, Optional[string])
-    _perform_operator_action(string, string, Optional[string], Optional[string])
-    _clone_repo(string, string, string)
-    _find_git_repo(string) -> string
-
-Misc Variables:
-
-    logger
-    DEFAULT_REPO
-    DEFAULT_BRANCH
-
-"""
+"""CLI Commands for benchmark operations"""
 
 import os
 import subprocess
