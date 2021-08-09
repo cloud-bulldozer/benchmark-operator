@@ -2,7 +2,6 @@
 jobs=0
 ignore-paths=
     cli/tests
-    cli/ripsaw/models/workload.py
 [MESSAGES CONTROL]
 disable=
     duplicate-code,
