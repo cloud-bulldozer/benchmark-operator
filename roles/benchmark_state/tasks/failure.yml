@@ -12,4 +12,3 @@
       message: "Reconcile failed on {{ ansible_failed_task.name }} {{ ansible_failed_task.action }} \n ```{{ ansible_failed_result | to_nice_json }}```"
       suuid: "{{ trunc_uuid }}"
       metadata: "not collected"
-      cerberus: "not connected"

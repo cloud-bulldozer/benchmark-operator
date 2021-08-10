@@ -163,9 +163,6 @@ spec:
 ## Metadata Collection
 [Metadata Collection](docs/metadata.md)
 
-## Cerberus Integration
-[Cerberus Integration](docs/cerberus.md)
-
 ## Indexing to Elasticsearch
 [Indexing to Elasticsearch](docs/elastic.md)
 

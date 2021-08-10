@@ -47,7 +47,6 @@
             complete: false
             suuid: "{{ trunc_uuid }}"
             metadata: "not collected"
-            cerberus: "not connected"
     rescue:
       - include_role:
           name: benchmark_state

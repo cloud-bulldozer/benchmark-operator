@@ -121,10 +121,6 @@ spec:
                     default: false
                     type: boolean
                 type: object
-              cerberus_url:
-                type: string
-              cerberus_validate_certs:
-                type: boolean
               cleanup:
                 type: boolean
               test_user:
@@ -149,8 +145,6 @@ spec:
               suuid:
                 type: string
               uuid:
-                type: string
-              cerberus:
                 type: string
               pod_hi_idx:
                 type: string
@@ -183,10 +177,6 @@ spec:
       type: string
       description: The state of metadata collection
       jsonPath: .status.metadata
-    - name: Cerberus
-      type: string
-      description: If Cerberus is connected or not
-      jsonPath: .status.cerberus
     - name: System metrics
       type: string
       description: System metrics collect status

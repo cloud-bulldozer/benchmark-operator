@@ -182,8 +182,8 @@ This CR will create TestPMD pod and TRex pod using the SRIOV network provided an
 
 ```sh
 # oc get benchmark 
-NAME                TYPE      STATE      METADATA STATE   CERBERUS        UUID                                   AGE
-testpmd-benchmark   testpmd   Complete   not collected    not connected   35daf5ac-2edf-5e34-a6cc-17fcda055937   4m36s
+NAME                TYPE      STATE      METADATA STATE   UUID                                   AGE
+testpmd-benchmark   testpmd   Complete   not collected    35daf5ac-2edf-5e34-a6cc-17fcda055937   4m36s
 
 # oc get pods
 NAME                                     READY   STATUS      RESTARTS   AGE
