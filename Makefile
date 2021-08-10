@@ -44,7 +44,10 @@ ORG ?= cloud-bulldozer
 # In case this is the master branch, rename it to latest
 VERSION ?= $(shell git describe --tags 2>/dev/null || git rev-parse --abbrev-ref HEAD | sed 's/master/latest/g')
 IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
-IMG_ARCH = $(IMG)-$(ARCH)
+ifdef IMAGE_ARCH
+IMG := $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)-$(IMAGE_ARCH)
+BUILD_FLAGS := --arch=$(ARCH)
+endif
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
 # Containers
@@ -78,10 +81,10 @@ run: ansible-operator ## Run against the configured Kubernetes cluster in ~/.kub
 	$(ANSIBLE_OPERATOR) run
 
 image-build: ## Build container image with the manager.
-	${ENGINE} build --arch=$(ARCH) -t $(IMG_ARCH) .
+	${ENGINE} build $(BUILD_FLAGS) -t $(IMG) .
 
 image-push: ## Push container image with the manager.
-	${ENGINE} push $(IMG_ARCH)
+	${ENGINE} push $(IMG)
 
 manifest: manifest-build ## Builds a container manifest and push it to the registry
 	$(ENGINE) manifest push $(IMG) $(IMG)

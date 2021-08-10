@@ -18,7 +18,7 @@ jobs:
          - ppc64le
     env:
       ORG: cloud-bulldozer
-      ARCH: ${{ matrix.arch }}
+      IMAGE_ARCH: ${{ matrix.arch }}
     steps:
 
       - name: Install dependencies required for multi-arch builds
