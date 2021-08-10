@@ -53,7 +53,18 @@
       state: "Starting First Workload"
     when: "ycsb_load_pod | json_query('resources[].status.succeeded')"
  
-  when: benchmark_state.resources[0].status.state == "Running Load"
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Complete"
+        complete: true
+    when: workload_args.workloads is undefined and ycsb_load_pod | json_query('resources[].status.succeeded')
+
+  when: resource_state.resources[0].status.state == "Running Load"
 
 - block:
 
@@ -117,11 +128,15 @@
         - name = 'ycsb-run-{{ trunc_uuid }}'
     register: ycsb_bench
 
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: "Workload Complete"
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Complete"
+        complete: true
     when: "ycsb_bench | json_query('resources[].status.succeeded')"
 
   when: benchmark_state.resources[0].status.state == "Running Workload"
@@ -157,7 +172,11 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
+<<<<<<< HEAD
         state: Complete
+=======
+        state: "Complete"
+>>>>>>> 79def35 (Add benchmark-uuid label)
         complete: true
     when: workload_list.stdout == new_workload_index
 

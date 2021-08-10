@@ -8,18 +8,25 @@ metadata:
     benchmark-uuid: {{ uuid }}
     app: fio-benchmark-{{ trunc_uuid }}
 spec:
-  affinity:
-    podAntiAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-            - key: app
-              operator: In
-              values:
-              - fio-benchmark-{{ trunc_uuid }}
-          topologyKey: "kubernetes.io/hostname"
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: fio-benchmark-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - fio-benchmark-{{ trunc_uuid }}
+              topologyKey: "kubernetes.io/hostname"
 {% if workload_args.runtime_class is defined %}
   runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
