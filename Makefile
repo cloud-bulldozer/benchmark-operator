@@ -57,6 +57,16 @@ else
   ENGINE := podman
 endif
 
+# E2E testing
+E2E_DIR = e2e
+E2E_RESULTS = test-results.xml
+BATS_FLAGS = --no-parallelize-across-files -j 8 -F pretty --report-formatter junit
+E2E := .
+# If BATS_TESTS is defined, we set E2E to the passed tests
+ifdef BATS_TESTS
+  E2E := $(foreach test,$(BATS_TESTS),$(test).bats)
+endif
+
 all: image-build
 
 ##@ General
@@ -198,3 +208,12 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) image-push IMG=$(CATALOG_IMG)
+
+##@ Test
+
+e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed. You can execute specific tests by using the vabiable BATS_TESTS like: BATS_TESTS="fio uperf ycsb" make e2e-test
+	cd $(E2E_DIR) && bats $(BATS_FLAGS) $(E2E)
+
+.PHONY: install-bats
+install-bats:
+	VERSION=v1.4.1 ./hack/install-bats.sh

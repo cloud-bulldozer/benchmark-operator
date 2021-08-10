@@ -1,4 +1,3 @@
-
 # Binaries for programs and plugins
 *.dll
 *.so
@@ -155,5 +154,6 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
-# Cython debug symbols
 cython_debug/
+.cache
+report.xml

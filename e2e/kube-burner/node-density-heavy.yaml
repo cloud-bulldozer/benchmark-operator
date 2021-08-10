@@ -20,7 +20,6 @@ spec:
       cleanup: true
       default_index: ripsaw-kube-burner
       job_iterations: 2
-      job_timeout: 300
       pin_server: {"node-role.kubernetes.io/worker": ""}
       wait_when_finished: true
       pod_wait: false
