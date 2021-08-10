@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: iperf3-bench-client-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
       affinity:
         podAntiAffinity:

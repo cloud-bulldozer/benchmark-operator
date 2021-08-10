@@ -95,9 +95,9 @@
           name: "{{ ansible_operator_meta.name }}"
           namespace: "{{ operator_namespace }}"
           status:
-            state: null
-            complete: false
-            metadata: "Complete"
+            state: Complete
+            complete: true
+            metadata: Complete
       
       - name: Get benchmark state
         k8s_facts:

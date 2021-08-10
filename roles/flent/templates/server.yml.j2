@@ -12,6 +12,7 @@ spec:
       labels:
         app : flent-bench-server-{{item}}-{{ trunc_uuid }}
         type : flent-bench-server-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
 {% if workload_args.multus.enabled is sameas true %}
       annotations:
         k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}

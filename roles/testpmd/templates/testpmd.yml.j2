@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: "testpmd-application-pod-{{ trunc_uuid }}"
+        benchmark-uuid: {{ uuid }}
       annotations:
         k8s.v1.cni.cncf.io/networks: '[
 {% set i = namespace(value=0) %}

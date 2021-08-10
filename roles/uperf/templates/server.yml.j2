@@ -15,7 +15,7 @@ items:
       template:
         metadata:
           labels:
-            benchmark-operator-uuid: {{ uuid }}
+            benchmark-uuid: {{ uuid }}
             benchmark-operator-workload: uperf
             benchmark-operator-role: server
             app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'') }}-{{ item  }}-{{ trunc_uuid }}

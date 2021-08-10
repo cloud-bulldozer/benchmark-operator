@@ -10,7 +10,7 @@ spec:
       labels:
         app: hammerdb_creator-{{ trunc_uuid }}
         type: {{ ansible_operator_meta.name }}-bench-creator-{{ trunc_uuid }}
-        benchmark-operator-uuid: {{ uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.pin is sameas true %}
       nodeSelector:

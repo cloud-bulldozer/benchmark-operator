@@ -96,6 +96,7 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: "Complete"
+        complete: true
     when: workload_args.workloads is undefined and ycsb_load_pod | json_query('resources[].status.succeeded')
 
   when: resource_state.resources[0].status.state == "Running Load"
@@ -175,7 +176,8 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: "Workload Complete"
+        state: "Complete"
+        complete: true
     when: "ycsb_bench | json_query('resources[].status.succeeded')"
 
   when: resource_state.resources[0].status.state == "Running Workload"
@@ -215,6 +217,7 @@
       namespace: "{{ operator_namespace }}"
       status:
         state: "Complete"
+        complete: true
     when: workload_list.stdout == new_workload_index
 
   when: resource_state.resources[0].status.state == "Workload Complete"

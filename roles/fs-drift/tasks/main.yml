@@ -92,7 +92,7 @@
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/fs-drift-master/
                   args:
-                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.worker_pods|default('1')|int}}
+                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.worker_pods|default('1')|int}} {{ trunc_uuid }}
                   volumeMounts:
                     - name: config-volume
                       mountPath: "/tmp"

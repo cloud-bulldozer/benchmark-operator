@@ -12,7 +12,7 @@ spec:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
         type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
-        benchmark-operator-uuid: {{ uuid }}
+        benchmark-uuid: {{ uuid }}
         benchmark-operator-workload: stressng
     spec:
 {% if workload_args.pin is sameas true %}
