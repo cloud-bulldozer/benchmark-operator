@@ -46,7 +46,7 @@ VERSION ?= $(shell git describe --tags 2>/dev/null || git rev-parse --abbrev-ref
 IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)
 ifdef IMAGE_ARCH
 IMG := $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)-$(IMAGE_ARCH)
-BUILD_FLAGS := --arch=$(ARCH)
+BUILD_FLAGS := --arch=$(IMAGE_ARCH)
 endif
 MANIFEST_ARCHS ?= amd64 arm64 ppc64le
 
