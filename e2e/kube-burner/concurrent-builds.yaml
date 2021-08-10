@@ -1,0 +1,48 @@
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-concurrent-builds
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: ${ES_SERVER}
+  metadata:
+    collection: true
+  prometheus:
+    es_url: ${ES_SERVER}
+    prom_token: ${PROMETHEUS_TOKEN}
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+  workload:
+    name: kube-burner
+    args:
+      workload: concurrent-builds
+      cleanup: true
+      default_index: ripsaw-kube-burner
+      job_iterations: 1
+      job_timeout: 300
+      pin_server: {"node-role.kubernetes.io/worker": ""}
+      wait_when_finished: true
+      pod_wait: false
+      image: quay.io/cloud-bulldozer/kube-burner:latest
+      qps: 25
+      burst: 50
+      log_level: info
+      verify_objects: true
+      error_on_verify: true
+      step: 30s
+      metrics_profile: metrics-aggregated.yaml
+      app: django
+      source_strat_env: PIP_INDEX_URL
+      source_strat_from: python
+      source_strat_from_version: latest
+      post_commit_script: "./manage.py test"
+      build_image_stream: django-psql-example
+      git_url: https://github.com/sclorg/django-ex.git
+      build_image: image-registry.openshift-image-registry.svc:5000/svt-django/django-psql-example
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule

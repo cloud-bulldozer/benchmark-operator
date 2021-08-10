@@ -1,0 +1,24 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: scale-up
+  namespace: benchmark-operator
+spec:
+  metadata:
+    collection: true
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ${ES_SERVER}
+    prom_token: ${PROMETHEUS_TOKEN}
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ${ES_SERVER}
+    index_name: openshift-cluster-timings
+  workload:
+    name: scale_openshift
+    args:
+      scale: 1
+      serviceaccount: scaler
+      poll_interval: 2
+      debug: true
