@@ -1,9 +1,4 @@
 ---
-- name: Set building state
-  include_role:
-    name: benchmark_state
-    tasks_from: building.yml
-
 - block:
 
   - name: Create log generator pods

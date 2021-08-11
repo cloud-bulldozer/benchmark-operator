@@ -1,9 +1,4 @@
 ---
-- name: Set building state
-  include_role:
-    name: benchmark_state
-    tasks_from: building.yml
-
 - name: Update current state
   k8s_facts:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1

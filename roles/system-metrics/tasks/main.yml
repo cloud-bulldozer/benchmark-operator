@@ -35,7 +35,7 @@
       status:
         system_metrics: Collecting
 
-  when: cr_state.resources[0].status.system_metrics == "Not collected"
+  when: benchmark_state.resources[0].status.system_metrics == "Not collected"
 
 - name: Get job status
   k8s_info:

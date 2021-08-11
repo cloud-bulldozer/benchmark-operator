@@ -21,15 +21,6 @@
       name: "kernel_cache_drop"
     when: workload.args.drop_cache_kernel is defined
 
-
-  - name: Get state
-    k8s_facts:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: '{{ ansible_operator_meta.name }}'
-      namespace: '{{ operator_namespace }}'
-    register: cr_state
-
   - name: Capture operator information
     k8s_facts:
       kind: Pod
@@ -61,16 +52,16 @@
           name: benchmark_state
           tasks_from: failure
     
-    when: workload is defined and (cr_state.resources[0].status is not defined or cr_state.resources[0].status.uuid is not defined)
+    when: workload is defined and (benchmark_state.resources[0].status is not defined or benchmark_state.resources[0].status.uuid is not defined)
 
 
   - set_fact:
-      uuid: "{{ cr_state.resources[0].status.uuid }}"
-      trunc_uuid: "{{ cr_state.resources[0].status.suuid }}"
+      uuid: "{{ benchmark_state.resources[0].status.uuid }}"
+      trunc_uuid: "{{ benchmark_state.resources[0].status.suuid }}"
     when:
-    - cr_state.resources[0].status is defined
-    - cr_state.resources[0].status.uuid is defined
-    - cr_state.resources[0].status.uuid != ""
+    - benchmark_state.resources[0].status is defined
+    - benchmark_state.resources[0].status.uuid is defined
+    - benchmark_state.resources[0].status.uuid != ""
 
   - name: Run Workload
     rescue:
@@ -91,23 +82,29 @@
           namespace: "{{ operator_namespace }}"
           status:
             metadata: "Collecting"
-        when: metadata is defined and metadata.targeted | default('true') | bool and not cr_state.resources[0].status.state is defined
+        when: metadata is defined and metadata.targeted | default('true') | bool and not benchmark_state.resources[0].status.state is defined
     
-      when: metadata is defined and metadata.collection | default('false') | bool and (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata != "Complete")
+      when: metadata is defined and metadata.collection | default('false') | bool and (benchmark_state.resources[0].status.metadata is defined and benchmark_state.resources[0].status.metadata != "Complete")
 
     - block:
 
       - include_role:
           name: "common"
 
+      - name: Set building state
+        include_role:
+          name: benchmark_state
+          tasks_from: building
+        when: benchmark_state.resources[0].status.state is not defined and workload.name != "backpack"
+
       - include_role: 
           name: "{{ workload.name }}"
         vars:
           workload_args: "{{ workload.args }}"
 
-      when: metadata is not defined or not metadata.collection | default('false') | bool or (cr_state.resources[0].status.metadata is defined and cr_state.resources[0].status.metadata == "Complete") or metadata.targeted | default('true') | bool
+      when: metadata is not defined or not metadata.collection | default('false') | bool or (benchmark_state.resources[0].status.metadata is defined and benchmark_state.resources[0].status.metadata == "Complete") or metadata.targeted | default('true') | bool
     
-    when: cr_state is defined and cr_state.resources[0].status is defined and not cr_state.resources[0].status.complete|bool and (cr_state.resources[0].status.state is not defined or cr_state.resources[0].status.state != "Error")
+    when: benchmark_state is defined and benchmark_state.resources[0].status is defined and not benchmark_state.resources[0].status.complete|bool and (benchmark_state.resources[0].status.state is not defined or benchmark_state.resources[0].status.state != "Error")
 
   - include_role:
       name: system-metrics
@@ -115,7 +112,7 @@
     vars:
       workload_args: "{{ workload.args }}"
     when:
-    - cr_state.resources[0].status.state is defined
-    - cr_state.resources[0].status.state == "Complete"
+    - benchmark_state.resources[0].status.state is defined
+    - benchmark_state.resources[0].status.state == "Complete"
     - system_metrics.collection | bool
     - workload.name not in ["kube-burner", "backpack"]
