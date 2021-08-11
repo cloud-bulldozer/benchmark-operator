@@ -2,6 +2,15 @@
   collections:
    - operator_sdk.util
   gather_facts: no
+  pre_tasks:
+
+  - name: Get current state
+    k8s_info:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: '{{ ansible_operator_meta.name }}'
+      namespace: '{{ operator_namespace }}'
+    register: benchmark_state
   tasks:
 
   - include_role:

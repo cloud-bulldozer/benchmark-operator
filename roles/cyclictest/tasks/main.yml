@@ -1,13 +1,4 @@
 ---
-
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
@@ -16,15 +7,7 @@
     status:
       state: Building
       complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state if changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
+  when: benchmark_state.resources[0].status.state is not defined
 
 - block:
 
@@ -49,7 +32,7 @@
         state: ConfigMaps Created
         complete: false
 
-  when: resource_state.resources[0].status.state == "Building" 
+  when: benchmark_state.resources[0].status.state == "Building" 
 
 - block:
   - name: Start cyclitest job
@@ -66,7 +49,7 @@
         state: Benchmark Running
         complete: false
 
-  when: resource_state.resources[0].status.state == "ConfigMaps Created"
+  when: benchmark_state.resources[0].status.state == "ConfigMaps Created"
 
 - block:
 
@@ -100,4 +83,4 @@
         complete: true
     when: cyclictest_status.resources[0].status.failed is defined and (cyclictest_status.resources[0].status.failed | int) > 0
 
-  when: resource_state.resources[0].status.state == "Benchmark Running"
+  when: benchmark_state.resources[0].status.state == "Benchmark Running"

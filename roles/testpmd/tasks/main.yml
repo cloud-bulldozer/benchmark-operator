@@ -1,12 +1,4 @@
 ---
-- name: Get current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
@@ -15,7 +7,7 @@
     status:
       state: Starting
       complete: false
-  when: resource_state.resources[0].status.state is not defined
+  when: benchmark_state.resources[0].status.state is not defined
 
 - name: Update current state
   k8s_facts:
@@ -23,7 +15,7 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
 - name: "Parse testpmd network"
   include_tasks: 10_network_parser.yml
@@ -60,7 +52,7 @@
       status:
         state: "Starting TestPMD"
 
-  when: resource_state.resources[0].status.state == "Starting"
+  when: benchmark_state.resources[0].status.state == "Starting"
 
 - block:
 
@@ -84,7 +76,7 @@
     when: 
       - "(application_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) == 1"
 
-  when: resource_state.resources[0].status.state == "Starting TestPMD"
+  when: benchmark_state.resources[0].status.state == "Starting TestPMD"
 
 - name: Set trex network fact
   set_fact:      
@@ -119,7 +111,7 @@
       status:
         state: "Waiting for TRex"  
 
-  when: resource_state.resources[0].status.state == "Starting TRex"
+  when: benchmark_state.resources[0].status.state == "Starting TRex"
 
 - block:
 
@@ -142,7 +134,7 @@
         complete: false
     when: trex_pods.resources|length > 0
 
-  when: resource_state.resources[0].status.state == "Waiting for TRex"
+  when: benchmark_state.resources[0].status.state == "Waiting for TRex"
 
 - block:
   - name: Waiting for Jobs to complete....
@@ -163,5 +155,5 @@
         state: Complete
         complete: true
     when: "(trex_pods | json_query('resources[].status.succeeded')|length) == 1"
-  when: resource_state.resources[0].status.state == "Running"
+  when: benchmark_state.resources[0].status.state == "Running"
 

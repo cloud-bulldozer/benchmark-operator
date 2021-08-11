@@ -1,42 +1,37 @@
 ---
-kind: Job
-apiVersion: batch/v1
+kind: Pod
+apiVersion: v1
 metadata:
   name: 'flent-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
-spec:
-  ttlSecondsAfterFinished: 600
-  backoffLimit: 0
-  template:
-    metadata:
-      labels:
-        app : flent-bench-server-{{item}}-{{ trunc_uuid }}
-        type : flent-bench-server-{{ trunc_uuid }}
-        benchmark-uuid: {{ uuid }}
+  labels:
+    app : flent-bench-server-{{item}}-{{ trunc_uuid }}
+    type : flent-bench-server-{{ trunc_uuid }}
+    benchmark-uuid: {{ uuid }}
 {% if workload_args.multus.enabled is sameas true %}
-      annotations:
-        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+  annotations:
+    k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
 {% endif %}
-    spec:
+spec:
 {% if workload_args.runtime_class is defined %}
-      runtimeClassName: "{{ workload_args.runtime_class }}"
+  runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-      hostNetwork: true
-      serviceAccountName: benchmark-operator
+  hostNetwork: true
+  serviceAccountName: benchmark-operator
 {% endif %}
-      containers:
-      - name: benchmark
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/flent:latest') }}
+  containers:
+  - name: benchmark
+    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/flent:latest') }}
 {% if workload_args.server_resources is defined %}
-        resources: {{ workload_args.server_resources | to_json }}
+    resources: {{ workload_args.server_resources | to_json }}
 {% endif %}
-        imagePullPolicy: Always
-        command: ["/bin/sh","-c"]
-        args: ["netserver -D"]
-      restartPolicy: OnFailure
+    imagePullPolicy: Always
+    command: ["/bin/sh","-c"]
+    args: ["netserver -D"]
+  restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+  nodeSelector:
+    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
-{% include "metadata.yml.j2" %}
+{% include "metadata_pod.yml.j2" %}

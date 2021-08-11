@@ -1,24 +1,8 @@
 ---
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - name: Set building state
   include_role:
     name: benchmark_state
     tasks_from: building.yml
-
-- name: Get benchmark state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-  register: resource_state
 
 - block:
 
@@ -55,7 +39,7 @@
         state: "Starting First Workload"
     when: workload_args.loaded is defined and workload_args.loaded|default('false')
 
-  when: resource_state.resources[0].status.state == "Building" 
+  when: benchmark_state.resources[0].status.state == "Building" 
 
 - block:
 
@@ -94,7 +78,7 @@
         complete: true
     when: workload_args.workloads is undefined and ycsb_load_pod | json_query('resources[].status.succeeded')
 
-  when: resource_state.resources[0].status.state == "Running Load"
+  when: benchmark_state.resources[0].status.state == "Running Load"
 
 - block:
 
@@ -113,7 +97,7 @@
       status:
         state: "Starting Workload"
     
-  when: resource_state.resources[0].status.state == "Starting First Workload"
+  when: benchmark_state.resources[0].status.state == "Starting First Workload"
 
 - block:
    
@@ -142,7 +126,7 @@
       status:
         state: "Running Workload"
 
-  when: resource_state.resources[0].status.state == "Starting Workload"
+  when: benchmark_state.resources[0].status.state == "Starting Workload"
 
 - block:
 
@@ -171,11 +155,10 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: "Complete"
-        complete: true
+        state: "Workload Complete"
     when: "ycsb_bench | json_query('resources[].status.succeeded')"
 
-  when: resource_state.resources[0].status.state == "Running Workload"
+  when: benchmark_state.resources[0].status.state == "Running Workload"
 
 - block:
 
@@ -211,8 +194,8 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: "Complete"
+        state: Complete
         complete: true
     when: workload_list.stdout == new_workload_index
 
-  when: resource_state.resources[0].status.state == "Workload Complete"
+  when: benchmark_state.resources[0].status.state == "Workload Complete"

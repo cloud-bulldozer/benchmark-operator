@@ -1,12 +1,4 @@
 ---
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - name: Set building state
   include_role:
     name: benchmark_state
@@ -171,7 +163,7 @@
         complete: true
     when: (workload_args.db_benchmark is not defined or not workload_args.db_benchmark) and (workload_args.db_init is not defined or not workload_args.db_init)
 
-  when: resource_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "Building"
 
 - block:
   - block:
@@ -215,7 +207,7 @@
         state: DB Creating
         complete: false
 
-  when: resource_state.resources[0].status.state == "Starting DB"
+  when: benchmark_state.resources[0].status.state == "Starting DB"
 
 
 - block:
@@ -273,7 +265,7 @@
           complete: false
       when: db_creation_status.stdout == "true"
     when: resource_kind == "vm"
-  when: resource_state.resources[0].status.state == "DB Creating"
+  when: benchmark_state.resources[0].status.state == "DB Creating"
 
 - block:
   - name: set complete to false
@@ -304,34 +296,12 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: DB workload running
+        state: Running
         complete: false
 
-  when: resource_state.resources[0].status.state == "Starting DB Workload"
+  when: benchmark_state.resources[0].status.state == "Starting DB Workload"
 
-- block:
-  - block:
-    - name: Set completed state
-      include_role:
-        name: benchmark_state
-        tasks_from: completed.yml
-
-    when: resource_kind == "pod"
-
-  - block:
-    - name: get complete
-      command: "redis-cli get complete"
-      register: complete_status
-
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Complete
-          complete: true
-      when: complete_status.stdout == "true"
-    when: resource_kind == "vm"
-
-  when: resource_state.resources[0].status.state == "DB workload running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

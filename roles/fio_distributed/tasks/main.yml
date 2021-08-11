@@ -1,24 +1,8 @@
 ---
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - name: Set building state
   include_role:
     name: benchmark_state
     tasks_from: building.yml
-
-- name: Get current state - If it has changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
 
 - block:
   - name: Provide path for fio - PV
@@ -76,7 +60,7 @@
         state: StartingServers
         complete: false
 
-  when: resource_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "Building"
 
 - block :
 
@@ -97,7 +81,7 @@
       status:
         state: StartingClient
         complete: false
-    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
@@ -125,7 +109,7 @@
       status:
         state: StartingClient
         complete: false
-    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.interfaces[].ipAddress')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.interfaces[].ipAddress')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
@@ -170,9 +154,9 @@
         state: Running
         complete: false
 
-  when: resource_state.resources[0].status.state == "StartingClient"
+  when: benchmark_state.resources[0].status.state == "StartingClient"
 
-- name: Set completed state
-  include_role:
+- include_role:
     name: benchmark_state
     tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

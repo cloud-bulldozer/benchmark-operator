@@ -1,12 +1,4 @@
 ---
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - name: Define variables
   set_fact:
     servicemesh: "{{ servicemesh_defaults | combine(workload_args, recursive=True) }}"
@@ -17,9 +9,9 @@
         kind: Benchmark
         name: "{{ ansible_operator_meta.name }}"
         namespace: "{{ operator_namespace }}"
-        uid: "{{ resource_state.resources[0].metadata.uid }}"
+        uid: "{{ benchmark_state.resources[0].metadata.uid }}"
 
-- when: resource_state.resources[0].status.state is not defined
+- when: benchmark_state.resources[0].status.state is not defined
   block:
   - name: Create control plane namespace
     k8s:
@@ -82,9 +74,9 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
-- when: resource_state.resources[0].status.state == "Init"
+- when: benchmark_state.resources[0].status.state == "Init"
   block:
   - name: Check Hyperfoil-status
     k8s_info:
@@ -122,7 +114,7 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
 - name: Check ingress route
   k8s_info:
@@ -138,7 +130,7 @@
     #TODO: maybe use trunc_uuid in the hostname?
     app_route: "{{ ansible_operator_meta.name }}-app-{{ trunc_uuid}}{{ ingress_route.resources[0].status.ingress[0].host | regex_replace('^[^.]*', '')}}"
 
-- when: resource_state.resources[0].status.state == "Deploy"
+- when: benchmark_state.resources[0].status.state == "Deploy"
   block:
   - name: Generate certificates
     command: openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /tmp/app.key -out /tmp/app.crt -subj "/CN={{ app_route }}/O=app"
@@ -212,9 +204,9 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
-- when: resource_state.resources[0].status.state == "Ready"
+- when: benchmark_state.resources[0].status.state == "Ready"
   block:
   - name: "Expand test template into config map"
     k8s:
@@ -260,39 +252,13 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
-- when: resource_state.resources[0].status.state == "Running"
+- when: benchmark_state.resources[0].status.state == "Running"
   block:
-  - name: Get job status
-    k8s_info:
-      api_version: v1
-      kind: Job
-      namespace: '{{ operator_namespace }}'
-      name: "{{ ansible_operator_meta.name }}-{{ trunc_uuid }}"
-    register: job_state
-
-  - name: Complete benchmark
-    when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Complete"
-        complete: true
-
-  - name: Fail benchmark
-    when: job_state.resources[0].status.failed is defined and (job_state.resources[0].status.failed | int) > 0
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Failed"
-        complete: true
+  - name: Set completed state
+    include_role:
+      name: benchmark_state
 
 - name: Update current state
   k8s_info:
@@ -300,9 +266,9 @@
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
-  register: resource_state
+  register: benchmark_state
 
-- when: resource_state.resources[0].status.state == "Complete" and cleanup
+- when: benchmark_state.resources[0].status.state == "Complete" and cleanup
   block:
   - name: Delete Hyperfoil resource
     k8s:
