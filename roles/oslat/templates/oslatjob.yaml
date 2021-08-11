@@ -4,6 +4,8 @@ metadata:
   name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
@@ -13,7 +15,6 @@ spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
-      ttlSecondsAfterFinished: 600
       containers:
       - name: oslat
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/oslat:latest') }}

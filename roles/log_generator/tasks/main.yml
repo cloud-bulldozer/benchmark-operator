@@ -1,29 +1,16 @@
 ---
-- name: Get benchmark state
-  k8s_facts:
+- name: Get current state
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-  register: benchmark_state
+    name: '{{ ansible_operator_meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: "Starting Log Generator Pods"
-      complete: false
-  when: benchmark_state.resources[0].status.state is not defined
-
-- name: Get benchmark state 
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-  register: benchmark_state
+- name: Set building state
+  include_role:
+    name: benchmark_state
+    tasks_from: building.yml
 
 - block:
 
@@ -38,52 +25,12 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: "Building Pods"
+        state: Running
+        complete: false
 
-  when: benchmark_state.resources[0].status.state == "Starting Log Generator Pods"
+  when: resource_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Get server pods
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = log-generator-{{ trunc_uuid }}
-    register: log_pods
-
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Log Generator Running"
-    when: "workload_args.pod_count|default('1')|int == log_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
-  
-  when: benchmark_state.resources[0].status.state == "Building Pods"
-
-- block:
-
-  - name: Get server pods
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = log-generator-{{ trunc_uuid }}
-    register: log_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "workload_args.pod_count|default('1')|int == (log_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
-
-  when: benchmark_state.resources[0].status.state == "Log Generator Running"
+- name: Set completed state
+  include_role:
+    name: benchmark_state
+    tasks_from: completed.yml

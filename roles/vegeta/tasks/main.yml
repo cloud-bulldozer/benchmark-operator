@@ -1,5 +1,4 @@
 ---
-
 - name: Get current state
   k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -8,24 +7,10 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state - If it has changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
+- name: Set building state
+  include_role:
+    name: benchmark_state
+    tasks_from: building.yml
 
 - block:
   - name: Create targets configmap
@@ -48,27 +33,7 @@
 
   when: resource_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Waiting for pods to complete....
-    k8s_info:
-      kind: pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = vegeta-benchmark-{{ trunc_uuid }}
-      field_selectors:
-        - status.phase=Succeeded
-    register: client_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: workload_args.clients|default(1)|int == client_pods.resources|length
-
-  when: resource_state.resources[0].status.state == "Running"
+- name: Set completed state
+  include_role:
+    name: benchmark_state
+    tasks_from: completed.yml

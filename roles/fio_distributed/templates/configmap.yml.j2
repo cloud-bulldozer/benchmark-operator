@@ -5,6 +5,8 @@ metadata:
   name: fio-test-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
+# FIXME: I don't think prefill works correctly for a list of numjobs values, only for 1 of them
+{% for numjobs in workload_args.numjobs %}
 {% if workload_args.prefill is defined and workload_args.prefill is sameas true %}
   fiojob-prefill: |
     [global]
@@ -22,7 +24,7 @@ data:
 {% endif %}
     iodepth=1
     direct=1
-    numjobs=1
+    numjobs={{numjobs}}
     
     [write]
     rw=write
@@ -40,7 +42,6 @@ data:
 {% set loopvar = workload_args.bs %}
 {% set loopvar_str = 'bs' %}
 {% endif %}
-{% for numjobs in workload_args.numjobs %}
 {% for i in loopvar %}
 {% for job in workload_args.jobs %}
   fiojob-{{job}}-{{i}}-{{numjobs}}: |

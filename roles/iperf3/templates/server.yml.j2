@@ -1,47 +1,44 @@
 ---
-kind: Job
-apiVersion: batch/v1
+kind: Pod
+apiVersion: v1
 metadata:
   name: 'iperf3-server-{{ item }}-{{ trunc_uuid }}'
   namespace: "{{ operator_namespace }}"
+  labels:
+    benchmark-uuid: {{ uuid }}
+    app: iperf3-bench-server-{{ trunc_uuid }}
 spec:
-  ttlSecondsAfterFinished: 600
-  template:
-    metadata:
-      labels:
-        app: iperf3-bench-server-{{ trunc_uuid }}
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - weight: 100
-            podAffinityTerm:
-              labelSelector:
-                matchExpressions:
-                - key: app
-                  operator: In
-                  values:
-                  - iperf3-bench-client-{{ trunc_uuid }}
-              topologyKey: kubernetes.io/hostname
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - iperf3-bench-client-{{ trunc_uuid }}
+          topologyKey: kubernetes.io/hostname
 {% if workload_args.runtime_class is defined %}
-      runtimeClassName: "{{ workload_args.runtime_class }}"
+  runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-      hostNetwork: true
-      serviceAccountName: benchmark-operator
+  hostNetwork: true
+  serviceAccountName: benchmark-operator
 {% endif %}
-      containers:
-      - name: benchmark
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/iperf3:latest') }}
-        imagePullPolicy: Always
-        command: ["/bin/sh", "-c"]
-        args:
-          - "iperf3 -s
-            {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
-            {% if workload_args.extra_options_server is defined %} {{ workload_args.extra_options_server }} {% endif %}"
-      restartPolicy: OnFailure
+  containers:
+  - name: benchmark
+    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/iperf3:latest') }}
+    imagePullPolicy: Always
+    command: ["/bin/sh", "-c"]
+    args:
+      - "iperf3 -s
+        {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
+        {% if workload_args.extra_options_server is defined %} {{ workload_args.extra_options_server }} {% endif %}"
+  restartPolicy: OnFailure
 {% if workload_args.pin_server is defined %}
-      nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+  nodeSelector:
+    kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
-{% include "metadata.yml.j2" %}
+{% include "metadata_pod.yml.j2" %}

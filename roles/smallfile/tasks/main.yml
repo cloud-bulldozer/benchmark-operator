@@ -1,30 +1,16 @@
 ---
 - name: Get current state
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- name: Update current state
-  operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
+- name: Set building state
+  include_role:
+    name: benchmark_state
+    tasks_from: building.yml
 
 - block:
 
@@ -117,27 +103,9 @@
         state: Running
         complete: false
 
-  when: resource_state.resources[0].status.state == "Starting"
+  when: resource_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Waiting for pods to complete....
-    k8s_facts:
-      kind: pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = smallfile-benchmark-{{ trunc_uuid }}
-    register: client_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "workload_args.clients|default('1')|int == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
-
-  when: resource_state.resources[0].status.state == "Running"
+- name: Set completed state
+  include_role:
+    name: benchmark_state
+    tasks_from: completed.yml

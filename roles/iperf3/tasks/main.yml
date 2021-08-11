@@ -1,24 +1,19 @@
 ---
 - name: Get current state
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
+- name: Set building state
+  include_role:
+    name: benchmark_state
+    tasks_from: building.yml
 
 - name: Update current state
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: '{{ ansible_operator_meta.name }}'
@@ -41,12 +36,12 @@
       status:
         state: "Starting Server"
 
-  when: resource_state.resources[0].status.state == "Starting"
+  when: resource_state.resources[0].status.state == "Building"
 
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -69,7 +64,7 @@
 - block:
 
   - name: Get server pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -96,7 +91,7 @@
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -116,24 +111,7 @@
 
   when: ( workload_args.pairs|default('1')|int > 0 ) and resource_state.resources[0].status.state == "Waiting for Clients"
 
-- block:
-  - name: Waiting for Jobs to complete....
-    k8s_facts:
-      kind: Job
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = iperf3-bench-client-{{ trunc_uuid }}
-    register: client_jobs
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "workload_args.pairs|default('1')|int == (client_jobs | json_query('resources[].status.succeeded')|length)"
-
-  when: resource_state.resources[0].status.state == "Running"
+- name: Set completed state
+  include_role:
+    name: benchmark_state
+    tasks_from: completed.yml

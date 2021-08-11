@@ -1,0 +1,19 @@
+---
+- name: Setting benchmark state - Building
+  operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ ansible_operator_meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Building
+      complete: false
+  when: resource_state.resources[0].status.state is not defined
+
+- name: Get current benchmark state
+  k8s_info:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: '{{ ansible_operator_meta.name }}'
+    namespace: '{{ operator_namespace }}'
+  register: resource_state

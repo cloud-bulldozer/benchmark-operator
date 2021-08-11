@@ -7,15 +7,10 @@
     namespace: '{{ operator_namespace }}'
   register: resource_state
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
+- name: Set building state
+  include_role:
+    name: benchmark_state
+    tasks_from: building.yml
 
 - name: Get current state - If it has changed
   k8s_info:
@@ -177,24 +172,7 @@
 
   when: resource_state.resources[0].status.state == "StartingClient"
 
-- block:
-  - name: Capture Client pod list
-    k8s_info:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = fiod-client-{{ trunc_uuid }}
-    register: client_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when : "client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length > 0 "
-
-  when: resource_state.resources[0].status.state == "Running"
+- name: Set completed state
+  include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
