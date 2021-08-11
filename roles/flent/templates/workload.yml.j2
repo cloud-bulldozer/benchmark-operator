@@ -68,7 +68,7 @@ spec:
              export hostnet={{workload_args.hostnetwork}};
              cd /tmp/flent-test;
              while true; do
-               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start) =~ 'true' ]]; then
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}}) =~ 'true' ]]; then
 {% for test in workload_args.test_types %}
                  run_snafu --tool flent --ftest {{test}} -u {{ uuid }} -r $h --user {{test_user | default("ripsaw")}} \
 {% if workload_args.debug is defined and workload_args.debug %}
@@ -82,7 +82,7 @@ spec:
 
                break;
              done;
-             redis-cli -h {{bo.resources[0].status.podIP}} set start false"
+             redis-cli -h {{bo.resources[0].status.podIP}} set start-{{trunc_uuid}} false"
         volumeMounts:
           - name: flent-tmp
             mountPath: "/tmp/flent-test"
