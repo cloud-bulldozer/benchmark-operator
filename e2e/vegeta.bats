@@ -12,7 +12,7 @@ ES_INDEX=ripsaw-vegeta-results
   CR=vegeta/vegeta.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -21,7 +21,7 @@ ES_INDEX=ripsaw-vegeta-results
   CR=vegeta/vegeta_hostnetwork.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }

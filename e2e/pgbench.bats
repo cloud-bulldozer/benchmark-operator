@@ -12,7 +12,7 @@ indexes=(ripsaw-pgbench-summary ripsaw-pgbench-raw)
   CR=pgbench/pgbench.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }

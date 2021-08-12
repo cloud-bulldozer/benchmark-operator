@@ -12,7 +12,7 @@ ES_INDEX=ripsaw-sysbench-results
   CR=sysbench/sysbench.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
 }
 
 setup_file() {

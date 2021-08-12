@@ -12,7 +12,7 @@ ES_INDEX=ripsaw-flent-results
   CR=flent/flent.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -22,7 +22,7 @@ ES_INDEX=ripsaw-flent-results
   CR=flent/flent_resources.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }

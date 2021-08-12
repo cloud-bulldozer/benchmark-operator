@@ -12,7 +12,7 @@ indexes=(ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-
   CR=fs_drift/fs_drift.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -22,7 +22,7 @@ indexes=(ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-
   CR=fs_drift/fs_drift_hostpath.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }

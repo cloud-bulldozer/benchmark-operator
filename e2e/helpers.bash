@@ -28,7 +28,7 @@ teardown() {
 
 check_es() {
   if [[ -n ${indexes} ]]; then
-    for index in ${indexes[@]}; do
+    for index in "${indexes[@]}"; do
       echo "Looking for documents with uuid: ${uuid} in index ${index}"
       documents=$(curl -sS ${ES_SERVER}/${index}/_search?q=uuid.keyword:${uuid} | jq .hits.total.value)
       if [[ ${documents} -le 0 ]]; then

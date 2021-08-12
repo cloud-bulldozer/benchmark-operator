@@ -12,7 +12,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR=fio/fio.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -21,7 +21,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR=fio/fio_bsrange.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -30,7 +30,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR=fio/fio_hostpath.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f - 
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
@@ -50,7 +50,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
     fi
     sleep 5
     envsubst < ${CR} | kubectl apply -f - 
-    get_uuid ${CR_NAME}
+    get_uuid "${CR_NAME}"
     check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
     check_es
   fi

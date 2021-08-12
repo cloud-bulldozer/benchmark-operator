@@ -212,7 +212,7 @@ catalog-push: ## Push a catalog image.
 ##@ Test
 
 e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed. You can execute specific tests by using the vabiable BATS_TESTS like: BATS_TESTS="fio uperf ycsb" make e2e-test
-	cd $(E2E_DIR) && bats $(BATS_FLAGS) $(E2E)
+	cd $(E2E_DIR) && TERM=screen-256color bats $(BATS_FLAGS) $(E2E)
 
 .PHONY: install-bats
 install-bats:

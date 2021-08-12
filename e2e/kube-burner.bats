@@ -12,7 +12,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/cluster-density.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
@@ -22,7 +22,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/node-density.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
@@ -32,7 +32,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/node-density-heavy.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
@@ -42,7 +42,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/max-services.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
@@ -52,7 +52,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/max-namespaces.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
@@ -62,7 +62,7 @@ ES_INDEX=ripsaw-kube-burner
   CR=kube-burner/concurrent-builds.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}

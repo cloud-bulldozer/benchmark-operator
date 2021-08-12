@@ -12,7 +12,7 @@ indexes=(ripsaw-ycsb-summary ripsaw-ycsb-results)
   CR=ycsb/ycsb-mongo.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
-  get_uuid ${CR_NAME}
+  get_uuid "${CR_NAME}"
   check_benchmark 300 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
