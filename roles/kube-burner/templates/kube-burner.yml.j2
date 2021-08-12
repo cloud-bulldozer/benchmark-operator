@@ -31,9 +31,7 @@ spec:
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/kube-burner:latest') }}
         imagePullPolicy: Always
         securityContext:
-          privileged: true 
           readOnlyRootFilesystem: false
-          runAsNonRoot: false
 {% if workload_args.extra_env_vars is defined and workload_args.extra_env_vars is mapping %}
         env:
 {% for name, value in workload_args.extra_env_vars.items() %}
