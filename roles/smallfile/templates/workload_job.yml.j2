@@ -87,7 +87,7 @@ spec:
           - name: clients
             value: "{{ workload_args.clients|default('1')|int }}"
           args:
-            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
+            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}} {{trunc_uuid}};
               export TMPDIR=/tmp
               arr=$(python <<< "print(','.join({{workload_args.operation}}))");
               rm -rf {{smallfile_path}}/RESULTS ;

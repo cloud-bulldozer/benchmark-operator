@@ -63,7 +63,7 @@
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/smallfile-master/
                   args:
-                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.clients|default('1')|int}}
+                    - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.clients|default('1')|int}} {{trunc_uuid}}
                   volumeMounts:
                     - name: config-volume
                       mountPath: "/tmp"
