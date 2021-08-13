@@ -73,6 +73,22 @@ spec:
               workload:
                 x-kubernetes-preserve-unknown-fields: true
                 type: object
+                properties:
+                  name:
+                    type: string
+                    description: Workload name
+                  args:
+                    x-kubernetes-preserve-unknown-fields: true
+                    type: object
+                    properties:
+                      debug:
+                        type: boolean
+                        default: false
+                        description: Set debug log level in the workload
+                      job_timeout:
+                        type: integer
+                        description: Timeout used for jobs deployed by this benchmark
+                        default: 3600
               job_params:
                 type: array
                 items:
@@ -138,32 +154,36 @@ spec:
             properties:
               complete:
                 type: boolean
+                default: false
+                description: Benchmark is completed
               metadata:
                 type: string
+                description: Metadata collection status
               state:
                 type: string
+                description: Benchmark status
               suuid:
                 type: string
+                description: Benchmark short UUID
               uuid:
                 type: string
+                description: Benchmark UUID
               pod_hi_idx:
                 type: string
               pod_low_idx:
-               type: string
+                type: string
               node_hi_idx:
                 type: string
               node_low_idx:
-               type: string
-              pod_idx:
-               type: string
-              node_idx:
-               type: string
-              system_metrics:
-               type: string
-               default: Not collected
-              message:
                 type: string
-                default: None
+              pod_idx:
+                type: string
+              node_idx:
+                type: string
+              system_metrics:
+                type: string
+                default: Not collected
+                description: System metrics collection status
     additionalPrinterColumns:
     - name: Type
       type: string

@@ -57,24 +57,11 @@
         spec:
           version: "{{ servicemesh.hyperfoil_version }}"
 
-  - name: Set state to Init
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Init"
-        complete: false
-
-# Note: register is invoked even if the task is skipped; therefore we'll update the state non-conditionally
-- name: Update current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Init
 
 - when: benchmark_state.resources[0].status.state == "Init"
   block:
@@ -97,24 +84,12 @@
   - set_fact:
       smcp_ready: "{{ smcp_state | json_query('resources[0].status.conditions[]') | selectattr('type','match','Ready') | selectattr('status', 'match', 'True') | list | length > 0 }}"
 
-  - name: Progress to deploy
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Deploy
     when: hf_state.resources[0].status.status == "Ready" and smcp_ready
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Deploy"
-        complete: false
-
-- name: Update current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
 
 - name: Check ingress route
   k8s_info:
@@ -187,24 +162,12 @@
       ready_containers: "{{ pods.resources | map(attribute='status.containerStatuses') | flatten | selectattr('ready', 'equalto', true) | list | length }}"
       expected_containers: "{{ 2 * servicemesh.deployments * servicemesh.pods_per_deployment }}"
 
-  - name: Progress to ready
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Ready
     when: ready_containers == expected_containers
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Ready"
-        complete: false
-
-- name: Update current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
 
 - when: benchmark_state.resources[0].status.state == "Ready"
   block:
@@ -236,37 +199,18 @@
     k8s:
       definition: "{{ lookup('template', 'job.yaml.j2') | from_yaml }}"
 
-  - name: Progress to running
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Running"
-        complete: false
-
-- name: Update current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
 - when: benchmark_state.resources[0].status.state == "Running"
   block:
   - name: Set completed state
     include_role:
       name: benchmark_state
-
-- name: Update current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
+      tasks_from: completed.yml
 
 - when: benchmark_state.resources[0].status.state == "Complete" and cleanup
   block:

@@ -12,14 +12,14 @@
         data:
           jobfile: "{{ lookup ('template', 'jobfile.j2') }}"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: ConfigMaps Created
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: ConfigMaps Created
+  when: benchmark_state.resources[0].status.state == "Building"
+
+- block:
 
   - name: set complete to false
     command: "redis-cli set complete-{{ trunc_uuid }} false"
@@ -36,16 +36,13 @@
     register: jobs
     when: resource_kind == "vm"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: benchmark_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "ConfigMaps Created"
 
 - block:
 

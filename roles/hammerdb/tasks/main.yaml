@@ -128,34 +128,25 @@
           run_postgres_script.sh: "{{ lookup('template', 'db_postgres_workload_vm.sh.j2') }}"
     when: workload_args.db_type == "pg" and resource_kind == "vm"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Starting DB
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Starting DB
     when: workload_args.db_init is defined and workload_args.db_init
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Starting DB Workload
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Starting DB Workload
     when: workload_args.db_benchmark is defined and workload_args.db_benchmark and (workload_args.db_init is not defined or not workload_args.db_init)
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: ConfigMaps Created
-        complete: true
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: ConfigMaps Created
     when: (workload_args.db_benchmark is not defined or not workload_args.db_benchmark) and (workload_args.db_init is not defined or not workload_args.db_init)
 
   when: benchmark_state.resources[0].status.state == "Building"
@@ -193,14 +184,11 @@
 
     when: resource_kind == "vm"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: DB Creating
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: DB Creating
 
   when: benchmark_state.resources[0].status.state == "Starting DB"
 
@@ -215,49 +203,37 @@
         namespace: "{{ operator_namespace }}"
       register: hammerdb_creator_pod
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Starting DB Workload
-          complete: false
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Starting DB Workload
       when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and workload_args.db_benchmark is defined and workload_args.db_benchmark
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: DB Created
-          complete: true
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: DB Created
       when: hammerdb_creator_pod | json_query('resources[].status.succeeded') and (workload_args.db_benchmark is not defined or not workload_args.db_benchmark)
     when: resource_kind == "pod"
 
   - block:
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Starting DB Workload
-          complete: false
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Starting DB Workload
 
     - name: get complete
       command: "redis-cli get db-creation-{{trunc_uuid}}"
       register: db_creation_status
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: DB Created
-          complete: false
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: DB Created
       when: db_creation_status.stdout == "true"
     when: resource_kind == "vm"
   when: benchmark_state.resources[0].status.state == "DB Creating"
@@ -285,14 +261,11 @@
       definition: "{{ lookup ('template', 'db_postgres_workload.yml.j2') | from_yaml }}"
     when: workload_args.db_type == "pg" and resource_kind == "pod"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
   when: benchmark_state.resources[0].status.state == "Starting DB Workload"
 

@@ -181,14 +181,11 @@
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
   when: benchmark_state.resources[0].status.state == "Building"
 

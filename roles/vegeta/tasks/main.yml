@@ -9,14 +9,11 @@
       definition: "{{ lookup('template', 'vegeta.yml.j2') | from_yaml }}"
     loop: "{{ range(0, workload_args.clients|default(1)|int)|list }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
   when: benchmark_state.resources[0].status.state == "Building"
 

@@ -1,22 +1,4 @@
 ---
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: benchmark_state.resources[0].status.state is not defined
-
-- name: Update current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
-
 - name: "Parse testpmd network"
   include_tasks: 10_network_parser.yml
   loop: "{{ workload_args.networks.testpmd }}"
@@ -43,16 +25,13 @@
     k8s:
       definition: "{{ lookup('template', 'testpmd.yml.j2') | from_yaml }}"
 
-  - name: Update state to Starting Server
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting TestPMD"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting TestPMD"
 
-  when: benchmark_state.resources[0].status.state == "Starting"
+  when: benchmark_state.resources[0].status.state == "Building"
 
 - block:
 
@@ -65,14 +44,11 @@
         - app = testpmd-application-pod-{{ trunc_uuid }}
     register: application_pods
 
-  - name: Update state to Running
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting TRex"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting TRex"
     when: 
       - "(application_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) == 1"
 
@@ -102,14 +78,11 @@
       definition: "{{ lookup('template', 'trex.yml.j2') | from_yaml }}"
     with_items: "{{ application_pods.resources }}"
 
-  - name: Update state to Waiting for TRex
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Waiting for TRex"  
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Waiting for TRex"
 
   when: benchmark_state.resources[0].status.state == "Starting TRex"
 
@@ -124,36 +97,16 @@
         - app = trex-traffic-gen-pod-{{ trunc_uuid }}
     register: trex_pods
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
     when: trex_pods.resources|length > 0
 
   when: benchmark_state.resources[0].status.state == "Waiting for TRex"
 
-- block:
-  - name: Waiting for Jobs to complete....
-    k8s_facts:
-      kind: Job
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = trex-traffic-gen-pod-{{ trunc_uuid }}
-    register: trex_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "(trex_pods | json_query('resources[].status.succeeded')|length) == 1"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
   when: benchmark_state.resources[0].status.state == "Running"
-

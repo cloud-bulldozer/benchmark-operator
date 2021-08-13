@@ -91,10 +91,12 @@
       - include_role:
           name: "common"
 
-      - name: Set building state
+      - name: Set Building state
         include_role:
           name: benchmark_state
-          tasks_from: building
+          tasks_from: set_state
+        vars:
+          state: Building
         when: benchmark_state.resources[0].status.state is not defined and workload.name != "backpack"
 
       - include_role: 

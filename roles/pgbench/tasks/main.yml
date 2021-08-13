@@ -1,12 +1,4 @@
 ---
-- name: Update current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: benchmark_state
-
 - name: Generate list of database counts
   include_tasks: generate_num_databases.yml
 
