@@ -7,6 +7,7 @@ NAMESPACE=benchmark-operator
 
 
 basic_setup() {
+  kubectl_exec rollout status deploy/benchmark-controller-manager
   export PROMETHEUS_TOKEN=$(oc sa get-token -n openshift-monitoring prometheus-k8s)
   export ES_SERVER=https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com
 }

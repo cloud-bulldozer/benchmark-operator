@@ -24,7 +24,7 @@ jobs:
       IMG: ${{ github.event.inputs.img }}
     steps:
 
-    - name: Set env vars  # Workaround: When the workflow is triggerd by events different from workflow_dispatch the IMG env var is not set
+    - name: Set env vars  # Workaround: When the workflow is triggered by events different from workflow_dispatch the IMG env var is not set
       run: echo "IMG=quay.io/rht_perf_ci/benchmark-operator:e2e" >> $GITHUB_ENV
       if: github.event_name != 'workflow_dispatch'
 
