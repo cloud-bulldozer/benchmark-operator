@@ -19,7 +19,7 @@ spec:
   workload:
     name: vegeta
     args:
-      clients: 2
+      clients: 4
       targets:
         - name: 2w-ka
           urls:

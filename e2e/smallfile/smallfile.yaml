@@ -23,8 +23,24 @@ spec:
     name: smallfile
     args:
       clients: 2
-      operation: ["create", "read", "append", "delete"]
+      operation: ["create", "read", "delete", "cleanup"]
       threads: 1
-      file_size: 0
+      file_size: 2
+      record_size: 1
+      xattr_size: 50
+      pause: 0
+      auto_pause: y
+      stonewall: n
+      finish: y
+      prefix: abc
+      hash_into_dirs: true
+      same_dir: y
+      incompressible: y
+      verify_read: y
+      xattr_count: 10
+      fsync: false
+      files_per_dir: 2000
+      dirs_per_dir: 4
       files: 100000
+      cleanup_delay_usec_per_file: 20
       debug: true
