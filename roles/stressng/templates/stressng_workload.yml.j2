@@ -91,6 +91,15 @@ spec:
 {% endif %}
         command: ["/bin/sh", "-c"]
         args:
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_vm_os_version={{workload_args.es_vm_os_version}};
+             export es_rhcos_version={{workload_args.es_rhcos_version}};
+             export es_kata_version={{workload_args.es_kata_version}};
+             export es_kind={{workload_args.es_kind}};
+             export es_data={{workload_args.es_data}};
+{% endif %}
           - run_snafu --tool stressng -j /workload/jobfile -u {{ uuid }}
 {% if workload_args.debug is defined and workload_args.debug %}
             -v

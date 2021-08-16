@@ -78,6 +78,15 @@ spec:
           - dnf install -y ethtool
           - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
 {% endif %}
+{% if workload_args.es_custom_field is sameas true %}
+          - export es_ocp_version={{workload_args.es_ocp_version}};
+          - export es_cnv_version={{workload_args.es_cnv_version}};
+          - export es_vm_os_version={{workload_args.es_vm_os_version}};
+          - export es_rhcos_version={{workload_args.es_rhcos_version}};
+          - export es_kata_version={{workload_args.es_kata_version}};
+          - export es_kind={{workload_args.es_kind}};
+          - export es_data={{workload_args.es_data}};
+{% endif %}
           - dnf install -y python3-pip
           - dnf install -y git redis stress-ng
           - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
