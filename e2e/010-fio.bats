@@ -4,7 +4,6 @@
 
 load helpers.bash
 
-export NAMESPACE=benchmark-operator
 indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
 
 
@@ -13,7 +12,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
 }
 
@@ -22,7 +21,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
 }
 
@@ -31,7 +30,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f - 
   get_uuid "${CR_NAME}"
-  check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
 }
 
@@ -51,15 +50,11 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
     sleep 5
     envsubst < ${CR} | kubectl apply -f - 
     get_uuid "${CR_NAME}"
-    check_benchmark 600 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+    check_benchmark 600
     check_es
   fi
 }
 
 setup_file() {
   basic_setup
-}
-
-teardown_file(){
-  basic_teardown
 }

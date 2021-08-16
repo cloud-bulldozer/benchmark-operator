@@ -4,21 +4,18 @@
 
 load helpers.bash
 
-export NAMESPACE=benchmark-operator
-ES_INDEX=ripsaw-sysbench-results
+ES_INDEX=ripsaw-stressng-results
 
 
-@test "sysbench-standard" {
-  CR=sysbench/sysbench.yaml
+@test "stressng-standard" {
+  CR=stressng/stressng.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
+  check_benchmark 600
+  check_es
 }
 
 setup_file() {
   basic_setup
-}
-
-teardown_file(){
-  basic_teardown
 }

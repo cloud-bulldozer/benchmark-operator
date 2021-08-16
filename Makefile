@@ -60,7 +60,7 @@ endif
 # E2E testing
 E2E_DIR = e2e
 E2E_RESULTS = test-results.xml
-BATS_FLAGS = --no-parallelize-across-files -j 8 -F pretty --report-formatter junit
+BATS_FLAGS = -j 4 -F pretty --report-formatter junit -T
 E2E := .
 # If BATS_TESTS is defined, we set E2E to the passed tests
 ifdef BATS_TESTS
@@ -211,6 +211,7 @@ catalog-push: ## Push a catalog image.
 
 ##@ Test
 
+.PHONY: e2e-tests
 e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed. You can execute specific tests by using the vabiable BATS_TESTS like: BATS_TESTS="fio uperf ycsb" make e2e-test
 	cd $(E2E_DIR) && TERM=screen-256color bats $(BATS_FLAGS) $(E2E)
 

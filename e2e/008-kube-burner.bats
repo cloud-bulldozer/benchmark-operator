@@ -4,7 +4,6 @@
 
 load helpers.bash
 
-export NAMESPACE=benchmark-operator
 ES_INDEX=ripsaw-kube-burner
 
 
@@ -13,7 +12,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -23,7 +22,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -33,7 +32,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -43,7 +42,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -53,7 +52,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -63,7 +62,7 @@ ES_INDEX=ripsaw-kube-burner
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 480 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 600
   check_es
   kubectl delete ns -l kube-burner-uuid=${uuid}
 }
@@ -73,6 +72,6 @@ setup_file() {
   kubectl apply -f ../resources/kube-burner-role.yml
 }
 
-teardown_file(){
-  basic_teardown
+teardown_file() {
+  kubectl delete -f ../resources/kube-burner-role.yml
 }

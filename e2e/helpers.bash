@@ -1,25 +1,14 @@
 # vi: ft=bash
 
-DETIK_CLIENT_NAME="kubectl"
-DEBUG_DETIK="true"
 uuid=""
 suuid=""
 ARTIFACTS_DIR=artifacts
+NAMESPACE=benchmark-operator
 
 
 basic_setup() {
   export PROMETHEUS_TOKEN=$(oc sa get-token -n openshift-monitoring prometheus-k8s)
   export ES_SERVER=https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com
-  kubectl delete ns ${NAMESPACE} --ignore-not-found
-  echo "Deploying benchmark-operator"
-  make -C ../ deploy
-  kubectl_exec rollout status deployment/benchmark-controller-manager
-}
-
-basic_teardown() {
-  echo "Tearing down benchmark-operator namespace"
-  make -C ../ undeploy
-  kubectl delete ns ${NAMESPACE} --ignore-not-found
 }
 
 teardown() {
@@ -68,11 +57,15 @@ check_benchmark() {
       break
     fi
     if [[ ${timeout} -lt 0 ]]; then
-      false
+      die "Timeout waiting for benchmark/${CR_NAME} to complete"
     fi
     sleep 10
     let timeout=$timeout-10
   done
+  local state=$(kubectl_exec get benchmark/${CR_NAME} -o jsonpath={.status.state})
+  if [[ ${state} != "Complete" ]]; then
+    die "Benchmark state: ${state}"
+  fi
 }
 
 die() {
