@@ -60,11 +60,9 @@ endif
 # E2E testing
 E2E_DIR = e2e
 E2E_RESULTS = test-results.xml
-BATS_FLAGS = -j 4 -F pretty --report-formatter junit -T
-E2E := .
-# If BATS_TESTS is defined, we set E2E to the passed tests
+BATS_FLAGS = -j 6 -F pretty --report-formatter junit -T
 ifdef BATS_TESTS
-  E2E := $(foreach test,$(BATS_TESTS),$(test).bats)
+  FILTERED_TESTS := -f "$(BATS_TESTS)"
 endif
 
 all: image-build
@@ -212,8 +210,8 @@ catalog-push: ## Push a catalog image.
 ##@ Test
 
 .PHONY: e2e-tests
-e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed. You can execute specific tests by using the vabiable BATS_TESTS like: BATS_TESTS="fio uperf ycsb" make e2e-test
-	cd $(E2E_DIR) && TERM=screen-256color bats $(BATS_FLAGS) $(E2E)
+e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed. You can execute specific tests by setting a regix in the vabiable BATS_TESTS like: BATS_TESTS="fio|uperf|ycsb" make e2e-tests
+	cd $(E2E_DIR); bats $(BATS_FLAGS) $(FILTERED_TESTS) .
 
 .PHONY: install-bats
 install-bats:

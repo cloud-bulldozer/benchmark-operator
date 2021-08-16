@@ -26,8 +26,6 @@ spec:
           cpu: 100m
           memory: 100Mi
       pin: false
-      pin_server: "node-0"
-      pin_client: "node-1"
       hostnetwork: false
       multus:
         enabled: false

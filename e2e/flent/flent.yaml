@@ -23,7 +23,6 @@ spec:
       hostnetwork: false
       multus:
         enabled: false
-      pin: false
       pair: 1
       test_types:
         - tcp_download

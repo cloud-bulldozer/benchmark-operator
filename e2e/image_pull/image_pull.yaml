@@ -11,8 +11,8 @@ spec:
     name: image_pull
     args:
       pod_count: 2
-      timeout: 100
+      timeout: 60
       retries: 1
       image_list:
         - docker://quay.io/cloud-bulldozer/backpack
-        - docker://quay.io/cloud-bulldozer/fio
+        - docker://quay.io/cloud-bulldozer/hello-openshift

@@ -16,7 +16,6 @@ spec:
     index_name: ripsaw-vegeta
   metadata:
     collection: true
-    serviceaccount: benchmark-operator
   workload:
     name: vegeta
     args:

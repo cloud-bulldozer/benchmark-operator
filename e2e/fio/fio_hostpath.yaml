@@ -35,8 +35,8 @@ spec:
         - 1
         - 2
       iodepth: 2
-      read_runtime: 6
-      write_runtime: 6
+      read_runtime: 5
+      write_runtime: 5
       read_ramp_time: 1
       write_ramp_time: 1
       filesize: 10MiB

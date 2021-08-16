@@ -27,5 +27,5 @@ spec:
       threads: 5
       max_file_size_kb: 4
       max_files: 1000
-      duration: 15
+      duration: 10
       debug: true

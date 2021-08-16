@@ -20,7 +20,7 @@ spec:
     args:
       # general options
       runtype: "parallel"
-      timeout: "30"
+      timeout: "10"
       instances: 1
       # nodeselector: 
       # cpu stressor options

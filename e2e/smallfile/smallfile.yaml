@@ -1,3 +1,4 @@
+---
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
@@ -13,7 +14,6 @@ spec:
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
     metrics_profile: node-metrics.yml
-  # where elastic search is running
   elasticsearch:
     url: ${ES_SERVER}
     index_name: ripsaw-smallfile

@@ -2,7 +2,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: smallfile-hostpath-benchmark
+  name: smallfile-hostpath
   namespace: benchmark-operator
 spec:
   test_user: homer_simpson
