@@ -40,7 +40,7 @@ ARCH ?= $(shell uname -m | sed 's/x86_64/amd64/')
 # Image URL to use all building/pushing image targets
 REGISTRY ?= quay.io
 ORG ?= cloud-bulldozer
-# Get the current branch/tag name
+# Get the current branch name
 # In case this is the master branch, rename it to latest
 VERSION ?= $(shell git describe --tags 2>/dev/null || git rev-parse --abbrev-ref HEAD | sed 's/master/latest/g')
 IMG ?= $(REGISTRY)/$(ORG)/benchmark-operator:$(VERSION)

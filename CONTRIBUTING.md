@@ -71,7 +71,7 @@ Example `playbook.yml`:
 
 ### Workload triggers
 [CRD](https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/) holds the definition of the resource.
-The operator triggers roles based on the conditions defined in a CR ([example](resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)) which will influence which roles the
+The operator triggers roles based on the conditions defined in a CR ([example](config/samples/uperf/cr.yaml) which will influence which roles the
 [playbook](playbook.yml) executes.
 Other vars may be defined that can modify the workload run conditions.
 
@@ -154,7 +154,7 @@ Redefine CRD
 ```
 Apply a new CR
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml
+# kubectl apply -f config/samples/uperf/cr.yaml
 ```
 
 ## CI
@@ -166,7 +166,7 @@ To ensure that adding new a workload will not break other workloads and its
 behavior can be predicted, we've mandated writing tests before PR can be merged.
 
 If a new workload is added, please follow the instructions to add a testcase to
-[test.sh](test,sh):
+[test.sh](test.sh):
 * copy an existing test like [uperf test](tests/test_uperf.sh)
 * Add commands needed to setup the workload specific requirements if any
 * Add a valid cr file to [test_crs](tests/test_crs/) directory for your workload

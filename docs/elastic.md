@@ -29,7 +29,7 @@ Current supported ES + Prometheus integrated workloads:
 | Workload                       | Status                 |
 | ------------------------------ | ---------------------- |
 | [UPerf](docs/uperf.md)         | Not Supported    |
-| [Iperf3](docs/iperf.md)        | Not Supported    |
+| [Iperf3](docs/iperf3.md)       | Not Supported    |
 | [fio](docs/fio_distributed.md) | Supported        |
 | [Sysbench](docs/sysbench.md)   | Not Supported    |
 | [YCSB](docs/ycsb.md)           | Not Supported    |

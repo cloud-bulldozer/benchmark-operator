@@ -9,6 +9,7 @@ The easiest way to install the operator is through the operator-sdk methods prov
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
+cd benchmark-operator
 make deploy
 ```
 
@@ -16,6 +17,7 @@ If you wish to build a version of the operator from your local copy of the repo,
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
+cd benchmark-operator
 make image-build image-push deploy IMG=$YOUR_IMAGE
 ```
 
@@ -49,7 +51,7 @@ helm uninstall benchmark-operator -n benchmark-operator
 | Workload                       | Use                    | ElasticSearch indexing  | Reconciliation usage       | VM support (kubevirt) | Kata Containers | CI Tested |
 | ------------------------------ | ---------------------- | ------------------ | -------------------------- | --------------------- | --------------- | ------------ |
 | [UPerf](docs/uperf.md)         | Network Performance    | Yes                |  Used, default : 3second  | Working                | Working         | Yes |
-| [Iperf3](docs/iperf.md)       | Network Performance     | No                 |  Used, default : 3second  | Not Supported          | Preview         | Yes |
+| [Iperf3](docs/iperf3.md)       | Network Performance     | No                 |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [fio](docs/fio_distributed.md) | Storage IO             | Yes                |  Used, default : 3second  | Working                | Working         | Yes |
 | [Sysbench](docs/sysbench.md)   | System Performance     | No                 |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [YCSB](docs/ycsb.md)           | Database Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |

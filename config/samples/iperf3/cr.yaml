@@ -12,7 +12,7 @@ spec:
       transmit_type: time
       transmit_value: 60
       omit_start: 0
-      length_buffer: 128K
+#     length_buffer: 128K
       window_size: 64k
       ip_tos: 0
       mss: 900

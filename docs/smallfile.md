@@ -3,7 +3,7 @@
 [Smallfile](https://github.com/distributed-system-analysis/smallfile) is a python-based distributed POSIX workload generator which can be used to quickly measure performance for a variety of metadata-intensive workloads across an entire cluster.
 
 ## Running Smallfile Benchmark using Ripsaw
-Once the operator has been installed following the instructions, one needs to modify the clients parameter(which is currently set to 0), to value greater than 0 in  [ripsaw_v1alpha1_smallfile_cr.yaml](../config/samples/smallfile/cr.yaml) to run default "create" the test. Also, in addtion to that, smallfile operator is completely dependent on storageclass and storagesize. Please make sure to double check the parameters in CRD file.
+Once the operator has been installed following the instructions, one needs to modify the clients parameter(which is currently set to 0), to value greater than 0 in [cr.yaml](../config/samples/smallfile/cr.yaml) to run default "create" the test. Also, in addtion to that, smallfile operator is completely dependent on storageclass and storagesize. Please make sure to double check the parameters in CRD file.
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
@@ -64,7 +64,7 @@ Smallfile also comes with a variety of configurable options for running tests, f
   the file operation duration down to microsecond resolution.
  * **file_size_distribution** – only supported value today is exponential.
  * **record_size** -- record size in KB, how much data is transferred in a single
-  read or write system call.  If 0 then it is set to the minimum of the file
+  read or write system call. If 0 then it is set to the minimum of the file
   size and 1-MiB record size limit.
  * **files_per_dir** -- maximum number of files contained in any one directory.
  * **dirs_per_dir** -- maximum number of subdirectories contained in any one
@@ -107,7 +107,7 @@ previous runs for example)
 Once done creating/editing the resource file, one can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_smallfile_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/smallfile/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
