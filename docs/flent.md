@@ -233,7 +233,7 @@ To enable Multus in Ripsaw, here is the relevant config.
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_flent_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/flent/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 

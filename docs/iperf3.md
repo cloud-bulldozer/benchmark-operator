@@ -19,14 +19,14 @@ spec:
   args:
     pairs: 1
     hostnetwork: false
-    pin: true
-    pin_server: "master-0"
-    pin_client: "master-1"
+    #pin: true
+    #pin_server: "master-0"
+    #pin_client: "master-1"
     port: 5201
     transmit_type: time
     transmit_value: 60
     omit_start: 0
-    length_buffer: 128K
+    #length_buffer: 128K
     window_size: 64k
     ip_tos: 0
     mss: 900
@@ -116,7 +116,7 @@ $ oc adm policy add-scc-to-user privileged -z benchmark-operator
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_iperf3_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/iperf3/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 

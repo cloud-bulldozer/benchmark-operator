@@ -43,7 +43,8 @@ spec:
 You can run it by:
 
 ```bash
-oc apply -f resources/crds/ripsaw_v1alpha1_cyclictest_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/cyclictest/cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 ## Looking at results
 
