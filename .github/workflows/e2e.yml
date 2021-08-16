@@ -55,6 +55,10 @@ jobs:
     - name: Execute e2e tests
       run: make e2e-tests
 
+    - name: Undeploy benchmark-operator
+      run: make undeploy
+      if: always() # always run even if the previous step fails
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       if: failure()
