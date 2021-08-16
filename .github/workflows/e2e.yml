@@ -49,8 +49,8 @@ jobs:
         QUAY_USER: ${{ secrets.QUAY_USER }}
         QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
 
-    - name: Build benchmark-operator
-      run: make image-build image-push
+    - name: Build, push and deploy benchmark-operator
+      run: make image-build image-push deploy
 
     - name: Execute e2e tests
       run: make e2e-tests
