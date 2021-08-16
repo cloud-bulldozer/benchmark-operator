@@ -85,6 +85,7 @@ spec:
           - export es_rhcos_version={{workload_args.es_rhcos_version}};
           - export es_kata_version={{workload_args.es_kata_version}};
           - export es_kind={{workload_args.es_kind}};
+          - export es_build_version={{workload_args.es_build_version}};
           - export es_data={{workload_args.es_data}};
 {% endif %}
           - dnf install -y python3-pip
