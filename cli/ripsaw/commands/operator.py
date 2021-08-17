@@ -15,6 +15,7 @@
 
 import os
 import subprocess
+import sys
 import tempfile
 
 import click
@@ -29,17 +30,21 @@ DEFAULT_BRANCH = "master"
 
 @click.group("operator")
 def operator_group():
-    """Passthrough function for Click CLI group, used as a decorator to declare functions for the CLI"""
+    """Function to define Click CLI group, used as a decorator to declare functions as group commands
+    This function is used as a decorator for the operator commands (eg. ripsaw operator <command>)
+    """
 
 
 @operator_group.command("install")
 @click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
 @click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
+@click.option("--force-remote", help="Forcibly use remote repo for install", is_flag=True)
 @click.option("--kubeconfig", help=" path to kubeconfig of cluster", default=None)
-def install(repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, command="make deploy", kubeconfig=None):
+def install(
+    repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, force_remote=False, command="make deploy", kubeconfig=None
+):
     """installs the operator from repo into specified cluster"""
-    click.echo(f"Installing Operator from repo {repo} and branch {branch}")
-    _perform_operator_action(repo, branch, command, kubeconfig)
+    _perform_operator_action(repo, branch, force_remote, command, kubeconfig)
     wait_for_operator(kubeconfig=kubeconfig)
     click.secho("Operator Running", fg="green")
 
@@ -47,11 +52,18 @@ def install(repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, command="make deploy", kub
 @operator_group.command("delete")
 @click.option("--repo", help="Repo URL for benchmark-operator", show_default=True, default=DEFAULT_REPO)
 @click.option("--branch", help="Branch to checkout", show_default=True, default=DEFAULT_BRANCH)
+@click.option("--force-remote", help="Forcibly use remote repo for install", is_flag=True)
 @click.option("--kubeconfig", help="kubeconfig of cluster", default=None)
-def delete(repo=DEFAULT_REPO, branch=DEFAULT_BRANCH, command="make kustomize undeploy", kubeconfig=None):
+def delete(
+    repo=DEFAULT_REPO,
+    branch=DEFAULT_BRANCH,
+    force_remote=False,
+    command="make ustomize undeploy",
+    kubeconfig=None,
+):
     """delete the operator from configured cluster"""
     click.echo("Deleting Operator")
-    _perform_operator_action(repo, branch, command, kubeconfig)
+    _perform_operator_action(repo, branch, force_remote, command, kubeconfig)
     click.secho("Operator Deleted", fg="green")
 
 
@@ -62,43 +74,47 @@ def wait_for_operator(namespace="benchmark-operator", kubeconfig=None):
     cluster.wait_for_pods(label_selector, namespace, timeout=120)
 
 
-def _perform_operator_action(repo, branch, command, kubeconfig=None):
+def _perform_operator_action(repo, branch, force_remote, command, kubeconfig=None):
     """run command from operator repo"""
     shell_env = os.environ.copy()
     if kubeconfig is not None:
         shell_env["KUBECONFIG"] = kubeconfig
     local_git_repo = _find_git_repo(os.getcwd())
     result = None
-    if "benchmark-operator" in local_git_repo:
+    if not force_remote and local_git_repo is not None and "benchmark-operator" in local_git_repo:
         shell_env["VERSION"] = "latest"
         logger.info("Detected CLI is running from local repo, using that instead of remote")
-        result = subprocess.run(
-            command.split(" "),
-            shell=False,
-            env=shell_env,
-            cwd=local_git_repo,
-            capture_output=True,
-            check=True,
-            encoding="utf-8",
-        )
+        click.echo(f"Installing Operator from local repo at {local_git_repo}")
+        result = _run_command(command, shell_env, local_git_repo)
     else:
         with tempfile.TemporaryDirectory(dir=".") as temp_dir:
-            _clone_repo(repo, branch, temp_dir.name)
-            result = subprocess.run(
-                command.split(" "),
-                shell=False,
-                env=shell_env,
-                cwd=temp_dir.name,
-                capture_output=True,
-                check=True,
-                encoding="utf-8",
-            )
-            temp_dir.cleanup()
+            click.echo(f"Installing Operator from repo {repo} and branch {branch}")
+            _clone_repo(repo, branch, temp_dir)
+            result = _run_command(command, shell_env, temp_dir)
 
     if result.stderr:
         logger.warning(result.stderr)
     if result.stdout:
         logger.debug("Command Result: {}".format(result.stdout))
+
+
+def _run_command(command, shell_env, cwd):
+    try:
+        return subprocess.run(
+            command.split(" "),
+            shell=False,
+            env=shell_env,
+            cwd=cwd,
+            capture_output=True,
+            check=True,
+            encoding="utf-8",
+        )
+    except subprocess.CalledProcessError as err:
+        logger.error(f"Something went wrong when running '{command}'")
+        logger.error(f"Return Code {err.returncode}")
+        logger.error(f"stdout -- {err.output}")
+        logger.error(f"stderr -- {err.stderr}")
+        sys.exit(1)
 
 
 def _clone_repo(repo, branch, directory):

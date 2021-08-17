@@ -23,7 +23,7 @@ logger = logging.get_logger(__name__)
 
 @click.group()
 def cli():
-    """Click passthrough function for CLI"""
+    """Top level Click CLI group that is used to add all the groups defined in the commands module."""
 
 
 cli.add_command(operator.operator_group)

@@ -25,7 +25,9 @@ from ripsaw.models.benchmark import Benchmark
 
 @click.group("benchmark")
 def benchmark_group():
-    """Passthrough function for Click CLI groups, used as a decorator to declare functions for the CLI"""
+    """Function to define Click CLI group, used as a decorator to declare functions as group commands
+    This function is used as a decorator for the benchmark commands (eg. ripsaw benchmark <command>)
+    """
 
 
 @benchmark_group.command("run")
