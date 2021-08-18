@@ -16,14 +16,16 @@ indexes=(ripsaw-pgbench-summary ripsaw-pgbench-raw)
   check_es
 }
 
-
-setup_file() {
-  basic_setup
+setup() {
   kubectl_exec apply -f pgbench/postgres.yaml
   kubectl_exec rollout status deploy/postgres --timeout=60s
   export POSTGRES_IP=$(kubectl_exec get pod -l app=postgres -o jsonpath="{.items[*].status.podIP}")
 }
 
+setup_file() {
+  basic_setup
+}
+
 teardown_file() {
-  kubectl_exec delete -f pgbench/postgres.yaml
+  kubectl_exec delete -f pgbench/postgres.yaml --ignore-not-found
 }

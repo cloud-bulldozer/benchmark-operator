@@ -16,12 +16,15 @@ ES_INDEX=ripsaw-hammerdb-results
   check_es
 }
 
-setup_file() {
-  basic_setup
+setup() {
   kubectl apply -f hammerdb/sql-server.yaml
   kubectl rollout status -n sql-server deploy/mssql-deployment --timeout=60s
 }
 
+setup_file() {
+  basic_setup
+}
+
 teardown_file() {
-  kubectl delete ns sql-server --wait=false
+  kubectl delete ns sql-server --wait=false --ignore-not-found
 }
