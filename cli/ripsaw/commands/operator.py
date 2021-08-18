@@ -58,7 +58,7 @@ def delete(
     repo=DEFAULT_REPO,
     branch=DEFAULT_BRANCH,
     force_remote=False,
-    command="make ustomize undeploy",
+    command="make kustomize undeploy",
     kubeconfig=None,
 ):
     """delete the operator from configured cluster"""
