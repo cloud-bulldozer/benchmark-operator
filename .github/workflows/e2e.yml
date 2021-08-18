@@ -58,10 +58,13 @@ jobs:
     - name: Build, push and deploy benchmark-operator
       run: make image-build image-push deploy
 
+    - name: Ensure benchmark-operator is running
+      run: kubectl rollout status -n benchmark-operator --timeout=5m deploy/benchmark-controller-manager
+
     - name: Execute e2e tests
       run: make e2e-tests
       env:
-        TERM: linux 
+        TERM: linux
 
     - name: Undeploy benchmark-operator
       run: make undeploy
