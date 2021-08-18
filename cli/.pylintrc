@@ -1,0 +1,20 @@
+[MASTER]
+jobs=0
+ignore-paths=
+    cli/tests
+[MESSAGES CONTROL]
+disable=
+    duplicate-code,
+    import-error,
+    too-few-public-methods,
+    too-many-arguments,
+    too-many-instance-attributes,
+    fixme,
+    logging-fstring-interpolation,
+    no-self-use,
+    logging-format-interpolation
+
+
+
+[FORMAT]
+max-line-length=110

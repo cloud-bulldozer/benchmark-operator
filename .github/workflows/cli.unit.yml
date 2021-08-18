@@ -1,0 +1,42 @@
+ 
+name: CLI Unit Tests
+on:
+  push:
+    paths:
+      - 'cli/**'
+      - 'workflows/cli.*.yml'
+  pull_request:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: cli
+
+jobs:
+  unit_tests:
+    name: Run Unit Tests -- Python 3.${{ matrix.pyver }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pyver: [8, 9]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.${{ matrix.pyver }}
+      - name: Install tox
+        run: pip install tox
+      - name: Install Kind Cluster
+        run: kind create cluster --name=pytest-kind --kubeconfig ./kubeconfig
+      - name: Run Tox
+        run: tox -e py3${{ matrix.pyver }}-unit -- --kind-bin=/usr/local/bin/kind --kubeconfig ./kubeconfig --keep-cluster
+      - name: Generate Coverage Report
+        if: matrix.pyver == 9
+        run: tox -e coverage
+      - name: Upload Coverage Report
+        if: matrix.pyver == 9
+        uses: codecov/codecov-action@v1
+        with:
+          files: cli/coverage.xml
+          flags: unit,gha,python-3.${{ matrix.pyver }}
