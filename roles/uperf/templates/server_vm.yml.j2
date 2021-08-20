@@ -5,7 +5,7 @@ metadata:
   name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
-    benchmark-operator-uuid: {{ uuid }}
+    benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: uperf
     benchmark-operator-role: server
     app : uperf-bench-server-{{ item }}-{{ trunc_uuid }}

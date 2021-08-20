@@ -6,12 +6,13 @@ import sys
 import redis
 
 redis_host = sys.argv[1]
+trunc_uuid = sys.argv[2]
 
 try:
     r = redis.StrictRedis(host=redis_host, port=6379)
 
     p = r.pubsub()
-    p.subscribe('fs-drift')
+    p.subscribe(f'fs-drift-{trunc_uuid}')
     STATE = True
 
     while STATE:

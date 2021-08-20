@@ -5,11 +5,13 @@ metadata:
   name: 'iperf3-client-{{ item.status.podIP }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: iperf3-bench-client-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
       affinity:
         podAntiAffinity:

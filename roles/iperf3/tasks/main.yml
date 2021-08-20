@@ -1,30 +1,4 @@
 ---
-- name: Get current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Update current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - block:
 
   - name: Start Server(s)
@@ -32,21 +6,18 @@
       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
     with_sequence: start=1 count={{ workload_args.pairs|default('1')|int }}
 
-  - name: Update state to Starting Server
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Server"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Server"
 
-  when: resource_state.resources[0].status.state == "Starting"
+  when: benchmark_state.resources[0].status.state == "Building"
 
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -54,22 +25,19 @@
         - app = iperf3-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: Update state to Starting Clients
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Clients"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Clients"
     when: "workload_args.pairs|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and (server_pods | json_query('resources[].status.phase') is defined and workload_args.pairs|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length)"
 
-  when: resource_state.resources[0].status.state == "Starting Server"
+  when: benchmark_state.resources[0].status.state == "Starting Server"
 
 - block:
 
   - name: Get server pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -82,21 +50,18 @@
       definition: "{{ lookup('template', 'client.yml.j2') | from_yaml }}"
     with_items: "{{ server_pods.resources }}"
 
-  - name: Update state to Waiting for Clients
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Waiting for Clients"  
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Waiting for Clients"
 
-  when: resource_state.resources[0].status.state == "Starting Clients"
+  when: benchmark_state.resources[0].status.state == "Starting Clients"
 
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -104,36 +69,16 @@
         - app = iperf3-bench-client-{{ trunc_uuid }}
     register: client_pods
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
     when: client_pods.resources|length > 0
 
-  when: ( workload_args.pairs|default('1')|int > 0 ) and resource_state.resources[0].status.state == "Waiting for Clients"
+  when: ( workload_args.pairs|default('1')|int > 0 ) and benchmark_state.resources[0].status.state == "Waiting for Clients"
 
-- block:
-  - name: Waiting for Jobs to complete....
-    k8s_facts:
-      kind: Job
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = iperf3-bench-client-{{ trunc_uuid }}
-    register: client_jobs
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "workload_args.pairs|default('1')|int == (client_jobs | json_query('resources[].status.succeeded')|length)"
-
-  when: resource_state.resources[0].status.state == "Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

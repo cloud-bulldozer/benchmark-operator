@@ -1,18 +1,19 @@
 ---
 apiVersion: batch/v1
-kind: "job"
+kind: Job
 metadata:
   name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   parallelism: {{ workload_args.instances }}
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: stressng_workload-{{ trunc_uuid }}
         type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
-        benchmark-operator-uuid: {{ uuid }}
+        benchmark-uuid: {{ uuid }}
         benchmark-operator-workload: stressng
     spec:
 {% if workload_args.pin is sameas true %}

@@ -1,15 +1,17 @@
 ---
+kind: Job
 apiVersion: batch/v1
-kind: "job"
 metadata:
   name: "byowl-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
        app: byowl-{{ trunc_uuid }}
+       benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"

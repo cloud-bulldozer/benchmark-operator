@@ -1,32 +1,4 @@
 ---
-
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state - If it has changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-
 - block:
 
   - name: Create metrics profile for remote configuration job
@@ -209,46 +181,15 @@
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Get job status
-    k8s_info:
-      kind: Job
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      name: kube-burner-{{ trunc_uuid }}
-    register: job_state
-
-  - name: Set complete state to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0
-
-  - name: Set failed state to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Failed
-        complete: true
-    when: job_state.resources[0].status.failed is defined and (job_state.resources[0].status.failed | int) > 0
-  when: resource_state.resources[0].status.state == "Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

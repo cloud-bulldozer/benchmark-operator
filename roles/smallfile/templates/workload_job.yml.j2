@@ -5,12 +5,13 @@ metadata:
   name: "smallfile-client-{{ item }}-benchmark-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
-  ttlSecondsAfterFinished: 600
   backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: smallfile-benchmark-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -86,7 +87,7 @@ spec:
           - name: clients
             value: "{{ workload_args.clients|default('1')|int }}"
           args:
-            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
+            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}} {{trunc_uuid}};
               export TMPDIR=/tmp
               arr=$(python <<< "print(','.join({{workload_args.operation}}))");
               rm -rf {{smallfile_path}}/RESULTS ;

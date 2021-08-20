@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: system-metrics-collector-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -29,7 +30,7 @@ spec:
           -c index.yml
           -u {{ system_metrics.prom_url }}
           -t {{ system_metrics.prom_token }}
-          --start={{ (cr_state.resources[0].metadata.creationTimestamp|to_datetime('%Y-%m-%dT%H:%M:%SZ')).strftime('%s') }}
+          --start={{ (benchmark_state.resources[0].metadata.creationTimestamp|to_datetime('%Y-%m-%dT%H:%M:%SZ')).strftime('%s') }}
           -m {{ system_metrics.metrics_profile|default("node-metrics.yml") }}
           --step={{ system_metrics.step }}
         volumeMounts:

@@ -24,7 +24,7 @@
 - block:
   ### <VM> kind
   - name: get complete
-    command: "redis-cli get complete"
+    command: "redis-cli get complete-{{ trunc_uuid }}"
     register: complete_status
 
   - operator_sdk.util.k8s_status:

@@ -1,31 +1,4 @@
 ---
-
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state if changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - block:
 
   - name: Add cyclic test scripts
@@ -40,64 +13,20 @@
           cyclictest.sh: "{{ lookup('file', 'cyclictest.sh') }}"
           functions.sh: "{{ lookup('file', 'functions.sh') }}"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: ConfigMaps Created
-        complete: false
-
-  when: resource_state.resources[0].status.state == "Building" 
-
-- block:
   - name: Start cyclitest job
     k8s:
       state: present
       definition: "{{ lookup('template', 'cyclictestjob.yaml') | from_yaml }}"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Benchmark Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "ConfigMaps Created"
+  when: benchmark_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Wait for benchmark to complete
-    k8s_facts:
-      kind: Job
-      api_version: batch/v1
-      name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
-      namespace: "{{ operator_namespace }}"
-    register: cyclictest_status
-
-  - name: Set Complete Status to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Benchmark Complete
-        complete: true
-    when: cyclictest_status.resources[0].status.succeeded is defined and (cyclictest_status.resources[0].status.succeeded | int) > 0
-
-  - name: Set failed state to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Failed
-        complete: true
-    when: cyclictest_status.resources[0].status.failed is defined and (cyclictest_status.resources[0].status.failed | int) > 0
-
-  when: resource_state.resources[0].status.state == "Benchmark Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

@@ -15,11 +15,11 @@ files: {{ workload_args.files }}
 {% endif %}
 
 {% if workload_args.fsync is defined %}
-fsync: {{ workload_args.fsync }}
+fsync: y
 {% endif %}
 
 {% if workload_args.response_times is defined %}
-response-times: {{ workload_args.response_times }}
+response-times: true
 {% endif %}
 
 {% if workload_args.network_sync_dir is defined %}
@@ -79,21 +79,17 @@ verbose: {{workload_args.verbose}}
 {% endif %}
 
 {% if workload_args.permute_host_dirs is defined %}
-permute-host-dirs: {{ workload_args.permute_host_dirs }}
+permute-host-dirs: true
 {% endif %}
 
 {% if workload_args.record_ctime_size is defined %}
-record-ctime-size: {{ workload_args.record_ctime_size }}
+record-ctime-size: true
 {% endif %}
 
 {% if workload_args.verify_read is defined %}
-verify-read: {{ workload_args.verify_read }}
+verify-read: true
 {% endif %}
 
 {% if workload_args.incompressible is defined %}
-incompressible: {{ workload_args.incompressible }}
-{% endif %}
-
-{% if workload_args.cleanup_delay_usec_per_file is defined %}
-cleanup-delay-usec-per-file: {{workload_args.cleanup_delay_usec_per_file}}
+incompressible: true
 {% endif %}

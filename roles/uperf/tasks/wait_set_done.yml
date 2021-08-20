@@ -15,7 +15,7 @@
           status:
             state: Run Next Set
         
-      when: "num_completion.stdout|int == ((resource_state.resources[0].status.node_idx|int +1) * (resource_state.resources[0].status.pod_idx|int +1))"
+      when: "num_completion.stdout|int == ((benchmark_state.resources[0].status.node_idx|int +1) * (benchmark_state.resources[0].status.pod_idx|int +1))"
 
     when: resource_kind == "pod"
 
