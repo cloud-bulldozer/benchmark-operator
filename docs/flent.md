@@ -16,8 +16,7 @@ metadata:
 spec:
   clustername: myk8scluster
   #elasticsearch:
-  #   server: elk.server.com
-  #   port: 9200
+  #  url: http://my.elasticsearch.server:80
   #test_user: username_to_attach_to_metadata
   workload:
     # cleanup: true
@@ -266,13 +265,8 @@ spec:
       runtime: 30
 ```
 
-The new fields :
-
-`elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-
-`elasticsearch.port` port which elasticsearch is listening, typically `9200`.
-
-`user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
+- `elasticsearch.url` Elastic search instance with full URL format. https://elastic.apps.org:9200
+- `user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
 
 By default we will utilize the `flent-results` index for Elasticsearch.
 
