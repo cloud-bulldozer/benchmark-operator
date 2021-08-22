@@ -106,6 +106,9 @@ spec:
               -v
 {% endif %}
               ;
+{% if workload_args.debug is defined and workload_args.debug %}
+              ls /tmp ; cat /tmp/invoke*log ;
+{% endif %}
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:
             - name: config-volume
