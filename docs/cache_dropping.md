@@ -37,6 +37,13 @@ For this to work, you must **label** the nodes that you want to drop kernel cach
 ```
 # kubectl label node minikube kernel-cache-dropper=yes
 ```
+
+or to label all worker nodes:
+
+```
+# kubectl label node kernel-cache-dropper=yes -l node-role.kubernetes.io/worker=''
+```
+
 If you do not do this, benchmark-operator will reject the benchmark with an error to the effect that
 none of the cluster nodes have this label. This label controls where kernel cache is dropped.
 
@@ -44,13 +51,7 @@ There will be a short delay after kernel cache is dropped in order to allow the 
 some key cache contents before stressing it with a workload.  This is controllable via the CACHE_RELOAD_TIME
 env. var. and defaults to 10 sec.
 
-You must also execute this command before running a benchmark.
-
-```
-oc create -f ripsaw.l/resources/kernel-cache-drop-clusterrole.yaml
-```
-
-Lastly, the specific benchmark must support this feature.   
+The specific benchmark must support this feature.   
 Benchmarks supported for kernel cache dropping at present are:
 
 - fio
