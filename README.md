@@ -25,7 +25,7 @@ make image-build image-push deploy IMG=$YOUR_IMAGE
 
 ## Installation (Helm) 
 
-Installing the benchmark-operator is easiest by using the helm chart and can be done with the following commands. This requires
+Installing the benchmark-operator via Helm can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
 
 > Note: If running on openshift you'll need to run this command before installing the chart. `oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator`
@@ -35,6 +35,8 @@ your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/i
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
 cd benchmark-operator/charts/benchmark-operator
+kubectl create namespace benchmark-operator 
+oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator # Openshift Only 
 helm install benchmark-operator . -n benchmark-operator --create-namespace
 ```
 
