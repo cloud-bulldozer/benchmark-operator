@@ -41,6 +41,8 @@ spec:
           env:
             - name: MASTER
               value: "true"
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
           ports:
             - containerPort: 6379
           resources:

@@ -20,12 +20,12 @@ operator:
   image:
     repository: quay.io/cloud-bulldozer/benchmark-operator
     pullPolicy: Always
-    tag: master
+    tag: latest
 
   redisImage:
-    repository: k8s.gcr.io/redis
+    repository: bitnami/redis
     pullPolicy: Always
-    tag: v1
+    tag: latest
 
   resources:
     limits:
