@@ -29,6 +29,7 @@ spec:
       record_size: 1
       xattr_size: 50
       pause: 2
+      auto_pause: y
       stonewall: n
       finish: y
       prefix: abc
