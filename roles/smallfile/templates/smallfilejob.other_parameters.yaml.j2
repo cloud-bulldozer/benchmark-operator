@@ -26,13 +26,11 @@ files: {{ workload_args.files }}
 fsync: {{ workload_args.fsync }}
 {% endif %}
 
-{% if workload_args.response_times is defined %}
-response-times: {{ workload_args.response_times }}
-{% endif %}
+# response-times is always set to Y so that
+# benchmark-wrapper can collect response time data
 
-{% if workload_args.network_sync_dir is defined %}
-network-sync-dir: {{workload_args.network_sync_dir}}
-{% endif %}
+# network-sync-dir is never used with benchmark-operator
+# since it uses redis to synchronize pods and elastic to return data
 
 {% if workload_args.files_per_dir is defined %}
 files-per-dir: {{workload_args.files_per_dir}}
@@ -72,6 +70,10 @@ finish: {{workload_args.finish}}
 
 {% if workload_args.prefix is defined %}
 prefix: {{workload_args.prefix}}
+{% endif %}
+
+{% if workload_args.suffix is defined %}
+suffix: {{workload_args.suffix}}
 {% endif %}
 
 {% if workload_args.hash_into_dirs is defined %}
