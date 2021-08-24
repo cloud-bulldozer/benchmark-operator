@@ -5,17 +5,23 @@ metadata:
   namespace: benchmark-operator
 spec:
   test_user: homer_simpson
-  clustername: aws-2009-09-10
+  clustername: nuclear-power-plant
   elasticsearch:
     url: http://my.elasticsearch.server:9200
   workload:
     name: smallfile
     args:
+      #drop_cache_kernel: true
+      #drop_cache_rook_ceph: true
+      #storageclass: my-kubernetes-storageclass
+      storagesize: 2Gi
       clients: 1
       samples: 1
       operation: ["create", "read"]
       threads: 5
       file_size: 64
       files: 100
-      storageclass: rook-ceph-block
-      storagesize: 2Gi
+      # more parameters available, see smallfile documentation
+      # at https://github.com/distributed-system-analysis/smallfile/blob/master/README.md
+      # subset of parameters supported for benchmark-operator are in
+      # roles/smallfile/templates/smallfilejob.other_parameters.yaml.j2
