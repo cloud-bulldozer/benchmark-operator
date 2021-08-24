@@ -5,10 +5,12 @@
 ## Running Smallfile Benchmark using Ripsaw
 Once the operator has been installed following the instructions, one needs to modify the clients parameter(which is currently set to 0), to value greater than 0 in [cr.yaml](../config/samples/smallfile/cr.yaml) to run default "create" the test. Also, in addtion to that, smallfile operator is completely dependent on storageclass and storagesize. Please make sure to double check the parameters in CRD file.
 
-Smallfile operator also gives the leverage to run multiple test operations in a user-defined sequence. Like in the [Custom Resource Definition file](../config/samples/smallfile/cr.yaml), the series of operation can be mentioned as:
+Smallfile operator also gives the leverage to run multiple test operations in a user-defined sequence. Like in the [Custom Resource Definition file](../config/samples/smallfile/cr.yaml), the series of operations can be specified as a list. 
 
 NOTE: While running the sequence of tests using smallfile workload, please make sure that the initial operation must be create, and the "cleanup" operation should come in termination, else smallfile might produce error due to meaningless sequence of tests. For example:
+
 ```bash
+
 operation: ["read","append","create", "delete","cleanup"]
 #This will be meaningless sequence of test as trying to read something, which has not been created yet.The same logic applies for the append test as well. Hence, smallfile will produce error.
 ```
