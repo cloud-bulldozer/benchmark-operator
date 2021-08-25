@@ -7,7 +7,11 @@ items:
   - kind: Job
     apiVersion: batch/v1
     metadata:    
-      name: 'uperf-server-{{worker_node_list[ node_idx_item ] | truncate(27,true,'') }}-{{ item }}-{{ trunc_uuid }}'
+{% if (worker_node_list[ node_idx_item]|length>27) and (worker_node_list[ node_idx_item ][26] == '.') %}
+      name: 'uperf-server-{{worker_node_list[ node_idx_item ] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}'
+{% else %}
+      name: 'uperf-server-{{worker_node_list[ node_idx_item ] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}'
+{% endif %}
       namespace: "{{ operator_namespace }}"
     spec:
       ttlSecondsAfterFinished: 600
@@ -18,7 +22,12 @@ items:
             benchmark-uuid: {{ uuid }}
             benchmark-operator-workload: uperf
             benchmark-operator-role: server
-            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'') }}-{{ item  }}-{{ trunc_uuid }}
+{% if (worker_node_list[ node_idx_item]|length>27) and (worker_node_list[ node_idx_item ][26] == '.') %}
+            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item  }}-{{ trunc_uuid }}
+{% else %}
+            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item  }}-{{ trunc_uuid }}
+{% endif %}
+
             type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
           annotations:
 {% if workload_args.multus.enabled is sameas true %}
