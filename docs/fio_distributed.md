@@ -138,8 +138,8 @@ The workload loops are nested as such from the CR options:
 - **pvcvolumemode**: (optional) The volmeMode to request with the persistent volume claim (PVC) for the fio server. Can be one of Filesystem,Block Default: Filesystem
   > Note: It is recommended to change this to `Block` for VM tests
 - **storagesize**: (optional) The size of the PVCs to request from the StorageClass ([note units quirk per above](#understanding-the-cr-options))
-- **drop_cache_kernel**: (optional, default false) If set to `True`, kernel cache will be dropped on the labeled hosts before each sample.  See [here for how to set up kernel cache dropping](./cache_dropping.md)
-- **drop_cache_rook_ceph**: (optional, default false) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [here for how to set up Ceph OSD cache dropping](../cache_dropping.md)
+- **drop_cache_kernel**: (optional, default false) If set to `True`, kernel cache will be dropped on the labeled hosts before each sample.  See [here for how to set up kernel cache dropping](./cache_dropping.md#how-to-drop-kernel-cache)
+- **drop_cache_rook_ceph**: (optional, default false) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [here for how to set up Ceph OSD cache dropping](./cache_dropping.md#how-to-drop-Ceph-OSD-cache)
   > Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
 - **prefill**: (Optional) boolean to enable/disable prefill SDS
   - prefill requirement stems from Ceph RBD thin-provisioning - just creating the RBD volume doesn't mean that there is space allocated to read and write out there. For example, reads to an uninitialized volume don't even talk to the Ceph OSDs, they just return immediately with zeroes in the client.
