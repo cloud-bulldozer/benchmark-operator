@@ -3,6 +3,8 @@
 How To:
 - [Indexing to Elasticsearch](#indexing-to-elasticsearch)
 - [What is it](#what-is-it)
+- [Example Elasticsearch deployment](#example-elasticsearch-deployment)
+    - [Example Grafana deployment](#example-grafana-deployment)
 - [Enabling Collection](#enabling-collection)
     - [Benchmark Data](#benchmark-data)
     - [Prometheus Data](#prometheus-data)
@@ -45,6 +47,111 @@ Current supported ES + Prometheus integrated workloads:
 | [kube-burner](docs/kube-burner.md)  | Not Supported    | 
 | [cyclictest](docs/cyclictest.md)  | Not Supported    | 
 | [oslat](docs/oslat.md)         | Not Supported    | 
+
+# Example Elasticsearch deployment
+
+There are multiple ways to deploy Elasticsearch, there are binaries for Windows, OSX, Linux. It is already included as a package
+in all the major distributions, or it can be executed as a container, including deploying it on an OpenShift cluster.
+
+There is an Elasticsearch Operator already available in the [operatorhub](https://operatorhub.io/operator/elastic-cloud-eck) and also
+helm charts, including the [official ones](https://github.com/elastic/helm-charts)
+
+In this example, we deploy a single Elasticsearch node on top of OpenShift using the official helm charts as it doesn't require
+any special permissions.
+
+Add the official repo:
+
+```shell
+helm repo add elastic https://helm.elastic.co
+helm repo update
+```
+
+Create a `values.yaml` file with some specific tweaks for OpenShift:
+
+```yaml
+securityContext:
+  runAsUser: null
+ 
+podSecurityContext:
+  fsGroup: null
+  runAsUser: null
+ 
+sysctlInitContainer:
+  enabled: false
+ 
+replicas: 1
+minimumMasterNodes: 1
+ 
+esConfig:
+  elasticsearch.yml: |
+    node.store.allow_mmap: false
+ 
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 2Gi
+ 
+sysctlInitContainer:
+  enabled: false
+```
+
+Then, deploy it as:
+
+```shell
+oc new-project my-elasticsearch
+helm install elasticsearch elastic/elasticsearch -f values.yaml -n my-elasticsearch
+```
+
+If needed, create a route as:
+
+```shell
+oc expose svc elasticsearch-master -n my-elasticsearch
+```
+
+Then, verify it has been deployed properly as:
+
+```shell
+curl -s http://$(oc get route elasticsearch-master -o jsonpath='{.spec.host}' -n my-elasticsearch)
+```
+
+### Example grafana deployment
+
+As well as Elasticsearch, there are multiple ways to deploy Grafana. In this example, the bitnami helm chart is used
+as it doesn't require any special permission.
+
+Add the bitnami repo:
+
+```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm update
+```
+
+Get the uid range from the project:
+
+```shell
+oc get project my-elasticsearch -o jsonpath='{.metadata.annotations.openshift\.io/sa\.scc\.uid-range}'
+1000740000/10000
+```
+
+Then deploy the helm chart using some specific parameters to work in OpenShift as:
+
+```shell
+helm install grafana bitnami/grafana --set securityContext.fsGroup="",securityContext.runAsUser=1000740001 -n my-elasticsearch
+```
+
+Then, expose the svc
+
+```shell
+oc expose svc grafana -n my-elasticsearch
+```
+
+To access the web dashboard, the following data is required:
+
+* host = `oc get route grafana -o jsonpath='{.spec.host}' -n my-elasticsearch`
+* user = `admin` (by default)
+* pass = `oc get secret/grafana-admin -o go-template='{{.data.GF_SECURITY_ADMIN_PASSWORD | base64decode}}' -n my-elasticsearch`
+
 
 # Enabling Collection
 
