@@ -147,7 +147,7 @@ The workload loops are nested as such from the CR options:
   - When running against compressed volumes, the prefill operation need to be done with the same block size as using in the test, otherwise the compression ratio will not be as expected.
 - **cmp_ratio** (Optional) When running against compressed volumes, the expected compression ratio (0-100)
 - **fio_json_to_log**: (Optional, default false) boolean to enable/disable sending job results in json format to client pod log.
-
+- **job_timeout**: (Optional, default 3600) set this parameter if you want the fio to run for more than 1 hour without automatic termination
 #### EXPERT: spec.global_overrides
 
 The `key=value` combinations provided in the list here will be appended to the `[global]` section of the fio
