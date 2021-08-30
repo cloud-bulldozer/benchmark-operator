@@ -57,6 +57,6 @@ data:
       fi;
       break;
     done;
-    redis-cli -h {{bo.resources[0].status.podIP}} set start false
+    redis-cli -h {{bo.resources[0].status.podIP}} set start-{{trunc_uuid}} false
     redis-cli -h {{bo.resources[0].status.podIP}} del clients-{{trunc_uuid}}
-    redis-cli -h {{bo.resources[0].status.podIP}} set complete true
+    redis-cli -h {{bo.resources[0].status.podIP}} set complete-{{trunc_uuid}} true
