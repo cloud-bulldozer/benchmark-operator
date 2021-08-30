@@ -1,0 +1,216 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: benchmarks.ripsaw.cloudbulldozer.io
+spec:
+  group: ripsaw.cloudbulldozer.io
+  names:
+    kind: Benchmark
+    listKind: BenchmarkList
+    plural: benchmarks
+    singular: benchmark
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              uuid: 
+                type: string
+              elasticsearch:
+                default: {}
+                type: object
+                properties:
+                  url:
+                    type: string
+                  index_name:
+                    type: string
+                  parallel:
+                    type: boolean
+                    default: false
+                  verify_cert:
+                    type: boolean
+                    default: true
+              prometheus:
+                type: object
+                properties:
+                  es_url:
+                    type: string
+                  es_parallel:
+                    type: boolean
+                  prom_url:
+                    type: string
+                  prom_token:
+                    type: string
+              system_metrics:
+                default: {}
+                type: object
+                properties:
+                  collection:
+                    type: boolean
+                    default: false
+                  es_url:
+                    type: string
+                  index_name:
+                    type: string
+                    default: system-metrics
+                  step:
+                    type: string
+                    default: 30s
+                  metrics_profile:
+                    type: string
+                    default: node-metrics.yml
+                  prom_url:
+                    type: string
+                    default: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+                  image:
+                    type: string
+                    default: quay.io/cloud-bulldozer/kube-burner:latest
+                  prom_token:
+                    type: string
+              workload:
+                x-kubernetes-preserve-unknown-fields: true
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Workload name
+                  args:
+                    x-kubernetes-preserve-unknown-fields: true
+                    type: object
+                    properties:
+                      debug:
+                        type: boolean
+                        default: false
+                        description: Set debug log level in the workload
+                      job_timeout:
+                        type: integer
+                        description: Timeout used for jobs deployed by this benchmark
+                        default: 3600
+              job_params:
+                type: array
+                items:
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+              global_overrides:
+                type: array
+                items:
+                  type: string
+                  x-kubernetes-preserve-unknown-fields: true
+              metadata:
+                default: {}
+                properties:
+                  collection:
+                    default: false
+                    type: boolean
+                  force:
+                    default: false
+                    type: boolean
+                  image:
+                    default: "quay.io/cloud-bulldozer/backpack:latest"
+                    type: string
+                  label:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  privileged:
+                    default: false
+                    type: boolean
+                  serviceaccount:
+                    default: default
+                    type: string
+                  stockpileSkipTags:
+                    default: []
+                    items:
+                      type: string
+                    type: array
+                  stockpileTags:
+                    default: ["common", "k8s", "openshift"]
+                    items:
+                      type: string
+                    type: array
+                  targeted:
+                    default: true
+                    type: boolean
+                  ssl:
+                    default: false
+                    type: boolean
+                type: object
+              cleanup:
+                type: boolean
+              test_user:
+                type: string
+              clustername:
+                type: string
+              hostpath:
+                type: string
+              drop_cache_kernel:
+                type: boolean
+              drop_cache_rook_ceph:
+                type: boolean
+          status:
+            default: {}
+            type: object
+            properties:
+              complete:
+                type: boolean
+                default: false
+                description: Benchmark is completed
+              metadata:
+                type: string
+                description: Metadata collection status
+              state:
+                type: string
+                description: Benchmark status
+              suuid:
+                type: string
+                description: Benchmark short UUID
+              uuid:
+                type: string
+                description: Benchmark UUID
+              pod_hi_idx:
+                type: string
+              pod_low_idx:
+                type: string
+              node_hi_idx:
+                type: string
+              node_low_idx:
+                type: string
+              pod_idx:
+                type: string
+              node_idx:
+                type: string
+              system_metrics:
+                type: string
+                default: Not collected
+                description: System metrics collection status
+    additionalPrinterColumns:
+    - name: Type
+      type: string
+      description: The type of test to perform
+      jsonPath: .spec.workload.name
+    - name: State
+      type: string
+      description: The state of the benchmark
+      jsonPath: .status.state
+    - name: Metadata State
+      type: string
+      description: The state of metadata collection
+      jsonPath: .status.metadata
+    - name: System metrics
+      type: string
+      description: System metrics collect status
+      jsonPath: .status.system_metrics
+    - name: UUID
+      type: string
+      jsonPath: .status.uuid
+    - name: Age
+      type: date
+      jsonPath: .metadata.creationTimestamp
+    subresources:
+      status: {}

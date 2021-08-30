@@ -1,0 +1,3 @@
+# when debugging set this var, for example:
+#ceph_cache_drop_image: quay.io/bengland2/ceph-cache-dropper:debug
+

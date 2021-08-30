@@ -11,6 +11,7 @@ spec:
     metadata:
       labels:
         app: kube-burner-benchmark-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -30,10 +31,14 @@ spec:
       - name: kube-burner
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/kube-burner:latest') }}
         imagePullPolicy: Always
-{% if prometheus.es_url is defined %}
+        securityContext:
+          readOnlyRootFilesystem: false
+{% if workload_args.extra_env_vars is defined and workload_args.extra_env_vars is mapping %}
         env:
-        - name: prom_es
-          value: "{{ prometheus.es_url }}"
+{% for name, value in workload_args.extra_env_vars.items() %}
+        - name: {{ name }}
+          value: "{{ value }}"
+{% endfor %}
 {% endif %}
         workingDir: /tmp/kube-burner
         command: ["/bin/sh", "-c"]

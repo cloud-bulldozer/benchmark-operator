@@ -11,7 +11,7 @@ metadata:
   namespace: sql-server
 spec:
   replicas: 1
-  selector: 
+  selector:
     matchLabels:
       app: mssql
   template:
@@ -41,4 +41,3 @@ spec:
     - protocol: TCP
       port: 1433
       targetPort: 1433
-

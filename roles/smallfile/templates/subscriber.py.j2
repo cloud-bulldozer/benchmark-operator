@@ -6,12 +6,13 @@ import sys
 import redis
 
 redis_host = sys.argv[1]
+uuid = sys.argv[2]
 
 try:
     r = redis.StrictRedis(host=redis_host, port=6379)
 
     p = r.pubsub()
-    p.subscribe('smallfile')
+    p.subscribe(f'smallfile-{uuid}')
     STATE = True
 
     while STATE:

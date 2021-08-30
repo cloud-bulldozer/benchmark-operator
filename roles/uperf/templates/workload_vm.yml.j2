@@ -5,6 +5,9 @@ metadata:
   name: 'uperf-client-{{item.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
+    benchmark-uuid: {{ uuid }}
+    benchmark-operator-workload: uperf
+    benchmark-operator-role: client
     app: uperf-bench-client-{{ trunc_uuid }}
     type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
 spec:

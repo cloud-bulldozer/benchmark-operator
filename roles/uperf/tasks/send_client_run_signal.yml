@@ -14,5 +14,5 @@
       status:
         state: "Running"
 
-  when: resource_state.resources[0].status.state == "Clients Running"
+  when: benchmark_state.resources[0].status.state == "Clients Running"
 

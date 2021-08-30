@@ -1,0 +1,123 @@
+---
+apiVersion: kubevirt.io/v1alpha3
+kind: VirtualMachineInstance
+metadata:
+  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+  namespace: "{{ operator_namespace }}"
+  labels:
+    app: hammerdb_workload-{{ trunc_uuid }}
+    type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+    benchmark-uuid: {{ uuid }}
+spec:
+  domain:
+    cpu:
+      sockets: {{ workload_args.client_vm.sockets }}
+      cores: {{ workload_args.client_vm.cores }}
+      threads: {{ workload_args.client_vm.threads }}
+      dedicatedCpuPlacement: {{ workload_args.client_vm.dedicatedcpuplacement }}
+{% if 'hostpassthrough' in workload_args.client_vm.extra_options %}
+      model: host-passthrough
+{% endif %}
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: containerdisk
+      - disk:
+          bus: virtio
+        name: cloudinitdisk
+      - disk: {}
+        name: hammerdb-creator-volume
+        # set serial
+        serial: CVLY623300HK240C
+      - disk: {}
+        name: hammerdb-workload-volume
+        # set serial
+        serial: CVLY623300HK240D
+      - disk: {}
+        name: hammerdb-mssql-workload-volume
+        # set serial
+        serial: CVLY623300HK240E
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
+      - disk:
+          bus: virtio
+        name: data-volume
+        serial: data
+{% endif %}
+      interfaces:
+        - name: default
+          {{ workload_args.client_vm.network.front_end }}: {}
+      networkInterfaceMultiqueue: {{ workload_args.client_vm.network.multiqueue.enabled }}
+    machine:
+      type: ""
+    resources:
+      requests:
+        memory: {{ workload_args.client_vm.requests.memory }}
+      limits:
+        memory: {{ workload_args.client_vm.limits.memory }}
+  terminationGracePeriodSeconds: 0
+{% if workload_args.pin is sameas true %}
+  nodeSelector:
+    kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
+  networks:
+    - name: default
+      pod: {}
+  volumes:
+  - name: containerdisk
+    containerDisk:
+      image: {{ workload_args.client_vm.image }}
+  - cloudInitNoCloud:
+      userData: |-
+        #cloud-config
+        password: centos
+        chpasswd: { expire: False }
+        bootcmd:
+          # mount the ConfigMap
+          - "mkdir /creator"
+          - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240C | cut -f1 -d' ') /creator"
+          - "mkdir /workload"
+          - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240D | cut -f1 -d' ') /workload"
+          - "mkdir /tmp/hammerdb-mssql-test"
+          - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240E | cut -f1 -d' ') /tmp/hammerdb-mssql-test"
+        runcmd:
+{% if workload_args.client_vm.pvc is sameas true
+    or workload_args.client_vm.hostpath is sameas true %}
+          - "mkdir -p /var/opt/mssql || true"
+          - mkfs.ext4 /dev/disk/by-id/virtio-data
+          - "mount /dev/disk/by-id/virtio-data /var/opt/mssql"
+          - "chown -R mssql:mssql /var/opt/mssql"
+          - "chgrp mssql /var/opt/mssql"
+{% endif %}
+{% if workload_args.client_vm.network.multiqueue.enabled %}
+          - dnf install -y ethtool
+          - ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }}
+{% endif %}
+          - dnf install -y redis
+          - systemctl start redis
+          - systemctl enable redis
+          - bash /tmp/hammerdb-mssql-test/run_mssql_script.sh
+          - redis-cli -h {{bo.resources[0].status.podIP}} set complete true
+    name: cloudinitdisk
+  - configMap:
+      name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
+    name: hammerdb-creator-volume
+  - configMap:
+      name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+    name: hammerdb-workload-volume
+  - configMap:
+      name: "{{ ansible_operator_meta.name }}-mssql-workload-{{ trunc_uuid }}"
+    name: hammerdb-mssql-workload-volume
+{% if workload_args.client_vm.pvc is sameas true %}
+  - name: data-volume
+    persistentVolumeClaim:
+      claimName: claim-{{ trunc_uuid }}
+{% elif workload_args.client_vm.hostpath is sameas true %}
+  - name: data-volume
+    hostDisk:
+      path: {{ workload_args.client_vm.hostpath_path }}
+      capacity: {{ workload_args.client_vm.hostpath_storagesize | default("10Gi") }}
+      type: DiskOrCreate
+{% endif %}
+status: {}

@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mariadb-db
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb-custom-config
+  namespace: mariadb-db
+data:
+  custom.conf: |
+        # This group is read both both by the client and the server
+        # use it for options that affect everything
+        #
+        [client-server]
+        #
+        # include all files from the config directory
+        #
+        !includedir /etc/my.cnf.d
+        port=3306
+        ssl=0
+        [mysqld]
+        innodb_file_per_table=1
+        innodb_flush_method=O_DIRECT
+        innodb_adaptive_flushing=1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+  namespace: mariadb-db
+spec:
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+        type: mariadb-database-server
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: "worker-0"
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mariadb
+        image: centos/mariadb-103-centos8:latest
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 3306
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+          limits:
+            cpu: 4
+            memory: 16Gi
+        env:
+           - name: MYSQL_USER
+             value: "test"
+           - name: MYSQL_PASSWORD
+             value: "test"
+           - name: MYSQL_ROOT_PASSWORD
+             value: "mysql"
+        volumeMounts:
+          - name: mariadb-custom-config
+            mountPath: /etc/my.cnf
+            subPath: custom.conf #should be the name used in the ConfigMap
+          - name: mariadb-persistent-storage
+            mountPath: /var/lib/mysql
+            readOnly: false
+      volumes:
+        - name: mariadb-custom-config
+          configMap:
+            name: mariadb-custom-config
+        - name: mariadb-persistent-storage
+          persistentVolumeClaim:
+            claimName: mariadb-persistent-storage
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: mariadb-persistent-storage
+    namespace: mariadb-db
+spec:
+    storageClassName: ocs-storagecluster-ceph-rbd
+    accessModes: [ "ReadWriteOnce" ]
+    volumeMode: Filesystem
+    resources:
+      requests:
+        storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-deployment
+  namespace: mariadb-db
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---

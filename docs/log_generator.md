@@ -26,6 +26,8 @@ This data will also be indexed if Elasticsearch information is provided.
 
 `timeout` how long, in seconds, after have been sent to allow the backend service to receive all the messages (default: 600)
 
+`snafu_disable_logs` Disable all logging in the pod from the snafu logger, thereby only leaving the generated log messages on stdout (default: False)
+
 ### Verification variables:
 
 To verify your messages have been received by the backend aggregator you must provide information for ONLY ONE of the supported
@@ -49,6 +51,14 @@ AWS CloudWatch:
 
 `aws_secret_key` the secret key to use to query cloudwatch
 
+Kafka:
+
+`kafka_bootstrap_server` the connection details to kafka
+
+`kafka_topic` the topic where logs are stored
+
+`kafka_check` if you want to verify that log messages made it to kafka sink (requires a high timeout)
+
 Your resource file may look like this when using an Elasticsearch Backend:
 
 ```yaml
@@ -56,7 +66,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -73,7 +83,7 @@ spec:
       timeout: 600
       label:
         key: foo
-        value: "
+        value: ""
 ```
 
 Your resource file may look like this when using an AWS CloudWatch Backend:
@@ -83,7 +93,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: log-generator
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -102,5 +112,33 @@ spec:
       timeout: 800
       label:
         key: bar
-        value: "
+        value: ""
 ```
+
+Your resource file may look like this when using a Kafka Backend:
+
+```yaml
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: log-generator
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: "http://es-instance.com:9200"
+    index_name: log-generator
+  workload:
+    name: log_generator
+    args:
+      pod_count: 2
+      size: 512
+      messages_per_second: 10
+      duration: 1
+      kafka_bootstrap_server: "my-cluster-kafka-bootstrap.amq:9092"
+      kafka_topic: "topic-logging-app"
+      timeout: 600
+      label:
+        key: foo
+        value: ""
+```
+

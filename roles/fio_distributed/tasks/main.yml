@@ -1,30 +1,4 @@
 ---
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state - If it has changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - block:
   - name: Provide path for fio - PV
     set_fact:
@@ -72,18 +46,15 @@
     when: workload_args.servers|default('1')|int > 0 and (workload.args.kind | default('pod')) == "vm"
     with_sequence: start=1 count={{ workload_args.servers|default('1')|int }}
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: StartingServers
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: StartingServers
 
-  when: resource_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "Building"
 
-- block :
+- block:
 
   - name: Capture pod list
     k8s_info:
@@ -94,15 +65,12 @@
         - app = fio-benchmark-{{ trunc_uuid }}
     register: server_pods
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: StartingClient
-        complete: false
-    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: StartingClient
+    when: "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
@@ -122,15 +90,12 @@
         - app = fio-benchmark-{{ trunc_uuid }}
     register: server_pods
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: StartingClient
-        complete: false
-    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.interfaces[].ipAddress')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and resource_state.resources[0].status.state == 'StartingServers'"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: StartingClient
+    when : "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.interfaces[].ipAddress')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
@@ -166,35 +131,15 @@
     k8s:
       definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "StartingClient"
+  when: benchmark_state.resources[0].status.state == "StartingClient"
 
-- block:
-  - name: Capture Client pod list
-    k8s_info:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = fiod-client-{{ trunc_uuid }}
-    register: client_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when : "client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length > 0 "
-
-  when: resource_state.resources[0].status.state == "Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

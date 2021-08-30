@@ -1,0 +1,25 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: ycsb-couchbase-benchmark
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    server: http://my.elasticsearch.server:80
+  clustername: myk8scluster
+  workload:
+    name: ycsb
+    args:
+      infra: mongodb
+      driver: mongodb
+      recordcount: 100
+      operationcount: 100
+      requestdistribution: zipfian
+      workloads:
+        - workloada
+        - workloadb
+        - workloadc
+        - workloadf
+        - workloadd #workloade
+      options_load: '-p mongodb.url="mongodb://mongo/ycsb?"' #passed as is to ycsb when loading database
+      options_run: '-p mongodb.url="mongodb://mongo/ycsb? -threads 10 -target 100"' # passed as is to ycsb when running workloads

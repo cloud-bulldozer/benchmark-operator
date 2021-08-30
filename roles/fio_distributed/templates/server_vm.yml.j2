@@ -6,6 +6,7 @@ metadata:
   namespace: '{{ operator_namespace }}'
   labels:
     app: fio-benchmark-{{ trunc_uuid }}
+    benchmark-uuid: {{ uuid }}
 spec:
   domain:
     cpu:

@@ -22,14 +22,14 @@ intended for Kata containers.
 
 ## Running the benchmark
 
-Here is an example of the [benchmark CR](../resources/crds/ripsaw_v1alpha1_servicemesh_cr.yaml):
+Here is an example of the [benchmark CR](../config/samples/servicemesh/cr.yaml):
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: servicemesh
@@ -71,7 +71,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: servicemesh-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: servicemesh
@@ -108,7 +108,7 @@ spec:
 You can run it by:
 
 ```bash
-oc apply -f resources/crds/ripsaw_v1alpha1_servicemesh_cr.yaml # if edited the original one
+oc apply -f config/samples/servicemesh/cr.yaml # if edited the original one
 ```
 
 ## Visualize the report
@@ -117,7 +117,7 @@ While the output from benchmark is a JSON, you can easily display
 
 ```bash
 NAME=servicemesh-benchmark-xxxxxxx
-oc logs -n my-ripsaw $NAME > /tmp/$NAME.json
+oc logs -n benchmark-operator $NAME > /tmp/$NAME.json
 cat /tmp/$NAME.json | docker run -i --rm quay.io/hyperfoil/hyperfoil-report /opt/report.sh > /tmp/$NAME.html
 ```
 

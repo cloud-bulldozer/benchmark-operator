@@ -19,7 +19,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: fio-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://my.es.server:9200"
@@ -250,13 +250,14 @@ pairs under `params` here are used to append additional fio job options based on
 Dropping the OSD caches before workloads is a normal and advised part of tests that involve storage I/O.
 Doing this with Rook-Ceph requires a privileged pod running the same namespace as the Ceph pods and with
 the Ceph command tools available. To facilitate this, we provide the
-[resources/rook_ceph_drop_cache_pod.yaml](../resources/rook_ceph_drop_cache_pod.yaml) file, which will
+[config/samples/fio/cr.yaml](../config/samples/fio/cr.yaml) file, which will
 deploy a pod with the correct permissions and tools, as well as running a simple HTTP listener to trigger
 the cache drop by URL.
 **You must deploy this privileged pod in order for the drop caches requests in the workload to function.**
 
 ```bash
-kubectl apply -f resources/rook_ceph_drop_cache_pod.yaml
+# kubectl apply -f config/samples/fio/cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
 *Note: If Ceph is in a namespace other than `rook-ceph` you will need to modify the provided YAML accordingly.*
@@ -265,7 +266,7 @@ Since the cache drop pod is deployed with host networking, the pod will take on 
 of the node on which it is running. You will need to use this IP address in the CR file as described above.
 
 ```bash
-kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
+# kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
 ```
 
 ## Indexing in elasticsearch and visualization through Grafana

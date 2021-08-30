@@ -1,30 +1,4 @@
 ---
-- name: Get benchmark state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get benchmark state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-  register: resource_state
-
 - block:
 
   - name: setting ycsb_workload_load var
@@ -40,27 +14,21 @@
       definition: "{{ lookup('template', 'ycsb_load.yaml') | from_yaml }}"
     when: workload_args.loaded is undefined or not workload_args.loaded
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Running Load"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Running Load"
     when: workload_args.loaded is undefined or not workload_args.loaded|default('false')
   
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting First Workload"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting First Workload"
     when: workload_args.loaded is defined and workload_args.loaded|default('false')
 
-  when: resource_state.resources[0].status.state == "Building" 
+  when: benchmark_state.resources[0].status.state == "Building" 
 
 - block:
 
@@ -78,27 +46,14 @@
         - name = 'ycsb-load-{{ trunc_uuid }}'
     register: ycsb_load_pod
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting First Workload"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting First Workload"
     when: "ycsb_load_pod | json_query('resources[].status.succeeded')"
  
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Complete"
-    when: workload_args.workloads is undefined and ycsb_load_pod | json_query('resources[].status.succeeded')
-
-  when: resource_state.resources[0].status.state == "Running Load"
+  when: benchmark_state.resources[0].status.state == "Running Load"
 
 - block:
 
@@ -108,16 +63,13 @@
   - name: Add the first workload index to redis
     command: "redis-cli set {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current 0"
     
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Workload"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Workload"
     
-  when: resource_state.resources[0].status.state == "Starting First Workload"
+  when: benchmark_state.resources[0].status.state == "Starting First Workload"
 
 - block:
    
@@ -137,16 +89,13 @@
     k8s:
       definition: "{{ lookup('template', 'ycsb_run.yaml') | from_yaml }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Running Workload"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Running Workload"
 
-  when: resource_state.resources[0].status.state == "Starting Workload"
+  when: benchmark_state.resources[0].status.state == "Starting Workload"
 
 - block:
 
@@ -168,17 +117,14 @@
         - name = 'ycsb-run-{{ trunc_uuid }}'
     register: ycsb_bench
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Workload Complete"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Workload Complete"
     when: "ycsb_bench | json_query('resources[].status.succeeded')"
 
-  when: resource_state.resources[0].status.state == "Running Workload"
+  when: benchmark_state.resources[0].status.state == "Running Workload"
 
 - block:
 
@@ -197,14 +143,11 @@
   - name: Update current workload item in redis
     command: "redis-cli set {{ ansible_operator_meta.name }}-{{ uuid }}-ycsb-current {{ new_workload_index }}"
   
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Workload"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Workload"
     when: workload_list.stdout != new_workload_index
 
   - name: Update resource state
@@ -214,7 +157,8 @@
       name: "{{ ansible_operator_meta.name }}"
       namespace: "{{ operator_namespace }}"
       status:
-        state: "Complete"
+        state: Complete
+        complete: true
     when: workload_list.stdout == new_workload_index
 
-  when: resource_state.resources[0].status.state == "Workload Complete"
+  when: benchmark_state.resources[0].status.state == "Workload Complete"

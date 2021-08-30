@@ -16,6 +16,7 @@ spec:
       labels:
         name: backpack-{{ trunc_uuid }}
         app: backpack-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
       tolerations:
       - key: node-role.kubernetes.io/master
@@ -61,6 +62,7 @@ spec:
         imagePullPolicy: Always
         securityContext:
           privileged: {{ metadata.privileged }}
+          readOnlyRootFilesystem: false
           runAsNonRoot: false
         readinessProbe:
           exec:

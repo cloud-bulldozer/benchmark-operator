@@ -1,0 +1,120 @@
+- hosts: localhost
+  collections:
+   - operator_sdk.util
+  gather_facts: no
+  pre_tasks:
+
+  - name: Get current state
+    k8s_info:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: '{{ ansible_operator_meta.name }}'
+      namespace: '{{ operator_namespace }}'
+    register: benchmark_state
+  tasks:
+
+  - include_role:
+      name: "ceph_osd_cache_drop"
+    when: workload.args.drop_cache_rook_ceph is defined
+
+  - include_role:
+      name: "kernel_cache_drop"
+    when: workload.args.drop_cache_kernel is defined
+
+  - name: Capture operator information
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: "{{ operator_namespace }}"
+      label_selectors:
+        - control-plane = controller-manager
+    register: bo
+
+
+  - name: Set Workload UUID
+    block:
+      - include_role:
+          name: "uuid"
+
+      - name: Setting the uuid for the benchmark
+        operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            uuid: "{{ uuid }}"
+            complete: false
+            suuid: "{{ trunc_uuid }}"
+            metadata: "not collected"
+    rescue:
+      - include_role:
+          name: benchmark_state
+          tasks_from: failure
+    
+    when: workload is defined and (benchmark_state.resources[0].status is not defined or benchmark_state.resources[0].status.uuid is not defined)
+
+
+  - set_fact:
+      uuid: "{{ benchmark_state.resources[0].status.uuid }}"
+      trunc_uuid: "{{ benchmark_state.resources[0].status.suuid }}"
+    when:
+    - benchmark_state.resources[0].status is defined
+    - benchmark_state.resources[0].status.uuid is defined
+    - benchmark_state.resources[0].status.uuid != ""
+
+  - name: Run Workload
+    rescue:
+      - include_role:
+          name: benchmark_state
+          tasks_from: failure
+    block:
+    - block:
+      
+      - include_role:
+          name: backpack
+        when: metadata is defined and not metadata.targeted | default('true') | bool
+
+      - operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            metadata: "Collecting"
+        when: metadata is defined and metadata.targeted | default('true') | bool and not benchmark_state.resources[0].status.state is defined
+    
+      when: metadata is defined and metadata.collection | default('false') | bool and (benchmark_state.resources[0].status.metadata is defined and benchmark_state.resources[0].status.metadata != "Complete")
+
+    - block:
+
+      - include_role:
+          name: "common"
+
+      - name: Set Building state
+        include_role:
+          name: benchmark_state
+          tasks_from: set_state
+        vars:
+          state: Building
+        when: benchmark_state.resources[0].status.state is not defined and workload.name != "backpack"
+
+      - include_role: 
+          name: "{{ workload.name }}"
+        vars:
+          workload_args: "{{ workload.args }}"
+
+      when: metadata is not defined or not metadata.collection | default('false') | bool or (benchmark_state.resources[0].status.metadata is defined and benchmark_state.resources[0].status.metadata == "Complete") or metadata.targeted | default('true') | bool
+    
+    when: benchmark_state is defined and benchmark_state.resources[0].status is defined and not benchmark_state.resources[0].status.complete|bool and (benchmark_state.resources[0].status.state is not defined or benchmark_state.resources[0].status.state != "Error")
+
+  - include_role:
+      name: system-metrics
+    
+    vars:
+      workload_args: "{{ workload.args }}"
+    when:
+    - benchmark_state.resources[0].status.state is defined
+    - benchmark_state.resources[0].status.state == "Complete"
+    - system_metrics.collection | bool
+    - workload.name not in ["kube-burner", "backpack"]

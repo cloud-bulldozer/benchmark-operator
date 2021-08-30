@@ -5,7 +5,7 @@
 ## Running pgbench
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_pgbench_cr.yaml) to your needs.
+you can modify [cr.yaml](../config/samples/pgbench/cr.yaml) to your needs.
 
 The pgbench workload needs to be pointed at one or more existing PostgreSQL databases via the CR file.
 
@@ -16,7 +16,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: pgbench-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: "pgbench"

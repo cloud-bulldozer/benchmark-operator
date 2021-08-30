@@ -8,16 +8,17 @@ import sys
 
 redis_host = sys.argv[1]
 number_of_pods = sys.argv[2]
+trunc_uuid = sys.argv[3]
 
 try:
     r = redis.StrictRedis(host=redis_host, port=6379)
     count = 0
     while int(count) != int(number_of_pods):
-        count = r.execute_command("PUBSUB NUMSUB fs-drift")[1]
+        count = r.execute_command(f"PUBSUB NUMSUB fs-drift-{trunc_uuid}")[1]
         print(count, file=sys.stdout)
         time.sleep(1)
     print("All Pods are ready to run. Triggering the run ........\(^_^)/", file=sys.stdout)
-    r.publish("fs-drift","run")
+    r.publish(f"fs-drift-{trunc_uuid}","run")
 except Exception as e:
     print("******Exception Occured*******")
     print(str(e))

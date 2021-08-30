@@ -1,31 +1,4 @@
 ---
-
-- name: Get current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Starting
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Update current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - block:
   - name: template sysbench script
     k8s:
@@ -50,36 +23,15 @@
       definition: "{{ lookup('template', 'workload_vm.yml') | from_yaml }}"
     when:  workload_args.kind is defined and workload_args.kind == "vm"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
-        complete: false
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "Starting"
+  when: benchmark_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Waiting for pods to complete....
-    k8s_facts:
-      kind: pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - app = sysbench-{{ trunc_uuid }}
-    register: client_pods
-
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: "1 == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
-
-  when: resource_state.resources[0].status.state == "Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

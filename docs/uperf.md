@@ -5,14 +5,14 @@
 ## Running UPerf
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_uperf_cr.yaml)
+you can modify [cr.yaml](../config/samples/uperf/cr.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: uperf-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
@@ -251,7 +251,7 @@ combinations of UPERF data points to exercise datapath performance from many ang
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_uperf_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/uperf/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 

@@ -9,16 +9,16 @@ tree - see the benchmark documentation for details.  fs-drift requires that a st
 
 ## Running fs-drift Benchmark
 
-Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../resources/crds/ripsaw_v1alpha1_fs-drift_cr.yaml) to customize workload parameters - the defaults are selected to demonstrate its operation and are not intended to specify a long-duration test.
+Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../config/samples/fs-drift/cr.yaml) to customize workload parameters - the defaults are selected to demonstrate its operation and are not intended to specify a long-duration test.
 
-The parameters in [cr.yaml](../resources/crds/ripsaw_v1alpha1_fs-drift_cr.yaml) would look similar to this example:
+The parameters in [cr.yaml](../config/samples/fs-drift/cr.yaml) would look similar to this example:
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: fs-drift
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   workload:
     name: fs-drift
@@ -37,7 +37,7 @@ specified in a YAML input file also.   YAML input style is a little different --
 is omitted, and single dashes are converted to underscores.   So "--parameter-foo bar" becomes "parameter_foo: bar".
 
 Operator CRs apparently also do not allow dashes in key names.  So for the above example, use the 
-syntax "parameter_foo" instead of "--parameter-foo".  See resources/crds/ for an example of fs-drift CR.
+syntax "parameter_foo" instead of "--parameter-foo".  See `config/samples/fs-drift/` for an example of fs-drift CR.
 
 The following fs-drift parameters will be overridden when fs-drift is used in ripsaw - do not specify these parameters yourself!
 
@@ -56,7 +56,8 @@ intended for Kata containers.
 Once done creating/editing the CR file below, one can run it by:
 
 ```bash
-kubectl apply -f resources/crds/ripsaw_v1alpha1_fs-drift_cr.yaml
+# kubectl apply -f config/samples/fs-drift/cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
 Deploying the above(assuming worker_pods set to 2) would result in

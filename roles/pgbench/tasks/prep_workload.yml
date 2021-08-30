@@ -7,15 +7,12 @@
 
 - name: Setup pgbench test job(s)
   k8s:
-    definition: "{{ lookup('template', 'templates/workload.yml.j2') }}"
+    definition: "{{ lookup('template', 'workload.yml.j2') }}"
   with_indexed_items: "{{ workload_args.databases }}"
   when: item.0|int in range(dbnum|int)
 
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: "Check Clients"
-      complete: false
+- include_role:
+    name: benchmark_state
+    tasks_from: set_state
+  vars:
+    state: "Check Clients"

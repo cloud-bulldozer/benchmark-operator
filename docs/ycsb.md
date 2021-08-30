@@ -5,7 +5,7 @@
 ## Running YCSB
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_ycsb_cr.yaml) to your needs.
+you can modify [cr.yaml](../config/samples/ycsb/cr.yaml) to your needs.
 
 YCSB is a workload that requires a database/key-value store to run workloads against and benchmark.
 
@@ -15,7 +15,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: ycsb-mongo-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   workload:
@@ -71,6 +71,6 @@ so that the ycsb pod can access the API of database.
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_ycsb_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/ycsb/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```

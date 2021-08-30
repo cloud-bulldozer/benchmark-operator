@@ -1,0 +1,105 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: hammerdb-vm-benchmark
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: http://my.elasticsearch.server:80
+    index_name: ripsaw-hammerdb
+  metadata:
+    collection: false
+  workload:
+    name: hammerdb
+    args:
+      #image: quay.io/user/hammerdb:latest # add custom hammerdb image
+      pin: false # true for nodeSelector
+      pin_node: "node1"
+      db_type: "mssql"
+      timed_test: true
+      test_type: "tpc-c"
+      db_init: true # true only for first run to build schema
+      db_benchmark: true
+      db_server: "127.0.0.1"
+      db_port: "1433"
+      db_warehouses: 1
+      db_num_workers: 1
+      db_user: "SA"
+      db_pass: "s3curePasswordString"
+      db_name: "tpcc"
+      transactions: 10000
+      raiseerror: "false"
+      keyandthink: "false"
+      driver: "timed"
+      rampup: 1
+      runtime: 1
+      allwarehouse: false
+      timeprofile: false
+      async_scale: false
+      async_client: 10
+      async_verbose: false
+      async_delay: 1000
+      samples: 1
+      # database specific variables
+      # mssql:
+      db_mssql_tcp: "true"
+      db_mssql_azure: "false"
+      db_mssql_authentication: "windows"
+      db_mssql_linux_authent: "sql"
+      db_mssql_odbc_driver: "ODBC Driver 13 for SQL Server"
+      db_mssql_linux_odbc: "ODBC Driver 17 for SQL Server"
+      db_mssql_imdb: "false"
+      db_mssql_bucket: 1
+      db_mssql_durability: "SCHEMA_AND_DATA"
+      db_mssql_checkpoint: "false"
+      # mariadb:
+      db_mysql_storage_engine: "innodb"
+      db_mysql_partition: "false"
+      db_mysql_socket: "/var/lib/mysql/mysql.sock"
+      # postgresql
+      db_postgresql_superuser: "SA"
+      db_postgresql_superuser_pass: "s3curePasswordString"
+      db_postgresql_defaultdbase: "postgres"
+      db_postgresql_vacuum: "false"
+      db_postgresql_dritasnap: "false"
+      db_postgresql_oracompat: "false"
+      db_postgresql_storedprocs: "false"
+      # ElasticSearch custom fields
+      es_custom_field: false
+      es_ocp_version: "4.7.0"
+      es_cnv_version: "2.6.2"
+      es_db_version: "2019"
+      es_os_version: "centos8"
+      es_kind: "vm"
+      kind: vm
+      client_vm:
+        dedicatedcpuplacement: false
+        sockets: 1
+        cores: 2
+        threads: 1
+        image: quay.io/cloud-bulldozer/centos8-mssql2019-container-disk:latest
+        requests:
+          memory: 100Mi
+        limits:
+          memory: 16Gi # at least 16Gi for VM
+        network:
+          front_end: bridge # or masquerade
+          multiqueue:
+            enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
+            queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
+        extra_options:
+          - none
+          #- hostpassthrough
+        ## OCS PVC
+        pvc: false # enable for OCS PVC
+        pvc_storageclass: ocs-storagecluster-ceph-rbd
+        # Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
+        pvc_pvcaccessmode: ReadWriteMany
+        # Can be one of Filesystem,Block Default: Filesystem
+        pvc_pvcvolumemode: Block
+        pvc_storagesize: 10Gi
+        ## HostPath - Configuring SELinux on cluster workers
+        hostpath: false # enable for hostPath
+        hostpath_path: /var/tmp/disk.img
+        hostpath_storagesize: 10Gi
+

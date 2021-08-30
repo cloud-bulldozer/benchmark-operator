@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rook-ceph-osd-cache-drop
+  # if you are using upstream rook-ceph, change the next line
+  #namespace: "{{ rook_ceph_namespace }}"
+  namespace: "openshift-storage"
+  labels:
+    app: rook-ceph-osd-cache-drop
+spec:
+  containers:
+  - name: rook-ceph-osd-cache-drop
+    image: "quay.io/cloud-bulldozer/ceph-cache-dropper:latest"
+    imagePullPolicy: Always
+    command: [/bin/sh, -c]
+    args:
+      - cd /opt/ceph_cache_drop; python3 ./osd-cache-drop-websvc.py
+    env:
+      - name: ROOK_CEPH_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: rook-ceph-mon
+            key: ceph-username
+      - name: ROOK_CEPH_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: rook-ceph-mon
+            key: ceph-secret
+      - name: ceph_cache_drop_port
+        #value: "{{ ceph_cache_drop_svc_port }}"
+        value: "9457"
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - mountPath: /dev
+        name: dev
+      - mountPath: /sys/bus
+        name: sysbus
+      - mountPath: /lib/modules
+        name: libmodules
+      - mountPath: /etc/rook
+        name: mon-endpoint-volume
+  hostNetwork: true
+  volumes:
+  - hostPath:
+      path: /dev
+    name: dev
+  - hostPath:
+      path: /sys/bus
+    name: sysbus
+  - hostPath:
+      path: /lib/modules
+    name: libmodules
+  - configMap:
+      items:
+      - key: data
+        path: mon-endpoints
+      name: rook-ceph-mon-endpoints
+    name: mon-endpoint-volume

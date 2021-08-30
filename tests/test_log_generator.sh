@@ -17,19 +17,17 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_log_generator {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
-  
+  delete_benchmark $cr
+  benchmark_name=$(get_benchmark_name $cr)
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
   log_gen_pod=$(get_pod "app=log-generator-$uuid" 300)
-  wait_for "kubectl -n my-ripsaw wait --for=condition=Initialized -l app=log-generator-$uuid pods --timeout=300s" "300s" $log_gen_pod
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=log-generator-$uuid jobs --timeout=300s" "300s" $log_gen_pod
+  check_benchmark_for_desired_state $benchmark_name Complete 800s
 
   index="log-generator-results"
   if check_es "${long_uuid}" "${index}"
@@ -37,10 +35,10 @@ function functional_test_log_generator {
     echo "${test_name} test: Success"
   else
     echo "Failed to find data for ${test_name} in ES"
-    kubectl logs "$log_gen_pod" -n my-ripsaw
+    kubectl logs "$log_gen_pod" -n benchmark-operator
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

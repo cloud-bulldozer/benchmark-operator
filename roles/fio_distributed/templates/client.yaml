@@ -5,10 +5,12 @@ metadata:
   name: 'fio-client-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
+        benchmark-uuid: {{ uuid }}
         app: fiod-client-{{ trunc_uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
@@ -22,7 +24,7 @@ spec:
           - name: uuid
             value: "{{ uuid }}"
           - name: test_user
-            value: "{{ test_user | default("ripsaw") }}"
+            value: "{{ test_user | default('ripsaw') }}"
           - name: clustername
             value: "{{ clustername }}"
           - name: ceph_cache_drop_pod_ip
@@ -31,11 +33,17 @@ spec:
             value: "{{ kcache_drop_pod_ips | default() }}"
           - name: KCACHE_DROP_PORT_NUM
             value: "{{ kernel_cache_drop_svc_port }}"
+{% if ceph_osd_cache_drop_pod_ip is defined %}
+          - name: ceph_osd_cache_drop_pod_ip
+            value: "{{ ceph_osd_cache_drop_pod_ip }}"
+          - name: CEPH_CACHE_DROP_PORT_NUM
+            value: "{{ ceph_cache_drop_svc_port }}"
+{% endif %}
 {% if elasticsearch is defined %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
-            value: "{{ elasticsearch.index_name | default("ripsaw-fio") }}"
+            value: "{{ elasticsearch.index_name | default('ripsaw-fio') }}"
           - name: es_verify_cert
             value: "{{ elasticsearch.verify_cert | default(true) }}"
           - name: parallel

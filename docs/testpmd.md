@@ -13,6 +13,8 @@ This workload assumes a healthy cluster is runing with SR-IOV and Performance Ad
 
 These are used to create VFs and SRIOV networks, interface might vary. Creating `SriovNetworkNodePolicy` will reboot your worker nodes one by one.
 
+Below node policy is for Intel XXV710 NICs, for a Mellanox NIC to work in Data Plane Development Kit (DPDK) mode, use the `netdevice` driver type and include additional spec `isRdma: true`.
+
 ```yaml
 apiVersion: sriovnetwork.openshift.io/v1
 kind: SriovNetworkNodePolicy
@@ -51,7 +53,7 @@ spec:
   spoofChk: "on"
   trust: "on"
   resourceName: intelnics
-  networkNamespace: my-ripsaw
+  networkNamespace: benchmark-operator
 
 ```
 
@@ -101,7 +103,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: testpmd-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   workload:
@@ -180,8 +182,8 @@ This CR will create TestPMD pod and TRex pod using the SRIOV network provided an
 
 ```sh
 # oc get benchmark 
-NAME                TYPE      STATE      METADATA STATE   CERBERUS        UUID                                   AGE
-testpmd-benchmark   testpmd   Complete   not collected    not connected   35daf5ac-2edf-5e34-a6cc-17fcda055937   4m36s
+NAME                TYPE      STATE      METADATA STATE   UUID                                   AGE
+testpmd-benchmark   testpmd   Complete   not collected    35daf5ac-2edf-5e34-a6cc-17fcda055937   4m36s
 
 # oc get pods
 NAME                                     READY   STATUS      RESTARTS   AGE

@@ -1,40 +1,4 @@
 ---
-
-- name: Get current state
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state - If it has changed
-  k8s_info:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- name: Capture operator information
-  k8s_info:
-    kind: Pod
-    api_version: v1
-    namespace: '{{ operator_namespace }}'
-    label_selectors:
-      - name = benchmark-operator
-  register: bo
-
 - block:
 
   - name: Create metrics profile for remote configuration job
@@ -50,8 +14,6 @@
     when: 
       - workload_args.remote_config is defined
       - workload_args.remote_config
-      - workload_args.remote_metrics_profile is not defined
-      - workload_args.remote_metrics_profile
 
   - name: Create cluster-density configmaps
     k8s:
@@ -121,6 +83,68 @@
           secret.yml: "{{ lookup('file', 'secret.yml')}}"
     when: workload_args.workload == "max-namespaces"
 
+  - name: Create networkpolicy-multitenant configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-multitenant.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          networkpolicy-ingress.yaml: "{{ lookup('file', 'networkpolicy-ingress.yaml')}}"
+          networkpolicy-monitoring.yaml: "{{ lookup('file', 'networkpolicy-monitoring.yaml')}}"
+          networkpolicy-same-ns.yaml: "{{ lookup('file', 'networkpolicy-same-ns.yaml')}}"
+    when: workload_args.workload == "networkpolicy-multitenant"
+
+  - name: Create networkpolicy-case2 configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-case2.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          case2-networkpolicy.yaml: "{{ lookup('file', 'case2-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-case2"
+
+  - name: Create networkpolicy-case3 configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-case3.yml.j2')}}"
+          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+          case3-networkpolicy.yaml: "{{ lookup('file', 'case3-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-case3"
+
+
+  - name: Create networkpolicy-cross-ns configmaps
+    k8s:
+      definition:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: kube-burner-config-{{ trunc_uuid }}
+          namespace: "{{ operator_namespace }}"
+        data:
+          config.yml: "{{ lookup('template', 'networkpolicy-cross-ns.yml.j2')}}"
+          nginx-cross-ns.yaml: "{{ lookup('file', 'nginx-cross-ns.yaml')}}"
+          cross-ns-networkpolicy.yaml: "{{ lookup('file', 'cross-ns-networkpolicy.yaml')}}"
+          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+    when: workload_args.workload == "networkpolicy-cross-ns"
+
   - name: Create max-services configmaps
     k8s:
       definition:
@@ -157,46 +181,15 @@
     k8s:
       definition: "{{ lookup('template', 'kube-burner.yml.j2') | from_yaml }}"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Running
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "Building"
+  when: benchmark_state.resources[0].status.state == "Building"
 
-- block:
-
-  - name: Get job status
-    k8s_info:
-      kind: Job
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      name: kube-burner-{{ trunc_uuid }}
-    register: job_state
-
-  - name: Set complete state to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Complete
-        complete: true
-    when: job_state.resources[0].status.succeeded is defined and (job_state.resources[0].status.succeeded | int) > 0
-
-  - name: Set failed state to benchmark
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Failed
-        complete: true
-    when: job_state.resources[0].status.failed is defined and (job_state.resources[0].status.failed | int) > 0
-  when: resource_state.resources[0].status.state == "Running"
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

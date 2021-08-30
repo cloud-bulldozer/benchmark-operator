@@ -1,20 +1,37 @@
+---
 apiVersion: batch/v1
-kind: "job"
+kind: Job
 metadata:
   name: "{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: hammerdb_creator-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-creator-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
       containers:
       - name: hammerdb
+{% if workload_args.resources is sameas true %}
+        resources:
+          requests:
+            cpu: {{ workload_args.requests_cpu }}
+            memory: {{ workload_args.requests_memory }}
+          limits:
+            cpu: {{ workload_args.limits_cpu }}
+            memory: {{ workload_args.limits_memory }}
+{% endif %}
         command: ["/bin/sh", "-c"]
         args: ["/usr/local/bin/uid_entrypoint; cd /hammer; ./hammerdbcli auto /creator/createdb.tcl"]
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:latest') }}

@@ -1,8 +1,4 @@
 build/Dockerfile
-deploy/10_service_account.yaml
-deploy/20_role.yaml
-deploy/30_role_binding.yaml
-deploy/40_cluster_role_kubevirt.yaml
 group_vars/all.yml
 resources/operator.yaml
 tests/common.sh

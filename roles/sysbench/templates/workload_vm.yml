@@ -7,6 +7,7 @@ metadata:
   namespace: "{{ operator_namespace }}"
   labels:
     kubevirt-vm: vm-sysbench-{{ trunc_uuid }}
+    benchmark-uuid: {{ uuid }}
 spec:
   domain:
     devices:

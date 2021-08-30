@@ -10,7 +10,7 @@ SCHED_FIFO real-time tasks which are higher priority.
 
 ## Running cyclictest
 
-Given that you followed instructions to deploy operator, you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_cyclictest.yaml) to your needs.
+Given that you followed instructions to deploy operator, you can modify [cr.yaml](../config/samples/cyclictest/cr.yaml) to your needs.
 It is recommended to define pod requests and limits when running cyclict test, to give guaranteed CPUs to the pods. It is also expected to have the
 realtime kernel installed with required isolation for pods using the [Performance Add-On Operator](https://github.com/openshift-kni/performance-addon-operators).
 
@@ -21,7 +21,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: cyclictest
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   elasticsearch:
     server: <ES_SERVER>
@@ -43,7 +43,8 @@ spec:
 You can run it by:
 
 ```bash
-oc apply -f resources/crds/ripsaw_v1alpha1_cyclictest_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/cyclictest/cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 ## Looking at results
 
@@ -51,7 +52,7 @@ You can look at the results from the cyclictest benchmark by doing
 
 ```bash
 NAME=cyclictest-workload-xxxxxxx
-oc logs -n my-ripsaw $NAME
+oc logs -n benchmark-operator $NAME
 ```
 
 ## Cleanup

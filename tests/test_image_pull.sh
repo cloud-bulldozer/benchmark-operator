@@ -17,18 +17,16 @@ trap error ERR
 trap finish EXIT
 
 function functional_test_image_pull {
-  wait_clean
-  apply_operator
   test_name=$1
   cr=$2
-  
+  delete_benchmark $cr
   echo "Performing: ${test_name}"
   kubectl apply -f ${cr}
-  long_uuid=$(get_uuid 20)
+  benchmark_name=$(get_benchmark_name $cr)
+  long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
 
-  pod_count "app=image-pull-$uuid" 2 300
-  wait_for "kubectl wait -n my-ripsaw --for=condition=complete -l app=image-pull-$uuid jobs --timeout=500s" "500s"
+  check_benchmark_for_desired_state $benchmark_name Complete 500s
 
   index="image-pull-results"
   if check_es "${long_uuid}" "${index}"
@@ -38,7 +36,7 @@ function functional_test_image_pull {
     echo "Failed to find data for ${test_name} in ES"
     exit 1
   fi
-  kubectl delete -f ${cr}
+  delete_benchmark $cr
 }
 
 figlet $(basename $0)

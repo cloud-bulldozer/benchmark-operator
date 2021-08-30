@@ -15,8 +15,8 @@
         all_run_done: False
         inc: "{{workload_args.step_size|default('add1')}}"
         amount: 0
-        pod_idx: "{{resource_state.resources[0].status.pod_idx|int}}"
-        node_idx: "{{resource_state.resources[0].status.node_idx|int}}"
+        pod_idx: "{{benchmark_state.resources[0].status.pod_idx|int}}"
+        node_idx: "{{benchmark_state.resources[0].status.node_idx|int}}"
 
   - name: Extract add amount
     set_fact:
@@ -44,7 +44,7 @@
     - name: Check node loop for ending condition
       set_fact:
         all_run_done: True
-      when: "node_idx|int > resource_state.resources[0].status.node_hi_idx|int"
+      when: "node_idx|int > benchmark_state.resources[0].status.node_hi_idx|int"
 
     #
     # Reset pod_idx AFTER node_idx tasks above, else cond change
@@ -52,9 +52,9 @@
     #
     - name: Reset pod_idx to pod_low_idx
       set_fact:
-        pod_idx: "{{resource_state.resources[0].status.pod_low_idx}}"
+        pod_idx: "{{benchmark_state.resources[0].status.pod_low_idx}}"
 
-    when: "pod_idx|int > resource_state.resources[0].status.pod_hi_idx|int"
+    when: "pod_idx|int > benchmark_state.resources[0].status.pod_hi_idx|int"
 
   - block:
     # 

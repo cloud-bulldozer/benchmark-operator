@@ -1,0 +1,43 @@
+{% if metadata.collection is sameas true and metadata.targeted is sameas true %}
+{% if metadata.serviceaccount != "default" %}
+  serviceAccountName: {{ metadata.serviceaccount }}
+{% endif %}
+  initContainers:
+  - name: backpack
+    image: {{ metadata.image }}
+    command: ["/bin/sh", "-c"]
+    args:
+      - >
+        python3
+        stockpile-wrapper.py
+        -s={{ elasticsearch.url }}
+        -u={{ uuid }}
+        -n=${my_node_name}
+        -N=${my_pod_name}
+        --redisip={{ bo.resources[0].status.podIP }}
+        --redisport=6379
+{% if metadata.force is sameas true %}
+        --force
+{% endif %}
+        --tags={{ metadata.stockpileTags|default(["common", "k8s", "openshift"])|join(",") }}
+{% if metadata.stockpileSkipTags|length > 0 %}
+        --skip-tags={{ metadata.stockpileSkipTags|join(",") }}
+{% endif %}
+{% if metadata.ssl is sameas true %}
+        --sslskipverify True
+{% endif %}
+    imagePullPolicy: Always
+    securityContext:
+      privileged: {{ metadata.privileged }}
+      readOnlyRootFilesystem: false
+      runAsNonRoot: false
+    env:
+      - name: my_node_name
+        valueFrom:
+          fieldRef:
+            fieldPath: spec.nodeName
+      - name: my_pod_name
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+{% endif %}

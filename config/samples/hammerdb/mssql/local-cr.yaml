@@ -1,0 +1,105 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mssql-db
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+  namespace: mssql-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+        type: mssql-database-server
+    spec:
+      nodeSelector:
+              kubernetes.io/hostname: "master-0"
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/rhel/server:2019-latest
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 1433
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+          limits:
+            cpu: 4
+            memory: 16Gi
+        env:
+          - name: MSSQL_PID
+            value: "Enterprise"
+          - name: ACCEPT_EULA
+            value: "Y"
+          - name: MSSQL_SA_PASSWORD
+            value: "s3curePasswordString"
+      securityContext:
+        privileged: true
+        volumeMounts:
+          - name: mssql-persistent-storage
+            mountPath: /var/opt/mssql
+            readOnly: false
+      volumes:
+        - name: mssql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mssql-persistent-storage
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pvdb
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: localblock
+  local:
+    # mkdir inside node
+    path: /var/opt/mssql
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - master-0
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+    name: mssql-persistent-storage
+    namespace: mssql-db
+spec:
+    storageClassName: localblock
+    accessModes:
+      - ReadWriteOnce
+    volumeMode: Filesystem
+    resources:
+      requests:
+        storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-deployment
+  namespace: mssql-db
+spec:
+  selector:
+    app: mssql
+  ports:
+    - protocol: TCP
+      port: 1433
+      targetPort: 1433

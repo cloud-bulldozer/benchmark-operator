@@ -1,0 +1,14 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-{{.Replica}}-{{.Iteration}}-{{randInteger 0 1000000}}
+  labels:
+    label1: {{.label1}}-{{.Replica}}
+    label2: {{.label2}}-{{.Replica}}
+spec:
+  containers:
+  - name: nginx
+    image: quay.io/openshift-scale/nginx:latest
+    ports:
+    - containerPort: 8080

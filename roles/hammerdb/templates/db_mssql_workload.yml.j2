@@ -1,21 +1,37 @@
 ---
 apiVersion: batch/v1
-kind: "job"
+kind: Job
 metadata:
   name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
-  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: hammerdb_workload-{{ trunc_uuid }}
+        type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
       containers:
       - name: hammerdb
+{% if workload_args.resources is sameas true %}
+        resources:
+          requests:
+            cpu: {{ workload_args.requests_cpu | default("200m") }}
+            memory: {{ workload_args.requests_memory | default("100Mi") }}
+          limits:
+            cpu: {{ workload_args.limits_cpu }}
+            memory: {{ workload_args.limits_memory }}
+{% endif %}
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:master') }}
         imagePullPolicy: Always
         env:
@@ -40,7 +56,7 @@ spec:
             value: "{{ prometheus.es_parallel | default(false) }}"
           - name: prom_token
             value: "{{ prometheus.prom_token | default() }}"
-          - name: prom_url
+         - name: prom_url
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
@@ -76,12 +92,15 @@ spec:
              export db_mssql_bucket={{workload_args.db_mssql_bucket}};
              export db_mssql_durability={{workload_args.db_mssql_durability}};
              export db_mssql_checkpoint={{workload_args.db_mssql_checkpoint}};
-             cd /hammer;
-             run_snafu --tool hammerdb -u {{ uuid }} \
-{% if workload_args.debug is defined and workload_args.debug %}
-             -v \
+{% if workload_args.es_custom_field is sameas true %}
+             export es_ocp_version={{workload_args.es_ocp_version}};
+             export es_cnv_version={{workload_args.es_cnv_version}};
+             export es_db_version={{workload_args.es_db_version}};
+             export es_os_version={{workload_args.es_os_version}};
+             export es_kind={{workload_args.es_kind}};
 {% endif %}
-             ;"
+             cd /hammer;
+             run_snafu --tool hammerdb -u {{ uuid }}"
         volumeMounts:
         - name: hammerdb-workload-volume
           mountPath: "/workload"

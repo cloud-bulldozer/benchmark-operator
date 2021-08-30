@@ -5,19 +5,18 @@
 ## Running Flent
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../resources/crds/ripsaw_v1alpha1_flent_cr.yaml)
+you can modify [cr.yaml](../config/samples/flent/cr.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: flent-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   #elasticsearch:
-  #   server: elk.server.com
-  #   port: 9200
+  #  url: http://my.elasticsearch.server:80
   #test_user: username_to_attach_to_metadata
   workload:
     # cleanup: true
@@ -233,7 +232,7 @@ To enable Multus in Ripsaw, here is the relevant config.
 Once done creating/editing the resource file, you can run it by:
 
 ```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_flent_cr.yaml # if edited the original one
+# kubectl apply -f config/samples/flent/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
@@ -244,7 +243,7 @@ apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
   name: example-benchmark
-  namespace: my-ripsaw
+  namespace: benchmark-operator
 spec:
   clustername: myk8scluster
   test_user: test_user # user is a key that points to user triggering ripsaw, useful to search results in ES
@@ -266,20 +265,15 @@ spec:
       runtime: 30
 ```
 
-The new fields :
-
-`elasticsearch.server` this is the elasticsearch cluster ip you want to send the result data to for long term storage.
-
-`elasticsearch.port` port which elasticsearch is listening, typically `9200`.
-
-`user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
+- `elasticsearch.url` Elastic search instance with full URL format. https://elastic.apps.org:9200
+- `user` provide a user id to the metadata that will be sent to Elasticsearch, this makes finding the results easier.
 
 By default we will utilize the `flent-results` index for Elasticsearch.
 
 Deploying the above(assuming pairs is set to 1) would result in
 
 ```bash
-# oc get pods -n my-ripsaw
+# oc get pods -n benchmark-operator
 NAME                                            READY   STATUS      RESTARTS   AGE
 benchmark-operator-f84bdbd8f-n6cnc              3/3     Running     0          34m
 flent-bench-client-10.116.0.54-533b6892-dc5cd   0/1     Completed   0          32m

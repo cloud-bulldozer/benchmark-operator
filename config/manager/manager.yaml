@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    control-plane: controller-manager
+  name: operator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+  namespace: system
+  labels:
+    control-plane: controller-manager
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+      - name: manager
+        args:
+        - --leader-elect
+        - --leader-election-id=ripsaw
+        image: controller:latest
+        imagePullPolicy: Always
+        env:
+        - name: ANSIBLE_GATHERING
+          value: explicit
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: OPERATOR_NAME
+          value: "benchmark-operator"
+        - name: MAX_CONCURRENT_RECONCILES_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+          value: "1"
+        - name: ANSIBLE_VERBOSITY_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
+          value: "4"
+        securityContext:
+          allowPrivilegeEscalation: false
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 6789
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 6789
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      - name: redis-master
+        image: bitnami/redis:latest
+        env:
+          - name: MASTER
+            value: "true"
+          - name: ALLOW_EMPTY_PASSWORD
+            value: "yes"
+        ports:
+          - containerPort: 6379
+        resources:
+          limits:
+            cpu: "2.0"
+        volumeMounts:
+          - mountPath: /redis-master-data
+            name: data
+      serviceAccountName: operator
+      terminationGracePeriodSeconds: 10
+      volumes:
+        - name: data
+          emptyDir: {}

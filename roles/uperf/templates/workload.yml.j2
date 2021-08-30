@@ -17,6 +17,9 @@ items:
       template:
         metadata:
           labels:
+            benchmark-uuid: {{ uuid }}
+            benchmark-operator-workload: uperf
+            benchmark-operator-role: client
             app: uperf-bench-client-{{ trunc_uuid }}
             clientfor: {{ item.metadata.labels.app }}
             type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}

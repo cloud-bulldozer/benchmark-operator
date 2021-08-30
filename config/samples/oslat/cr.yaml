@@ -1,0 +1,26 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: oslat-example
+  namespace: benchmark-operator
+spec:
+  # where elastic search is running
+  elasticsearch:
+    url: http://my.elasticsearch.server:80
+    verify_cert: false
+    parallel: false
+  # clustername: myk8scluster
+  # test_user: ripsaw
+  workload:
+    name: "oslat"
+    args:
+      runtime: "10s"
+      disable_cpu_balance: true
+      use_taskset: true
+      pod:
+        requests:
+          memory: "200Mi"
+          cpu: "4"
+        limits:
+          memory: "200Mi"
+          cpu: "4"

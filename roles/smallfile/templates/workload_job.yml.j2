@@ -5,12 +5,13 @@ metadata:
   name: "smallfile-client-{{ item }}-benchmark-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
-  ttlSecondsAfterFinished: 600
   backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
   template:
     metadata:
       labels:
         app: smallfile-benchmark-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -45,11 +46,19 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if kcache_drop_pod_ips is defined and item | int == 1 %}
+{% if item | int == 1 %}
+{% if kcache_drop_pod_ips is defined %}
           - name: kcache_drop_pod_ips
-            value: "{{ kcache_drop_pod_ips | default() }}"
+            value: "{{ kcache_drop_pod_ips }}"
           - name: KCACHE_DROP_PORT_NUM
             value: "{{ kernel_cache_drop_svc_port }}"
+{% endif %}
+{% if ceph_osd_cache_drop_pod_ip is defined %}
+          - name: ceph_osd_cache_drop_pod_ip
+            value: "{{ ceph_osd_cache_drop_pod_ip }}"
+          - name: CEPH_CACHE_DROP_PORT_NUM
+            value: "{{ ceph_cache_drop_svc_port }}"
+{% endif %}
 {% endif %}
 {% if elasticsearch is defined %}
           - name: es
@@ -78,7 +87,7 @@ spec:
           - name: clients
             value: "{{ workload_args.clients|default('1')|int }}"
           args:
-            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}};
+            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}} {{trunc_uuid}};
               export TMPDIR=/tmp
               arr=$(python <<< "print(','.join({{workload_args.operation}}))");
               rm -rf {{smallfile_path}}/RESULTS ;

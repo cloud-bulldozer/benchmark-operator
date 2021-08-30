@@ -1,0 +1,10 @@
+---
+operator_namespace: '{{ ansible_operator_meta.namespace }}'
+ 
+# for upstream kubernetes this might be rook-ceph
+# FIXME: how do we automatically determine that we are in openshift?
+rook_ceph_namespace: 'openshift-storage'
+
+clustername: 'myk8scluster'
+kernel_cache_drop_svc_port: 9222
+ceph_cache_drop_svc_port: 9457

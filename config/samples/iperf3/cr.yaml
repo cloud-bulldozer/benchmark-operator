@@ -1,0 +1,21 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: iperf3-benchmark-example
+  namespace: benchmark-operator
+spec:
+  workload:
+    name: iperf3
+    args:
+      pairs: 1
+      port: 5201
+      transmit_type: time
+      transmit_value: 60
+      omit_start: 0
+#     length_buffer: 128K
+      window_size: 64k
+      ip_tos: 0
+      mss: 900
+      streams: 1
+      extra_options_server: '--forceflush '
+      extra_options_client: '-R '

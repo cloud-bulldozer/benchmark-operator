@@ -12,7 +12,7 @@
           namespace: "{{ operator_namespace }}"
         data:
           index.yml: "{{ lookup('template', 'index.yml')}}"
-          metrics.yml: "{{ lookup('template', 'node-metrics.yml')}}"
+          node-metrics.yml: "{{ lookup('template', 'node-metrics.yml')}}"
   
   - name: Launching kube-burner job to index system-metrics
     k8s:
@@ -35,7 +35,7 @@
       status:
         system_metrics: Collecting
 
-  when: cr_state.resources[0].status.system_metrics == "Not collected"
+  when: benchmark_state.resources[0].status.system_metrics == "Not collected"
 
 - name: Get job status
   k8s_info:

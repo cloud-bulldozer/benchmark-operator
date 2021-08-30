@@ -7,9 +7,11 @@ items:
   - kind: Service
     apiVersion: v1
     metadata:
-      name:  uperf-service-{{ worker_node_list[ node_idx_item ] | truncate(27,true,'') }}-{{ item }}-{{ trunc_uuid }}
+      name:  uperf-service-{{ item }}-{{ trunc_uuid }}
       namespace: '{{ operator_namespace }}'
       labels:
+        benchmark-uuid: {{ uuid }}
+        benchmark-operator-workload: uperf
         app: uperf-bench-server-{{ worker_node_list[ node_idx_item ] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
         type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
       annotations:
