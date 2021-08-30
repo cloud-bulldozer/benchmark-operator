@@ -4,15 +4,10 @@ apiVersion: v1
 metadata:
   name: 'flent-server-{{ item }}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
-spec:
-  ttlSecondsAfterFinished: 600
-  backoffLimit: 0
-  template:
-    metadata:
-      labels:
-        app : flent-bench-server-{{item}}-{{ trunc_uuid }}
-        type : flent-bench-server-{{ trunc_uuid }}
-        benchmark-uuid: {{ uuid }}
+  labels:
+    app : flent-bench-server-{{item}}-{{ trunc_uuid }}
+    type : flent-bench-server-{{ trunc_uuid }}
+    benchmark-uuid: {{ uuid }}
 {% if workload_args.multus.enabled is sameas true %}
   annotations:
     k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}

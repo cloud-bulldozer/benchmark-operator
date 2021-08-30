@@ -12,7 +12,6 @@ spec:
       labels:
         benchmark-uuid: {{ uuid }}
         app: fiod-client-{{ trunc_uuid }}
-        benchmark-uuid: {{ uuid }}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
