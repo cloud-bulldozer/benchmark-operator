@@ -14,7 +14,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 @test "kube-burner-node-density" {
@@ -24,7 +23,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 @test "kube-burner-node-density-heavy" {
@@ -34,7 +32,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 @test "kube-burner-max-services" {
@@ -44,7 +41,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 @test "kube-burner-max-namespaces" {
@@ -54,7 +50,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 @test "kube-burner-concurrent-builds" {
@@ -64,7 +59,6 @@ ES_INDEX=ripsaw-kube-burner
   get_uuid "${CR_NAME}"
   check_benchmark 600
   check_es
-  kubectl delete ns -l kube-burner-uuid=${uuid}
 }
 
 setup_file() {
@@ -74,4 +68,9 @@ setup_file() {
 
 teardown_file() {
   kubectl delete -f ../resources/kube-burner-role.yml
+}
+
+teardown() {
+  basic_teardown
+  kubectl delete ns -l kube-burner-uuid=${uuid} --ignore-not-found
 }

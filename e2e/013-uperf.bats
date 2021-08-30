@@ -55,3 +55,7 @@ ES_INDEX=ripsaw-uperf-results
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

@@ -27,3 +27,7 @@ setup_file() {
 teardown_file() {
   kubectl_exec delete -f ycsb/mongo.yaml --ignore-not-found
 }
+
+teardown() {
+  basic_teardown
+}

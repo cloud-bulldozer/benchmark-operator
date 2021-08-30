@@ -58,3 +58,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

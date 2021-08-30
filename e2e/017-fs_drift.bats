@@ -29,3 +29,7 @@ indexes=(ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

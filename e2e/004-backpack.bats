@@ -34,3 +34,7 @@ setup_file() {
 teardown_file() {
   kubectl delete -f ../resources/backpack_role.yaml
 }
+
+teardown() {
+  basic_teardown
+}

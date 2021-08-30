@@ -17,3 +17,7 @@ ES_INDEX=ripsaw-sysbench-results
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

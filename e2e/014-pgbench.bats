@@ -29,3 +29,7 @@ setup_file() {
 teardown_file() {
   kubectl_exec delete -f pgbench/postgres.yaml --ignore-not-found
 }
+
+teardown() {
+  basic_teardown
+}

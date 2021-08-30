@@ -19,3 +19,7 @@ ES_INDEX=log-generator-results
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

@@ -17,3 +17,7 @@ load helpers.bash
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

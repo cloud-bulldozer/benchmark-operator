@@ -40,3 +40,7 @@ setup_file() {
 teardown_file() {
   kubectl_exec delete -f ../resources/scale_role.yaml
 }
+
+teardown() {
+  basic_teardown
+}

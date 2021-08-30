@@ -28,3 +28,7 @@ ES_INDEX=ripsaw-vegeta-results
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

@@ -19,3 +19,7 @@ ES_INDEX=image-pull-results
 setup_file() {
   basic_setup
 }
+
+teardown() {
+  basic_teardown
+}

@@ -28,3 +28,7 @@ setup_file() {
 teardown_file() {
   kubectl delete ns sql-server --wait=false --ignore-not-found
 }
+
+teardown() {
+  basic_teardown
+}
