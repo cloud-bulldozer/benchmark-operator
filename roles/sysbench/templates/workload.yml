@@ -14,6 +14,10 @@ spec:
        app: sysbench-{{ trunc_uuid }}
        benchmark-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin_node is defined %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}

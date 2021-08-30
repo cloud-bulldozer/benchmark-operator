@@ -10,6 +10,7 @@ spec:
       enabled: true
       #kind: vm
       # If you want to run this as a VM uncomment the above
+      #pin_node: "worker-0.mylab.example.com"
       tests:
       - name: cpu
         parameters:
