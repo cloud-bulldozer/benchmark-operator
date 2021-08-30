@@ -26,7 +26,7 @@ data:
     redis-cli -h {{bo.resources[0].status.podIP}} setnx clients-{{trunc_uuid}} 0
     redis-cli -h {{bo.resources[0].status.podIP}} incr clients-{{trunc_uuid}}
     while true; do
-      BO_START=$(redis-cli -h {{bo.resources[0].status.podIP}} get start)
+      BO_START=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }})
       CLIENTS_READY=$(redis-cli -h {{bo.resources[0].status.podIP}} get clients-{{ trunc_uuid }})
       SERVERS_READY=$(redis-cli -h {{bo.resources[0].status.podIP}} get {{ trunc_uuid }})
       if [[ ("${BO_START}" =~ 'true') && ("${CLIENTS_READY}" == "${SERVERS_READY}") ]]; then
