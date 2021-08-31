@@ -41,7 +41,6 @@ spec:
       read_ramp_time: 1
       write_ramp_time: 1
       filesize: 10MiB
-      log_sample_rate: 2000
       debug: true
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
