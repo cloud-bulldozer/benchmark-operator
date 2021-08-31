@@ -32,7 +32,7 @@ spec:
         {{ label }}: {{ value | to_json }}
 {% endfor %}
 {% endif %}
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if workload_args.nodeselector is defined %}
       nodeSelector: 
 {% for label, value in  workload_args.nodeselector.items() %}

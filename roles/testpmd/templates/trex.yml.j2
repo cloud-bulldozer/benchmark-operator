@@ -138,7 +138,7 @@ spec:
       - name: modules
         hostPath:
           path: /lib/modules
-      restartPolicy: OnFailure
+      restartPolicy: Never
       serviceAccountName: benchmark-operator
 {% include "metadata.yml.j2" %}
 

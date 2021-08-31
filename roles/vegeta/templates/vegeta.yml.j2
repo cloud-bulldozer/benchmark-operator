@@ -91,7 +91,7 @@ spec:
         - name: targets-volume
           configMap:
             name: vegeta-targets-{{ trunc_uuid }}
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if workload_args.nodeselector is defined %}
       nodeSelector: {{ nodeselector|to_json }}
 {% endif %}
