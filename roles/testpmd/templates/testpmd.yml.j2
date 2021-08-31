@@ -80,7 +80,7 @@ spec:
       - name: hugepage
         emptyDir:
           medium: HugePages
-      restartPolicy: OnFailure
+      restartPolicy: Never
       serviceAccountName: benchmark-operator
 {% include "metadata.yml.j2" %}
 

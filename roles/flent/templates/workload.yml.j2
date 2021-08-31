@@ -89,7 +89,7 @@ spec:
       volumes:
         - name: flent-tmp
           emptyDir: {}
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if workload_args.pin is sameas true %}
       nodeSelector:
           kubernetes.io/hostname: '{{ workload_args.pin_client }}'

@@ -194,7 +194,7 @@ items:
             - name: config-volume
               configMap:
                 name: uperf-test-{{ trunc_uuid }}
-          restartPolicy: OnFailure
+          restartPolicy: Never
 {% if workload_args.pin is sameas false %}
 {% if workload_args.colocate is sameas true %}
           nodeSelector:

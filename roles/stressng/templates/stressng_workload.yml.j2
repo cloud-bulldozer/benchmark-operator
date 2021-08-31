@@ -106,5 +106,5 @@ spec:
         configMap:
           name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0660
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% include "metadata.yml.j2" %}
