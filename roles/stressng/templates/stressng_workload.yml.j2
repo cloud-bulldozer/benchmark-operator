@@ -70,7 +70,7 @@ spec:
           - name: mem_stressors
             value: "{{workload_args.mem_stressors}}"
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

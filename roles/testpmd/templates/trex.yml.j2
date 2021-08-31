@@ -113,7 +113,7 @@ spec:
           value: "{{ value }}"
 {% endfor %}
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
         - name: es
           value: "{{ elasticsearch.url }}"
         - name: es_index

@@ -1,11 +1,9 @@
-{% if elasticsearch is defined %}
-{% if elasticsearch.url is defined %}
+{% if elasticsearch.url %}
 export es={{ elasticsearch.url }};
 export es_index={{ elasticsearch.index_name | default("ripsaw-hammerdb") }};
 export es_verify_cert={{ elasticsearch.verify_cert | default("true") }};
 export parallel={{ elasticsearch.parallel | default("false") }};
 export uuid={{uuid}};
-{% endif %}
 {% endif %}
 {% if workload_args.client_vm.network.multiqueue.enabled %}
 dnf install -y ethtool;

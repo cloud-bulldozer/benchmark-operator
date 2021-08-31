@@ -39,7 +39,7 @@ spec:
           - name: CEPH_CACHE_DROP_PORT_NUM
             value: "{{ ceph_cache_drop_svc_port }}"
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
