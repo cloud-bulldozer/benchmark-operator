@@ -1,0 +1,78 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 'api-load-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
+  parallelism: {{ workload_args.pod_count | default(1) | int }}
+  template:
+    metadata:
+      labels:
+        app: api-load-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.tolerations is defined %}
+      tolerations:
+      - key: {{ workload_args.tolerations.key }}
+        value: {{ workload_args.tolerations.value }}
+        effect: {{ workload_args.tolerations.effect }}
+{% endif %}
+{% if workload_args.label is defined %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ workload_args.label.key }}
+                operator: In
+                values:
+                - {{ workload_args.label.value }}
+{% endif %}
+      containers:
+      - image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
+        name: pull-image
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: uuid
+            value: "{{ uuid }}"
+{% if elasticsearch is defined %}
+          - name: es
+            value: "{{ elasticsearch.url }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("image-pull") }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.verify_cert | default(true) }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default(false) }}"
+{% endif %}
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            ocm-load-test
+            --test-id={{ uuid }}
+            --gateway-url {{ workload_args.gateway_url }}
+            --ocm-token={{ workload_args.ocm_token }}
+            --duration={{ workload_args.duration}}
+            --rate={{ workload_args.rate}}
+            --output-path={{ workload_args.output_path}}
+            --test-names {{ workload_args.test_name }}
+            --aws-access-key {{ workload_args.aws_access_key }}
+            --aws-access-secret {{ workload_args.aws_access_secret }}
+            --aws-account-id {{ workload_args.aws_account_id }}
+
+      imagePullPolicy: Always
+      restartPolicy: Never
+{% include "metadata.yml.j2" %}
