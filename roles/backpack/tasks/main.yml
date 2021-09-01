@@ -5,7 +5,6 @@
     name: "{{ ansible_operator_meta.name }}"
     namespace: "{{ operator_namespace }}"
     status:
-      state: "Metadata Collecting"
       complete: false
       metadata: "Collecting"
   when: benchmark_state.resources[0].status.state is not defined
@@ -71,6 +70,16 @@
             state: Complete
             complete: true
             metadata: Complete
+        when: workload.name == "backpack"
+
+      - operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            metadata: Complete
+        when: workload.name != "backpack"
       
       - name: Get benchmark state
         k8s_facts:
