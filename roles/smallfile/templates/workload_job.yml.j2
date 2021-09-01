@@ -60,7 +60,7 @@ spec:
             value: "{{ ceph_cache_drop_svc_port }}"
 {% endif %}
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

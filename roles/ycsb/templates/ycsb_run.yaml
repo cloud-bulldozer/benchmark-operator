@@ -32,7 +32,7 @@ spec:
           value: "{{workload_args.operationcount}}"
         - name: uuid
           value: "{{uuid}}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
         - name: es
           value: "{{ elasticsearch.url }}"
         - name: es_index

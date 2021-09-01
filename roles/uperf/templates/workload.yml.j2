@@ -57,7 +57,7 @@ items:
                 value: "{{ test_user | default("ripsaw") }}"
               - name: clustername
                 value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
               - name: es
                 value: "{{ elasticsearch.url }}"
               - name: es_index
