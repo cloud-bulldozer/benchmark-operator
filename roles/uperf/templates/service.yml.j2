@@ -12,10 +12,10 @@ items:
       labels:
         benchmark-uuid: {{ uuid }}
         benchmark-operator-workload: uperf
-{% if (worker_node_list[ node_idx_item]|length>27) and (worker_node_list[ node_idx_item ][26] == '.') %}
-        app: uperf-bench-server-{{ worker_node_list[ node_idx_item ] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
+{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
+        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% else %}
-        app: uperf-bench-server-{{ worker_node_list[ node_idx_item ] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
+        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% endif %}
         type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
       annotations:
@@ -23,10 +23,10 @@ items:
         pod_idx: '{{ item }}'
     spec:
       selector:
-{% if (worker_node_list[ node_idx_item]|length>27) and (worker_node_list[ node_idx_item ][26] == '.') %}
-        app: uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
+{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
+        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% else %}
-        app: uperf-bench-server-{{worker_node_list[ node_idx_item ] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
+        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% endif %}
       ports:
       - name: uperf
