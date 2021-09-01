@@ -32,7 +32,6 @@ spec:
                     default: ""
                   index_name:
                     type: string
-                    default: ""
                   parallel:
                     type: boolean
                     default: false
