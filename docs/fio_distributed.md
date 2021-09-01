@@ -132,7 +132,8 @@ The workload loops are nested as such from the CR options:
   > using these parameters, but note this behavious is configured via the EXPERT AREA section of the CR as
   > [described below](#expert-specjob_params), and therefore this may be adjusted to user preferences.
 - **filesize**: The size of the file used for each job in the workload (per `numjobs * servers` as described above)
-- **log_sample_rate**: Applied to fio options `log_avg_msec` and `log_hist_msec` in the jobfile configmap; see `fio(1)`
+- **log_sample_rate**: (optional) Applied to fio options `log_avg_msec` (milliseconds) in the jobfile configmap; see `fio(1)`
+- **log_hist_msec** (optional) if set, enables histogram logging at this specified interval in milliseconds
 - **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
 - **pvcaccessmode**: (optional) The AccessMode to request with the persistent volume claim (PVC) for the fio server. Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
 - **pvcvolumemode**: (optional) The volmeMode to request with the persistent volume claim (PVC) for the fio server. Can be one of Filesystem,Block Default: Filesystem
