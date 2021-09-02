@@ -7,8 +7,16 @@ load helpers.bash
 
 
 
-@test "byowl" {
-  CR=byowl/byowl.yaml
+@test "byowl-targeted" {
+  CR=byowl/byowl-targeted.yaml
+  CR_NAME=$(get_benchmark_name ${CR})
+  envsubst < ${CR} | kubectl apply -f -
+  get_uuid "${CR_NAME}"
+  check_benchmark 600
+}
+
+@test "byowl-not-targeted" {
+  CR=byowl/byowl-not-targeted.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"

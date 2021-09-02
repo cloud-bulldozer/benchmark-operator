@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: byowl-benchmark
+  name: byowl-standard
   namespace: benchmark-operator
 spec:
   system_metrics:
@@ -14,6 +14,7 @@ spec:
     url: ${ES_SERVER}
   metadata:
     collection: true
+    targeted: false
   workload:
     name: byowl
     args:
