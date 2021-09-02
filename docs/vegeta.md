@@ -14,6 +14,8 @@ intended for Kata containers.
 The **node_selector** option can be used to limit the nodes where
 the vegeta pods are deployed.
 
+Use **net_core_somaxconn** to tweak the maximum number of "backlogged sockets" (`net.core.somaxconn`).  Default is 128.
+
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
@@ -28,6 +30,7 @@ spec:
     name: vegeta
     args:
       # node_selector: "vegeta=true"
+      # net_core_somaxconn: 4096
       clients: 2
       image: quay.io/cloud-bulldozer/vegeta:latest
       hostnetwork: false

@@ -13,6 +13,7 @@ spec:
     name: vegeta
     args:
       # node_selector: "vegeta=true"
+      # net_core_somaxconn: 4096
       hostnetwork: false
       clients: 2
       targets:

@@ -13,6 +13,12 @@ spec:
         app: vegeta-benchmark-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
     spec:
+{% if workload_args.net_core_somaxconn is defined %}
+      securityContext:
+        sysctls:
+        - name: net.core.somaxconn
+          value: "{{ workload_args.net_core_somaxconn }}"
+{% endif %}
 {% if workload_args.node_selector is defined %}
       nodeSelector:
         '{{ workload_args.node_selector.split("=")[0] }}': '{{ workload_args.node_selector.split("=")[1] }}'
