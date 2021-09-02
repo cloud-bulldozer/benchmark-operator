@@ -28,7 +28,6 @@ spec:
         - randread
         - randrw
       bsrange:
-         - broza
          - 4KiB-16KiB
       numjobs:
         - 2

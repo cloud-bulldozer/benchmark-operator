@@ -5,8 +5,6 @@ on:
   push:
     branches:
       - master  
-    tags:
-      - "*"
   workflow_dispatch:
     inputs: 
       test_list:
@@ -54,8 +52,8 @@ jobs:
     - name: Login in quay
       run: podman login quay.io -u ${QUAY_USER} -p ${QUAY_TOKEN}
       env:
-        QUAY_USER: ${{ secrets.QUAY_USER }}
-        QUAY_TOKEN: ${{ secrets.QUAY_TOKEN }}
+        QUAY_USER: ${{ secrets.QUAY_CI_USER }}
+        QUAY_TOKEN: ${{ secrets.QUAY_CI_TOKEN }}
 
     - name: Build, push and deploy benchmark-operator
       run: make image-build image-push deploy
