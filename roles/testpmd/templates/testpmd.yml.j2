@@ -10,7 +10,9 @@ spec:
     metadata:
       labels:
         app: "testpmd-application-pod-{{ trunc_uuid }}"
-        benchmark-uuid: {{ uuid }}
+	# changing the uuid so that the check for complete pods ignores the server pod and only checks the 
+	# trex client pod (similar to uperf)
+        benchmark-uuid: testpmd-{{ uuid }}
       annotations:
         k8s.v1.cni.cncf.io/networks: '[
 {% set i = namespace(value=0) %}
