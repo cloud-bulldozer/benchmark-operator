@@ -39,6 +39,7 @@ spec:
       write_ramp_time: 1
       filesize: 10MiB
       log_sample_rate: 2000
+      log_hist_msec: 3000
       storagesize: 16Mi
       debug: true
 #######################################

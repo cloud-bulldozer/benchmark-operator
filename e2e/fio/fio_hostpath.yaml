@@ -25,14 +25,11 @@ spec:
       prefill: true
       jobs:
         - write
-        - read
-        - randwrite
         - randread
         - randrw
       bs:
         - 4KiB
       numjobs:
-        - 1
         - 2
       iodepth: 2
       read_runtime: 5
@@ -40,8 +37,7 @@ spec:
       read_ramp_time: 1
       write_ramp_time: 1
       filesize: 10MiB
-      log_sample_rate: 2000
-      debug: true
+      debug: false
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################
