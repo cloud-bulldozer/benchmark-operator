@@ -7,7 +7,7 @@
   include_tasks: 20_mac_parser.yml
   loop: "{{ workload_args.networks.testpmd }}"
   loop_control:
-     loop_var: network
+    loop_var: network
   vars:
     net_type: testpmd 
     
@@ -15,7 +15,7 @@
   include_tasks: 20_mac_parser.yml
   loop: "{{ workload_args.networks.trex }}"
   loop_control:
-     loop_var: network
+    loop_var: network
   vars:
     net_type: trex 
 
