@@ -1,32 +1,21 @@
 ---
-- block:
-
-  - name: Add oslat test scripts
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
-          namespace: '{{ operator_namespace }}'
-        data:
-          oslat.sh: "{{ lookup('file', 'oslat.sh') }}"
-          functions.sh: "{{ lookup('file', 'functions.sh') }}"
-
-  - name: Start cyclitest job
-    k8s:
-      state: present
-      definition: "{{ lookup('template', 'oslatjob.yaml') | from_yaml }}"
-
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: Running
-
+- name: Add oslat test scripts
+  k8s:
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
+        namespace: '{{ operator_namespace }}'
+      data:
+        oslat.sh: "{{ lookup('file', 'oslat.sh') }}"
+        functions.sh: "{{ lookup('file', 'functions.sh') }}"
   when: benchmark_state.resources[0].status.state == "Building" 
 
-- include_role:
-    name: benchmark_state
-    tasks_from: completed.yml
-  when: benchmark_state.resources[0].status.state == "Running"
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/oslatjob.yaml"
+
+- name: Generic workload - oslat
+  include_role:
+    name: generic_workload

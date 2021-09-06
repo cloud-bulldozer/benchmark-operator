@@ -1,20 +1,8 @@
 ---
-- block:
-  
-  - name: Create scale pod
-    k8s:
-      state: present
-      definition: "{{ lookup('template', 'scale.yml') }}"
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/scale.yml"
 
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: Running
-
-  when: benchmark_state.resources[0].status.state == "Building"
-
-- include_role:
-    name: benchmark_state
-    tasks_from: completed.yml
-  when: benchmark_state.resources[0].status.state == "Running"
+- name: Generic workload - scale_openshift
+  include_role:
+    name: generic_workload
