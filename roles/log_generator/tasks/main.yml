@@ -1,20 +1,8 @@
 ---
-- block:
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/log_generator.yml"
 
-  - name: Create log generator pods
-    k8s:
-      state: present
-      definition: "{{ lookup('template', 'log_generator.yml') }}"
-
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: Running
-
-  when: benchmark_state.resources[0].status.state == "Building"
-
-- include_role:
-    name: benchmark_state
-    tasks_from: completed.yml
-  when: benchmark_state.resources[0].status.state == "Running"
+- name: Generic workload - log_generator
+  include_role:
+    name: generic_workload

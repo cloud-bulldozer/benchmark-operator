@@ -1,0 +1,21 @@
+---
+- block:
+
+  - name: Create workload resources
+    k8s:
+      state: present
+      definition: "{{ lookup('template', item) }}"
+    loop: "{{ resources }}"
+
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
+
+  when: benchmark_state.resources[0].status.state == "Building"
+
+- include_role:
+    name: benchmark_state
+    tasks_from: completed.yml
+  when: benchmark_state.resources[0].status.state == "Running"

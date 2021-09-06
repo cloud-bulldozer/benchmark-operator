@@ -1,23 +1,15 @@
 ---
-- block:
-  - name: Create targets configmap
-    k8s:
-      definition: "{{ lookup('template', 'targets.yml.j2') | from_yaml }}"
-
-  - name: Create vegeta clients
-    k8s:
-      definition: "{{ lookup('template', 'vegeta.yml.j2') | from_yaml }}"
-    loop: "{{ range(0, workload_args.clients|default(1)|int)|list }}"
-
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: Running
-
+- name: Create vegeta clients
+  k8s:
+    definition: "{{ lookup('template', 'vegeta.yml.j2') | from_yaml }}"
+  loop: "{{ range(0, workload_args.clients|default(1)|int)|list }}"
   when: benchmark_state.resources[0].status.state == "Building"
 
-- include_role:
-    name: benchmark_state
-    tasks_from: completed.yml
-  when: benchmark_state.resources[0].status.state == "Running"
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/targets.yml.j2"
+
+
+- name: Generic workload - vegeta
+  include_role:
+    name: generic_workload

@@ -1,20 +1,8 @@
 ---
-- block:
-  
-  - name: Image pull pods
-    k8s:
-      state: present
-      definition: "{{ lookup('template', 'image_pull.yml') }}"
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/image_pull.yml"
 
-  - include_role:
-      name: benchmark_state
-      tasks_from: set_state
-    vars:
-      state: Running
-
-  when: benchmark_state.resources[0].status.state == "Building"
-
-- include_role:
-    name: benchmark_state
-    tasks_from: completed.yml
-  when: benchmark_state.resources[0].status.state == "Running"
+- name: Generic workload - image_pull
+  include_role:
+    name: generic_workload
