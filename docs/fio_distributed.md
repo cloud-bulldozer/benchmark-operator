@@ -12,82 +12,8 @@ point for executing the workload on the server pods in parallel.
 ## Running Distributed FIO
 
 The Custom Resource (CR) file for fio includes a significant number of options to offer the user
-flexibility.
+flexibility.  [Click here for an example of an fio CR](../config/samples/fio/cr.yaml).
 
-```yaml
-apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
-kind: Benchmark
-metadata:
-  name: fio-benchmark
-  namespace: benchmark-operator
-spec:
-  elasticsearch:
-    url: "http://my.es.server:9200"
-  clustername: myk8scluster
-  test_user: my_test_user_name
-  workload:
-    name: "fio_distributed"
-    args:
-      prefill: true
-      # for compressed volume uncomment the next 2 lines and make the cmp_bs same as bs
-      # prefill_bs: 8KiB
-      # cmp_ratio: 70
-      samples: 3
-      servers: 3
-      # Chose to run servers in 'pod' or 'vm'
-      # 'vm' needs kubevirt to be available
-      # Default: pod
-      kind: pod
-      runtime_class: class_name
-      jobs:
-        - write
-        - read
-      bs:
-        - 4KiB
-        - 64KiB
-      numjobs:
-        - 1
-        - 8
-      iodepth: 4
-      read_runtime: 60
-      read_ramp_time: 5
-      filesize: 2GiB
-      log_sample_rate: 1000
-      storageclass: rook-ceph-block
-      storagesize: 5Gi
-      rook_ceph_drop_caches: True
-      rook_ceph_drop_cache_pod_ip: 192.168.111.20
-#######################################
-#  EXPERT AREA - MODIFY WITH CAUTION  #
-#######################################
-#  global_overrides:
-#    - key=value
-  job_params:
-    - jobname_match: w
-      params:
-        - fsync_on_close=1
-        - create_on_open=1
-    - jobname_match: read
-      params:
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: rw
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: readwrite
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-#    - jobname_match: <search_string>
-#      params:
-#        - key=value
-```
 
 ### NodeSelector and Taint/Tolerations vs. pin server
 
@@ -157,19 +83,6 @@ The workload loops are nested as such from the CR options:
 > Therefore, be aware in providing units to the CR values that fio options should use the `MiB` format
 > while the `storagesize` option used for the K8S persistent volume claim should use the `Mi` format
 
-#### metadata
-
-*Values here will usually be left unchanged*
-
-- **name**: The name the Ripsaw operator will use for the benchmark resource
-- **namespace**: The namespace in which the benchmark will run
-
-#### spec
-
-- **elasticsearch**: (optional) Values are used to enable indexing of fio data; [further details are below](#indexing-in-elasticsearch-and-visualization-through-grafana)
-- **clustername**: (optional) An arbitrary name for your system under test (SUT) that can aid indexing
-- **test_user**: (optional) An arbitrary name for the user performing the tests that can aid indexing
-
 #### spec.workload
 
 - **name**: **DO NOT CHANGE** This value is used by the Ripsaw operator to trigger the correct Ansible role
@@ -219,22 +132,23 @@ The workload loops are nested as such from the CR options:
   > using these parameters, but note this behavious is configured via the EXPERT AREA section of the CR as
   > [described below](#expert-specjob_params), and therefore this may be adjusted to user preferences.
 - **filesize**: The size of the file used for each job in the workload (per `numjobs * servers` as described above)
-- **log_sample_rate**: Applied to fio options `log_avg_msec` and `log_hist_msec` in the jobfile configmap; see `fio(1)`
+- **log_sample_rate**: (optional) Applied to fio options `log_avg_msec` (milliseconds) in the jobfile configmap; see `fio(1)`
+- **log_hist_msec** (optional) if set, enables histogram logging at this specified interval in milliseconds
 - **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
 - **pvcaccessmode**: (optional) The AccessMode to request with the persistent volume claim (PVC) for the fio server. Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
 - **pvcvolumemode**: (optional) The volmeMode to request with the persistent volume claim (PVC) for the fio server. Can be one of Filesystem,Block Default: Filesystem
   > Note: It is recommended to change this to `Block` for VM tests
 - **storagesize**: (optional) The size of the PVCs to request from the StorageClass ([note units quirk per above](#understanding-the-cr-options))
-- **rook_ceph_drop_caches**: (optional) If set to `True`, the Rook-Ceph OSD caches will be dropped prior to each sample
-- **rook_ceph_drop_cache_pod_ip**: (optional) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [cache drop pod instructions](#dropping-rook-ceph-osd-caches) below
+- **drop_cache_kernel**: (optional, default false) If set to `True`, kernel cache will be dropped on the labeled hosts before each sample.  See [here for how to set up kernel cache dropping](./cache_dropping.md#how-to-drop-kernel-cache)
+- **drop_cache_rook_ceph**: (optional, default false) The IP address of the pod hosting the Rook-Ceph cache drop URL -- See [here for how to set up Ceph OSD cache dropping](./cache_dropping.md#how-to-drop-Ceph-OSD-cache)
   > Technical Note: If you are running kube/openshift on VMs make sure the diskimage or volume is preallocated.
 - **prefill**: (Optional) boolean to enable/disable prefill SDS
   - prefill requirement stems from Ceph RBD thin-provisioning - just creating the RBD volume doesn't mean that there is space allocated to read and write out there. For example, reads to an uninitialized volume don't even talk to the Ceph OSDs, they just return immediately with zeroes in the client.
 - **prefill_bs** (Optional) The Block size that need to used for the prefill.
   - When running against compressed volumes, the prefill operation need to be done with the same block size as using in the test, otherwise the compression ratio will not be as expected.
 - **cmp_ratio** (Optional) When running against compressed volumes, the expected compression ratio (0-100)
-- **fio_json_to_log**: (Optional) boolean to enable/disable sending job results in json format to client pod log.
-
+- **fio_json_to_log**: (Optional, default false) boolean to enable/disable sending job results in json format to client pod log.
+- **job_timeout**: (Optional, default 3600) set this parameter if you want the fio to run for more than 1 hour without automatic termination
 #### EXPERT: spec.global_overrides
 
 The `key=value` combinations provided in the list here will be appended to the `[global]` section of the fio
@@ -244,30 +158,6 @@ jobfile configmap. These options will therefore override the global values for a
 
 Under most circumstances, the options provided in the EXPERT AREA here should not be modified. The `key=value`
 pairs under `params` here are used to append additional fio job options based on the job type. Each `jobname_match` in the list uses a "search string" to match a job name per `fio(1)`, and if a match is made, the `key=value` list items under `params` are appended to the `[job]` section of the fio jobfile configmap.
-
-## Dropping Rook-Ceph OSD Caches
-
-Dropping the OSD caches before workloads is a normal and advised part of tests that involve storage I/O.
-Doing this with Rook-Ceph requires a privileged pod running the same namespace as the Ceph pods and with
-the Ceph command tools available. To facilitate this, we provide the
-[config/samples/fio/cr.yaml](../config/samples/fio/cr.yaml) file, which will
-deploy a pod with the correct permissions and tools, as well as running a simple HTTP listener to trigger
-the cache drop by URL.
-**You must deploy this privileged pod in order for the drop caches requests in the workload to function.**
-
-```bash
-# kubectl apply -f config/samples/fio/cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
-```
-
-*Note: If Ceph is in a namespace other than `rook-ceph` you will need to modify the provided YAML accordingly.*
-
-Since the cache drop pod is deployed with host networking, the pod will take on the IP address
-of the node on which it is running. You will need to use this IP address in the CR file as described above.
-
-```bash
-# kubectl get pod -n rook-ceph rook-ceph-osd-cache-drop --template={{.status.podIP}}
-```
 
 ## Indexing in elasticsearch and visualization through Grafana
 
@@ -304,4 +194,4 @@ The field for timestamp will always be `time_ms` .
 
 In order to index your fio results to elasticsearch, you will need to define the parameters appropriately in
 your workload CR file. The `spec.elasticsearch.url` parameter is required.
-The `spec.clustername` and `spec.test_user` values are advised to allow for better indexing of your data.
+The `spec.clustername` and `spec.test_user` values are advised to make it easier to find your set of test results in elasticsearch.

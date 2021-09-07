@@ -34,7 +34,7 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: '{{ clustername }}'
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
@@ -88,7 +88,7 @@ spec:
                  break;
                done;
              fi"
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if item.1.pin_node is defined and item.1.pin_node %}
       nodeSelector:
         kubernetes.io/hostname: '{{ item.1.pin_node }}'

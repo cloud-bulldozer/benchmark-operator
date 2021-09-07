@@ -60,4 +60,4 @@ spec:
       nodeSelector:
           kubernetes.io/hostname: '{{ workload_args.pin_client }}'
 {% endif %}
-      restartPolicy: OnFailure
+      restartPolicy: Never

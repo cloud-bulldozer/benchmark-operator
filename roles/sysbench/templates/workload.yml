@@ -14,6 +14,10 @@ spec:
        app: sysbench-{{ trunc_uuid }}
        benchmark-uuid: {{ uuid }}
     spec:
+{% if workload_args.pin_node is defined %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_node }}'
+{% endif %}
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
@@ -35,5 +39,5 @@ spec:
         configMap:
           name: "sysbench-config-{{ trunc_uuid }}"
           defaultMode: 0777
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% include "metadata.yml.j2" %}

@@ -57,7 +57,7 @@ items:
                 value: "{{ test_user | default("ripsaw") }}"
               - name: clustername
                 value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
               - name: es
                 value: "{{ elasticsearch.url }}"
               - name: es_index
@@ -194,7 +194,7 @@ items:
             - name: config-volume
               configMap:
                 name: uperf-test-{{ trunc_uuid }}
-          restartPolicy: OnFailure
+          restartPolicy: Never
 {% if workload_args.pin is sameas false %}
 {% if workload_args.colocate is sameas true %}
           nodeSelector:

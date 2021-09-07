@@ -41,7 +41,7 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
@@ -104,6 +104,6 @@ spec:
         configMap:
           name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0640
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% include "metadata.yml.j2" %}
 

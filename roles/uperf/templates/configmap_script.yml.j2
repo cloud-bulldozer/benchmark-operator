@@ -7,14 +7,12 @@ metadata:
 data:
   run_script.sh : |
     export h={{item.status.interfaces[0].ipAddress}}
-{% if elasticsearch is defined %}
-{% if elasticsearch.url is defined %}
+{% if elasticsearch.url %}
     export es={{ elasticsearch.url }}
     export es_index={{ elasticsearch.index_name | default("ripsaw-uperf") }}
     export es_verify_cert={{ elasticsearch.verify_cert | default(true) }}
     export parallel={{ elasticsearch.parallel | default(false) }}
     export uuid={{uuid}}
-{% endif %}
 {% endif %}
 {% if test_user is defined %}
     export test_user={{test_user}}

@@ -54,7 +54,7 @@ spec:
             value: "{{ clustername }}"
           - name: snafu_disable_logs
             value: "{{ workload_args.snafu_disable_logs | default(false) }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

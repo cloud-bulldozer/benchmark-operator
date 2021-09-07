@@ -70,7 +70,7 @@ spec:
           - name: mem_stressors
             value: "{{workload_args.mem_stressors}}"
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
@@ -106,5 +106,5 @@ spec:
         configMap:
           name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
           defaultMode: 0660
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% include "metadata.yml.j2" %}

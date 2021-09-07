@@ -113,7 +113,7 @@ spec:
           value: "{{ value }}"
 {% endfor %}
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
         - name: es
           value: "{{ elasticsearch.url }}"
         - name: es_index
@@ -138,7 +138,7 @@ spec:
       - name: modules
         hostPath:
           path: /lib/modules
-      restartPolicy: OnFailure
+      restartPolicy: Never
       serviceAccountName: benchmark-operator
 {% include "metadata.yml.j2" %}
 

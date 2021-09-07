@@ -36,7 +36,7 @@ spec:
       - "iperf3 -s
         {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
         {% if workload_args.extra_options_server is defined %} {{ workload_args.extra_options_server }} {% endif %}"
-  restartPolicy: OnFailure
+  restartPolicy: Never
 {% if workload_args.pin_server is defined %}
   nodeSelector:
     kubernetes.io/hostname: '{{ workload_args.pin_server }}'
