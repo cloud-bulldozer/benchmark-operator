@@ -121,41 +121,15 @@ case of failure or when disabled. This ensures no interference with subsequent w
 
 ### The operator container image
 Any changes to the [roles](roles/) tree or to the [playbook](playbook.yml) file will necessitate a new build of the operator container image.
-The benchmark-operator container can be built using [podman](https://podman.io/) and pushed to a public repository.
-The public repository could be [quay](https://quay.io) in which case you'll need to:
+The benchmark-operator container can be built and pushed to a public repository, which could be [quay](https://quay.io), using the provided Makefile.
+
+To test with your own operator image, you will need to delete the current deployment and then build, push, and redeploy using your operator container image as follows:
 
 ```bash
-$ podman build -f build/Dockerfile -t quay.io/<username>/benchmark-operator:testing .
-
-$ podman push quay.io/<username>/benchmark-operator:testing
+# kubectl delete deployment -n benchmark-operator benchmark-controller-manager
+# make image-build image-push deploy IMG=quay.io/<username>/benchmark-operator:testing
 ```
-
-Note: you can also use docker, and no, we'll not judge ;)
-
 `:testing` is simply a tag. You can define different tags to use with your image, like `:latest` or `:master`
-
-To test with your own operator image, you will need the [operator](resources/operator.yml) file to point the container image to your testing version.
-Be sure to do this outside of your git tree to avoid mangling the official file that points to our stable image.
-
-This can be done as follows:
-
-```bash
-$ sed 's/image:.*/image: quay.io\/<username>\/benchmark-operator:testing/' resources/operator.yaml > /my/testing/operator.yaml
-```
-
-You can then redeploy operator
-```bash
-# kubectl delete -f resources/operator.yaml
-# kubectl apply -f /my/testing/operator.yaml
-```
-Redefine CRD
-```bash
-# kubectl apply -f resources/crds/ripsaw_v1alpha1_ripsaw_crd.yaml
-```
-Apply a new CR
-```bash
-# kubectl apply -f config/samples/uperf/cr.yaml
-```
 
 ## CI
 Currently we have a CI that runs against PRs.
