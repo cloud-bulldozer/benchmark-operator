@@ -1,7 +1,7 @@
 ---
 - block:
 
-  - name: Image pull pods
+  - name: Api load pods
     k8s:
       state: present
       definition: "{{ lookup('template', 'api_load.yml') }}"
