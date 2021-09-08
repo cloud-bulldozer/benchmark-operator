@@ -1,6 +1,12 @@
-
-
 top: {{ smallfile_path }}/smallfile_test_data
+ 
+{% if workload_args.auto_pause is defined %}
+auto-pause: {{ workload_args.auto_pause }}
+{% endif %}
+
+{% if workload_args.clients is defined %}
+total-hosts: {{ workload_args.clients }}
+{% endif %}
 
 {% if workload_args.threads is defined %}
 threads: {{ workload_args.threads }}
@@ -15,81 +21,81 @@ files: {{ workload_args.files }}
 {% endif %}
 
 {% if workload_args.fsync is defined %}
-fsync: y
+fsync: {{ workload_args.fsync }}
 {% endif %}
 
-{% if workload_args.response_times is defined %}
-response-times: true
-{% endif %}
+# response-times is always set to Y so that
+# benchmark-wrapper can collect response time data
 
-{% if workload_args.network_sync_dir is defined %}
-network-sync-dir: {{workload_args.network_sync_dir}}
-{% endif %}
+# network-sync-dir is never used with benchmark-operator
+# since it uses redis to synchronize pods and elastic to return data
 
 {% if workload_args.files_per_dir is defined %}
-files-per-dir: {{workload_args.files_per_dir}}
+files-per-dir: {{ workload_args.files_per_dir }}
 {% endif %}
 
 {% if workload_args.dirs_per_dir is defined %}
-dirs-per-dir: {{workload_args.dirs_per_dir}}
+dirs-per-dir: {{ workload_args.dirs_per_dir }}
 {% endif %}
 
 {% if workload_args.record_size is defined %}
-record-size: {{workload_args.record_size}}
+record-size: {{ workload_args.record_size }}
 {% endif %}
 
 {% if workload_args.file_size_distribution is defined %}
-file-size-distribution: {{workload_args.file_size_distribution}}
+file-size-distribution: {{ workload_args.file_size_distribution }}
 {% endif %}
 
 {% if workload_args.xattr_size is defined %}
-xattr-size: {{workload_args.xattr_size}}
+xattr-size: {{ workload_args.xattr_size }}
 {% endif %}
 
 {% if workload_args.xattr_count is defined %}
-xattr-count: {{workload_args.xattr_count}}
+xattr-count: {{ workload_args.xattr_count }}
 {% endif %}
 
 {% if workload_args.pause is defined %}
-pause: {{workload_args.pause}}
+pause: {{ workload_args.pause }}
 {% endif %}
 
 {% if workload_args.stonewall is defined %}
-stonewall: {{workload_args.stonewall}}
+stonewall: {{ workload_args.stonewall }}
 {% endif %}
 
 {% if workload_args.finish is defined %}
-finish: {{workload_args.finish}}
+finish: {{ workload_args.finish }}
 {% endif %}
 
 {% if workload_args.prefix is defined %}
-prefix: {{workload_args.prefix}}
+prefix: {{ workload_args.prefix }}
+{% endif %}
+
+{% if workload_args.suffix is defined %}
+suffix: {{ workload_args.suffix }}
 {% endif %}
 
 {% if workload_args.hash_into_dirs is defined %}
-hash-into-dirs: {{workload_args.hash_into_dirs}}
+hash-into-dirs: {{ workload_args.hash_into_dirs }}
 {% endif %}
 
 {% if workload_args.same_dir is defined %}
-same-dir: {{workload_args.same_dir}}
+same-dir: {{ workload_args.same_dir }}
 {% endif %}
 
 {% if workload_args.verbose is defined %}
-verbose: {{workload_args.verbose}}
+verbose: {{ workload_args.verbose }}
 {% endif %}
 
-{% if workload_args.permute_host_dirs is defined %}
-permute-host-dirs: true
-{% endif %}
+# permute-host-dirs is not applicable to K8S pods
 
 {% if workload_args.record_ctime_size is defined %}
-record-ctime-size: true
+record-ctime-size: {{ workload_args.record_ctime_size }}
 {% endif %}
 
 {% if workload_args.verify_read is defined %}
-verify-read: true
+verify-read: {{ workload_args.verify_read }}
 {% endif %}
 
 {% if workload_args.incompressible is defined %}
-incompressible: true
+incompressible: {{ workload_args.incompressible }}
 {% endif %}

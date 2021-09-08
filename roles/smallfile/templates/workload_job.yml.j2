@@ -43,9 +43,9 @@ spec:
           - name: uuid
             value: "{{ uuid }}"
           - name: test_user
-            value: "{{ test_user | default("ripsaw") }}"
+            value: "{{ test_user | default('ripsaw') }}"
           - name: clustername
-            value: "{{ clustername }}"
+            value: "{{ clustername | default('mycluster') }}"
 {% if item | int == 1 %}
 {% if kcache_drop_pod_ips is defined %}
           - name: kcache_drop_pod_ips
@@ -64,7 +64,7 @@ spec:
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
-            value: "{{ elasticsearch.index_name | default("ripsaw-smallfile") }}"
+            value: "{{ elasticsearch.index_name | default('ripsaw-smallfile') }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
           - name: es_verify_cert
@@ -87,25 +87,28 @@ spec:
           - name: clients
             value: "{{ workload_args.clients|default('1')|int }}"
           args:
-            - python /tmp/smallfile/subscriber {{bo.resources[0].status.podIP}} {{trunc_uuid}};
+            - python /tmp/smallfile/subscriber {{ bo.resources[0].status.podIP }} {{ trunc_uuid }};
               export TMPDIR=/tmp
-              arr=$(python <<< "print(','.join({{workload_args.operation}}))");
-              rm -rf {{smallfile_path}}/RESULTS ;
-              mkdir -p {{smallfile_path}}/RESULTS;
-              mkdir -p {{smallfile_path}}/smallfile_test_data;
+              arr=$(python <<< "print(','.join({{ workload_args.operation }}))");
+              rm -rf {{ smallfile_path }}/RESULTS ;
+              mkdir -p {{ smallfile_path }}/RESULTS;
+              mkdir -p {{ smallfile_path }}/smallfile_test_data;
               run_snafu
 {% if workload_args.samples is defined %}
-              --samples {{workload_args.samples}}
+              --samples {{ workload_args.samples }}
 {% endif %}
               --tool smallfile 
               --operations $arr 
-              --top {{smallfile_path}}/smallfile_test_data 
+              --top {{ smallfile_path }}/smallfile_test_data 
               --dir /var/tmp/RESULTS 
               --yaml-input-file /tmp/smallfile/smallfilejob 
 {% if workload_args.debug is defined and workload_args.debug %}
               -v
 {% endif %}
               ;
+{% if workload_args.debug is defined and workload_args.debug %}
+              ls /tmp ; cat /tmp/invoke*log ;
+{% endif %}
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else exit 1 ; fi
           volumeMounts:
             - name: config-volume
@@ -123,7 +126,7 @@ spec:
 {% if workload_args.storageclass is defined %}
         - name: data-volume
           persistentVolumeClaim:
-            claimName: "claim{{item}}-{{ trunc_uuid }}"
+            claimName: "claim{{ item }}-{{ trunc_uuid }}"
 {% elif hostpath is defined %}
         - name: data-volume
           hostPath:
