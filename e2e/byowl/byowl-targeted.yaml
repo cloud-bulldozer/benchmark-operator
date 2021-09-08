@@ -18,6 +18,6 @@ spec:
   workload:
     name: byowl
     args:
-      image: "quay.io/jtaleric/uperf:testing"
+      image: "quay.io/cloud-bulldozer/uperf:latest"
       clients: 1
       commands: "echo Test"

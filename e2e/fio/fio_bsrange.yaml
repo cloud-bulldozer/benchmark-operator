@@ -28,7 +28,7 @@ spec:
         - randread
         - randrw
       bsrange:
-         - 4KiB-16KiB
+        - 4KiB-16KiB
       numjobs:
         - 2
       iodepth: 1
