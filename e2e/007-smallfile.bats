@@ -12,7 +12,7 @@ indexes=(ripsaw-smallfile-results ripsaw-smallfile-rsptimes)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
   check_es
 }
 
@@ -21,7 +21,7 @@ indexes=(ripsaw-smallfile-results ripsaw-smallfile-rsptimes)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
   check_es
 }
 

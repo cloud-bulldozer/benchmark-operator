@@ -11,7 +11,7 @@ load helpers.bash
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
 }
 
 setup_file() {

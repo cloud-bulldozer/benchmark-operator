@@ -12,7 +12,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
   check_es
 }
 
@@ -21,7 +21,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
   check_es
 }
 
@@ -30,7 +30,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f - 
   get_uuid "${CR_NAME}"
-  check_benchmark 600
+  check_benchmark 900
   check_es
 }
 
@@ -50,7 +50,7 @@ indexes=(ripsaw-fio-results ripsaw-fio-log ripsaw-fio-analyzed-result)
     sleep 5
     envsubst < ${CR} | kubectl apply -f - 
     get_uuid "${CR_NAME}"
-    check_benchmark 600
+    check_benchmark 900
     check_es
   fi
 }
