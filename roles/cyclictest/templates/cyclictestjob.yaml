@@ -19,9 +19,9 @@ spec:
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/cyclictest:latest') }}
         command: ["/bin/sh", "-c"]
         args: 
-          - run_snafu --tool cyclictest -p /tmp/cyclictest.sh -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+          - run_snafu --tool cyclictest -p /tmp/cyclictest.sh -u {{ uuid }} --user {{test_user | default("ripsaw")}} 
 {% if workload_args.debug is defined and workload_args.debug %}
-            -v \
+            -v 
 {% endif %}
             ;
         imagePullPolicy: Always
