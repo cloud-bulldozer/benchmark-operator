@@ -28,14 +28,6 @@ function functional_test_api_load {
 
   check_benchmark_for_desired_state $benchmark_name Complete 500s
 
-  index="ocm-requests"
-  if check_es "${long_uuid}" "${index}"
-  then
-    echo "${test_name} test: Success"
-  else
-    echo "Failed to find data for ${test_name} in ES"
-    exit 1
-  fi
   delete_benchmark $cr
 }
 

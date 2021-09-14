@@ -62,6 +62,9 @@ spec:
         args:
           - >
             ocm-load-test
+{% if workload_args.override is defined %}
+            {{ workload_args.override }}
+{% else %}
             --test-id={{ uuid }}
             --gateway-url {{ workload_args.gateway_url }}
             --ocm-token={{ workload_args.ocm_token }}
@@ -72,6 +75,7 @@ spec:
             --aws-access-key {{ workload_args.aws_access_key }}
             --aws-access-secret {{ workload_args.aws_access_secret }}
             --aws-account-id {{ workload_args.aws_account_id }};
+{% endif %}
         volumeMounts:
           - mountPath: /tmp/results
             name: results
