@@ -14,8 +14,8 @@ spec:
       ocm_token: definitelyArealToken-Here
       duration: 1
       rate: 5/s
-      output_path: /results
-      test_names: list-clusters
+      output_path: /tmp/results
+      test_name: list-clusters
       aws_access_key: empty
       aws_access_secret: empty
       aws_account_id: empty

@@ -52,7 +52,7 @@ spec:
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
-            value: "{{ elasticsearch.index_name | default("image-pull") }}"
+            value: "{{ elasticsearch.index_name | default("api-load") }}"
           - name: es_verify_cert
             value: "{{ elasticsearch.verify_cert | default(true) }}"
           - name: parallel
@@ -71,8 +71,16 @@ spec:
             --test-names {{ workload_args.test_name }}
             --aws-access-key {{ workload_args.aws_access_key }}
             --aws-access-secret {{ workload_args.aws_access_secret }}
-            --aws-account-id {{ workload_args.aws_account_id }}
-
+            --aws-account-id {{ workload_args.aws_account_id }};
+        volumeMounts:
+          - mountPath: /tmp/results
+            name: results
+      volumes:
+        - name: results
+          hostDisk:
+            path: /tmp/results
+            capacity: 10Gi
+            type: DiskOrCreate
       imagePullPolicy: Always
       restartPolicy: Never
 {% include "metadata.yml.j2" %}
