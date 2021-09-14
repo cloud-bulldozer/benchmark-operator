@@ -4,7 +4,7 @@
   - name: Api load pods
     k8s:
       state: present
-      definition: "{{ lookup('template', 'api_load.yml') }}"
+      definition: "{{ lookup('template', 'api_load.yml') | from_yaml }}"
 
   - include_role:
       name: benchmark_state
