@@ -99,3 +99,8 @@ verify-read: {{ workload_args.verify_read }}
 {% if workload_args.incompressible is defined %}
 incompressible: {{ workload_args.incompressible }}
 {% endif %}
+
+{% if workload_args.cleanup_delay_usec_per_file is defined %}
+cleanup-delay-usec-per-file: {{ workload_args.cleanup_delay_usec_per_file }}
+{% endif %}
+
