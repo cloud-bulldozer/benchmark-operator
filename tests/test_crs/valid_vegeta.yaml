@@ -19,13 +19,13 @@ spec:
   workload:
     name: vegeta
     args:
-      clients: 2
+      clients: 3
       targets:
         - name: 2w-ka
           urls:
             - GET https://1.1.1.1
             - GET http://1.1.1.1
-          samples: 1
+          samples: 3
           workers: 2
           duration: 5
           keepalive: true

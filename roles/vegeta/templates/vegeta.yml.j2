@@ -72,21 +72,17 @@ spec:
         args:
           - |
 {% for t in workload_args.targets %}
-            redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} ready
-            ready=0
-            while [[ ${ready} == 0 ]]; do
-              for client in $(seq 0 {{ workload_args.clients-1 }}); do
-                [[ `redis-cli -h {{ bo.resources[0].status.podIP }} get vegeta-${client}-{{ trunc_uuid }}` != "ready" ]] && ready=0 && break
-                ready=1
-              done
+            redis-cli -h {{ bo.resources[0].status.podIP }} incr vegeta-{{ trunc_uuid }}
+            echo "Waiting for {{ workload_args.clients-1 }} clients to be ready"
+            while [[ $(redis-cli -h {{ bo.resources[0].status.podIP }} get vegeta-{{ trunc_uuid }}) != {{ workload_args.clients }} ]]; do
+              sleep 0.1
             done
-            sleep 0.1
-            redis-cli -h {{ bo.resources[0].status.podIP }} set vegeta-{{ item }}-{{ trunc_uuid }} notready
             run_snafu --tool vegeta --targets /tmp/vegeta/{{ t.name|replace(" ","") }} -u ${uuid} -d {{ t.duration }} --user ${test_user} -w {{ t.workers|default(1) }} -s {{ t.samples|default(1) }} {{ "--keepalive" if t.keepalive|default(false) }} \
 {% if workload_args.debug is defined and workload_args.debug %}
             -v \
 {% endif %}
             ;
+            redis-cli -h {{ bo.resources[0].status.podIP }} decr vegeta-{{ trunc_uuid }}
 {% endfor %}
         volumeMounts:
           - name: targets-volume
