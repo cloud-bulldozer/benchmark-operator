@@ -61,6 +61,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - >
+{% for key, value in workload_args.test_list.items() %}
             ocm-load-test
 {% if workload_args.override is defined %}
             {{ workload_args.override }}
@@ -68,14 +69,25 @@ spec:
             --test-id={{ uuid }}
             --gateway-url {{ workload_args.gateway_url }}
             --ocm-token={{ workload_args.ocm_token }}
+{% if value.duration is defined %}
+            --duration={{ value.duration}}
+{% else %}
             --duration={{ workload_args.duration}}
+{% endif %}
+{% if value.rate is defined %}
+            --rate={{ value.rate}}
+{% else %}
             --rate={{ workload_args.rate}}
+{% endif %}
             --output-path={{ workload_args.output_path}}
-            --test-names {{ workload_args.test_name }}
+            --test-names {{ key }}
             --aws-access-key {{ workload_args.aws_access_key }}
             --aws-access-secret {{ workload_args.aws_access_secret }}
             --aws-account-id {{ workload_args.aws_account_id }};
+            echo "Cooldown for {{ workload_args.cooldown }}";
+            sleep {{ workload_args.cooldown }};
 {% endif %}
+{% endfor %}
         volumeMounts:
           - mountPath: /tmp/results
             name: results
