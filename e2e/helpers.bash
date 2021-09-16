@@ -8,7 +8,7 @@ NAMESPACE=benchmark-operator
 
 basic_setup() {
   export PROMETHEUS_TOKEN=$(oc sa get-token -n openshift-monitoring prometheus-k8s)
-  export ES_SERVER=https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com
+  export ES_SERVER=${ES_SERVER:-https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com}
 }
 
 basic_teardown() {
@@ -72,7 +72,7 @@ die() {
   mkdir -p ${TEST_ARTIFACTS}
   echo "Dumping logs at ${TEST_ARTIFACTS}"
   kubectl_exec get benchmark ${CR_NAME} -o yaml --ignore-not-found > ${TEST_ARTIFACTS}/${CR_NAME}.yaml
-  kubectl_exec logs deployment/benchmark-controller-manager --tail=-1 -c manager > ${TEST_ARTIFACTS}/benchmark-controller-manager.log
+  kubectl_exec logs deployment/benchmark-controller-manager --tail=-1 -c manager > ${ARTIFACTS_DIR}/benchmark-controller-manager.log
   for pod in $(kubectl_exec get pod -l benchmark-uuid=${uuid} -o custom-columns="name:.metadata.name" --no-headers); do
     log_file=${TEST_ARTIFACTS}/${pod}.log
     echo "Saving log from pod ${pod} in ${log_file}"

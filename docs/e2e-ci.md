@@ -56,6 +56,8 @@ It's also possible to trigger specific tests by setting the BATS_TESTS env var w
 $ IMG=container-registry.io/org/benchmark-operator:mybranch BATS_TESTS="uperf|fio" make image-build image-push deploy e2e-tests
 ```
 
+A preconfigured Elasticsearch endpoint is set by default in the file [helpers.bash](../e2e/helpers.bash), however it's possible to set a custom one by exporting the variable `ES_SERVER`.
+
 ### Software requirements
 
 Running tests in local has several requirements:
