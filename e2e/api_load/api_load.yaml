@@ -6,8 +6,10 @@ metadata:
   namespace: benchmark-operator
 spec:
   elasticsearch:
-    es_url: ${ES_SERVER}
+    url: ${ES_SERVER}
     index_name: "api-load"
+  metadata:
+    collection: true
   workload:
     name: api_load
     args:

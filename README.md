@@ -84,7 +84,7 @@ However, long running tasks blocks the Operator, causing us to delete the Operat
 un-block it. The benchmarks mentioned above that state `Used` for Reconciliation, no longer have this issue.
 
 # E2E tests
-Benchmark-operator includes a series of end 2 end tests that can be triggered in local. https://github.com/rsevilla87/ripsaw/blob/master/docs/e2e-ci.md#running-in-local
+Benchmark-operator includes a series of end 2 end tests that can be triggered in local. More info in the [documentation.](docs/e2e-ci.md#running-in-local)
 
 ## Optional workload images
 Optional locations for workload images can now be added easily without the need to rebuild the operator.
