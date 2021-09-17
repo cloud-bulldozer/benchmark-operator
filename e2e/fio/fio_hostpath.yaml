@@ -1,0 +1,84 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: fio-hostpath
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ${ES_SERVER}
+    prom_token: ${PROMETHEUS_TOKEN}
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ${ES_SERVER}
+    index_name: ripsaw-fio
+  metadata:
+    collection: true
+  cleanup: false
+  hostpath: /mnt/vda1/workload_args/
+  workload:
+    name: "fio_distributed"
+    args:
+      samples: 1
+      servers: 2
+      prefill: true
+      jobs:
+        - write
+        - randread
+        - randrw
+      bs:
+        - 4KiB
+      numjobs:
+        - 2
+      iodepth: 2
+      read_runtime: 5
+      write_runtime: 5
+      read_ramp_time: 1
+      write_ramp_time: 1
+      filesize: 10MiB
+      debug: false
+#######################################
+#  EXPERT AREA - MODIFY WITH CAUTION  #
+#######################################
+  job_params:
+    - jobname_match: write
+      params:
+        - time_based=1
+        - fsync_on_close=1
+        - create_on_open=1
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
+    - jobname_match: read
+      params:
+        - time_based=1
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
+    - jobname_match: rw
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
+    - jobname_match: readwrite
+      params:
+        - rwmixread=50
+        - time_based=1
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
+    - jobname_match: randread
+      params:
+        - time_based=1
+        - runtime={{ workload_args.read_runtime }}
+        - ramp_time={{ workload_args.read_ramp_time }}
+    - jobname_match: randwrite
+      params:
+        - time_based=1
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
+    - jobname_match: randrw
+      params:
+        - time_based=1
+        - runtime={{ workload_args.write_runtime }}
+        - ramp_time={{ workload_args.write_ramp_time }}
+

@@ -1,0 +1,18 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: image-pull
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: ${ES_SERVER}
+    index_name: image-pull
+  workload:
+    name: image_pull
+    args:
+      pod_count: 2
+      timeout: 60
+      retries: 1
+      image_list:
+        - docker://quay.io/cloud-bulldozer/backpack
+        - docker://quay.io/cloud-bulldozer/hello-openshift

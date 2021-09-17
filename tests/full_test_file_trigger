@@ -1,7 +1,0 @@
-build/Dockerfile
-group_vars/all.yml
-resources/operator.yaml
-tests/common.sh
-playbook.yml
-test.sh
-watches.yaml

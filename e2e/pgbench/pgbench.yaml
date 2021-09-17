@@ -1,0 +1,37 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: pgbench-benchmark
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ${ES_SERVER}
+    prom_token: ${PROMETHEUS_TOKEN}
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ${ES_SERVER}
+    index_name: ripsaw-pgbench
+  metadata:
+    collection: true
+  workload:
+    name: "pgbench"
+    args:
+      timeout: 5
+      clients:
+        - 1
+        - 2
+      threads: 1
+      transactions: 10
+      cmd_flags: ''
+      init_cmd_flags: ''
+      scaling_factor: 1
+      samples: 2
+      num_databases_pattern: 'all'
+      databases:
+        - host: ${POSTGRES_IP}
+          user: ci
+          password: ci
+          db_name: cidb
+      debug: true

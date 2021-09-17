@@ -30,7 +30,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       restartPolicy: Never
       containers:
-        - name: benchmark-server
+        - name: fs-drift
 {% if hostpath is defined %}
           securityContext:
             privileged: true
