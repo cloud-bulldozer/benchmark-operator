@@ -13,6 +13,8 @@ on:
       img:
         description: Benchmark-operator image location
         default: quay.io/rht_perf_ci/benchmark-operator:e2e
+concurrency:
+  group: e2e-ci
 jobs:
   e2e:
     name: E2E testing
