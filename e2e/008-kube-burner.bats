@@ -61,13 +61,24 @@ ES_INDEX=ripsaw-kube-burner
   check_es
 }
 
+@test "kube-burner-configmap" {
+  CR=kube-burner/configmap.yaml
+  CR_NAME=$(get_benchmark_name ${CR})
+  envsubst < ${CR} | kubectl apply -f -
+  get_uuid "${CR_NAME}"
+  check_benchmark 900
+  check_es
+}
+
 setup_file() {
   basic_setup
   kubectl apply -f ../resources/kube-burner-role.yml
+  kubectl apply -f kube-burner/configmap-cfg.yaml
 }
 
 teardown_file() {
   kubectl delete -f ../resources/kube-burner-role.yml
+  kubectl delete -f kube-burner/configmap-cfg.yaml
 }
 
 teardown() {
