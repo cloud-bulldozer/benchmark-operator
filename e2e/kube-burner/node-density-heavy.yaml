@@ -8,7 +8,7 @@ spec:
   elasticsearch:
     url: ${ES_SERVER}
   metadata:
-    collection: true
+    collection: false
   prometheus:
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
