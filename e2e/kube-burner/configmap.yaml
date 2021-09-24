@@ -2,7 +2,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: kube-burner-node-density
+  name: kube-burner-configmap-cfg
   namespace: benchmark-operator
 spec:
   elasticsearch:

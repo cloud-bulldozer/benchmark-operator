@@ -51,7 +51,7 @@ spec:
           kube-burner init
 {% if workload_args.remote_config is defined and workload_args.remote_config %}
           -c {{ workload_args.remote_config }}
-{% else if workload_args.configmap is defined and workload_args.configmap %}
+{% elif workload_args.configmap is defined and workload_args.configmap %}
           --configmap={{ workload_args.configmap }}
           --namespace=${POD_NAMESPACE}
 {% else %}
