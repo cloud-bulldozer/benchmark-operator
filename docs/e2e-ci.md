@@ -27,7 +27,7 @@ A Bats test file is a Bash script with special syntax for defining test cases. U
 }
 ```
 
-If every command in the test case exits with a 0 status code (success), the test passes. This workflow uses bats framework to execute end to end tests, these tests are defined in files with the termination *.bats under the [e2e directory](./e2e)
+If every command in the test case exits with a 0 status code (success), the test passes. This workflow uses bats framework to execute end to end tests, these tests are defined in files with the termination *.bats under the project's e2e directory.
 
 ### Events
 
