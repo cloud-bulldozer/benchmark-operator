@@ -1,0 +1,52 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: uperf-resources
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ES_SERVER
+    index_name: ripsaw-uperf
+  metadata:
+    collection: true
+  cleanup: false
+  workload:
+    name: uperf
+    args:
+      client_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      server_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      hostnetwork: true
+      serviceip: false
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      multus:
+        enabled: false
+      samples: 2
+      pair: 1
+      test_types:
+        - stream
+        - rr
+      protos:
+        - tcp
+        - udp
+      sizes:
+        - 1024
+        - 512
+      nthrs:
+        - 1
+        - 2
+      runtime: 2
+      debug: true

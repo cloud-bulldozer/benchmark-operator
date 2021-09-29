@@ -1,0 +1,15 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: backpack
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: ES_SERVER
+  metadata:
+    collection: true
+    targeted: false
+    privileged: true
+    serviceaccount: backpack-view
+  workload:
+    name: backpack

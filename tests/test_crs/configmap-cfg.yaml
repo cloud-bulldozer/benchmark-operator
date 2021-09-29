@@ -1,0 +1,79 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kube-burner-config
+  namespace: benchmark-operator
+data:
+  alerts.yml: "- expr: avg_over_time(histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[2m]))[5m:])
+    > 0.01\n  description: 5 minutes avg. etcd fsync latency on {{$labels.pod}} higher
+    than 10ms {{$value}}\n  severity: warning\n\n- expr: avg_over_time(histogram_quantile(0.99,
+    rate(etcd_network_peer_round_trip_time_seconds_bucket[5m]))[5m:]) > 0.1\n  description:
+    5 minutes avg. etcd network peer round trip on {{$labels.pod}} higher than 100ms
+    {{$value}}\n  severity: warning \n"
+  config.yml: |
+    ---
+    global:
+      writeToFile: false
+      metricsDirectory: collected-metrics
+      indexerConfig:
+        enabled: true
+        esServers: [{{ .ES_SERVER }}]
+        insecureSkipVerify: true
+        defaultIndex: ripsaw-kube-burner
+        type: elastic
+      measurements:
+        - name: podLatency
+          esIndex: ripsaw-kube-burner
+
+    jobs:
+      - name: basic-job
+        jobIterations: 5
+        qps: 20
+        burst: 20
+        namespacedIterations: false
+        namespace: basic-job
+        waitWhenFinished: true
+        podWait: false
+        objects:
+
+          - objectTemplate: pod.yml
+            replicas: 1
+            inputVars:
+              containerImage: gcr.io/google_containers/pause-amd64:3.0
+  metrics.yml: |
+    - query: count(kube_namespace_created)
+      metricName: namespaceCount
+      instant: true
+
+    - query: sum(kube_pod_status_phase{}) by (phase)
+      metricName: podStatusCount
+      instant: true
+
+    - query: count(kube_secret_info{})
+      metricName: secretCount
+      instant: true
+
+    - query: count(kube_deployment_labels{})
+      metricName: deploymentCount
+      instant: true
+
+    - query: count(kube_configmap_info{})
+      metricName: configmapCount
+      instant: true
+  pod.yml: |
+    kind: Pod
+    apiVersion: v1
+    metadata:
+      name: basic-pod-{{.Iteration}}
+    spec:
+      nodeSelector:
+        node-role.kubernetes.io/worker: ""
+      containers:
+      - name: basic-container
+        image: {{.containerImage}}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: false

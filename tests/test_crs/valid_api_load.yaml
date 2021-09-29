@@ -1,0 +1,13 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: api-load
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: ES_SERVER
+    index_name: "api-load"
+  workload:
+    name: api_load
+    args:
+      override: version

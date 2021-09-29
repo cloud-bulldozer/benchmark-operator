@@ -1,0 +1,39 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: flent-resources-benchmark
+  namespace: benchmark-operator
+spec:
+  clustername: myk8scluster
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ES_SERVER
+    index_name: ripsaw-flent
+  workload:
+    # cleanup: true
+    name: flent
+    args:
+      client_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      server_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      pin: false
+      pin_server: "node-0"
+      pin_client: "node-1"
+      hostnetwork: false
+      multus:
+        enabled: false
+      pair: 1
+      test_types:
+        - tcp_download
+      runtime: 2
+      debug: true

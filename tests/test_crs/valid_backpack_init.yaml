@@ -1,0 +1,18 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: backpack
+  namespace: benchmark-operator
+spec:
+  elasticsearch:
+    url: ES_SERVER
+  metadata:
+    collection: true
+    privileged: true
+    serviceaccount: backpack-view
+  workload:
+    name: byowl
+    args:
+      image: "quay.io/jtaleric/uperf:testing"
+      clients: 1
+      commands: "echo Test"
