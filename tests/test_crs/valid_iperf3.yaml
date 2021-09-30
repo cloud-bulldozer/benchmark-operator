@@ -1,0 +1,32 @@
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: iperf3-benchmark
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ES_SERVER
+  metadata:
+    collection: true
+  workload:
+    name: iperf3
+    args:
+      pairs: 1
+      hostnetwork: false
+      port: 5201
+      transmit_type: time
+      transmit_value: 60
+      omit_start: 0
+      length_buffer: 128K
+      window_size: 64k
+      ip_tos: 0
+      mss: 900
+      streams: 1
+      extra_options_server: '--forceflush '
+      extra_options_client: '-R '

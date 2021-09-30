@@ -1,0 +1,31 @@
+
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: smallfile-hostpath-benchmark
+  namespace: benchmark-operator
+spec:
+  test_user: homer_simpson
+  # to separate this test run from everyone else's
+  clustername: test_ci
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ES_SERVER
+    prom_token: PROMETHEUS_TOKEN
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ES_SERVER
+    index_name: ripsaw-smallfile
+  metadata:
+    collection: true
+  hostpath: /mnt/vda1/smallfile
+  workload:
+    name: smallfile
+    args:
+      clients: 1
+      operation: ["create", "read", "append", "delete"]
+      threads: 1
+      file_size: 0
+      files: 100000
+      debug: true
