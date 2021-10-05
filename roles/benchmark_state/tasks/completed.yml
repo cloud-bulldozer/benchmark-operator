@@ -18,7 +18,7 @@
     status:
       state: Complete
       complete: true
-  when: job_state|json_query('resources[].status[]')|selectattr('succeeded', 'defined')|list|length == job_state.resources|length
+  when: job_state|json_query('resources[].status[].conditions[]')|selectattr('type', 'equalto', 'Complete')|list
 
 # Set Benchmark as failed when one of the jobs fails
 - name: Setting benchmark state - Failed
@@ -30,7 +30,7 @@
     status:
       state: Failed
       complete: true
-  when: job_state|json_query('resources[].status[]')|selectattr('failed', 'defined')|list|length > 0
+  when: job_state|json_query('resources[].status[].conditions[]')|selectattr('type', 'equalto', 'Failed')|list
 
 - name: Get current state
   k8s_info:
