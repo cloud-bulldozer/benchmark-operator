@@ -68,3 +68,4 @@ Running tests in local has several requirements:
 - make
 - kubectl
 - oc
+- yq
