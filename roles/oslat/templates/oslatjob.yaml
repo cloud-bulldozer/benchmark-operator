@@ -15,6 +15,10 @@ spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
+{% if workload_args.nodeselector is defined %}
+      nodeSelector:
+        '{{ workload_args.node_selector.split("=")[0] }}': '{{ workload_args.node_selector.split("=")[1] }}'
+{% endif %}
       containers:
       - name: oslat
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/oslat:latest') }}
@@ -26,10 +30,6 @@ spec:
 {% endif %}
             ;
         imagePullPolicy: Always
-{% if workload_args.nodeselector is defined %}
-      nodeSelector:
-          "{{ workload_args.nodeselector }}"
-{% endif %}
         resources:
           requests:
             memory: {{ workload_args.pod.requests.memory }}
