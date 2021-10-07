@@ -27,6 +27,7 @@ spec:
   workload:
     name: "oslat"
     args:
+      node_selector: "<nodeSelector for the RT worker>"
       runtime: "1m"
       disable_cpu_balance: true
       use_taskset: true

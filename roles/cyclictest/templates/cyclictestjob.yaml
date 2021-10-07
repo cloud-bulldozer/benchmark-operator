@@ -14,6 +14,10 @@ spec:
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
       ttlSecondsAfterFinished: 600
+{% if workload_args.nodeselector is defined %}
+      nodeSelector:
+        '{{ workload_args.node_selector.split("=")[0] }}': '{{ workload_args.node_selector.split("=")[1] }}'
+{% endif %}
       containers:
       - name: cyclictest
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/cyclictest:latest') }}
@@ -25,10 +29,6 @@ spec:
 {% endif %}
             ;
         imagePullPolicy: Always
-{% if workload_args.nodeselector is defined %}
-      nodeSelector:
-          "{{ workload_args.nodeselector }}"
-{% endif %}
         resources:
           requests:
             memory: {{ workload_args.pod.requests.memory }}

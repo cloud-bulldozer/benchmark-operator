@@ -28,6 +28,7 @@ spec:
   workload:
     name: "cyclictest"
     args:
+      node_selector: "<nodeSelector for the RT worker>"
       duration: "1m"
       disable_cpu_balance: true
       stressng: false
