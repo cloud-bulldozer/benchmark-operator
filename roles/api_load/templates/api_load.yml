@@ -35,8 +35,49 @@ spec:
                 - {{ workload_args.label.value }}
 {% endif %}
       containers:
-      - image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
-        name: pull-image
+      - name: api-load
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: uuid
+            value: "{{ uuid }}"
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            echo "Seting redis status";
+            redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "running";
+{% for key, value in workload_args.test_list.items() %}
+            ocm-load-test
+{% if workload_args.override is defined %}
+            {{ workload_args.override }}
+{% else %}
+            --test-id={{ uuid }}
+            --gateway-url {{ workload_args.gateway_url }}
+            --ocm-token={{ workload_args.ocm_token }}
+            --duration={{ value.duration | default(workload_args.duration) }}
+            --rate={{ value.rate | default(workload_args.rate) }}
+            --output-path={{ workload_args.output_path }}
+            --test-names {{ key }}
+            --aws-access-key {{ workload_args.aws_access_key }}
+            --aws-access-secret {{ workload_args.aws_access_secret }}
+            --aws-account-id {{ workload_args.aws_account_id }};
+            echo "Cooldown for {{ workload_args.cooldown }}";
+            sleep {{ workload_args.cooldown }};
+{% endif %}
+{% endfor %}
+            redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "ready";
+        volumeMounts:
+          - mountPath: /tmp/results
+            name: results
+      - name: data-collector
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
         env:
           - name: my_node_name
             valueFrom:
@@ -54,40 +95,35 @@ spec:
           - name: es_index
             value: "{{ elasticsearch.index_name | default("api-load") }}"
           - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default(true) }}"
+            value: "{{ elasticsearch.verify_cert | default(false) }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
+{% endif %}
+{% if snappy is defined %}
+          - name: snappy_server
+            value: "{{ snappy.url }}"
+          - name: snappy_user
+            value: "{{ snappy.user }}"
+          - name: snappy_password
+            value: "{{ snappy.password }}"
 {% endif %}
         command: ["/bin/sh", "-c"]
         args:
           - >
-{% for key, value in workload_args.test_list.items() %}
-            ocm-load-test
-{% if workload_args.override is defined %}
-            {{ workload_args.override }}
-{% else %}
-            --test-id={{ uuid }}
-            --gateway-url {{ workload_args.gateway_url }}
-            --ocm-token={{ workload_args.ocm_token }}
-{% if value.duration is defined %}
-            --duration={{ value.duration}}
-{% else %}
-            --duration={{ workload_args.duration}}
-{% endif %}
-{% if value.rate is defined %}
-            --rate={{ value.rate}}
-{% else %}
-            --rate={{ workload_args.rate}}
-{% endif %}
-            --output-path={{ workload_args.output_path}}
-            --test-names {{ key }}
-            --aws-access-key {{ workload_args.aws_access_key }}
-            --aws-access-secret {{ workload_args.aws_access_secret }}
-            --aws-account-id {{ workload_args.aws_account_id }};
-            echo "Cooldown for {{ workload_args.cooldown }}";
-            sleep {{ workload_args.cooldown }};
-{% endif %}
-{% endfor %}
+            echo "Waiting for test to end running";
+            echo {{ es }}
+            status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
+            while [[ $status != "ready" ]]; do
+              echo "Sleeping for 5 min";
+              sleep 5;
+              echo "Testing test status";
+              status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
+            done;
+            echo "Starting with ES bulk upload";
+            python3 automation.py esbulk --dir {{ workload_args.output_path }} --index {{ es_index }};
+            echo "Starting with Snappy upload";
+            python3 automation.py upload --dir {{ workload_args.output_path }} --server {{ snappy_server }}  --user {{ snappy_user }} --password {{ snappy_password }};
+            echo "Process finished";
         volumeMounts:
           - mountPath: /tmp/results
             name: results
