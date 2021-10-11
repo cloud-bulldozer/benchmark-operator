@@ -7,6 +7,10 @@ spec:
   elasticsearch:
     url: ES_SERVER
     index_name: "api-load"
+  snappy:
+    url: SNAPPY_SERVER
+    user: realuser
+    password: realpassword
   workload:
     name: api_load
     args:
