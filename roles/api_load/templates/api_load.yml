@@ -51,7 +51,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - >
-            echo "Seting redis status";
+            echo "Setting redis status";
             redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "running";
 {% for key, value in workload_args.test_list.items() %}
             ocm-load-test
@@ -89,41 +89,22 @@ spec:
                 fieldPath: metadata.name
           - name: uuid
             value: "{{ uuid }}"
-{% if elasticsearch is defined %}
-          - name: es
+          - name: ES
             value: "{{ elasticsearch.url }}"
-          - name: es_index
-            value: "{{ elasticsearch.index_name | default("api-load") }}"
-          - name: es_verify_cert
-            value: "{{ elasticsearch.verify_cert | default(false) }}"
-          - name: parallel
-            value: "{{ elasticsearch.parallel | default(false) }}"
-{% endif %}
-{% if snappy is defined %}
-          - name: snappy_server
-            value: "{{ snappy.url }}"
-          - name: snappy_user
-            value: "{{ snappy.user }}"
-          - name: snappy_password
-            value: "{{ snappy.password }}"
-{% endif %}
         command: ["/bin/sh", "-c"]
         args:
           - >
-            echo "Waiting for test to end running";
-            echo {{ es }}
+            echo "Getting redis status";
             status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
-            while [[ $status != "ready" ]]; do
-              echo "Sleeping for 5 min";
-              sleep 5;
-              echo "Testing test status";
+            while [ $status != "ready" ]; do
+              sleep {{ workload_args.sleep }};
+              echo "Testing readiness";
               status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
             done;
-            echo "Starting with ES bulk upload";
-            python3 automation.py esbulk --dir {{ workload_args.output_path }} --index {{ es_index }};
-            echo "Starting with Snappy upload";
-            python3 automation.py upload --dir {{ workload_args.output_path }} --server {{ snappy_server }}  --user {{ snappy_user }} --password {{ snappy_password }};
-            echo "Process finished";
+            echo "Uploading to ES...";
+            python automation.py esbulk --dir {{ workload_args.output_path }} --index {{ elasticsearch.index_name }};
+            echo "Uploading RAW files...";
+            python automation.py upload --dir {{ workload_args.output_path }} --server {{ snappy.url }} --user {{ snappy.user }} --password {{ snappy.password }};
         volumeMounts:
           - mountPath: /tmp/results
             name: results
