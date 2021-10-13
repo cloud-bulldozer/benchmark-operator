@@ -107,10 +107,14 @@ spec:
               echo "Testing readiness";
               status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
             done;
+{% if workload_args.override is defined %}
+            echo "succeeded"
+{% else %}
             echo "Uploading to ES...";
             python automation.py esbulk --dir {{ workload_args.output_path }} --index {{ elasticsearch.index_name }};
             echo "Uploading RAW files...";
             python automation.py upload --dir {{ workload_args.output_path }} --server {{ snappy.url }} --user {{ snappy.user }} --password {{ snappy.password }};
+{% endif %}
         volumeMounts:
           - mountPath: /tmp/results
             name: results
