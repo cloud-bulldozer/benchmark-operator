@@ -51,13 +51,13 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - >
+{% if workload_args.override is defined %}
+            ocm-load-test {{ workload_args.override }};
+{% else %}
             echo "Setting redis status";
             redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "running";
 {% for key, value in workload_args.test_list.items() %}
             ocm-load-test
-{% if workload_args.override is defined %}
-            {{ workload_args.override }}
-{% else %}
             --test-id={{ uuid }}
             --gateway-url {{ workload_args.gateway_url }}
             --ocm-token={{ workload_args.ocm_token }}
@@ -70,8 +70,8 @@ spec:
             --aws-account-id {{ workload_args.aws_account_id }};
             echo "Cooldown for {{ workload_args.cooldown }}";
             sleep {{ workload_args.cooldown }};
-{% endif %}
 {% endfor %}
+{% endif %}
             redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "ready";
         volumeMounts:
           - mountPath: /tmp/results
