@@ -5,7 +5,7 @@ metadata:
   name: api-load
   namespace: benchmark-operator
 spec:
-  uuid: "bb4ada0d-ff70-41e0-acc2-cd152ce4ac85"
+  uuid: ""
   elasticsearch:
     url: ${ES_SERVER}
     index_name: "api-load"
