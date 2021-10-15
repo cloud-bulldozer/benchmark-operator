@@ -76,7 +76,7 @@ die() {
   for pod in $(kubectl_exec get pod -l benchmark-uuid=${uuid} -o custom-columns="name:.metadata.name" --no-headers); do
     log_file=${TEST_ARTIFACTS}/${pod}.log
     echo "Saving log from pod ${pod} in ${log_file}"
-    kubectl_exec logs --tail=-1 ${pod} > ${log_file}
+    kubectl_exec logs --tail=-1 ${pod} --all-containers --prefix --all-containers --prefix  > ${log_file}
   done
   false
 }
