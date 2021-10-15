@@ -69,6 +69,7 @@ check_benchmark() {
 die() {
   printf "\nError message: ${1}\n"
   local TEST_ARTIFACTS=${ARTIFACTS_DIR}/${CR_NAME}
+  local LOGS_FLAGS="--tail=-1 --all-containers --prefix"
   mkdir -p ${TEST_ARTIFACTS}
   echo "Dumping logs at ${TEST_ARTIFACTS}"
   kubectl_exec get benchmark ${CR_NAME} -o yaml --ignore-not-found > ${TEST_ARTIFACTS}/${CR_NAME}.yaml
@@ -76,7 +77,7 @@ die() {
   for pod in $(kubectl_exec get pod -l benchmark-uuid=${uuid} -o custom-columns="name:.metadata.name" --no-headers); do
     log_file=${TEST_ARTIFACTS}/${pod}.log
     echo "Saving log from pod ${pod} in ${log_file}"
-    kubectl_exec logs --tail=-1 ${pod} --all-containers --prefix --all-containers --prefix  > ${log_file}
+    kubectl_exec logs ${LOGS_FLAGS} ${pod} > ${log_file}
   done
   false
 }
