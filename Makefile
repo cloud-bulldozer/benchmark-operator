@@ -215,4 +215,4 @@ e2e-tests: ## Triggers e2e testing, by default all e2e/*.bats tests are executed
 
 .PHONY: install-bats
 install-bats:
-	VERSION=v1.4.1 ./hack/install-bats.sh
+	VERSION=v1.5.0 ./hack/install-bats.sh
