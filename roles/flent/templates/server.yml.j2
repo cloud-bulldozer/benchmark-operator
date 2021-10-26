@@ -8,9 +8,17 @@ metadata:
     app : flent-bench-server-{{item}}-{{ trunc_uuid }}
     type : flent-bench-server-{{ trunc_uuid }}
     benchmark-uuid: {{ uuid }}
-{% if workload_args.multus.enabled is sameas true %}
+{% if workload_args.multus.enabled is sameas true or workload_args.annotations is defined or workload_args.server_annotations is defined %}
   annotations:
+{% if workload_args.multus.enabled is sameas true %}
     k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+{% endif %}
+{% for annotation, value in workload_args.annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.server_annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
 {% endif %}
 spec:
 {% if workload_args.runtime_class is defined %}

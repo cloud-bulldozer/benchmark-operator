@@ -103,6 +103,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **``step``**: Prometheus step size, useful for long benchmarks. Defaults to 30s
 - **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in node-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
 - **``runtime_class``** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+- **``annotations``** : If this is set, the benchmark-operator will set the specified annotations on the pod's metadata.
 - **``extra_env_vars``** : This dictionary defines a set of fields that will be injected to the kube-burner pod as environment variables. e.g. `extra_env_vars: {"foo": "bar", "foo2": "bar2"}`
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch. This feature can be configured by the prometheus object of kube-burner's CR.

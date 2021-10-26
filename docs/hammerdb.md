@@ -150,6 +150,11 @@ The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
 
+The option **annotations** can be set to apply the specified
+annotations to the pod metadata.  To set annotations only on the
+workload, use **client_annotations**; to set annotations only on the
+database server, use **server_annotations**.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash

@@ -100,6 +100,12 @@ The workload loops are nested as such from the CR options:
   > to instantiate the files themselves prior to beginning the benchmark workload.
 - **runtime_class** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
   > Note: For Kata containers
+- **annotations** : If this is set, the benchmark-operator will set
+  > the specified annotations on the pods' metadata.
+- **server_annotations** : If this is set, the benchmark-operator will set
+  > the specified annotations on the server pods' metadata.
+- **client_annotations** : If this is set, the benchmark-operator will set
+  > the specified annotations on the client pods' metadata.
 - **kind**: Can either be `pod` or `vm` to determine if the fio workload is run in a Pod or in a VM
   > Note: For VM workloads, you need to install Openshift Virtualization first
 - **vm_image**: Whether to use a pre-defined VM image with pre-installed requirements. Necessary for disconnected installs.

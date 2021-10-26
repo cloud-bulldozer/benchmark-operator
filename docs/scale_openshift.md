@@ -28,6 +28,8 @@ Optional variables:
 
 `runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
+`annotations` If this is set, the benchmark-operator will set the specified annotations on the pods' metadata.
+
 `rosa` For clusters installed using ROSA. Following parameters will be required:
 
 `rosa.cluster_name` Name of cluster as it is shown on `rosa list clusters` command
