@@ -68,6 +68,12 @@ spec:
 
 *Note:* `runtime_class` has only been tested with Kata containers. Only include `runtime_class` if using Kata containers.
 
+`annotations` If this is set, the benchmark-operator will set the specified annotations on the pods' metadata.
+
+`server_annotations` If this is set, the benchmark-operator will set the specified annotations on the server pods' metadata.
+
+`client_annotations` If this is set, the benchmark-operator will set the specified annotations on the client pods' metadata.
+
 `hostnetwork` will test the performance of the node the pod will run on.
 
 `networkpolicy` will create a simple networkpolicy for ingress

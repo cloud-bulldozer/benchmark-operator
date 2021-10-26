@@ -50,6 +50,9 @@ then you'd probably give a `retries` of 60, as 60*15 is 900s.
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
 
+`annotations` can be set to apply the specified
+annotations to the pod metadata.
+
 The rest of the args are compulsory arguments that need to be passed and can cause
 issues if missed, they are:
 

@@ -13,6 +13,15 @@ items:
       name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
       namespace: '{{ operator_namespace }}'
+{% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
+  annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.server_annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
       template:
         metadata:

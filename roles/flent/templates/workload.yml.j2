@@ -11,9 +11,17 @@ spec:
         app: flent-bench-client-{{ trunc_uuid }}
         clientfor: {{ item.metadata.labels.app }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.multus.enabled is sameas true or workload_args.annotations is defined or workload_args.client_annotations is defined %}
+  annotations:
 {% if workload_args.multus.enabled is sameas true %}
-      annotations:
-        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+    k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+{% endif %}
+{% for annotation, value in workload_args.annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.client_annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
 {% endif %}
     spec:
 {% if workload_args.hostnetwork is sameas true %}

@@ -9,6 +9,12 @@ metadata:
     type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
     benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: stressng
+{% if workload_args.annotations is defined %}
+    annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+      "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
 spec:
   domain:
     cpu:

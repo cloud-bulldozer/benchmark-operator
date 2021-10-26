@@ -10,6 +10,15 @@ metadata:
     benchmark-operator-role: client
     app: uperf-bench-client-{{ trunc_uuid }}
     type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
+{% if workload_args.annotations is defined or workload_args.client_annotations is defined %}
+  annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.client_annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
 spec:
   domain:
     cpu:

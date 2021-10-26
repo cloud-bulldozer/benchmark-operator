@@ -11,6 +11,9 @@ The optional argument **runtime_class** can be set to specify an
 optional runtime_class to the podSpec runtimeClassName.  This is
 primarily intended for Kata containers.
 
+The option **annotations** can be set to apply the specified
+annotations to the pod metadata.
+
 The `pin_node` parameter allows to place the sysbench pod 
 on a specific node, using the `hostname` label.
 
