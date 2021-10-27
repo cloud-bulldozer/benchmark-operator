@@ -8,12 +8,12 @@ metadata:
     app: fio-benchmark-{{ trunc_uuid }}
     benchmark-uuid: {{ uuid }}
 {% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
-    annotations:
+  annotations:
 {% for annotation, value in workload_args.annotations.items() %}
-      "{{annotation}}": "{{value}}"
+    "{{annotation}}": "{{value}}"
 {% endfor %}
 {% for annotation, value in workload_args.server_annotations.items() %}
-      "{{annotation}}": "{{value}}"
+    "{{annotation}}": "{{value}}"
 {% endfor %}
 {% endif %}
 spec:

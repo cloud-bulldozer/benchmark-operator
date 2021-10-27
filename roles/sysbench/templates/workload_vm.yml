@@ -9,9 +9,9 @@ metadata:
     kubevirt-vm: vm-sysbench-{{ trunc_uuid }}
     benchmark-uuid: {{ uuid }}
 {% if workload_args.annotations is defined %}
-    annotations:
+  annotations:
 {% for annotation, value in workload_args.annotations.items() %}
-      "{{annotation}}": "{{value}}"
+    "{{annotation}}": "{{value}}"
 {% endfor %}
 {% endif %}
 spec:
