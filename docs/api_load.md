@@ -3,13 +3,17 @@
 ## What does it do?
 
 The API Load workload will execute a load test using [OCM API Load](https://github.com/cloud-bulldozer/ocm-api-load)
-After running it will perform an ES indexig for all the request that have been generated and upload all the files to a snappy server.
+After running it will perform an ES indexing for all the requests that have been generated and upload all the files to a snappy server.
 
-## Required sections
+## Sections
+
+### Required sections
 
 `elasticsearch` section, it is needed to index all the documents that are used for results.
 
-`snappy` section, it is needed to upload the raw files in case we need them for further analysis.
+### Optional sections
+
+[`snappy`](https://github.com/cloud-bulldozer/snappy-data-server) section, it is needed to upload the raw files in case we need them for further analysis.
 
 ## Variables
 
@@ -25,19 +29,21 @@ After running it will perform an ES indexig for all the request that have been g
 
 `rate` default rate of each attack
 
-`output_path` path were to write the results
-
 `aws_access_key` access key for AWS auhtentication
 
 `aws_access_secret` access secret for AWS auhtentication
 
 `aws_account_id` 12 digit account number for AWS auhtentication
 
-`cooldown` time in seconds, wait <cooldown> before the next attack occurs
-
-`sleep` time in seconds, checks redis status each <sleep> seconds
-
 ### Optional variables
+
+`cooldown` time in seconds, wait <cooldown> before the next attack occurs, default 60 seconds
+
+`output_path` path were to write the results, default `/tmp/results`
+
+`override` used to run a specific sub-command of `ocm-api-load`, like `version` or `help`
+
+`sleep` time in seconds, checks redis status each <sleep> seconds, default 360 seconds
 
 Each test can be provided with it's own configurations
 
