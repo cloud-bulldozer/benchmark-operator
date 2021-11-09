@@ -10,6 +10,7 @@ dnf install -y ethtool;
 ethtool -L eth0 combined {{ workload_args.client_vm.network.multiqueue.queues }};
 {% endif %}
 dnf install -y epel-release git python3-pip;
+pip3 install --upgrade pip;
 pip3 install git+https://github.com/cloud-bulldozer/benchmark-wrapper;
 export db_type={{workload_args.db_type}};
 export timed_test={{workload_args.timed_test}};
