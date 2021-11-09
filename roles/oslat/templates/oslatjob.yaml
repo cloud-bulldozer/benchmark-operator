@@ -11,25 +11,31 @@ spec:
       labels:
         app: oslat-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.node_selector is defined %}
+      nodeSelector:
+        '{{ workload_args.node_selector.split("=")[0] }}': '{{ workload_args.node_selector.split("=")[1] }}'
 {% endif %}
       containers:
       - name: oslat
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/oslat:latest') }}
         command: ["/bin/sh", "-c"]
         args: 
-          - run_snafu --tool oslat -p /tmp/oslat.sh -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+          - run_snafu --tool oslat -p /tmp/oslat.sh -u {{ uuid }} --user {{test_user | default("ripsaw")}}
 {% if workload_args.debug is defined and workload_args.debug %}
-            -v \
+            -v
 {% endif %}
             ;
         imagePullPolicy: Always
-{% if workload_args.nodeselector is defined %}
-      nodeSelector:
-          "{{ workload_args.nodeselector }}"
-{% endif %}
         resources:
           requests:
             memory: {{ workload_args.pod.requests.memory }}
@@ -44,7 +50,7 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url}}"
           - name: es_index

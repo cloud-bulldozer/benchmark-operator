@@ -13,6 +13,15 @@ items:
       name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
       namespace: '{{ operator_namespace }}'
+{% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.server_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
       template:
         metadata:
@@ -57,7 +66,7 @@ items:
                 value: "{{ test_user | default("ripsaw") }}"
               - name: clustername
                 value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
               - name: es
                 value: "{{ elasticsearch.url }}"
               - name: es_index
@@ -194,7 +203,7 @@ items:
             - name: config-volume
               configMap:
                 name: uperf-test-{{ trunc_uuid }}
-          restartPolicy: OnFailure
+          restartPolicy: Never
 {% if workload_args.pin is sameas false %}
 {% if workload_args.colocate is sameas true %}
           nodeSelector:

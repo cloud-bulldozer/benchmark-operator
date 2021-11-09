@@ -13,6 +13,9 @@ The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
 
+The option **annotations** can be set to apply the specified
+annotations to the pod metadata.
+
 An example CR might look like this
 
 ```yaml
@@ -27,6 +30,7 @@ spec:
   workload:
     name: "oslat"
     args:
+      node_selector: "<nodeSelector for the RT worker>"
       runtime: "1m"
       disable_cpu_balance: true
       use_taskset: true

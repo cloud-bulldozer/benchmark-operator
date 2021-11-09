@@ -78,6 +78,9 @@ The `runtime_class` option can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
 
+The option `annotations` can be set to apply the specified
+annotations to the pod metadata.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash

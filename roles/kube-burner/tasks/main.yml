@@ -15,167 +15,170 @@
       - workload_args.remote_config is defined
       - workload_args.remote_config
 
-  - name: Create cluster-density configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
-          build.yml: "{{ lookup('file', 'build.yml')}}"
-          buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
-          deployment.yml: "{{ lookup('file', 'deployment.yml')}}"
-          imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
-          route.yml: "{{ lookup('file', 'route.yml')}}"
-          secret.yml: "{{ lookup('file', 'secret.yml')}}"
-          service.yml: "{{ lookup('file', 'service.yml')}}"
-          configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
-    when: workload_args.workload == "cluster-density"
+  - block:
 
-  - name: Create node-density or pod-density configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'node-pod-density.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
-          pod.yml: "{{ lookup('file', 'pod.yml')}}"
-    when: workload_args.workload == "node-density" or workload_args.workload == "pod-density"
+    - name: Create cluster-density configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'cluster-density.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+            build.yml: "{{ lookup('file', 'build.yml')}}"
+            buildconfig.yml: "{{ lookup('file', 'buildconfig.yml')}}"
+            deployment.yml: "{{ lookup('file', 'deployment.yml')}}"
+            imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
+            route.yml: "{{ lookup('file', 'route.yml')}}"
+            secret.yml: "{{ lookup('file', 'secret.yml')}}"
+            service.yml: "{{ lookup('file', 'service.yml')}}"
+            configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
+      when: workload_args.workload == "cluster-density"
 
-  - name: Create node-density-heavy configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'node-density-heavy.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
-          app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
-          postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
-          postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
-    when: workload_args.workload == "node-density-heavy"
+    - name: Create node-density or pod-density configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'node-pod-density.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+            pod.yml: "{{ lookup('file', 'pod.yml')}}"
+      when: workload_args.workload == "node-density" or workload_args.workload == "pod-density"
 
-  - name: Create max-namespaces configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'max-namespaces.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
-          app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
-          postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
-          postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
-          secret.yml: "{{ lookup('file', 'secret.yml')}}"
-    when: workload_args.workload == "max-namespaces"
+    - name: Create node-density-heavy configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'node-density-heavy.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+            app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
+            postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
+            postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
+      when: workload_args.workload == "node-density-heavy"
 
-  - name: Create networkpolicy-multitenant configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'networkpolicy-multitenant.yml.j2')}}"
-          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
-          networkpolicy-ingress.yaml: "{{ lookup('file', 'networkpolicy-ingress.yaml')}}"
-          networkpolicy-monitoring.yaml: "{{ lookup('file', 'networkpolicy-monitoring.yaml')}}"
-          networkpolicy-same-ns.yaml: "{{ lookup('file', 'networkpolicy-same-ns.yaml')}}"
-    when: workload_args.workload == "networkpolicy-multitenant"
+    - name: Create max-namespaces configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'max-namespaces.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+            app-deployment.yml: "{{ lookup('file', 'app-deployment.yml')}}"
+            postgres-deployment.yml: "{{ lookup('file', 'postgres-deployment.yml')}}"
+            postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
+            secret.yml: "{{ lookup('file', 'secret.yml')}}"
+      when: workload_args.workload == "max-namespaces"
 
-  - name: Create networkpolicy-case2 configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'networkpolicy-case2.yml.j2')}}"
-          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
-          case2-networkpolicy.yaml: "{{ lookup('file', 'case2-networkpolicy.yaml')}}"
-          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
-    when: workload_args.workload == "networkpolicy-case2"
+    - name: Create networkpolicy-multitenant configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'networkpolicy-multitenant.yml.j2')}}"
+            nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+            networkpolicy-ingress.yaml: "{{ lookup('file', 'networkpolicy-ingress.yaml')}}"
+            networkpolicy-monitoring.yaml: "{{ lookup('file', 'networkpolicy-monitoring.yaml')}}"
+            networkpolicy-same-ns.yaml: "{{ lookup('file', 'networkpolicy-same-ns.yaml')}}"
+      when: workload_args.workload == "networkpolicy-multitenant"
 
-  - name: Create networkpolicy-case3 configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'networkpolicy-case3.yml.j2')}}"
-          nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
-          case3-networkpolicy.yaml: "{{ lookup('file', 'case3-networkpolicy.yaml')}}"
-          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
-    when: workload_args.workload == "networkpolicy-case3"
+    - name: Create networkpolicy-case2 configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'networkpolicy-case2.yml.j2')}}"
+            nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+            case2-networkpolicy.yaml: "{{ lookup('file', 'case2-networkpolicy.yaml')}}"
+            networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+      when: workload_args.workload == "networkpolicy-case2"
+
+    - name: Create networkpolicy-case3 configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'networkpolicy-case3.yml.j2')}}"
+            nginx.yaml: "{{ lookup('file', 'nginx.yaml')}}"
+            case3-networkpolicy.yaml: "{{ lookup('file', 'case3-networkpolicy.yaml')}}"
+            networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+      when: workload_args.workload == "networkpolicy-case3"
 
 
-  - name: Create networkpolicy-cross-ns configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'networkpolicy-cross-ns.yml.j2')}}"
-          nginx-cross-ns.yaml: "{{ lookup('file', 'nginx-cross-ns.yaml')}}"
-          cross-ns-networkpolicy.yaml: "{{ lookup('file', 'cross-ns-networkpolicy.yaml')}}"
-          networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
-    when: workload_args.workload == "networkpolicy-cross-ns"
+    - name: Create networkpolicy-cross-ns configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'networkpolicy-cross-ns.yml.j2')}}"
+            nginx-cross-ns.yaml: "{{ lookup('file', 'nginx-cross-ns.yaml')}}"
+            cross-ns-networkpolicy.yaml: "{{ lookup('file', 'cross-ns-networkpolicy.yaml')}}"
+            networkpolicy-deny-all.yaml: "{{ lookup('file', 'networkpolicy-deny-all.yaml')}}"
+      when: workload_args.workload == "networkpolicy-cross-ns"
 
-  - name: Create max-services configmaps
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'max-services.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
-          simple-deployment.yml: "{{ lookup('file', 'simple-deployment.yml')}}"
-          service.yml: "{{ lookup('file', 'service.yml')}}"
+    - name: Create max-services configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'max-services.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+            simple-deployment.yml: "{{ lookup('file', 'simple-deployment.yml')}}"
+            service.yml: "{{ lookup('file', 'service.yml')}}"
 
-    when: workload_args.workload == "max-services"
+      when: workload_args.workload == "max-services"
 
-  - name: Create concurrent builds
-    k8s:
-      definition:
-        apiVersion: v1
-        kind: ConfigMap
-        metadata:
-          name: kube-burner-config-{{ trunc_uuid }}
-          namespace: "{{ operator_namespace }}"
-        data:
-          config.yml: "{{ lookup('template', 'concurrent-builds.yml.j2')}}"
-          metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
-          buildconfig_triggers.yml: "{{ lookup('file', 'buildconfig_triggers.yml')}}"
-          configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
-          imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
-    when: workload_args.workload == "concurrent-builds"
+    - name: Create concurrent builds
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'concurrent-builds.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics-aggregated.yaml')) }}"
+            buildconfig_triggers.yml: "{{ lookup('file', 'buildconfig_triggers.yml')}}"
+            configmap.yml: "{{ lookup('file', 'configmap.yml')}}"
+            imagestream.yml: "{{ lookup('file', 'imagestream.yml')}}"
+      when: workload_args.workload == "concurrent-builds"
+    when: workload_args.configmap is not defined
 
   - name: Launching kube-burner job
     k8s:

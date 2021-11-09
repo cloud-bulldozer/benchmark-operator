@@ -1,0 +1,8 @@
+---
+- set_fact:
+    resources:
+    - "{{ role_path }}/templates/api_load.yml"
+
+- name: Generic workload - API load
+  include_role:
+    name: generic_workload

@@ -12,6 +12,15 @@ spec:
       labels:
         app: iperf3-bench-client-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined or workload_args.client_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.client_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
       affinity:
         podAntiAffinity:
@@ -48,7 +57,7 @@ spec:
             {% if workload_args.ip_tos is defined %}  -S {{ workload_args.ip_tos }} {% endif %}
             {% if workload_args.omit_start is defined %} -O {{ workload_args.omit_start }} {% endif %}
             {% if workload_args.extra_options_client is defined %} {{ workload_args.extra_options_client }} {% endif %}"
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if workload_args.pin_client is defined %}
       nodeSelector:
           kubernetes.io/hostname: '{{ workload_args.pin_client }}'

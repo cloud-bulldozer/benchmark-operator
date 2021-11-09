@@ -9,6 +9,12 @@ metadata:
     type: {{ ansible_operator_meta.name }}-bench-workload-{{ trunc_uuid }}
     benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: stressng
+{% if workload_args.annotations is defined %}
+  annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+    "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
 spec:
   domain:
     cpu:
@@ -65,14 +71,12 @@ spec:
           - "mkdir /tmp/stressng-test/jobfile"
           - "mount /dev/$(lsblk --nodeps -no name,serial | grep CVLY623300HK240D | cut -f1 -d' ') /tmp/stressng-test"
         runcmd:
-{% if elasticsearch is defined %}
-{% if elasticsearch.url is defined %}
+{% if elasticsearch.url %}
           - export es={{ elasticsearch.url }};
           - export es_index={{ elasticsearch.index_name | default("ripsaw-stressng") }};
           - export es_verify_cert={{ elasticsearch.verify_cert | default("true") }};
           - export parallel={{ elasticsearch.parallel | default("false") }};
           - export uuid={{uuid}};
-{% endif %}
 {% endif %}
 {% if workload_args.client_vm.network.multiqueue.enabled %}
           - dnf install -y ethtool
@@ -82,7 +86,7 @@ spec:
           - dnf install -y git redis stress-ng
           - pip install git+https://github.com/cloud-bulldozer/benchmark-wrapper
           - run_snafu --tool stressng -j /tmp/stressng-test/jobfile -u {{ uuid }}
-          - redis-cli -h {{bo.resources[0].status.podIP}} set complete true
+          - redis-cli -h {{bo.resources[0].status.podIP}} set complete-{{ trunc_uuid }} true
     name: cloudinitdisk
   - configMap:
       name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"

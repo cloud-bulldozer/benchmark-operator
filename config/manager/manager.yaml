@@ -45,7 +45,7 @@ spec:
         - name: OPERATOR_NAME
           value: "benchmark-operator"
         - name: MAX_CONCURRENT_RECONCILES_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
-          value: "1"
+          value: "4"
         - name: ANSIBLE_VERBOSITY_BENCHMARK_RIPSAW_CLOUDBULLDOZER_IO
           value: "4"
         securityContext:

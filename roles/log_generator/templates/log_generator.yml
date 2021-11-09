@@ -13,6 +13,12 @@ spec:
       labels:
         app: log-generator-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -54,7 +60,7 @@ spec:
             value: "{{ clustername }}"
           - name: snafu_disable_logs
             value: "{{ workload_args.snafu_disable_logs | default(false) }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

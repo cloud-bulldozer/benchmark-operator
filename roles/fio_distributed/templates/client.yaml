@@ -12,6 +12,15 @@ spec:
       labels:
         benchmark-uuid: {{ uuid }}
         app: fiod-client-{{ trunc_uuid }}
+{% if workload_args.annotations is defined or workload_args.client_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.client_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -39,7 +48,7 @@ spec:
           - name: CEPH_CACHE_DROP_PORT_NUM
             value: "{{ ceph_cache_drop_svc_port }}"
 {% endif %}
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

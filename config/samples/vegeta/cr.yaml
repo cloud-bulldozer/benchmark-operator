@@ -12,6 +12,7 @@ spec:
   workload:
     name: vegeta
     args:
+      # node_selector: "vegeta=true"
       hostnetwork: false
       clients: 2
       targets:

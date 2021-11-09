@@ -7,14 +7,12 @@ metadata:
 data:
   run_script.sh : |
     export h={{item.status.interfaces[0].ipAddress}}
-{% if elasticsearch is defined %}
-{% if elasticsearch.url is defined %}
+{% if elasticsearch.url %}
     export es={{ elasticsearch.url }}
     export es_index={{ elasticsearch.index_name | default("ripsaw-uperf") }}
     export es_verify_cert={{ elasticsearch.verify_cert | default(true) }}
     export parallel={{ elasticsearch.parallel | default(false) }}
     export uuid={{uuid}}
-{% endif %}
 {% endif %}
 {% if test_user is defined %}
     export test_user={{test_user}}
@@ -26,7 +24,7 @@ data:
     redis-cli -h {{bo.resources[0].status.podIP}} setnx clients-{{trunc_uuid}} 0
     redis-cli -h {{bo.resources[0].status.podIP}} incr clients-{{trunc_uuid}}
     while true; do
-      BO_START=$(redis-cli -h {{bo.resources[0].status.podIP}} get start)
+      BO_START=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }})
       CLIENTS_READY=$(redis-cli -h {{bo.resources[0].status.podIP}} get clients-{{ trunc_uuid }})
       SERVERS_READY=$(redis-cli -h {{bo.resources[0].status.podIP}} get {{ trunc_uuid }})
       if [[ ("${BO_START}" =~ 'true') && ("${CLIENTS_READY}" == "${SERVERS_READY}") ]]; then
@@ -57,6 +55,6 @@ data:
       fi;
       break;
     done;
-    redis-cli -h {{bo.resources[0].status.podIP}} set start false
+    redis-cli -h {{bo.resources[0].status.podIP}} set start-{{trunc_uuid}} false
     redis-cli -h {{bo.resources[0].status.podIP}} del clients-{{trunc_uuid}}
-    redis-cli -h {{bo.resources[0].status.podIP}} set complete true
+    redis-cli -h {{bo.resources[0].status.podIP}} set complete-{{trunc_uuid}} true

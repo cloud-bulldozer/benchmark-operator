@@ -11,6 +11,12 @@ spec:
       namespace: '{{ operator_namespace }}'
       labels:
         name: 'ycsb-run-{{ trunc_uuid }}'
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -32,7 +38,7 @@ spec:
           value: "{{workload_args.operationcount}}"
         - name: uuid
           value: "{{uuid}}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
         - name: es
           value: "{{ elasticsearch.url }}"
         - name: es_index

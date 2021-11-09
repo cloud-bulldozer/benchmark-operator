@@ -12,6 +12,12 @@ spec:
       labels:
         app: fs-drift-benchmark-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -30,7 +36,7 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       restartPolicy: Never
       containers:
-        - name: benchmark-server
+        - name: fs-drift
 {% if hostpath is defined %}
           securityContext:
             privileged: true
@@ -48,7 +54,7 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: "{{ clustername }}"
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index

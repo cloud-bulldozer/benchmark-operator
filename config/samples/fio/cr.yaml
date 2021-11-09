@@ -53,8 +53,12 @@ spec:
       log_sample_rate: 3000
       #storageclass: rook-ceph-block
       #storagesize: 5Gi
-      #rook_ceph_drop_caches: True
-      #rook_ceph_drop_cache_pod_ip: 192.168.111.20
+      # use drop_cache_kernel to have set of labeled nodes drop kernel buffer cache before each sample
+      #drop_cache_kernel: False
+      # use drop_cache_rook_ceph to have Ceph OSDs drop their cache before each sample
+      #drop_cache_rook_ceph: False
+      # increase this if you want fio to run for more than 1 hour without being terminated by K8S
+      #job_timeout: 3600
 #######################################
 #  EXPERT AREA - MODIFY WITH CAUTION  #
 #######################################

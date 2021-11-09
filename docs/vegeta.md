@@ -11,6 +11,12 @@ The option **runtime_class** can be set to specify an optional
 runtime_class to the podSpec runtimeClassName.  This is primarily
 intended for Kata containers.
 
+The option **annotations** can be set to apply the specified
+annotations to the pod metadata.
+
+The **node_selector** option can be used to limit the nodes where
+the vegeta pods are deployed.
+
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
@@ -24,6 +30,7 @@ spec:
   workload:
     name: vegeta
     args:
+      # node_selector: "vegeta=true"
       clients: 2
       image: quay.io/cloud-bulldozer/vegeta:latest
       hostnetwork: false

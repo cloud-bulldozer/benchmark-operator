@@ -68,6 +68,8 @@ so that the ycsb pod can access the API of database.
 
 `runtime_class`: If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
+`annotations` If this is set, the benchmark-operator will set the specified annotations on the pods' metadata.
+
 Once done creating/editing the resource file, you can run it by:
 
 ```bash

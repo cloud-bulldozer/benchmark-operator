@@ -3,7 +3,7 @@
 - block:
 
   - name: Signal workload
-    command: "redis-cli set start true"
+    command: "redis-cli set start-{{trunc_uuid}} true"
 
   - name: A26 Update resource state
     operator_sdk.util.k8s_status:

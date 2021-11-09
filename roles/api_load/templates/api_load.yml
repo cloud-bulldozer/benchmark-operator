@@ -1,0 +1,131 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 'api-load-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
+  parallelism: {{ workload_args.pod_count | default(1) | int }}
+  template:
+    metadata:
+      labels:
+        app: api-load-{{ trunc_uuid }}
+        benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.tolerations is defined %}
+      tolerations:
+      - key: {{ workload_args.tolerations.key }}
+        value: {{ workload_args.tolerations.value }}
+        effect: {{ workload_args.tolerations.effect }}
+{% endif %}
+{% if workload_args.label is defined %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: {{ workload_args.label.key }}
+                operator: In
+                values:
+                - {{ workload_args.label.value }}
+{% endif %}
+      containers:
+      - name: api-load
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: uuid
+            value: "{{ uuid }}"
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+{% if workload_args.override is defined %}
+            ocm-load-test {{ workload_args.override }};
+{% else %}
+            echo "Setting redis status";
+            redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "running";
+{% for key, value in workload_args.test_list.items() %}
+            ocm-load-test
+            --test-id={{ uuid }}
+            --gateway-url {{ workload_args.gateway_url }}
+            --ocm-token={{ workload_args.ocm_token }}
+            --duration={{ value.duration | default(workload_args.duration) }}
+            --rate={{ value.rate | default(workload_args.rate) }}
+            --output-path={{ workload_args.output_path | default('/tmp/results') }}
+            --test-names {{ key }}
+            --aws-access-key {{ workload_args.aws_access_key }}
+            --aws-access-secret {{ workload_args.aws_access_secret }}
+            --aws-account-id {{ workload_args.aws_account_id }};
+            echo "Cooldown for {{ workload_args.cooldown | default(60) }}";
+            sleep {{ workload_args.cooldown | default(60) }};
+{% endfor %}
+{% endif %}
+            redis-cli -h {{ bo.resources[0].status.podIP }} SET "{{ uuid }}-status" "ready";
+        volumeMounts:
+          - mountPath: /tmp/results
+            name: results
+      - name: data-collector
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
+        env:
+          - name: my_node_name
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: my_pod_name
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: ES
+            value: "{{ elasticsearch.url }}"
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            echo "Getting redis status";
+            status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
+            while [ $status != "ready" ]; do
+              sleep {{ workload_args.sleep | default(360) }};
+              echo "Testing readiness";
+              status=`redis-cli -h {{ bo.resources[0].status.podIP }} GET "{{ uuid }}-status"`;
+            done;
+{% if workload_args.override is defined %}
+            echo "succeeded"
+{% else %}
+            echo "Uploading to ES...";
+            python automation.py esbulk --dir {{ workload_args.output_path | default('/tmp/results') }} --index {{ elasticsearch.index_name }};
+{% if snappy.url %}
+            echo "Uploading RAW files...";
+            python automation.py upload --dir {{ workload_args.output_path | default('/tmp/results') }} --server {{ snappy.url }} --user {{ snappy.user }} --password {{ snappy.password }};
+{% endif %}
+{% endif %}
+        volumeMounts:
+          - mountPath: /tmp/results
+            name: results
+      volumes:
+        - name: results
+          hostDisk:
+            path: /tmp/results
+            capacity: 10Gi
+            type: DiskOrCreate
+      imagePullPolicy: Always
+      restartPolicy: Never
+{% include "metadata.yml.j2" %}

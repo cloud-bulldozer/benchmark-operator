@@ -5,7 +5,7 @@ a performance baseline of Kubernetes cluster on your provider.
 
 
 ## Installation (Default)
-The easiest way to install the operator is through the operator-sdk methods provided in the `Makefile`. 
+The easiest way to install the operator is through the operator-sdk methods provided in the `Makefile`.
 
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
@@ -21,9 +21,9 @@ cd benchmark-operator
 make image-build image-push deploy IMG=$YOUR_IMAGE
 ```
 
-> Note: building the image requires podman 
+> Note: building the image requires podman
 
-## Installation (Helm) 
+## Installation (Helm)
 
 Installing the benchmark-operator via Helm can be done with the following commands. This requires
 your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/install/)
@@ -35,8 +35,8 @@ your machine to have Helm installed. [Install Helm](https://helm.sh/docs/intro/i
 ```bash
 git clone https://github.com/cloud-bulldozer/benchmark-operator
 cd benchmark-operator/charts/benchmark-operator
-kubectl create namespace benchmark-operator 
-oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator # Openshift Only 
+kubectl create namespace benchmark-operator
+oc adm policy -n benchmark-operator add-scc-to-user privileged -z benchmark-operator # Openshift Only
 helm install benchmark-operator . -n benchmark-operator --create-namespace
 ```
 
@@ -83,6 +83,9 @@ Why did we decide to switch to this? Our operator would implement long running t
 However, long running tasks blocks the Operator, causing us to delete the Operator and re-create the operator to
 un-block it. The benchmarks mentioned above that state `Used` for Reconciliation, no longer have this issue.
 
+# E2E tests
+Benchmark-operator includes a series of end 2 end tests that can be triggered in local. More info in the [documentation.](docs/e2e-ci.md#running-in-local)
+
 ## Optional workload images
 Optional locations for workload images can now be added easily without the need to rebuild the operator.
 To do so in the workload args section of the CR add image: [location]
@@ -113,7 +116,7 @@ spec:
 Workloads that are triggered through [benchmark-wrapper](https://github.com/cloud-bulldozer/benchmark-wrapper)
 can optionally pass the debug flag through the workload CR.
 
-NOTE: This is not a required arguement. If omitted it will default to the default logging level of 
+NOTE: This is not a required arguement. If omitted it will default to the default logging level of
 the benchmark-wrapper
 
 For Example:
@@ -177,6 +180,6 @@ spec:
 [Cache dropping](docs/cache_dropping.md)
 
 ## Community
-Key Members(slack_usernames): ravi, mohit, dry923, rsevilla or rook
+Key Members(slack_usernames):  sejug, mohit, dry923, rsevilla or rook
 * [**#sig-scalability on Kubernetes Slack**](https://kubernetes.slack.com)
 * [**#forum-perfscale on CoreOS Slack**](https://coreos.slack.com)

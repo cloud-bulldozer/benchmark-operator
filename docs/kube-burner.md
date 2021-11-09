@@ -103,6 +103,7 @@ Where key defaults to __node-role.kubernetes.io/worker__ and value defaults to e
 - **``step``**: Prometheus step size, useful for long benchmarks. Defaults to 30s
 - **``metrics_profile``**: kube-burner metric profile that indicates what prometheus metrics kube-burner will collect. Defaults to `metrics.yaml` in node-density workloads and `metrics-aggregated.yaml` in the remaining. Detailed in the [Metrics section](#Metrics) of this document
 - **``runtime_class``** : If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
+- **``annotations``** : If this is set, the benchmark-operator will set the specified annotations on the pod's metadata.
 - **``extra_env_vars``** : This dictionary defines a set of fields that will be injected to the kube-burner pod as environment variables. e.g. `extra_env_vars: {"foo": "bar", "foo2": "bar2"}`
 
 kube-burner is able to collect complex prometheus metrics and index them in a ElasticSearch. This feature can be configured by the prometheus object of kube-burner's CR.
@@ -253,3 +254,40 @@ It supports different severities:
 - critical: Prints a fatal message with the alarm description to stdout and exits execution inmediatly with rc != 0
 
 More information can be found at the [Kube-burner docs site.](https://kube-burner.readthedocs.io/en/latest/alerting/)
+
+## Reading configuration from a configmap
+
+Kube-burner is able to fetch it's own configuration from a configmap. To do so you just have to set the argument `configmap` pointing to a configmap in the same namespace where kube-burner is in the CR. This configmap needs to have a config.yml file to hold the main kube-burner's configuration file(apart from the required object templates), and optionally can contain a metrics.yml and alerts.yml files. An example configuration CR would look like:
+
+```yaml
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: kube-burner-configmap-cfg
+  namespace: benchmark-operator
+spec:
+  metadata:
+    collection: false
+  prometheus:
+    prom_token: ThisIsNotAValidToken
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+  workload:
+    name: kube-burner
+    args:
+      configmap: kube-burner-config
+      cleanup: true
+      pin_server: {"node-role.kubernetes.io/worker": ""}
+      image: quay.io/cloud-bulldozer/kube-burner:latest
+      log_level: info
+      step: 30s
+      node_selector:
+        key: node-role.kubernetes.io/worker
+        value:
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        effect: NoSchedule
+```
+
+To create a configmap with the kube-burner configurations you can use `kubectl create configmap --from-file=<directory with all configuration files> kube-burner-config`
+

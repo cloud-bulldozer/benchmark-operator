@@ -12,6 +12,12 @@ spec:
       labels:
         app: pgbench-client-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
+{% if workload_args.annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
@@ -34,7 +40,7 @@ spec:
             value: "{{ test_user | default("ripsaw") }}"
           - name: clustername
             value: '{{ clustername }}'
-{% if elasticsearch is defined %}
+{% if elasticsearch.url %}
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
@@ -88,7 +94,7 @@ spec:
                  break;
                done;
              fi"
-      restartPolicy: OnFailure
+      restartPolicy: Never
 {% if item.1.pin_node is defined and item.1.pin_node %}
       nodeSelector:
         kubernetes.io/hostname: '{{ item.1.pin_node }}'

@@ -28,6 +28,24 @@ Optional variables:
 
 `runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
+`annotations` If this is set, the benchmark-operator will set the specified annotations on the pods' metadata.
+
+`rosa` For clusters installed using ROSA. Following parameters will be required:
+
+`rosa.cluster_name` Name of cluster as it is shown on `rosa list clusters` command
+
+`rosa.env` ROSA environment where cluster is installed.
+
+`rosa.token` ROSA token required to execute commands
+
+`aws` AWS credentials required by ROSA cli to execute scalation commands
+
+`aws.access_key_id` Exported as AWS_ACCESS_KEY_ID
+
+`aws.secret_access_key` Exported as AWS_SECRET_ACCESS_KEY
+
+`aws.default_region` Exported as AWS_DEFAULT_REGION
+
 Your resource file may look like this when using all avaible options:
 
 ```yaml
@@ -54,6 +72,14 @@ spec:
         key: role
         value: workload
         effect: NoSchedule
+      rosa:
+        cluster_name: rosa-test-01
+        env: staging
+        token: "xxxx"
+      aws:
+        access_key_id: XXXXX
+        secret_access_key: XXXXXX
+        default_region: us-west-2
 ```
 
 *NOTE:* If the cluster is already at the desired scale the timings will still be captured and uploaded to

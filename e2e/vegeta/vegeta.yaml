@@ -1,0 +1,37 @@
+---
+apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
+kind: Benchmark
+metadata:
+  name: vegeta-benchmark
+  namespace: benchmark-operator
+spec:
+  system_metrics:
+    collection: true
+    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
+    es_url: ${ES_SERVER}
+    prom_token: ${PROMETHEUS_TOKEN}
+    metrics_profile: node-metrics.yml
+  elasticsearch:
+    url: ${ES_SERVER}
+    index_name: ripsaw-vegeta
+  metadata:
+    collection: true
+  workload:
+    name: vegeta
+    args:
+      clients: 4
+      targets:
+        - name: 2w-ka
+          urls:
+            - GET https://1.1.1.1
+            - GET http://1.1.1.1
+          samples: 1
+          workers: 2
+          duration: 5
+          keepalive: true
+        - name: 2w-noka
+          urls:
+            - GET https://1.1.1.1
+          workers: 2
+          duration: 5
+      debug: true
