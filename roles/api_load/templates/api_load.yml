@@ -84,6 +84,7 @@ spec:
             name: results
       - name: data-collector
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/ocm-api-load:latest') }}
+        imagePullPolicy: Always
         env:
           - name: my_node_name
             valueFrom:
@@ -126,6 +127,5 @@ spec:
             path: /tmp/results
             capacity: 10Gi
             type: DiskOrCreate
-      imagePullPolicy: Always
       restartPolicy: Never
 {% include "metadata.yml.j2" %}
