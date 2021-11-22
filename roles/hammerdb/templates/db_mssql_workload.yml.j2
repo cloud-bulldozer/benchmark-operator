@@ -41,7 +41,7 @@ spec:
             cpu: {{ workload_args.limits_cpu }}
             memory: {{ workload_args.limits_memory }}
 {% endif %}
-        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:master') }}
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/hammerdb:latest') }}
         imagePullPolicy: Always
         env:
           - name: uuid

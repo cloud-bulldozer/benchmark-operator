@@ -41,7 +41,7 @@ spec:
           securityContext:
             privileged: true
 {% endif %}
-          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/smallfile:master') }}
+          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/smallfile:latest') }}
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /opt/snafu
@@ -103,11 +103,11 @@ spec:
 {% if workload_args.samples is defined %}
               --samples {{ workload_args.samples }}
 {% endif %}
-              --tool smallfile 
-              --operations $arr 
-              --top {{ smallfile_path }}/smallfile_test_data 
-              --dir /var/tmp/RESULTS 
-              --yaml-input-file /tmp/smallfile/smallfilejob 
+              --tool smallfile
+              --operations $arr
+              --top {{ smallfile_path }}/smallfile_test_data
+              --dir /var/tmp/RESULTS
+              --yaml-input-file /tmp/smallfile/smallfilejob
 {% if workload_args.debug is defined and workload_args.debug %}
               -v
 {% endif %}

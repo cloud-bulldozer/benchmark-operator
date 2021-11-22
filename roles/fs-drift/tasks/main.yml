@@ -59,7 +59,7 @@
             spec:
               containers:
                 - name: publisher-container
-                  image: quay.io/cloud-bulldozer/fs-drift:master
+                  image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/fs-drift:latest') }}"
                   tty: true
                   command: ["/bin/sh", "-c"]
                   workingDir: /root/fs-drift-master/
