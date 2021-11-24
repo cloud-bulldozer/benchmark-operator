@@ -78,9 +78,9 @@ if [ "${USE_TASKSET}" == "true" ]; then
 	prefix_cmd="taskset --cpu-list ${cyccore}"
 fi
  
-echo "cmd to run: oslat --runtime ${RUNTIME} --rtprio ${RTPRIO} --cpu-list ${cyccore} --cpu-main-thread ${cpus[0]}"
+echo "cmd to run: oslat --duration ${RUNTIME} --rtprio ${RTPRIO} --cpu-list ${cyccore} --cpu-main-thread ${cpus[0]}"
 
-oslat --runtime ${RUNTIME} --rtprio ${RTPRIO} --cpu-list ${cyccore} --cpu-main-thread ${cpus[0]}
+oslat --duration ${RUNTIME} --rtprio ${RTPRIO} --cpu-list ${cyccore} --cpu-main-thread ${cpus[0]}
 
 if [ "${DISABLE_CPU_BALANCE}" == "true" ]; then
 	enable_balance
