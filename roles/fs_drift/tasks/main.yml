@@ -15,7 +15,7 @@
         kind: PersistentVolumeClaim
         apiVersion: v1
         metadata:
-          name: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
+          name: "fs_drift-claim-{{ trunc_uuid }}-{{ item }}"
           namespace: "{{ operator_namespace }}"
           annotations:
             volume.beta.kubernetes.io/storage-class: "{{workload_args.storageclass}}"
@@ -28,14 +28,14 @@
     with_sequence: start=1 count={{ workload_args.worker_pods|default('1')|int }}
     when: workload_args.worker_pods|default('1')|int > 0 and workload_args.storageclass is defined and workload_args.storagesize is defined
 
-  - name: Generate fs-drift test input yaml
+  - name: Generate fs_drift test input yaml
     k8s:
       definition:
         apiVersion: v1
         kind: ConfigMap
         metadata:
           namespace: "{{ operator_namespace }}"
-          name: fs-drift-test-{{ trunc_uuid }}
+          name: fs_drift-test-{{ trunc_uuid }}
         data:
           params: "{{ lookup('template', 'other_parameters.yaml.j2') }}"
           subscriber: "{{ lookup('template', 'subscriber.py.j2') }}"
@@ -48,21 +48,21 @@
         kind: Job
         apiVersion: batch/v1
         metadata:
-          name: "{{ ansible_operator_meta.name }}-fs-drift-publisher-{{ trunc_uuid }}"
+          name: "{{ ansible_operator_meta.name }}-fs_drift-publisher-{{ trunc_uuid }}"
           namespace: "{{ operator_namespace }}"
         spec:
           ttlSecondsAfterFinished: 600
           template:
             metadata:
               labels:
-                app: fs-drift-publisher
+                app: fs_drift-publisher
             spec:
               containers:
                 - name: publisher-container
                   image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/fs_drift:latest') }}"
                   tty: true
                   command: ["/bin/sh", "-c"]
-                  workingDir: /root/fs-drift-master/
+                  workingDir: /root/fs_drift-master/
                   args:
                     - python /tmp/publisher {{bo.resources[0].status.podIP}} {{workload_args.worker_pods|default('1')|int}} {{ trunc_uuid }}
                   volumeMounts:
@@ -71,7 +71,7 @@
               volumes:
                 - name: config-volume
                   configMap:
-                    name: fs-drift-test-{{ trunc_uuid }}
+                    name: fs_drift-test-{{ trunc_uuid }}
                     defaultmode: 0777
               restartPolicy: Never
 

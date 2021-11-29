@@ -10,7 +10,7 @@ spec:
   template:
     metadata:
       labels:
-        app: fs-drift-benchmark-{{ trunc_uuid }}
+        app: fs_drift-benchmark-{{ trunc_uuid }}
         benchmark-uuid: {{ uuid }}
 {% if workload_args.annotations is defined %}
       annotations:
@@ -32,18 +32,18 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - fs-drift-benchmark-{{ trunc_uuid }}
+                  - fs_drift-benchmark-{{ trunc_uuid }}
               topologyKey: "kubernetes.io/hostname"
       restartPolicy: Never
       containers:
-        - name: fs-drift
+        - name: fs_drift
 {% if hostpath is defined %}
           securityContext:
             privileged: true
 {% endif %}
           image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fs_drift:latest') }}
           # example of what to do when debugging image
-          # image: quay.io/bengland2/fs-drift:latest
+          # image: quay.io/bengland2/fs_drift:latest
           imagePullPolicy: Always
           command: ["/bin/sh", "-c"]
           workingDir: /opt/snafu
@@ -58,7 +58,7 @@ spec:
           - name: es
             value: "{{ elasticsearch.url }}"
           - name: es_index
-            value: "{{ elasticsearch.index_name | default("ripsaw-fs-drift") }}"
+            value: "{{ elasticsearch.index_name | default("ripsaw-fs_drift") }}"
           - name: parallel
             value: "{{ elasticsearch.parallel | default(false) }}"
           - name: es_verify_cert
@@ -75,16 +75,16 @@ spec:
             value: "{{ prometheus.prom_url | default() }}"
 {% endif %}
           - name: TMPDIR
-            value: /tmp/fs-drift-output
+            value: /tmp/fs_drift-output
           args:
             - set -x;
               rm -rf ${TMPDIR};
               mkdir -pv ${TMPDIR}/RESULTS;
               mkdir -pv {{fs_drift_path}}/fs_drift_test_data;
-              python /tmp/fs-drift/subscriber {{bo.resources[0].status.podIP}} {{ trunc_uuid }};
-              cat /tmp/fs-drift/params;
+              python /tmp/fs_drift/subscriber {{bo.resources[0].status.podIP}} {{ trunc_uuid }};
+              cat /tmp/fs_drift/params;
               run_snafu
-              --tool fs-drift
+              --tool fs_drift
 {% if workload_args.debug is defined and workload_args.debug %}
               -v
 {% endif %}
@@ -93,11 +93,11 @@ spec:
 {% if workload_args.samples is defined %}
               --samples {{workload_args.samples}}
 {% endif %}
-              --yaml-input-file /tmp/fs-drift/params;
+              --yaml-input-file /tmp/fs_drift/params;
               if [ $? = 0 ] ; then echo RUN STATUS DONE ; else echo FAIL ; exit 1 ; fi
           volumeMounts:
             - name: config-volume
-              mountPath: "/tmp/fs-drift"
+              mountPath: "/tmp/fs_drift"
 {% if workload_args.storageclass is defined  or hostpath is defined %}
             - name: data-volume
               mountPath: "{{ fs_drift_path }}"
@@ -105,12 +105,12 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: fs-drift-test-{{ trunc_uuid }}
+            name: fs_drift-test-{{ trunc_uuid }}
             defaultmode: 0777
 {% if workload_args.storageclass is defined %}
         - name: data-volume
           persistentVolumeClaim:
-            claimName: "fs-drift-claim-{{ trunc_uuid }}-{{ item }}"
+            claimName: "fs_drift-claim-{{ trunc_uuid }}-{{ item }}"
 {% elif hostpath is defined %}
         - name: data-volume
           hostPath:

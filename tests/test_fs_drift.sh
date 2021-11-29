@@ -27,9 +27,9 @@ function functional_test_fs_drift {
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" ${cr} | kubectl apply -f -
   long_uuid=$(get_uuid $benchmark_name)
   uuid=${long_uuid:0:8}
-  fsdrift_pod=$(get_pod "app=fs-drift-benchmark-$uuid" 300)
+  fsdrift_pod=$(get_pod "app=fs_drift-benchmark-$uuid" 300)
   check_benchmark_for_desired_state $benchmark_name Complete 600s
-  indexes="ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time"
+  indexes="ripsaw-fs_drift-results ripsaw-fs_drift-rsptimes ripsaw-fs_drift-rates-over-time"
   if check_es "${long_uuid}" "${indexes}"
   then
     echo "${test_name} test: Success"
@@ -42,5 +42,5 @@ function functional_test_fs_drift {
 }
 
 figlet $(basename $0)
-functional_test_fs_drift "fs-drift" tests/test_crs/valid_fs_drift.yaml
-functional_test_fs_drift "fs-drift hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml
+functional_test_fs_drift "fs_drift" tests/test_crs/valid_fs_drift.yaml
+functional_test_fs_drift "fs_drift hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml

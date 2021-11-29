@@ -1,27 +1,27 @@
-# fs-drift Benchmark
+# fs_drift Benchmark
 
-[fs-drift](https://github.com/parallel-fs-utils/fs-drift) is a tool for testing distributed storage system longevity and
+[fs_drift](https://github.com/parallel-fs-utils/fs_drift) is a tool for testing distributed storage system longevity and
 simulating aging of a distributed storage system.
 
 it spawns a number of threads or processes doing a mix of filesystem operations. The user can customize parameters such
 as the operation mix, the number of threads, the file size, the eventual number of files, and the shape of the directory
-tree - see the benchmark documentation for details.  fs-drift requires that a storage class be defined so that pods have a persistent volume (PV) to perform I/O - however, it provides a default of local storage so that it can be run in environments like minikube for developers. 
+tree - see the benchmark documentation for details.  fs_drift requires that a storage class be defined so that pods have a persistent volume (PV) to perform I/O - however, it provides a default of local storage so that it can be run in environments like minikube for developers.
 
-## Running fs-drift Benchmark
+## Running fs_drift Benchmark
 
-Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../config/samples/fs-drift/cr.yaml) to customize workload parameters - the defaults are selected to demonstrate its operation and are not intended to specify a long-duration test.
+Once the operator has been installed following the instructions, one needs to modify the [cr.yaml](../config/samples/fs_drift/cr.yaml) to customize workload parameters - the defaults are selected to demonstrate its operation and are not intended to specify a long-duration test.
 
-The parameters in [cr.yaml](../config/samples/fs-drift/cr.yaml) would look similar to this example:
+The parameters in [cr.yaml](../config/samples/fs_drift/cr.yaml) would look similar to this example:
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: fs-drift
+  name: fs_drift
   namespace: benchmark-operator
 spec:
   workload:
-    name: fs-drift
+    name: fs_drift
     args:
       storageclass: cephfs
       storagesize: 1Gi
@@ -32,16 +32,16 @@ spec:
       max_file_sz_kb: 64
 ```
 
-parameter names in fs-drift are specified in the command line as in the above link, or they can be
+parameter names in fs_drift are specified in the command line as in the above link, or they can be
 specified in a YAML input file also.   YAML input style is a little different -- double-dash prefix for parameter names
 is omitted, and single dashes are converted to underscores.   So "--parameter-foo bar" becomes "parameter_foo: bar".
 
-Operator CRs apparently also do not allow dashes in key names.  So for the above example, use the 
-syntax "parameter_foo" instead of "--parameter-foo".  See `config/samples/fs-drift/` for an example of fs-drift CR.
+Operator CRs apparently also do not allow dashes in key names.  So for the above example, use the
+syntax "parameter_foo" instead of "--parameter-foo".  See `config/samples/fs_drift/` for an example of fs_drift CR.
 
-The following fs-drift parameters will be overridden when fs-drift is used in ripsaw - do not specify these parameters yourself!
+The following fs_drift parameters will be overridden when fs_drift is used in ripsaw - do not specify these parameters yourself!
 
-- top_directory - will always be set to the fs-drift/ subdirectory inside the mountpoint for the PV
+- top_directory - will always be set to the fs_drift/ subdirectory inside the mountpoint for the PV
 - output_json - JSON counters are always output to counters.json inside the results/ subdirectory
 - host_set - will always correspond to the set of pods being run
 - response_times - will always be set to Y (yes) to collect response time data
@@ -59,7 +59,7 @@ annotations to the pod metadata.
 Once done creating/editing the CR file below, one can run it by:
 
 ```bash
-# kubectl apply -f config/samples/fs-drift/cr.yaml # if edited the original one
+# kubectl apply -f config/samples/fs_drift/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
 
@@ -69,18 +69,18 @@ Deploying the above(assuming worker_pods set to 2) would result in
 kubectl get pods
 NAME                                       READY     STATUS    RESTARTS   AGE
 benchmark-operator-54bf9f4c44-llzwp        1/1       Running   0          1m
-example-benchmark-fs-drift-client-1-benchmark   1/1       Running   0          22s
-example-benchmark-fs-drift-client-2-benchmark   1/1       Running   0          22s
+example-benchmark-fs_drift-client-1-benchmark   1/1       Running   0          22s
+example-benchmark-fs_drift-client-2-benchmark   1/1       Running   0          22s
 ```
 
 To see the output of the run one has to look at output from the workload generator pods:
 
 ```bash
-for p in $(kubectl get pods | awk '/fs-drift/{ print $1 }') ; do \
- kubectl logs example-benchmark-fs-drift-client-1-benchmark -f $p ; \
+for p in $(kubectl get pods | awk '/fs_drift/{ print $1 }') ; do \
+ kubectl logs example-benchmark-fs_drift-client-1-benchmark -f $p ; \
 done
 ```
 
-fs-drift generates two additional kinds of output files: per-thread logs, and per-thread response times
+fs_drift generates two additional kinds of output files: per-thread logs, and per-thread response times
 (\*rsptimes.csv).
 

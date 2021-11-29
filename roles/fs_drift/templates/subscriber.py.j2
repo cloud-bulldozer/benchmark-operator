@@ -12,11 +12,11 @@ try:
     r = redis.StrictRedis(host=redis_host, port=6379)
 
     p = r.pubsub()
-    p.subscribe(f'fs-drift-{trunc_uuid}')
+    p.subscribe(f'fs_drift-{trunc_uuid}')
     STATE = True
 
     while STATE:
-        print("Waiting For all fs-drift Pods to get ready ...")
+        print("Waiting For all fs_drift Pods to get ready ...")
         message = p.get_message()
         if message:
             command = message['data']
@@ -25,7 +25,7 @@ try:
 
         time.sleep(1)
 
-    print("Executing fs-drift ...")
+    print("Executing fs_drift ...")
 
 except Exception as e:
     print("******Exception Occured*******")

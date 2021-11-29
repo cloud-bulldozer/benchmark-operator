@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: fs-drift-example
+  name: fs_drift-example
   namespace: benchmark-operator
 spec:
   # where elastic search is running
@@ -12,7 +12,7 @@ spec:
   # clustername: myk8scluster
   # test_user: ripsaw
   workload:
-    name: fs-drift
+    name: fs_drift
     args:
       # increase samples to 3 to measure variance in results
       samples: 1
@@ -29,10 +29,10 @@ spec:
       access_mode: ReadWriteOnce
       # 5 threads x 100 files/thread x 64 KB/file ~= 300 MB << 1 GiB
       storagesize: 1Gi
-      # -- below are fs-drift.py parameters defined in fs-drift README.md
+      # -- below are fs_drift.py parameters defined in fs_drift README.md
       # duration only 30 sec by default, should be much longer
       duration: 30
-      # OPTIONAL - fs-drift sub-processes per pod
+      # OPTIONAL - fs_drift sub-processes per pod
       threads: 5
       # OPTIONAL - files no bigger than maximum file size in KB
       max_file_size_kb: 64

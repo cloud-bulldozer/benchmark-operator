@@ -12,7 +12,7 @@ function populate_test_list {
   for item in $@
   do
     # Check for changes in roles
-    if [[ $(echo ${item} | grep 'roles/fs-drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
+    if [[ $(echo ${item} | grep 'roles/fs_drift') ]]; then echo "test_fs_drift.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/uperf') ]]; then echo "test_uperf.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/fio_distributed') ]]; then echo "test_fiod.sh" >> tests/iterate_tests; fi
     if [[ $(echo ${item} | grep 'roles/iperf3') ]]; then echo "test_iperf3.sh" >> tests/iterate_tests; fi

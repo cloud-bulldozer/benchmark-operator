@@ -60,7 +60,7 @@ helm uninstall benchmark-operator -n benchmark-operator
 | [Byowl](docs/byowl.md)         | User defined workload  | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [Pgbench](docs/pgbench.md)     | Postgres Performance   | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
 | [Smallfile](docs/smallfile.md) | Storage IO Performance | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |
-| [fs-drift](docs/fs-drift.md)   | Storage IO Longevity   | Yes            |  Not used                 | Not Supported          | Preview         | Yes |
+| [fs_drift](docs/fs_drift.md)   | Storage IO Longevity   | Yes            |  Not used                 | Not Supported          | Preview         | Yes |
 | [hammerdb](docs/hammerdb.md)   | Database Performance   | Yes            |  Used, default : 3second  |  Working                | Preview         | Yes |
 | [Service Mesh](docs/servicemesh.md) | Microservices     | No            |  Used, default : 3second   | Not Supported         | Preview         | No |
 | [Vegeta](docs/vegeta.md)       | HTTP Performance       | Yes            |  Used, default : 3second  | Not Supported          | Preview         | Yes |

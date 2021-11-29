@@ -6,7 +6,7 @@ resources:
 - cyclictest/cr.yaml
 - fio/cr.yaml
 - fio/vm-cr.yaml
-- fs-drift/cr.yaml
+- fs_drift/cr.yaml
 - hammerdb/cr.yaml
 - hammerdb/vm-cr.yaml
 - hammerdb/mariadb/cr.yaml

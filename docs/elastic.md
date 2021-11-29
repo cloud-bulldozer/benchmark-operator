@@ -16,13 +16,13 @@ How To:
 # What is it
 
 Elasticsearch is a distributed NoSQL database that allows users to quick search and analyze data. After execution of
-each benchmark benchmark-operator(via benchmark-wrapper) collects test data and indexes it into Elasticsearch. Besides 
+each benchmark benchmark-operator(via benchmark-wrapper) collects test data and indexes it into Elasticsearch. Besides
 initial setup and deployment of the elasticsearch cluster, workloads are configured to send the benchmark data to Elasticsearch
-automatically, when users provide the proper information. 
+automatically, when users provide the proper information.
 
 In addition to storing benchmark data, we are able to capture Openshift Prometheus data by providing the Prom URL and access token.
-With the collection of prom data, users gain the benefit of capturing a holistic view of loads on the entire system and 
-ability to analyze resource usage based test constraints. 
+With the collection of prom data, users gain the benefit of capturing a holistic view of loads on the entire system and
+ability to analyze resource usage based test constraints.
 
 Current supported ES + Prometheus integrated workloads:
 
@@ -34,17 +34,17 @@ Current supported ES + Prometheus integrated workloads:
 | [Sysbench](docs/sysbench.md)   | Not Supported    |
 | [YCSB](docs/ycsb.md)           | Not Supported    |
 | [Byowl](docs/byowl.md)         | Not Supported    |
-| [Pgbench](docs/pgbench.md)     | Not Supported    | 
+| [Pgbench](docs/pgbench.md)     | Not Supported    |
 | [Smallfile](docs/smallfile.md) | Not Supported    |
-| [fs-drift](docs/fs-drift.md)   | Not Supported    |
+| [fs_drift](docs/fs_drift.md)   | Not Supported    |
 | [hammerdb](docs/hammerdb.md)   | Not Supported    |
-| [Service Mesh](docs/servicemesh.md) | Not Supported    | 
-| [Vegeta](docs/vegeta.md)       | Not Supported    | 
+| [Service Mesh](docs/servicemesh.md) | Not Supported    |
+| [Vegeta](docs/vegeta.md)       | Not Supported    |
 | [Scale Openshift](docs/scale_openshift.md) | Not Supported    |
-| [stressng](docs/stressng.md)   | Not Supported    | 
-| [kube-burner](docs/kube-burner.md)  | Not Supported    | 
-| [cyclictest](docs/cyclictest.md)  | Not Supported    | 
-| [oslat](docs/oslat.md)         | Not Supported    | 
+| [stressng](docs/stressng.md)   | Not Supported    |
+| [kube-burner](docs/kube-burner.md)  | Not Supported    |
+| [cyclictest](docs/cyclictest.md)  | Not Supported    |
+| [oslat](docs/oslat.md)         | Not Supported    |
 
 # Enabling Collection
 
@@ -97,19 +97,19 @@ To enable this functionality we must provide the following parameters to the wor
 ```
   prometheus:
     es_url: http://my.es.server:80
-    prom_url: http://< URL > 
+    prom_url: http://< URL >
     prom_token: <token>
     es_parallel: true|false
 ```
 
 **Note**: It's possible to index documents in an authenticated ES instance using the notation `http(s)://[username]:[password]@[address]:[port]` in the es_url parameter.
 
-Depending on your infrastructure and desire to store prometheues data separately from your benchmark data, you are able 
-to specify the same or different ES server/port from the benchmark data instance. Users are also able to separately 
-control whether or not to upload using the parallel indexer. 
+Depending on your infrastructure and desire to store prometheues data separately from your benchmark data, you are able
+to specify the same or different ES server/port from the benchmark data instance. Users are also able to separately
+control whether or not to upload using the parallel indexer.
 
-It's important to note due to the quantity of data from Promethues we recommend using parallel, as long as your ES 
-infrastructure can handle the load. 
+It's important to note due to the quantity of data from Promethues we recommend using parallel, as long as your ES
+infrastructure can handle the load.
 
 Example CR with elasticsearch and prometheus information provided
 
@@ -127,7 +127,7 @@ spec:
     index_name: ripsaw-smallfile
   prometheus:
     es_url: http://my.es.server:80
-    prom_url: http://< URL > 
+    prom_url: http://< URL >
     prom_token: <token>
     es_parallel: true
   metadata:
@@ -141,21 +141,21 @@ spec:
       file_size: 0
       files: 100000
 ```
-   
+
 #### Retrieving Openshift Prometheus info
 
-In order to query Prometheus we must provide the URL and access token. 
+In order to query Prometheus we must provide the URL and access token.
 
-It is recommended that users us the internal prometheus service address, which is always the same for every cluster and 
-prevents this traffic to go out and in the cluster. (`https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091`) 
+It is recommended that users us the internal prometheus service address, which is always the same for every cluster and
+prevents this traffic to go out and in the cluster. (`https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091`)
 
-Alternatively, in order to retrieve the external prometheus service address user can do so by executing 
-`oc -n openshift-monitoring get routes | grep prometheus`. 
+Alternatively, in order to retrieve the external prometheus service address user can do so by executing
+`oc -n openshift-monitoring get routes | grep prometheus`.
 
-Depending on your environment you either need to setup a service account, with a cluster role of 
-cluster-monitoring-view ,or use the Prometheus user account's token. 
+Depending on your environment you either need to setup a service account, with a cluster role of
+cluster-monitoring-view ,or use the Prometheus user account's token.
 
-Command to setup a service account and retrieve token: 
+Command to setup a service account and retrieve token:
 
 ```
 oc create serviceaccount snafu -n benchmark-operator
@@ -171,20 +171,20 @@ Command to retrieve prometheus service account's token:
 `oc -n openshift-monitoring sa get-token prometheus-k8s`
 
 
-# Extending Prometheus Collection 
+# Extending Prometheus Collection
 
-This section will help contributers to understand and extend collection of the openshift prometheus data for all 
-workloads. Below we will explain the data model used for integrating Prometheus data with elasticsearch, explain 
+This section will help contributers to understand and extend collection of the openshift prometheus data for all
+workloads. Below we will explain the data model used for integrating Prometheus data with elasticsearch, explain
 workload include files, and the exact code block to use for triggering prom collection for your workload.
- 
+
 ### Elasticsearch-Prometheus Data Model
 
-This section will break down the data model used for normalizing Prometheus data for Elasticsearch indexing. 
+This section will break down the data model used for normalizing Prometheus data for Elasticsearch indexing.
 
 During collection we execute a prom instance query for all applicable metrics that are listed in the
-include file(discussed further in next section). For each query, Prometheus returns a data object containing a list of 
-results for the specified metric. Each result object contains two sub-components, 1 the value of the metric at a 
-specific time, and metric attributes such as name, instances, device, mode, pod, etc.   
+include file(discussed further in next section). For each query, Prometheus returns a data object containing a list of
+results for the specified metric. Each result object contains two sub-components, 1 the value of the metric at a
+specific time, and metric attributes such as name, instances, device, mode, pod, etc.
 
 Example Prometheus Instant Query Data Model:
 ```
@@ -215,7 +215,7 @@ Example Prometheus Instant Query Data Model:
 ```
 
 Besides capturing metric values and attributes on each metric, we must add context to each record to aid in analysis
-and correlation between metrics. 
+and correlation between metrics.
 
 For each record we expect that workloads provide the following:
 
@@ -226,15 +226,15 @@ For each record we expect that workloads provide the following:
 * endtime - sample stop time, used for bounding search query
 * sample - indication of sample number, used for statistical analysis of results and filtering
 * tool - used to identify which include file to load
-* test_config - a dictionary containing the current sample's test parameters. 
+* test_config - a dictionary containing the current sample's test parameters.
 
-*NOTE:* Because test config is dependent upon the specific workload, and due to the risk of overloading fields each tool will 
+*NOTE:* Because test config is dependent upon the specific workload, and due to the risk of overloading fields each tool will
 have its own seperate prometheus collection index, labeled **ripsaw-<tool_name>-prometheus_data**
 
 How workloads provide this information is covered in [Adding Prometheus collection trigger](#adding-prometheus-collection-trigger)
 
 Upon the triggering and successfully execution of the Prometheus query, we combine the results into a normalized structure
-that allows for easy indexing and analysis. Below is an example of the overall structure for a normalized result, and 
+that allows for easy indexing and analysis. Below is an example of the overall structure for a normalized result, and
 a example document captured from a previous fio workload.
 
 Normalized ES Data model:
@@ -308,11 +308,11 @@ Example Normalized record from Fio workload:
       }
     }
   }
-```  
+```
 
 ### Explaining Workload Include Files
 
-There is an enormous amount of data that is collected via Openshift Prometheus, some of which is not relevant to all 
+There is an enormous amount of data that is collected via Openshift Prometheus, some of which is not relevant to all
 workloads, or not necessary for performance benchmarking. This lead us to the creation of include files, a file that
 contains workload specific queries. These files can be located in *<root_dir>/snafu/utils/prometheus_labels*.
 
@@ -340,24 +340,24 @@ below is an example of the structure of the include file:
     ...
 ```
 
-For each query we must include an object with a human readable tag, comma separated list of included labels, and the 
+For each query we must include an object with a human readable tag, comma separated list of included labels, and the
 PromQL query.
 
-By default all workloads will use the *<root_dir>/snafu/utils/prometheus_labels/included_labels.json* file for collections. 
-If a workload needs targeted or more broad collection, contributers can upload a tools specific included file, i.e. 
- **<tool_name>_included_labels.json**.  
+By default all workloads will use the *<root_dir>/snafu/utils/prometheus_labels/included_labels.json* file for collections.
+If a workload needs targeted or more broad collection, contributers can upload a tools specific included file, i.e.
+ **<tool_name>_included_labels.json**.
 
 
 ### Adding Prometheus collection trigger
 
-In an attempt to simplify and gather only the relevant data to a specific test, the Prometheus collection trigger should 
-be added to the end of wherever the workload executes a single sample. This will ensure that no data is captured outside 
-of testing time or in between samples where data collection or other task are occurring.  
+In an attempt to simplify and gather only the relevant data to a specific test, the Prometheus collection trigger should
+be added to the end of wherever the workload executes a single sample. This will ensure that no data is captured outside
+of testing time or in between samples where data collection or other task are occurring.
 
-As discussed in previous sections there is a need to include context to the prometheus data, when extending this functionality 
-contributers must create a dictionary containing sample specific information, most of which is already available to existing workloads. 
+As discussed in previous sections there is a need to include context to the prometheus data, when extending this functionality
+contributers must create a dictionary containing sample specific information, most of which is already available to existing workloads.
 
-The following are the necessary parameters to include: 
+The following are the necessary parameters to include:
 
 * uuid - universally unique identifier, automatically created by benchmark-operator
 * user - gathered from parameters passed from the CR file
@@ -368,7 +368,7 @@ The following are the necessary parameters to include:
 * tool - used to identify which include file to load, if applicable
 * test_config - a dictionary containing the current sample's test parameters, used for statistical analysis of results and filtering.
 
-below is an example of what should be add to your workload when extending this feature. 
+below is an example of what should be add to your workload when extending this feature.
 
 ```
 trigger_workload.py
@@ -378,11 +378,11 @@ trigger_workload.py
         **sample_starttime** = datetime.utcnow().strftime('%s')
         Run Test
         **sample_endtime** = datetime.utcnow().strftime('%s')
-        
+
         Index benchmark data
         ...
-        
-    
+
+
         # trigger collection of prom data
         **sample_info_dict** = {"uuid": self.uuid,
                             "user": self.user,
@@ -393,6 +393,6 @@ trigger_workload.py
                             "tool": "tool_name",
                             "test_config": self.tool_test_parameters_dict
                             }
-    
+
         **yield sample_info_dict, "get_prometheus_trigger"**
 ```

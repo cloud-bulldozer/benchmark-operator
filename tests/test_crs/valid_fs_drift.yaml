@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: fs-drift-benchmark
+  name: fs_drift-benchmark
   namespace: benchmark-operator
 spec:
   test_user: homer_simpson
@@ -16,11 +16,11 @@ spec:
   # where elastic search is running
   elasticsearch:
     url: ES_SERVER
-    index_name: ripsaw-fs-drift
+    index_name: ripsaw-fs_drift
   metadata:
     collection: true
   workload:
-    name: fs-drift
+    name: fs_drift
     args:
       worker_pods: 1
       threads: 5

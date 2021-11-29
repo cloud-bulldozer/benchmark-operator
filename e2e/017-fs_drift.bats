@@ -4,7 +4,7 @@
 
 load helpers.bash
 
-indexes=(ripsaw-fs-drift-results ripsaw-fs-drift-rsptimes ripsaw-fs-drift-rates-over-time)
+indexes=(ripsaw-fs_drift-results ripsaw-fs_drift-rsptimes ripsaw-fs_drift-rates-over-time)
 
 
 @test "fs_drift-standard" {
