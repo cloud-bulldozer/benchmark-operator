@@ -38,7 +38,7 @@ spec:
 {% endif %}
   containers:
   - name: benchmark
-    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/iperf3:latest') }}
+    image: {{ workload_args.image | default('quay.io/cloud-bulldozer/iperf:latest') }}
     imagePullPolicy: Always
     command: ["/bin/sh", "-c"]
     args:
