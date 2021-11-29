@@ -6,7 +6,7 @@ metadata:
   namespace: '{{ operator_namespace }}'
 spec:
   backoffLimit: 0
-  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
+  activeDeadlineSeconds: {{ workload_args.job_timeout | default(28800) }}
   parallelism: {{ workload_args.pod_count | default(1) | int }}
   template:
     metadata:
