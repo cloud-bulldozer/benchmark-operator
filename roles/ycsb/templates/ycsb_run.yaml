@@ -23,7 +23,7 @@ spec:
 {% endif %}
       containers:
       - name: ycsb
-        image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/ycsb-server:latest') }}"
+        image: "{{ workload_args.image | default('quay.io/cloud-bulldozer/ycsb:latest') }}"
         imagePullPolicy: Always
         env:
         - name: clustername
@@ -60,7 +60,7 @@ spec:
 {% endif %}
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
-        args: 
+        args:
           - run_snafu --tool ycsb
 {% if workload_args.debug is defined and workload_args.debug %}
             -v
