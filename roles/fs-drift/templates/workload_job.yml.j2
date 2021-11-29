@@ -41,7 +41,7 @@ spec:
           securityContext:
             privileged: true
 {% endif %}
-          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fs-drift:latest') }}
+          image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fs_drift:latest') }}
           # example of what to do when debugging image
           # image: quay.io/bengland2/fs-drift:latest
           imagePullPolicy: Always
