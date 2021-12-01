@@ -33,7 +33,10 @@ spec:
       # vm_cores: 2
       # Memory that will be available inside the VM
       # Default: 5G
-      # vm_cores: 10G
+      # vm_memory: 10G
+      # VM bus type: virtio, sata, or scsi
+      # Default: virtio
+      # vm_bus: virtio
       # test types, see fio documentation
       jobs:
         - write

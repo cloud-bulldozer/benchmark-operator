@@ -22,13 +22,22 @@ spec:
       cores: {{ workload_args.vm_cores | default(1) }}
     devices:
       disks:
-        - name: registrydisk
-        - name: cloudinitdisk
+        - disk:
+            bus: {{ workload_args.vm_bus | default('virtio') }}
+          name: registrydisk
+        - disk:
+            bus: {{ workload_args.vm_bus | default('virtio') }}
+          name: cloudinitdisk
 {% if workload_args.storageclass is defined
     or workload_args.hostpath is defined %}
         - disk:
-            bus: virtio
+            bus: {{ workload_args.vm_bus | default('virtio') }}
           name: data-volume
+          serial: data
+{% else %}
+        - disk:
+            bus: {{ workload_args.vm_bus | default('virtio') }}
+          name: emptydisk
           serial: data
 {% endif %}
     resources:
@@ -37,37 +46,23 @@ spec:
   volumes:
     - name: registrydisk
       containerDisk:
-        image: {{ workload_args.vm_image | default('kubevirt/fedora-cloud-container-disk-demo:latest') }}
+        image: {{ workload_args.vm_image | default('quay.io/kubevirt/fedora-container-disk-images:latest') }}
     - name: cloudinitdisk
       cloudInitNoCloud:
         userData: |-
           #cloud-config
-          password: fedora
+          password: ripsaw
           chpasswd: { expire: False }
           bootcmd:
-{% if workload_args.storageclass is defined
-    or workload_args.hostpath is defined %}
             - "mkdir -p {{ fio_path }} || true"
-            - mkfs.ext4 /dev/disk/by-id/virtio-data
-            - "mount /dev/disk/by-id/virtio-data {{ fio_path }}"
-{% endif %}
+            - "[ -e /dev/disk/by-id/*data ] && disk=$(shopt -s nullglob; basename /dev/disk/by-id/*data) && mkfs.ext4 /dev/disk/by-id/$disk && mount /dev/disk/by-id/$disk {{ fio_path }}"
           runcmd:
-{% if workload_args.vm_image is undefined %}
-            - dnf install -y fio wget curl python3 python3-pip
-{% endif %}
-            - cd /tmp
-{% if workload_args.metadata is defined
-    and (workload_args.metadata.collection|default(false))
-    and (workload_args.metadata.targeted|default(true)) %}
-            - export ES_SERVER={{ elasticsearch.url }}
-{% if workload_args.vm_image is undefined %}
-            - wget https://raw.githubusercontent.com/cloud-bulldozer/bohica/master/stockpile-wrapper/stockpile-wrapper.py
-            - pip3 install elasticsearch-dsl openshift kubernetes redis
-{% endif %}
-            # TODO: start stockpile-wrapper script
-            python3 stockpile-wrapper.py -s {{ elasticsearch.url }} -u {{ uuid }} -n "$my_node_name" -N "$my_pod_name" --redisip {{ bo.resources[0].status.podIP }} --redisport 6379 --force
-{% endif %}
-            - fio --server
+            - dnf install -y podman
+            - "img=`podman create {{ workload_args.image | default('quay.io/cloud-bulldozer/fio:latest') }}`"
+            - fs=`podman mount $img`
+            - "mkdir -p $fs/{{ fio_path }} || true"
+            - "mount -o bind /{{ fio_path }} $fs/{{ fio_path }}"
+            - "chroot $fs bash -c 'cd /{{ fio_path }}; fio --server'"
 {% if workload_args.storageclass is defined %}
     - name: data-volume
       persistentVolumeClaim:
@@ -75,7 +70,17 @@ spec:
 {% elif workload_args.hostpath is defined %}
     - name: data-volume
       hostDisk:
-        path: {{ workload_args.hostpath }}
+        path: "{{ workload_args.hostpath }}/fio-server-{{item | string}}-{{ trunc_uuid }}"
         capacity: {{ workload_args.storagesize | default("5Gi") }}
         type: DiskOrCreate
+{% else %}
+    - name: emptydisk
+      emptyDisk:
+        capacity: {{ workload_args.storagesize | default("5Gi") }}
 {% endif %}
+{% if workload_args.nodeselector is defined %}
+  nodeSelector:
+{% for label, value in  workload_args.nodeselector.items() %}
+    {{ label | replace ("_", "-" )}}: {{ value }}
+{% endfor %}
+{% endif  %}

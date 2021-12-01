@@ -108,12 +108,13 @@ The workload loops are nested as such from the CR options:
   > the specified annotations on the client pods' metadata.
 - **kind**: Can either be `pod` or `vm` to determine if the fio workload is run in a Pod or in a VM
   > Note: For VM workloads, you need to install Openshift Virtualization first
-- **vm_image**: Whether to use a pre-defined VM image with pre-installed requirements. Necessary for disconnected installs.
-  > Note: You can use my fedora image here: quay.io/mulbc/fed-fio \
-  > Note: Only applies when kind is set to `vm`
+- **vm_image**: VM image to use for the test, benchmark dependencies are provided by a pod container image (Default pod image: quay.io/cloud-bulldozer/fio:latest). Container images should be pre-loaded for disconnected installs. Default: quay.io/kubevirt/fedora-container-disk-images:latest
+  > Note: Only applies when kind is set to `vm`, current assumption is the firewall is disabled in the VM (default for most cloud images)
 - **vm_cores**: The number of CPU cores that will be available inside the VM. Default=1
   > Note: Only applies when kind is set to `vm`
-- **vm_cores**: The amount of Memory that will be available inside the VM in Kubernetes format. Default=5G
+- **vm_memory**: The amount of Memory that will be available inside the VM in Kubernetes format. Default=5G
+  > Note: Only applies when kind is set to `vm`
+- **vm_bus**: The VM bus type (virtio, scsi, or sata). Default=virtio
   > Note: Only applies when kind is set to `vm`
 - **bs**: (list) blocksize values to use for I/O transactions
   > Note: We set the `direct=1` fio option in the jobfile configmap. In order to avoid errors, the `bs` values
@@ -141,6 +142,9 @@ The workload loops are nested as such from the CR options:
 - **log_sample_rate**: (optional) Applied to fio options `log_avg_msec` (milliseconds) in the jobfile configmap; see `fio(1)`
 - **log_hist_msec** (optional) if set, enables histogram logging at this specified interval in milliseconds
 - **storageclass**: (optional) The K8S StorageClass to use for persistent volume claims (PVC) per server pod
+  > Note: Currently when the type is set to `vm` only Block-device storageclasses are supported
+- **hostpath**: (optional) The local storage path to be used for hostPath (pods) or hostDisk (VMs)
+  > Note: When the type is set to `vm` make sure the hostDisk feature-gate is enabled and proper permission settings are applied to the path if applicable (i.e. chcon -Rt container_file_t <path>)
 - **pvcaccessmode**: (optional) The AccessMode to request with the persistent volume claim (PVC) for the fio server. Can be one of ReadWriteOnce,ReadOnlyMany,ReadWriteMany Default: ReadWriteOnce
 - **pvcvolumemode**: (optional) The volmeMode to request with the persistent volume claim (PVC) for the fio server. Can be one of Filesystem,Block Default: Filesystem
   > Note: It is recommended to change this to `Block` for VM tests
