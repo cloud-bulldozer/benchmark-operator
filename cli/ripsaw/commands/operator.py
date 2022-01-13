@@ -70,7 +70,7 @@ def delete(
 def wait_for_operator(namespace="benchmark-operator", kubeconfig=None):
     """wait for operator pods to be ready"""
     cluster = Cluster(kubeconfig_path=kubeconfig)
-    label_selector = "control-plane=controller-manager"
+    label_selector = "name=benchmark-operator"
     cluster.wait_for_pods(label_selector, namespace, timeout=120)
 
 
