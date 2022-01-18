@@ -11,7 +11,21 @@
       pod_sequence: "{{ pod_hi_idx|int +1 }}"
       node_sequence: "{{ node_hi_idx|int +1 }}"
 
-    when: workload_args.serviceip is defined and workload_args.serviceip
+    when: 
+      - workload_args.serviceip is defined and workload_args.serviceip
+      - ( workload_args.servicetype | default("clusterip") == "clusterip" ) or 
+        ( workload_args.servicetype | default("clusterip") == "nodeport" )
+
+  - name: Create metal LB service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service_metallb.yml.j2') | from_yaml }}"
+    vars:
+      pod_sequence: "{{ pod_hi_idx|int +1 }}"
+      node_sequence: "{{ node_hi_idx|int +1 }}"
+
+    when: 
+      - workload_args.serviceip is defined and workload_args.serviceip
+      - workload_args.servicetype | default("clusterip") == "metallb"
 
   - name: Start Server(s) - total = eligible nodes * density
     k8s:
