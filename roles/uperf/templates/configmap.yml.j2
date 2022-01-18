@@ -22,7 +22,7 @@ data:
     {% if ( 'rr' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port=30001"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=write options="size={{wsize}}"/>
@@ -35,7 +35,7 @@ data:
     {% if ( 'stream' == test or 'bidirec' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port=30001"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=write options="count=16 size={{wsize}}"/>
@@ -48,7 +48,7 @@ data:
     {% if ( 'maerts' == test or 'bidirec' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port=30001"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=read options="count=16 size={{rsize}}"/>

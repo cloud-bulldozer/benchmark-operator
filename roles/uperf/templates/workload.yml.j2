@@ -8,7 +8,13 @@ items:
     apiVersion: batch/v1
     metadata:
 {% if workload_args.serviceip is sameas true %}
+{% if workload_args.servicetype | default("clusterip") == "nodeport" %}
+      name: 'uperf-client-{{item.status.hostIP}}-{{ trunc_uuid }}'
+{% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
+      name: 'uperf-client-{{item.status.loadBalancer.ingress[0].ip}}-{{ trunc_uuid }}'
+{% else %}
       name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+{% endif %}
 {% else %}
       name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
 {% endif %}
@@ -100,7 +106,16 @@ items:
             args:
 {% if workload_args.serviceip is sameas true %}
               - "export serviceip=true;
+{% if workload_args.servicetype | default("clusterip") == "nodeport" %}
+                 export h={{item.status.hostIP}};
+                 export servicetype={{workload_args.servicetype}};
+{% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
+                 export h={{item.status.loadBalancer.ingress[0].ip}};
+                 export servicetype={{workload_args.servicetype}};
+{% else %}
                  export h={{item.spec.clusterIP}};
+                 export servicetype={{workload_args.servicetype | default("clusterip")}};
+{% endif %}             
 {% else %}
 {% if workload_args.multus.client is defined %}
               - "export multus_client={{workload_args.multus.client}};

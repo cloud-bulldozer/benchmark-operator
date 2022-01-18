@@ -60,7 +60,7 @@ items:
 {% endif %}
             imagePullPolicy: Always
             command: ["/bin/sh","-c"]
-            args: ["uperf -s -v -P 20000"]
+            args: ["uperf -s -v -P 30000"]
           restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
           nodeSelector:
@@ -73,7 +73,7 @@ items:
           securityContext:
             sysctls:
             - name: net.ipv4.ip_local_port_range
-              value: 20000 20011
+              value: 30000 30011
 {% endif %}
 {% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
     {{ metadata()|indent }}
