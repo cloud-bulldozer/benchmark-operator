@@ -72,6 +72,8 @@ spec:
         ports:
           - containerPort: 6379
         resources:
+          requests: 
+            cpu: "100m"
           limits:
             cpu: "2.0"
         volumeMounts:
