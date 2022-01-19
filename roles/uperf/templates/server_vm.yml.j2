@@ -73,6 +73,6 @@ spec:
           - dnf install -y uperf redis git
           - redis-cli -h {{ bo.resources[0].status.podIP }} setnx {{ trunc_uuid }} 0
           - redis-cli -h {{ bo.resources[0].status.podIP }} incr {{ trunc_uuid }}
-          - uperf -s -v -P 20000
+          - uperf -s -v -P 30000
     name: cloudinitdisk
 status: {}
