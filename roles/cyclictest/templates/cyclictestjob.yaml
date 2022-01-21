@@ -90,7 +90,7 @@ spec:
           path: /dev/cpu_dma_latency
       - name: cyclictest-volume
         configMap:
-          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+          name: "cyclictest-{{ trunc_uuid }}"
           defaultMode: 0555
       restartPolicy: Never
       serviceAccountName: benchmark-operator

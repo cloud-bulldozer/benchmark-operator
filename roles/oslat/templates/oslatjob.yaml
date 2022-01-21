@@ -91,7 +91,7 @@ spec:
           path: /dev/cpu_dma_latency
       - name: oslat-volume
         configMap:
-          name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+          name: "oslat-{{ trunc_uuid }}"
           defaultMode: 0555
       restartPolicy: Never
       serviceAccountName: benchmark-operator
