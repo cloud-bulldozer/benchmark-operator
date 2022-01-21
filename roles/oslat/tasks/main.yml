@@ -5,7 +5,7 @@
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
+        name: 'oslat-{{ trunc_uuid }}'
         namespace: '{{ operator_namespace }}'
       data:
         oslat.sh: "{{ lookup('file', 'oslat.sh') }}"
