@@ -7,7 +7,7 @@
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: '{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}'
+          name: 'cyclictest-{{ trunc_uuid }}'
           namespace: '{{ operator_namespace }}'
         data:
           cyclictest.sh: "{{ lookup('file', 'cyclictest.sh') }}"

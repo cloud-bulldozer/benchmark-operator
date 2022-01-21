@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{ ansible_operator_meta.name }}-workload-{{ trunc_uuid }}"
+  name: "oslat-{{ trunc_uuid }}"
   namespace: "{{ operator_namespace }}"
 spec:
   backoffLimit: 0
