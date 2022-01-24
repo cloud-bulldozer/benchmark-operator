@@ -279,7 +279,7 @@ For `metallb` type, there are certain pre-requisites,
 3.  Configuration of [AddressPool](https://github.com/metallb/metallb-operator#create-an-address-pool-object) for lb service
 4.  Configuration of extenal router for BGP
 
-`metallb` type creates 2 services per benchmark CRD (for each protocol, tcp and udp) and they will share the external IP like below
+`metallb` type creates 2 services per benchmark CR (for each protocol, `tcp` and `udp`) and they will share the external IP like below
 
 ```
 NAME                TYPE           CLUSTER-IP      EXTERNAL-IP       PORT(S) 
@@ -307,7 +307,7 @@ uperf-service-lb2   LoadBalancer   172.30.126.71   192.168.216.102   30001:31312
       servicetype: "metallb"
       metallb:
         addresspool: "addresspool-l3"
-        service_etp: "Cluster"
+        service_etp: "Cluster" # Either `Cluster` or `Local`
       ...
 ```
 
