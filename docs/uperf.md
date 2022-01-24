@@ -260,6 +260,56 @@ Once done creating/editing the resource file, you can run it by:
 # kubectl apply -f config/samples/uperf/cr.yaml # if edited the original one
 # kubectl apply -f <path_to_file> # if created a new cr file
 ```
+### Advanced Service types
+
+Benchmark operator now also supports different service types, it can create `NodePort` and `LoadBalancer` (only metallb) 
+type services along with the current default `ClusterIP` type.
+
+No pre-requisites needed for `NodePort` service, as long as the ports used by uperf(30000 to 30012) are allowed at the node level, 
+which is the cluster default.
+
+```
+NAME                TYPE           CLUSTER-IP      EXTERNAL-IP       PORT(S) 
+uperf-service-np    NodePort       172.30.177.81   <none>            30000:31955/TCP,30001:31935/TCP,30002:31942/TCP,30001:31935/UDP,30002:31942/UDP
+```
+
+For `metallb` type, there are certain pre-requisites, 
+1.  Installation of [MetalLB](https://metallb.universe.tf/) operator and CRD
+2.  Configuration of [BGP](https://github.com/metallb/metallb-operator#create-a-bgp-peer-object)
+3.  Configuration of [AddressPool](https://github.com/metallb/metallb-operator#create-an-address-pool-object) for lb service
+4.  Configuration of extenal router for BGP
+
+`metallb` type creates 2 services per benchmark CRD (for each protocol, tcp and udp) and they will share the external IP like below
+
+```
+NAME                TYPE           CLUSTER-IP      EXTERNAL-IP       PORT(S) 
+uperf-service-lb    LoadBalancer   172.30.177.99   192.168.216.102   30000:30976/TCP,30001:30652/TCP,30002:30099/TCP 
+uperf-service-lb2   LoadBalancer   172.30.126.71   192.168.216.102   30001:31312/UDP,30002:30776/UDP 
+```
+
+#### CR file inputs
+
+##### For NodePort
+```yaml
+      ...
+      name: uperf
+      serviceip: true
+      servicetype: "nodeport"
+      ...
+```
+
+##### For MetalLB
+`metallb`
+```yaml
+      ...
+      name: uperf
+      serviceip: true
+      servicetype: "metallb"
+      metallb:
+        addresspool: "addresspool-l3"
+        service_etp: "Cluster"
+      ...
+```
 
 ## Running Uperf in VMs through kubevirt/cnv [Preview]
 Note: this is currently in preview mode.
