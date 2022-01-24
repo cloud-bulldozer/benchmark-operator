@@ -43,6 +43,15 @@ ES_INDEX=ripsaw-uperf-results
   check_es
 }
 
+@test "uperf-serviceip-nodeport" {
+  CR=uperf/uperf_serviceip_nodeport.yaml
+  CR_NAME=$(get_benchmark_name ${CR})
+  envsubst < ${CR} | kubectl apply -f -
+  get_uuid "${CR_NAME}"
+  check_benchmark 900
+  check_es
+}
+
 @test "uperf-hostnetwork" {
   CR=uperf/uperf_hostnetwork.yaml
   CR_NAME=$(get_benchmark_name ${CR})
