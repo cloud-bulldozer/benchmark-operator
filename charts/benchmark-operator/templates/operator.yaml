@@ -11,6 +11,7 @@ spec:
   template:
     metadata:
       labels:
+        control-plane: controller-manager
         name: {{ include "benchmark-operator.fullname" . }}
     spec:
       serviceAccountName: {{ include "benchmark-operator.fullname" . }}
