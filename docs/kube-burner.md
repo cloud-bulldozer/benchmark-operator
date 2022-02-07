@@ -49,6 +49,23 @@ Each iteration of this workload creates the following objects:
   - 1 deployment holding a client application for the previous database
   - 1 service pointing to the postgresl database
 
+- **node-density-cni**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a node.js webserver and a simple client that curls the webserver) and a service that is used by the client to reach the webserver.
+Each iteration of this workload creates the following objects:
+  - 1 deployment holding a node.js webserver
+  - 1 deployment holding a client application for curling the webserver
+  - 1 service pointing to the webserver
+
+    The Readiness Probe of the client pod depends on being able to reach the webserver so that the PodReady latencies collected by kube-burner reflect network connectivity.
+
+- **node-density-cni-policy**. Creates a **single namespace with a number of applications equals to job_iterations**. This application consists on two deployments (a node.js webserver and a simple client that curls the webserver) and a service that is used by the client to reach the webserver.
+Each iteration of this workload creates the following objects:
+  - 1 deployment holding a node.js webserver
+  - 1 deployment holding a client application for curling the webserver
+  - 1 service pointing to the webserver
+
+    A NetworkPolicy to deny all connections is created in the namspace first and then NetworkPolicies specifically applying the connection of each client-webserver pair are applied. The Readiness Probe of the client pod depends on being able to reach the webserver so that the PodReady latencies collected by kube-burner reflect network connectivity.
+
+
 - **max-namespaces**: This workload is a cluster limits focused test which creates maximum possible namespaces across the cluster. This is a namespaced workload, meaning that kube-burner **will create as many namespaces with these objects as the configured job_iterations**.
   - 1 deployment holding a postgresql database
   - 5 deployments consisting of a client application for the previous database
