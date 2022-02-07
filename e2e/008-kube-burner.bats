@@ -34,6 +34,24 @@ ES_INDEX=ripsaw-kube-burner
   check_es
 }
 
+@test "kube-burner-node-density-cni" {
+  CR=kube-burner/node-density-cni.yaml
+  CR_NAME=$(get_benchmark_name ${CR})
+  envsubst < ${CR} | kubectl apply -f -
+  get_uuid "${CR_NAME}"
+  check_benchmark 900
+  check_es
+}
+
+@test "kube-burner-node-density-cni-networkpolicy" {
+  CR=kube-burner/node-density-cni-networkpolicy.yaml
+  CR_NAME=$(get_benchmark_name ${CR})
+  envsubst < ${CR} | kubectl apply -f -
+  get_uuid "${CR_NAME}"
+  check_benchmark 900
+  check_es
+}
+
 @test "kube-burner-max-services" {
   CR=kube-burner/max-services.yaml
   CR_NAME=$(get_benchmark_name ${CR})
