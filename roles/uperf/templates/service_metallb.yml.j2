@@ -77,6 +77,12 @@ items:
 {% endif %}
       externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
       type: LoadBalancer
+{% if dualstack | default("false") %}
+      ipFamilyPolicy: RequireDualStack
+      ipFamilies:
+      - IPv6
+      - IPv4
+{% endif %}
       ports:
       - name: uperf
         port: 30000
