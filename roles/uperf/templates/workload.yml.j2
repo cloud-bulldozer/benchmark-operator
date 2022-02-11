@@ -110,11 +110,11 @@ items:
                  export h={{item.status.hostIP}};
                  export servicetype={{workload_args.servicetype}};
 {% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
-    {% if not workload_args.dualstack | default(false) %}
+{% if not workload_args.dualstack | default(false) %}
                  export h={{item.status.loadBalancer.ingress[0].ip}};
-    {% else %}
-                 export h={{item.status.loadBalancer | json_query('ingress[*].ip') | ipv6 | join}};
-    {% endif %}
+{% else %}
+                 export h={{item.status.loadBalancer | json_query('ingress[*].ip') | ipv6 | join }};
+{% endif %}
                  export servicetype={{workload_args.servicetype}};
 {% else %}
                  export h={{item.spec.clusterIP}};
