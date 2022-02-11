@@ -32,7 +32,7 @@ items:
 {% endif %}
       externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
       type: LoadBalancer
-{% if dualstack | default("false") %}
+{% if workload_args.dualstack | default(false) %}
       ipFamilyPolicy: RequireDualStack
       ipFamilies:
       - IPv6
@@ -77,7 +77,7 @@ items:
 {% endif %}
       externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
       type: LoadBalancer
-{% if dualstack | default("false") %}
+{% if workload_args.dualstack | default(false) %}
       ipFamilyPolicy: RequireDualStack
       ipFamilies:
       - IPv6
