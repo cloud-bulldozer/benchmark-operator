@@ -65,7 +65,7 @@ spec:
 
 `serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
 
-`dualstack` will use IPv6 for establishing the connectivity between uperf client(s) and server(s). The environment has to be properly configured with dualstack previous to running the test.
+`dualstack` will use IPv6 for establishing the connectivity between uperf client(s) and server(s). The environment has to be properly configured with dualstack previous to running the test. For now, it is only supported with LoadBalancer type services.
 
 `runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
