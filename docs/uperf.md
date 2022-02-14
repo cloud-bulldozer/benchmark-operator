@@ -89,6 +89,8 @@ If `pair` is not specified, the operator will use the value in `density_range` t
 See **Scale** section for more info. `density_range` can do more than `pair` can, but `pair` support is retained 
 for backward compatibility.
 
+`protos`: choose between `tcp`, `udp` or/and `sctp`. In case `sctp` is choosen, SCTP module has to be enabled in the environment. SCTP is only supported for pod2pod and loadbalancer type services for now.
+
 `multus[1]` Configure our pods to use multus.
 
 `samples` how many times to run the tests. For example
