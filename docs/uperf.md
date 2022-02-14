@@ -34,6 +34,7 @@ spec:
           cpu: 500m
           memory: 500Mi
       serviceip: false
+      dualstack: false
       runtime_class: class_name
       hostnetwork: false
       networkpolicy: false
@@ -63,6 +64,8 @@ spec:
 `client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
 `serviceip` will place the uperf server behind a K8s [Service](https://kubernetes.io/docs/concepts/services-networking/service/)
+
+`dualstack` will use IPv6 for establishing the connectivity between uperf client(s) and server(s). The environment has to be properly configured with dualstack previous to running the test. For now, it is only supported with LoadBalancer type services.
 
 `runtime_class` If this is set, the benchmark-operator will apply the runtime_class to the podSpec runtimeClassName.
 
