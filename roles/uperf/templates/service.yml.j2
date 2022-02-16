@@ -47,6 +47,13 @@ items:
         targetPort: {{num}}
         nodePort: {{num}}
         protocol: UDP
+{% if "sctp" in workload_args.protos %}
+      - name: uperf-control-sctp-{{num}}
+        port: {{num}}
+        targetPort: {{num}}
+        nodePort: {{num}}
+        protocol: SCTP
+{% endif %}
 {% endfor %}
 {% else %}
       type: ClusterIP
@@ -64,6 +71,12 @@ items:
         port: {{num}}
         targetPort: {{num}}
         protocol: UDP
+{% if "sctp" in workload_args.protos %}
+      - name: uperf-control-sctp-{{num}}
+        port: {{num}}
+        targetPort: {{num}}
+        protocol: SCTP
+{% endif %}
 {% endfor %}
 {% endif %}
 {% endmacro %}
