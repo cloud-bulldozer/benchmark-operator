@@ -75,8 +75,9 @@ items:
             - name: net.ipv4.ip_local_port_range
               value: 30000 30011
 {% endif %}
-{% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
-    {{ metadata()|indent }}
+{% filter indent(width=4, first=True) %}
+{% include "metadata.yml.j2" %}
+{% endfilter %}
 {% endmacro %}
 {% for node_idx_item in range(node_sequence|int)  %}
 {% for item in range(pod_sequence|int)  %}
