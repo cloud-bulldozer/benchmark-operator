@@ -23,6 +23,12 @@ make image-build image-push deploy IMG=$YOUR_IMAGE
 
 > Note: building the image requires podman
 
+You can choose which cluster to use setting the variable KUBECONFIG
+
+```bash
+KUBECONFIG=~/configs/your.config make deploy
+```
+
 ## Installation (Helm)
 
 Installing the benchmark-operator via Helm can be done with the following commands. This requires

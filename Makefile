@@ -65,6 +65,8 @@ ifdef BATS_TESTS
   FILTERED_TESTS := -f "$(BATS_TESTS)"
 endif
 
+KUBECONFIG ?= ~/.kube/config
+
 all: image-build
 
 ##@ General
@@ -107,17 +109,17 @@ manifest-build:
 ##@ Deployment
 
 install: kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
-	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+	$(KUSTOMIZE) build config/crd | kubectl --kubeconfig $(KUBECONFIG) apply -f -
 
 uninstall: kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config.
-	$(KUSTOMIZE) build config/crd | kubectl delete -f -
+	$(KUSTOMIZE) build config/crd | kubectl --kubeconfig $(KUBECONFIG) delete -f -
 
 deploy: kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	$(KUSTOMIZE) build config/default | kubectl --kubeconfig $(KUBECONFIG) apply -f -
 
 undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
-	$(KUSTOMIZE) build config/default | kubectl delete -f -
+	$(KUSTOMIZE) build config/default | kubectl --kubeconfig $(KUBECONFIG) delete -f -
 
 
 .PHONY: kustomize
