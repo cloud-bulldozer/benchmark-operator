@@ -54,8 +54,10 @@ export HOME=/root;
     or workload_args.client_vm.hostpath is sameas true %}
 sudo systemctl stop mssql-server;
 sudo ACCEPT_EULA='Y' MSSQL_PID='Enterprise' MSSQL_SA_PASSWORD='s3curePasswordString' /opt/mssql/bin/mssql-conf setup;
-sudo firewall-cmd --zone=public --add-port=1433/tcp --permanent;
-sudo firewall-cmd --reload;
+# Fixed firewall-cmd failure in cloud-init, for more details https://forums.centos.org/viewtopic.php?f=47&t=52162&p=220915
+sudo firewall-offline-cmd --add-port=1433/tcp;
+sudo systemctl enable firewalld;
+sudo systemctl start firewalld;
 sudo systemctl start mssql-server;
 {% endif %}
 cd /hammer;
