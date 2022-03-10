@@ -63,8 +63,6 @@ spec:
              value: "test"
            - name: MYSQL_ROOT_PASSWORD
              value: "mysql"
-      securityContext:
-        privileged: true
         volumeMounts:
           - name: mariadb-custom-config
             mountPath: /etc/my.cnf

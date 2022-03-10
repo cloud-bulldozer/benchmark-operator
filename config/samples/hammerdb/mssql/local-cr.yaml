@@ -42,8 +42,6 @@ spec:
             value: "Y"
           - name: MSSQL_SA_PASSWORD
             value: "s3curePasswordString"
-      securityContext:
-        privileged: true
         volumeMounts:
           - name: mssql-persistent-storage
             mountPath: /var/opt/mssql

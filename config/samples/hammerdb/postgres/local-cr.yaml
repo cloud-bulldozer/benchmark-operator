@@ -57,8 +57,6 @@ spec:
               value: "test"
             - name: POSTGRESQL_ADMIN_PASSWORD
               value: "postgres"
-      securityContext:
-          privileged: true
           volumeMounts:
             - name: postgres-custom-config
               mountPath: /var/lib/pgsql/data/pg_hba.conf
