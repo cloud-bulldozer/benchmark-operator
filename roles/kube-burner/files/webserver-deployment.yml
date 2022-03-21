@@ -13,6 +13,10 @@ spec:
       containers:
       - name: webserver
         image: quay.io/cloud-bulldozer/sampleapp:latest
+        resources:
+          requests:
+            memory: "10Mi"
+            cpu: "10m"
         ports:
         - containerPort: 8080
           protocol: TCP

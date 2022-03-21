@@ -14,6 +14,10 @@ spec:
       - name: curlapp
         image: quay.io/cloud-bulldozer/curl:latest
         command: ["sleep", "inf"]
+        resources:
+          requests:
+            memory: "10Mi"
+            cpu: "10m"
         env:
         - name: WEBSERVER_HOSTNAME
           value: webserver-{{.Replica}}-{{.Iteration}}
