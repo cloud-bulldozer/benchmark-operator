@@ -132,6 +132,9 @@
 - query: sum(kube_node_status_condition{status="true"}) by (condition)
   metricName: nodeStatus
 
+- query: count(kube_pod_info{}) by (node)
+  metricName: podDistribution
+
 - query: cluster_version{type="completed"}
   metricName: clusterVersion
   instant: true
