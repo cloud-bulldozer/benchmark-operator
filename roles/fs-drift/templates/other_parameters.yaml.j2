@@ -47,5 +47,8 @@ gaussian_stddev: {{workload_args.gaussian_stddev}}
 {% if workload_args.create_stddevs_ahead is defined %}
 create_stddevs_ahead: {{workload_args.create_stddevs_ahead}}
 {% endif %}
+{% if workload_args.response_times is defined %}
+response_times: {{workload_args.response_times}}
+{% endif %}
 
 
