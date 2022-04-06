@@ -139,6 +139,14 @@ items:
 {% if workload_args.networkpolicy is defined %}
                  export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
+{% if cluster|length > 0 %} 
+                 export CLUSTER_NAME={{cluster.name}}
+		 export CLUSTER_ID={{cluster.id}}
+                 export OPENSHIFT_VERSION={{cluster.ocp_version}}
+                 export KUBERNETES_VERSION={{cluster.kubernetes_version}}
+                 export CLOUD_TYPE={{cluster.platform}}
+                 export CLUSTER_NETWORK_TYPE={{cluster.sdn}}
+{% endif %}
                  export hostnet={{workload_args.hostnetwork}};
                  export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
                  export my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};

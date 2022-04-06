@@ -38,6 +38,28 @@ spec:
                   verify_cert:
                     type: boolean
                     default: true
+              cluster:
+                default: {}
+                type: object
+                properties:
+                  name:
+                    type: string
+                    default: ""
+                  id:
+                    type: string
+                    default: ""
+                  ocp_version:
+                    type: string
+                    default: ""
+                  kubernetes_version:
+                    type: string
+                    default: ""
+                  platform:
+                    type: string
+                    default: ""
+                  sdn:
+                    type: string
+                    default: ""
               snappy:
                 default: {}
                 type: object

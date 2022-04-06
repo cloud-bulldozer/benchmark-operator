@@ -16,6 +16,13 @@ metadata:
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
+  cluster:
+    name: myk8scluster
+    platform: aws
+    ocp_version: 4.10
+    kubernetes_version: 1.22
+    id: 123-456
+    sdn: OVNKubernetes 
   workload:
     name: uperf
     args:
