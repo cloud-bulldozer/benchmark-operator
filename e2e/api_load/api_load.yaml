@@ -24,6 +24,7 @@ spec:
       aws_access_key: empty
       aws_access_secret: empty
       aws_account_id: empty
+      aws_region: empty
       cooldown: 10
       sleep: 5
       test_list:
