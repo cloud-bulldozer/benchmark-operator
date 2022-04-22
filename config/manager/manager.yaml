@@ -63,7 +63,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
       - name: redis-master
-        image: docker.io/redis:latest
+        image: quay.io/cloud-bulldozer:latest
         env:
           - name: MASTER
             value: "true"
