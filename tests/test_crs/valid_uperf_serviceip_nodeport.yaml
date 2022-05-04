@@ -28,7 +28,7 @@ spec:
       multus:
         enabled: false
       samples: 2
-      pair: 1
+      pair: 2
       test_types:
         - stream
         - rr
@@ -40,6 +40,5 @@ spec:
         - 512
       nthrs:
         - 1
-        - 2
       runtime: 2
       debug: true
