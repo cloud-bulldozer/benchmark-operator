@@ -25,7 +25,7 @@ spec:
       multus:
         enabled: false
       samples: 1
-      pair: 1
+      pair: 2
       test_types:
         - stream
       protos:

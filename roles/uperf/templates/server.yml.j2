@@ -1,4 +1,5 @@
 ---
+{% set control_port = 30000 %}
 apiVersion: v1
 kind: List
 metadata: {}
@@ -60,7 +61,7 @@ items:
 {% endif %}
             imagePullPolicy: Always
             command: ["/bin/sh","-c"]
-            args: ["uperf -s -v -P 30000"]
+            args: ["uperf -s -v -P {{ control_port|int + item|int * 100 }}"]
           restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
           nodeSelector:
@@ -73,7 +74,7 @@ items:
           securityContext:
             sysctls:
             - name: net.ipv4.ip_local_port_range
-              value: 30000 30011
+              value: 30000 32011
 {% endif %}
 {% filter indent(width=4, first=True) %}
 {% include "metadata.yml.j2" %}
