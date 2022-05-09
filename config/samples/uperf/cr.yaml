@@ -39,6 +39,9 @@ spec:
         - 16384
       nthrs:
         - 1
+      # By default, benchmark-operator will use the label - node-role.kubernetes.io/worker=
+      # However, some platforms do no ship with this.
+      #node_search_label: cloud.google.com/gke-nodepool=default-pool
       runtime: 30
 
       # The following variables are for 'Scale' mode.

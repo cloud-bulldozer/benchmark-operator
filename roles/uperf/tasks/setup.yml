@@ -9,7 +9,7 @@
       api_version: v1
       kind: Node
       label_selectors:
-        - "node-role.kubernetes.io/worker="
+        - "{{ workload_args.node_search_label | default('node-role.kubernetes.io/worker=') }}"
     register: node_list
     no_log: True
   
