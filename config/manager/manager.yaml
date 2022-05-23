@@ -77,7 +77,7 @@ spec:
           limits:
             cpu: "2.0"
         volumeMounts:
-          - mountPath: /redis-master-data
+          - mountPath: /data
             name: data
       serviceAccountName: operator
       terminationGracePeriodSeconds: 10
