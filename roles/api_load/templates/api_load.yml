@@ -83,7 +83,12 @@ spec:
             --end-rate={{ value.ramp_end_rate }}
 {% endif %}
             --elastic-server={{ elasticsearch.url }}
-            --elastic-index={{ elasticsearch.index_name }};
+            --elastic-index={{ elasticsearch.index_name }}
+{% if elasticsearch.verify_cert %}
+            --elastic-insecure-skip-verify;
+{% else %}
+            ;
+{% endif %}
             echo "Cooldown for {{ workload_args.cooldown | default(60) }}";
             sleep {{ workload_args.cooldown | default(60) }};
 {% endfor %}
