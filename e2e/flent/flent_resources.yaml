@@ -13,6 +13,8 @@ spec:
   elasticsearch:
     url: ${ES_SERVER}
     index_name: ripsaw-flent
+  metadata:
+    collection: false
   workload:
     # cleanup: true
     name: flent

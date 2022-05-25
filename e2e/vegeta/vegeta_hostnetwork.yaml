@@ -15,7 +15,7 @@ spec:
     url: ${ES_SERVER}
     index_name: ripsaw-vegeta
   metadata:
-    collection: true
+    collection: false
   workload:
     name: vegeta
     args:

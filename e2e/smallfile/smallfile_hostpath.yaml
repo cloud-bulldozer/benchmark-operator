@@ -18,7 +18,7 @@ spec:
     url: ${ES_SERVER}
     index_name: ripsaw-smallfile
   metadata:
-    collection: true
+    collection: false
   hostpath: /mnt/vda1/smallfile
   workload:
     name: smallfile
