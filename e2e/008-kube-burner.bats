@@ -22,7 +22,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-node-density-heavy" {
@@ -31,7 +30,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-node-density-cni" {
@@ -40,7 +38,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-node-density-cni-networkpolicy" {
@@ -49,7 +46,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-max-services" {
@@ -58,7 +54,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-max-namespaces" {
@@ -67,7 +62,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-concurrent-builds" {
@@ -76,7 +70,6 @@ ES_INDEX=ripsaw-kube-burner
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
   check_benchmark 900
-  check_es
 }
 
 @test "kube-burner-configmap" {
