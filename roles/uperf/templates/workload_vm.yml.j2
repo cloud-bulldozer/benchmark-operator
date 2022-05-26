@@ -2,7 +2,7 @@
 apiVersion: kubevirt.io/v1alpha3
 kind: VirtualMachineInstance
 metadata:
-  name: 'uperf-client-{{item.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item.1.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
   labels:
     benchmark-uuid: {{ uuid }}
@@ -90,9 +90,9 @@ spec:
           - bash /tmp/uperf_script/run_script.sh
     name: cloudinitdisk
   - configMap:
-      name: uperf-test-{{ trunc_uuid }}
+      name: uperf-test-{{ item.0 }}-{{ trunc_uuid }}
     name: app-config-disk
   - configMap:
-      name: uperf-run-script-{{item.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}
+      name: uperf-run-script-{{item.1.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}
     name: run-config-disk
 status: {}

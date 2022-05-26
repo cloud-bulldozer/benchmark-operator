@@ -74,7 +74,7 @@
   - name: Start Client(s)
     k8s:
       definition: "{{ lookup('template', 'workload_vm.yml.j2') | from_yaml }}"
-    with_items: "{{ server_vms.resources }}"
+    with_indexed_items: "{{ server_vms.resources }}"
     when: server_vms.resources|length > 0
 
   when: resource_kind == "vm"
