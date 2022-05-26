@@ -15,7 +15,6 @@ spec:
     index_name: ripsaw-uperf
   metadata:
     collection: true
-    collection: false
   cleanup: false
   workload:
     name: uperf
