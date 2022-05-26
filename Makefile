@@ -60,7 +60,7 @@ endif
 # E2E testing
 E2E_DIR = e2e
 E2E_RESULTS = test-results.xml
-BATS_FLAGS = -j 5 -F pretty --report-formatter junit -T
+BATS_FLAGS = -j 6 -F pretty --report-formatter junit -T
 ifdef BATS_TESTS
   FILTERED_TESTS := -f "$(BATS_TESTS)"
 endif
