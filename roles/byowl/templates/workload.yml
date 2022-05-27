@@ -19,6 +19,7 @@ spec:
 {% endfor %}
 {% endif %}
     spec:
+      serviceAccountName: benchmark-operator
 {% if workload_args.runtime_class is defined %}
       runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}

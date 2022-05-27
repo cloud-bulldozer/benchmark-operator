@@ -1,7 +1,4 @@
 {% if metadata.collection is sameas true and metadata.targeted is sameas true %}
-{% if metadata.serviceaccount != "default" %}
-      serviceAccountName: {{ metadata.serviceaccount }}
-{% endif %}
       initContainers:
       - name: backpack
         image: {{ metadata.image }}

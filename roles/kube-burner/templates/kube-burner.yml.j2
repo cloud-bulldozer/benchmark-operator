@@ -24,7 +24,7 @@ spec:
 {% endif %}
       tolerations: {{ workload_args.tolerations|default([]) }}
       restartPolicy: Never
-      serviceAccountName: kube-burner
+      serviceAccountName: benchmark-operator
       nodeSelector:
 {% if workload_args.pin_server is defined and workload_args.pin_server is mapping %}
 {% for label, value in  workload_args.pin_server.items() %}

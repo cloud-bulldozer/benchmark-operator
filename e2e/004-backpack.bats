@@ -27,12 +27,6 @@ indexes=(cpu_vulnerabilities-metadata cpuinfo-metadata dmidecode-metadata k8s_no
 
 setup_file() {
   basic_setup
-  kubectl apply -f ../resources/backpack_role.yaml --overwrite
-}
-
-
-teardown_file() {
-  kubectl delete -f ../resources/backpack_role.yaml
 }
 
 teardown() {

@@ -5,13 +5,6 @@ nameOverride: ""
 
 # -- (string) overrides naming of all resources
 fullnameOverride: "benchmark-operator"
-
-# -- map for custom cluster roles for certain benchmarks like kubevirt
-rbac:
-  clusterRoles:
-    kubevirt: false
-    selfProvisioner: false
-
 operator:
 
   # -- how many replicas for the operator deployment

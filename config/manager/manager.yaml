@@ -79,7 +79,7 @@ spec:
         volumeMounts:
           - mountPath: /data
             name: data
-      serviceAccountName: operator
+      serviceAccountName: benchmark-operator
       terminationGracePeriodSeconds: 10
       volumes:
         - name: data

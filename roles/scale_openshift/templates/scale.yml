@@ -89,6 +89,6 @@ spec:
 {% endif %}
             ;
             sleep {{post_sleep|default(0)}}"
-      serviceAccountName: {{workload_args.serviceaccount|default("default")}}
+      serviceAccountName: benchmark-operator
       restartPolicy: Never
 {% include "metadata.yml.j2" %}

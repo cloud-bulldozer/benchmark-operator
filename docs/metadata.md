@@ -36,9 +36,6 @@ the workload template with an init container section that looks like:
 
 ```jinja
 {% if metadata.collection is sameas true and metadata.targeted is sameas true %}
-{% if metadata.serviceaccount != "default" %}
-      serviceAccountName: {{ metadata.serviceaccount }}
-{% endif %}
       initContainers:
       - name: backpack-{{ trunc_uuid }}
         image: {{ metadata.image }}
@@ -259,71 +256,6 @@ To enable ssl verification:
 ```yaml
 metadata:
   ssl: true
-```
-
-### Additional k8s Information
-
-There are multiple kubernetes (k8s) based modules that are run in stockpile.
-These modules are not accessable by default as the default service account
-that runs the pod does not have the required privileges to view them. 
-
-To allow the pods view permissions on the cluster you can apply
-the following yaml to create a service account with the appropriate 
-privileges.
-
-You will need to change the namespace to fit with your environment
-Note: You can also find this yaml in [backpack_role.yaml](../resources/backpack_role.yaml)
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: backpack_role
-rules:
-- apiGroups:
-  - "*"
-  resources:
-  - "*"
-  verbs:
-  - get
-  - list
-  - watch
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: backpack-view
-  namespace: benchmark-operator
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: backpack-view
-  namespace: benchmark-operator
-  annotations:
-    kubernetes.io/service-account.name: backpack-view
-type: kubernetes.io/service-account-token
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: backpack-view
-  namespace: benchmark-operator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: backpack_role
-subjects:
-- kind: ServiceAccount
-  name: backpack-view
-  namespace: benchmark-operator
-```
-
-Once the `backpack-view` service account is created you can modify the default backpack service account setting:
-
-```yaml
-metadata:
-  serviceaccount: backpack-view
 ```
 
 ### Stockpile tags

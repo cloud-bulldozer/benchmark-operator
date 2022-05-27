@@ -34,12 +34,7 @@ ES_INDEX=openshift-cluster-timings
 setup_file() {
   # Prevent running scale down/up simultaneously
   export BATS_NO_PARALLELIZE_WITHIN_FILE=true
-  kubectl_exec apply -f ../resources/scale_role.yaml
   basic_setup
-}
-
-teardown_file() {
-  kubectl_exec delete -f ../resources/scale_role.yaml
 }
 
 teardown() {

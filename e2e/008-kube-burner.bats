@@ -83,12 +83,10 @@ ES_INDEX=ripsaw-kube-burner
 
 setup_file() {
   basic_setup
-  kubectl apply -f ../resources/kube-burner-role.yml
   kubectl apply -f kube-burner/configmap-cfg.yaml
 }
 
 teardown_file() {
-  kubectl delete -f ../resources/kube-burner-role.yml
   kubectl delete -f kube-burner/configmap-cfg.yaml
 }
 
