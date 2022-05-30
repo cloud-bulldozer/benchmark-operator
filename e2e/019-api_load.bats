@@ -5,7 +5,7 @@
 load helpers.bash
 
 
-@test "api-load-standard" {
+@test "api_load-standard" {
   CR=api_load/api_load.yaml
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
