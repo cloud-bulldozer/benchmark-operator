@@ -44,12 +44,11 @@ jobs:
       run: make install-bats
 
     - name: Authenticate against OCP cluster
-      uses: redhat-actions/oc-login@v1
-      with:
-        openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
-        openshift_username: ${{ secrets.OPENSHIFT_USER }}
-        openshift_password: ${{ secrets.OPENSHIFT_PASSWORD }}
-        insecure_skip_tls_verify: true
+      run: oc login -u ${OPENSHIFT_USER} -p ${OPENSHIFT_PASSWORD} ${OPENSHIFT_SERVER} --insecure-skip-tls-verify=true
+      env:
+        OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+        OPENSHIFT_USER: ${{ secrets.OPENSHIFT_USER }}
+        OPENSHIFT_PASSWORD: ${{ secrets.OPENSHIFT_PASSWORD }}
 
     - name: Login in quay
       run: podman login quay.io -u ${QUAY_USER} -p ${QUAY_TOKEN}
@@ -64,7 +63,7 @@ jobs:
       run: kubectl rollout status -n benchmark-operator --timeout=5m deploy/benchmark-controller-manager
 
     - name: Execute e2e tests
-      run: make e2e-tests
+      run: e2e/run_tests_ci.sh
       env:
         TERM: linux
 
