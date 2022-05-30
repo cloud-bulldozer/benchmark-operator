@@ -1,4 +1,4 @@
-Makefile|\.md$|servicemesh|benchmark_state|LICENSE|PROJECT|^charts:skip
+kustomization\.yaml|Makefile|\.md$|servicemesh|benchmark_state|LICENSE|PROJECT|^charts:skip
 api_load:api-load
 backpackbackpack
 byowl:byowl

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 select_tests(){
-  for f in $(git diff --name-only); do
+  for f in $(git diff --name-only origin/master); do
     found=false
     while read -r t; do
       regex=$(echo ${t} | cut -d : -f 1)
