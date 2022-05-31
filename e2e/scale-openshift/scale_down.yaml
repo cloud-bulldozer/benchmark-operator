@@ -7,7 +7,7 @@ spec:
   metadata:
     collection: true
   system_metrics:
-    collection: true
+    collection: false
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}

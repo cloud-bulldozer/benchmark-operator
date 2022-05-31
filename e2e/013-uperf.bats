@@ -12,7 +12,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 
@@ -21,7 +21,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 
@@ -30,7 +30,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 
@@ -39,7 +39,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 
@@ -48,7 +48,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 
@@ -57,7 +57,7 @@ ES_INDEX=ripsaw-uperf-results
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   check_es
 }
 

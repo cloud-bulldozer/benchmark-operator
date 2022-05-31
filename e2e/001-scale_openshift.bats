@@ -13,7 +13,7 @@ ES_INDEX=openshift-cluster-timings
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900
+  check_benchmark 1200
   # Make node no schedulable as soon as benchmark finishes
   kubectl cordon $(kubectl get node --sort-by='{.metadata.creationTimestamp}' -o name | tail -1)
   # Annotate machine to ensure it's the one deleted in the scale-down test
@@ -27,7 +27,7 @@ ES_INDEX=openshift-cluster-timings
   CR_NAME=$(get_benchmark_name ${CR})
   envsubst < ${CR} | kubectl apply -f -
   get_uuid "${CR_NAME}"
-  check_benchmark 900 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
+  check_benchmark 1200 || die "Timeout waiting for benchmark/${CR_NAME} to complete"
   check_es
 }
 
