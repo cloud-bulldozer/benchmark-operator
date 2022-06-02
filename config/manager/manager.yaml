@@ -63,7 +63,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
       - name: redis-master
-        image: bitnami/redis:latest
+        image: bitnami/redis:6.2.7
         env:
           - name: MASTER
             value: "true"
