@@ -63,7 +63,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 10
       - name: redis-master
-        image: bitnami/redis:latest
+        image: quay.io/cloud-bulldozer/redis:latest
         env:
           - name: MASTER
             value: "true"
@@ -77,7 +77,7 @@ spec:
           limits:
             cpu: "2.0"
         volumeMounts:
-          - mountPath: /redis-master-data
+          - mountPath: /data
             name: data
       serviceAccountName: operator
       terminationGracePeriodSeconds: 10
