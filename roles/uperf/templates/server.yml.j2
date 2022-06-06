@@ -62,7 +62,7 @@ items:
             imagePullPolicy: Always
             command: ["/bin/sh","-c"]
             args: ["uperf -s -v -P {{ control_port|int + item|int * 100 }}"]
-          restartPolicy: OnFailure
+          restartPolicy: Never
 {% if workload_args.pin is sameas true %}
           nodeSelector:
             kubernetes.io/hostname: '{{ workload_args.pin_server }}'
