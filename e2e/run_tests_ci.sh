@@ -23,14 +23,11 @@ select_tests(){
     # run all tests
     if [[ ${found} == "false" ]]; then
       echo "File ${f} not found in test_map, running all tests"
+      BATS_TESTS=.
       break
     fi
   done
-
-  # No exporting BATS_TESTS means, run all tests
-  if [[ ${found} == "true" ]]; then
-    export BATS_TESTS
-  fi
+  export BATS_TESTS
 }
 
 if [[ -z ${BATS_TESTS} ]]; then
