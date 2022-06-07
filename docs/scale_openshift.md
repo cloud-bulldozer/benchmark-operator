@@ -12,8 +12,6 @@ The scale workload takes the following required variables:
 
 `scale` the target number of workers to scale to.
 
-`serviceaccount` the service account to run as. Note the "default" account generally does not have enough privileges
-
 Optional variables:
 
 `poll_interval` how long, in seconds, to wait between polls to see if the scaling is complete. default: 5
@@ -62,7 +60,6 @@ spec:
     name: scale_openshift
     args:
       scale: 25
-      serviceaccount: scaler
       poll_interval: 2
       post_sleep: 300
       label:
@@ -85,46 +82,3 @@ spec:
 *NOTE:* If the cluster is already at the desired scale the timings will still be captured and uploaded to
 Elasticsearch (if provided). The overall time will simply be the time it took the scale process to confirm
 that the cluster is at the correct scale.
-
-## Service Account and Permissions
-
-The default service account generally does not have the required visibility/permissions to allow the Scale job
-to modify the cluster machine sets. An example service account setup has been provided in resources/scale_role.yaml
-as well as described below:
-
-```
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: scale_role
-rules:
-- apiGroups:
-  - "*"
-  resources:
-  - machines
-  - machinesets
-  - nodes
-  - infrastructures
-  verbs:
-  - '*'
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: scaler
-  namespace: benchmark-operator
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: scaler
-  namespace: benchmark-operator
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: scale_role
-subjects:
-- kind: ServiceAccount
-  name: scaler
-  namespace: benchmark-operator
-```
