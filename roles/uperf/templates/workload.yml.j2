@@ -49,7 +49,6 @@ items:
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
           hostNetwork: true
-          serviceAccountName: benchmark-operator
 {% endif %}
           affinity:
             podAntiAffinity:
