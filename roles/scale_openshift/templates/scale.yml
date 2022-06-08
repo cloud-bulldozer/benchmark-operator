@@ -89,6 +89,5 @@ spec:
 {% endif %}
             ;
             sleep {{post_sleep|default(0)}}"
-      serviceAccountName: benchmark-operator
       restartPolicy: Never
 {% include "metadata.yml.j2" %}
