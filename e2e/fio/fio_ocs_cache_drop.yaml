@@ -5,7 +5,7 @@ metadata:
   namespace: benchmark-operator
 spec:
   system_metrics:
-    collection: true
+    collection: false
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
@@ -14,7 +14,7 @@ spec:
     url: ${ES_SERVER}
     index_name: ripsaw-fio
   metadata:
-    collection: true
+    collection: false
   cleanup: false
   workload:
     name: "fio_distributed"
@@ -24,9 +24,7 @@ spec:
       samples: 1
       servers: 2
       jobs:
-        - randwrite
-        - randread
-        - randrw
+        - write
       bs:
         - 4KiB
       numjobs:
@@ -49,37 +47,5 @@ spec:
         - time_based=1
         - fsync_on_close=1
         - create_on_open=1
-        - runtime={{ workload_args.write_runtime }}
-        - ramp_time={{ workload_args.write_ramp_time }}
-    - jobname_match: read
-      params:
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: rw
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: readwrite
-      params:
-        - rwmixread=50
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: randread
-      params:
-        - time_based=1
-        - runtime={{ workload_args.read_runtime }}
-        - ramp_time={{ workload_args.read_ramp_time }}
-    - jobname_match: randwrite
-      params:
-        - time_based=1
-        - runtime={{ workload_args.write_runtime }}
-        - ramp_time={{ workload_args.write_ramp_time }}
-    - jobname_match: randrw
-      params:
-        - time_based=1
         - runtime={{ workload_args.write_runtime }}
         - ramp_time={{ workload_args.write_ramp_time }}

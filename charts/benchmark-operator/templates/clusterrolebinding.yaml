@@ -1,14 +1,14 @@
-{{ if .Values.rbac.clusterRoles.selfProvisioner }}
-apiVersion: rbac.authorization.k8s.io/v1
+---
 kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: {{ include "benchmark-operator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: self-provisioner
+  name: cluster-admin
 subjects:
 - kind: ServiceAccount
   name: {{ include "benchmark-operator.fullname" . }}
   namespace: {{ .Release.Namespace }}
-{{ end }}

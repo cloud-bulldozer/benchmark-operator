@@ -81,5 +81,5 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-      serviceAccountName: {{ metadata.serviceaccount }}
+      serviceAccountName: benchmark-operator
       terminationGracePeriodSeconds: 30

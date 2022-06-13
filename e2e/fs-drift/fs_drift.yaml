@@ -1,31 +1,31 @@
----
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: smallfile-hostpath
+  name: fs-drift-benchmark
   namespace: benchmark-operator
 spec:
   test_user: homer_simpson
   # to separate this test run from everyone else's
   clustername: test_ci
   system_metrics:
-    collection: false
+    collection: true
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
     metrics_profile: node-metrics.yml
+  # where elastic search is running
   elasticsearch:
     url: ${ES_SERVER}
-    index_name: ripsaw-smallfile
+    index_name: ripsaw-fs-drift
   metadata:
-    collection: false
-  hostpath: /mnt/vda1/smallfile
+    collection: true
   workload:
-    name: smallfile
+    name: fs-drift
     args:
-      clients: 1
-      operation: ["create", "read", "append", "delete"]
-      threads: 1
-      file_size: 0
-      files: 100000
+      worker_pods: 1
+      threads: 5
+      max_file_size_kb: 4
+      max_files: 1000
+      duration: 240
       debug: true
+      response_times: true

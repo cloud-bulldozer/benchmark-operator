@@ -7,7 +7,7 @@ spec:
   metadata:
     collection: true
   system_metrics:
-    collection: true
+    collection: false
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
@@ -19,6 +19,5 @@ spec:
     name: scale_openshift
     args:
       scale: 0
-      serviceaccount: scaler
       poll_interval: 2
       debug: true

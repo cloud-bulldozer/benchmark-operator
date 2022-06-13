@@ -16,3 +16,4 @@ spec:
         imagePullPolicy: IfNotPresent
         name: busybox
       restartPolicy: Never
+      terminationGracePeriodSeconds: 0
