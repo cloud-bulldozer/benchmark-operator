@@ -16,7 +16,7 @@ operator:
     tag: latest
 
   redisImage:
-    repository: bitnami/redis
+    repository: quay.io/cloud-bulldozer/redis
     pullPolicy: Always
     tag: latest
 
