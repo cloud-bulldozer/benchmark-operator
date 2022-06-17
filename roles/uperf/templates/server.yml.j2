@@ -24,7 +24,7 @@ spec:
         benchmark-operator-workload: uperf
         benchmark-operator-role: server
         app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
-        serverindex: "{{item}}"
+        index: "{{item}}"
         type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
 {% if workload_args.multus.enabled is sameas true %}
       annotations:

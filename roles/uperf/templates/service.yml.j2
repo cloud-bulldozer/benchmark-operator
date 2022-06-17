@@ -9,6 +9,7 @@ metadata:
     benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: uperf
     app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    index: "{{item}}"
     type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
 spec:
   selector:
