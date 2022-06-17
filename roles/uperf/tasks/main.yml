@@ -174,7 +174,7 @@
   
   - name: set pod_sequence
     set_fact:
-      pod_sequence: "{{ workload_args.pair|int * 2}}"
+      pod_sequence: "{{ workload_args.pair|int - 1}}"
 
   - name: Generate uperf xml files
     k8s:

@@ -5,7 +5,7 @@ apiVersion: batch/v1
 metadata:
 {% if workload_args.serviceip is sameas true %}
 {% if workload_args.servicetype | default("clusterip") == "nodeport" %}
-  name: 'uperf-client-{{item.status.hostIP}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item.status.hostIP}}-{{ item.metadata.labels.serverindex|int }}-{{ trunc_uuid }}'
 {% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
   name: 'uperf-client-{{item.status.loadBalancer.ingress[0].ip}}-{{ trunc_uuid }}'
 {% else %}
