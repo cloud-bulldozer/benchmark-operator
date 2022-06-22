@@ -1,0 +1,21 @@
+---
+
+- name: Clear start flag 
+  command: "redis-cli set start-{{trunc_uuid}} 0"
+
+- name: Clear num_completion
+  command: "redis-cli set num_completion-{{trunc_uuid}} 0"
+
+- name: Init node and pod indices in benchmark context
+  operator_sdk.util.k8s_status:
+     api_version: ripsaw.cloudbulldozer.io/v1alpha1
+     kind: Benchmark
+     name: "{{ ansible_operator_meta.name }}"
+     namespace: "{{ operator_namespace }}"
+     status:
+        pod_hi_idx: "{{pod_hi_idx}}"
+        pod_low_idx: "{{pod_low_idx}}"
+        node_hi_idx: "{{node_hi_idx}}"
+        node_low_idx: "{{node_low_idx}}"
+        node_idx: "{{node_low_idx}}"
+        pod_idx: "{{pod_low_idx}}"

@@ -1,0 +1,11 @@
+---
+# vars file for uperf-scale
+cleanup: true
+worker_node_list: []
+pod_low_idx: "0"
+pod_hi_idx: "0"
+node_low_idx: "0"
+node_hi_idx: "0"
+node_idx: "0"
+pod_idx: "0"
+all_run_done: false

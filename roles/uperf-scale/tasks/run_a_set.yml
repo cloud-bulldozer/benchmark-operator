@@ -1,0 +1,26 @@
+---
+
+- block:
+  #
+  # Entry Condition: 
+  #    1. A previous task has set 'node_idx' and 'pod_idx' in benchmark ctx
+  #    2. All cliest are polling redis for 'start-node_idx-pod_idx' to start
+  # Output: Clients with node_idx <= redis node_idx && pod_idx <= redis pod_ix will run
+  #
+
+  - name: Signal group to run
+    command: "redis-cli set start-{{trunc_uuid}} true-{{benchmark_state.resources[0].status.node_idx|int}}-{{benchmark_state.resources[0].status.pod_idx|int}}"
+
+  - name: Update state to "Set Running"
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Set Running
+  when: resource_kind == "pod"
+
+#
+# No <VM> kind - It has not been adapted to Scale mode
+#

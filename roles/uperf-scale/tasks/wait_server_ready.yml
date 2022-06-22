@@ -1,0 +1,24 @@
+---
+- block:
+  ### <POD> kind
+
+  - name: Get server pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Clients"
+    when: "num_server_pods|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+
+  when: resource_kind == "pod"

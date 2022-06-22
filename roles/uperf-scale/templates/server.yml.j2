@@ -1,0 +1,83 @@
+---
+{% set control_port = 30000 %}
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+{% macro job_template(item, node_idx_item='') %}
+  - kind: Job
+    apiVersion: batch/v1
+    metadata:    
+{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
+      name: 'uperf-scale-server-{{worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}'
+{% else %}
+      name: 'uperf-scale-server-{{worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}'
+{% endif %}
+      namespace: "{{ operator_namespace }}"
+{% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.server_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
+    spec:
+      ttlSecondsAfterFinished: 600
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            benchmark-uuid: {{ uuid }}
+            benchmark-operator-workload: uperf-scale
+            benchmark-operator-role: server
+{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
+            app: uperf-scale-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item  }}-{{ trunc_uuid }}
+{% else %}
+            app: uperf-scale-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item  }}-{{ trunc_uuid }}
+{% endif %}
+
+            type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+          annotations:
+{% if workload_args.multus.enabled is sameas true %}
+            k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
+{% endif %}
+            node_idx: '{{ node_idx_item }}'
+            pod_idx: '{{ item }}'
+        spec:
+{% if workload_args.runtime_class is defined %}
+          runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.hostnetwork is sameas true %}
+          hostNetwork: true
+{% endif %}
+          containers:
+          - name: benchmark
+            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+{% if workload_args.server_resources is defined %}
+            resources: {{ workload_args.server_resources | to_json }}
+{% endif %}
+            imagePullPolicy: Always
+            command: ["/bin/sh","-c"]
+            args: ["uperf -s -v -P {{ control_port|int + item|int * 100 }}"]
+          restartPolicy: Never
+          nodeSelector:
+            kubernetes.io/hostname: '{{ worker_node_list[node_idx_item] }}'
+
+{% if workload_args.serviceip is sameas true %}
+          securityContext:
+            sysctls:
+            - name: net.ipv4.ip_local_port_range
+              value: 30000 32011
+{% endif %}
+{% filter indent(width=4, first=True) %}
+{% include "metadata.yml.j2" %}
+{% endfilter %}
+{% endmacro %}
+{% for node_idx_item in range(node_sequence|int)  %}
+{% for item in range(pod_sequence|int)  %}
+{{ job_template(item,node_idx_item) }}
+{% endfor %}
+{% endfor %}
+
