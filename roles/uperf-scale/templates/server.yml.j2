@@ -32,6 +32,7 @@ items:
             benchmark-uuid: {{ uuid }}
             benchmark-operator-workload: uperf-scale
             benchmark-operator-role: server
+            index: "{{ item }}"
 {% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
             app: uperf-scale-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item  }}-{{ trunc_uuid }}
 {% else %}
