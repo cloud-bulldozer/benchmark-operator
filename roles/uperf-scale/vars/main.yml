@@ -1,6 +1,6 @@
 ---
 # vars file for uperf-scale
-cleanup: true
+cleanup: false
 worker_node_list: []
 pod_low_idx: "0"
 pod_hi_idx: "0"

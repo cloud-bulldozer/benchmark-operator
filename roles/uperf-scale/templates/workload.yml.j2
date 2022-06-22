@@ -77,7 +77,7 @@ items:
               - name: es
                 value: "{{ elasticsearch.url }}"
               - name: es_index
-                value: "{{ elasticsearch.index_name | default("ripsaw-uperf-scale") }}"
+                value: "{{ elasticsearch.index_name | default("ripsaw-uperf") }}"
               - name: parallel
                 value: "{{ elasticsearch.parallel | default(false) }}"
               - name: es_verify_cert

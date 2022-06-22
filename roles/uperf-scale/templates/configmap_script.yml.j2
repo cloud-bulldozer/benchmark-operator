@@ -9,7 +9,7 @@ data:
     export h={{item.status.interfaces[0].ipAddress}}
 {% if elasticsearch.url %}
     export es={{ elasticsearch.url }}
-    export es_index={{ elasticsearch.index_name | default("ripsaw-uperf-scale") }}
+    export es_index={{ elasticsearch.index_name | default("ripsaw-uperf") }}
     export es_verify_cert={{ elasticsearch.verify_cert | default(true) }}
     export parallel={{ elasticsearch.parallel | default(false) }}
     export uuid={{uuid}}
