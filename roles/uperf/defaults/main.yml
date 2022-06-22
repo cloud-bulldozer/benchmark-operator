@@ -1,9 +1,0 @@
----
-# defaults file for uperf-scale
-resource_kind: "{{ workload.args.kind | default('pod') }}"
-uperf:
-  proto: tcp
-  test_type: stream
-  nthr: 1
-  size: 1024
-  runtime: 60
