@@ -13,6 +13,7 @@ items:
       labels:
         benchmark-uuid: {{ uuid }}
         benchmark-operator-workload: uperf
+        index: "{{item}}"
 {% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
         app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% else %}
