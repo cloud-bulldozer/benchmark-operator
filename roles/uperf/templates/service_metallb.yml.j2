@@ -8,6 +8,7 @@ metadata:
     benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: uperf
     app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    index: "{{ item }}"
     type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
   annotations:
     metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
@@ -38,6 +39,7 @@ metadata:
     benchmark-uuid: {{ uuid }}
     benchmark-operator-workload: uperf
     app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    index: "{{ item }}"
     type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}-udp
   annotations:
     metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
