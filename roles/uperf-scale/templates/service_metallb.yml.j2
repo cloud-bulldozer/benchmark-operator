@@ -7,7 +7,11 @@ items:
   - kind: Service
     apiVersion: v1
     metadata:
-      name:  uperf-scale-service-{{ item }}-{{ trunc_uuid }}
+{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
+      name: uperf-scale-service-{{worker_node_list[node_idx_item] | truncate(26,true,'') | replace('.','-')}}-{{ item }}-{{ trunc_uuid }}
+{% else %}
+      name: uperf-scale-service-{{worker_node_list[node_idx_item] | truncate(27,true,'') | replace('.','-')}}-{{ item }}-{{ trunc_uuid }}
+{% endif %}
       namespace: '{{ operator_namespace }}'
       labels:
         benchmark-uuid: {{ uuid }}

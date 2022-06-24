@@ -23,7 +23,7 @@ data:
     {% if ( 'rr' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + item|int * 100 + 1 }}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item|int * 100)) + 1 }}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=write options="size={{wsize}}"/>
@@ -36,7 +36,7 @@ data:
     {% if ( 'stream' == test or 'bidirec' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + item|int * 100 + 1 }}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item|int * 100)) + 1 }}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=write options="count=16 size={{wsize}}"/>
@@ -49,7 +49,7 @@ data:
     {% if ( 'maerts' == test or 'bidirec' == test ) %}
       <group nthreads="{{nthr}}">
           <transaction iterations="1">
-            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + item|int * 100 + 1 }}"/>
+            <flowop type="connect" options="remotehost=$h protocol={{proto}} port={{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item|int * 100)) + 1 }}"/>
           </transaction>
           <transaction duration="{{workload_args.runtime}}">
             <flowop type=read options="count=16 size={{rsize}}"/>
