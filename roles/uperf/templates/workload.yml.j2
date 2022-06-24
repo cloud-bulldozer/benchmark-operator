@@ -120,7 +120,7 @@ spec:
           - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
-             export port={{ control_port|int + item.metadata.labels.index|int * 100 }}
+             export port={{ control_port + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item.metadata.labels.index|int * 100))}}
 {% if workload_args.networkpolicy is defined %}
              export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
