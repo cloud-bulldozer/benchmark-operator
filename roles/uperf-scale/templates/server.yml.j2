@@ -1,5 +1,12 @@
 ---
 {% set control_port = 30000 %}
+{% set counter = {
+    'counter': 0,
+    } 
+%}
+{% macro increment(dct, key, inc=1)%}
+    {% if dct.update({key: dct[key] + inc}) %} {% endif %}
+{% endmacro %}
 apiVersion: v1
 kind: List
 metadata: {}
@@ -32,7 +39,14 @@ items:
             benchmark-uuid: {{ uuid }}
             benchmark-operator-workload: uperf-scale
             benchmark-operator-role: server
+{% if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "nodeport" )) %}
+            index: "{{ counter["counter"] }}"
+{% set port_index = counter["counter"] %}
+{{ increment(counter, 'counter') }}
+{% else %}
+{% set port_index = item %}
             index: "{{ item }}"
+{% endif %}
 {% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
             app: uperf-scale-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item  }}-{{ trunc_uuid }}
 {% else %}
@@ -61,7 +75,7 @@ items:
 {% endif %}
             imagePullPolicy: Always
             command: ["/bin/sh","-c"]
-            args: ["uperf -s -v -P {{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item|int * 100)) }}"]
+            args: ["uperf -s -v -P {{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (port_index * 100)) }}"]
           restartPolicy: Never
           nodeSelector:
             kubernetes.io/hostname: '{{ worker_node_list[node_idx_item] }}'

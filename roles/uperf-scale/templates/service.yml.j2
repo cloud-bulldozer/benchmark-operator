@@ -1,5 +1,12 @@
 ---
 {% set control_port = 30000 %}
+{% set counter = {
+    'counter': 0,
+    } 
+%}
+{% macro increment(dct, key, inc=1)%}
+    {% if dct.update({key: dct[key] + inc}) %} {% endif %}
+{% endmacro %}
 apiVersion: v1
 kind: List
 metadata: {}
@@ -8,20 +15,23 @@ items:
   - kind: Service
     apiVersion: v1
     metadata:
-{% if (workload_args.servicetype | default("clusterip") == "clusterip") %}
 {% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
       name: uperf-scale-service-{{worker_node_list[node_idx_item] | truncate(26,true,'') | replace('.','-')}}-{{ item }}-{{ trunc_uuid }}
 {% else %}
       name: uperf-scale-service-{{worker_node_list[node_idx_item] | truncate(27,true,'') | replace('.','-')}}-{{ item }}-{{ trunc_uuid }}
 {% endif %}
-{% else %}
-      name: uperf-service-{{ item }}-{{ trunc_uuid }}
-{% endif %}
       namespace: '{{ operator_namespace }}'
       labels:
         benchmark-uuid: {{ uuid }}
         benchmark-operator-workload: uperf-scale
+{% if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "nodeport" )) %}
+        index: "{{ counter["counter"] }}"
+{% set port_index = counter["counter"] %}
+{{ increment(counter, 'counter') }}
+{% else %}
+{% set port_index = item %}
         index: "{{ item }}"
+{% endif %}
 {% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
         app: uperf-scale-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
 {% else %}
@@ -42,20 +52,20 @@ items:
       type: NodePort
       ports:
       - name: uperf-scale
-        port: {{ control_port|int + item|int * 100 }}
-        targetPort: {{ control_port|int + item|int * 100 }}
-        nodePort: {{ control_port|int + item * 100 }} 
+        port: {{ control_port|int + port_index * 100 }}
+        targetPort: {{ control_port|int + port_index * 100 }}
+        nodePort: {{ control_port|int + port_index * 100 }} 
         protocol: TCP
 {% for num in range(1,12,1) %}
-      - name: uperf-scale-control-tcp-{{ control_port|int + item * 100 + num }}
-        port: {{ control_port|int + item * 100 + num }}
-        targetPort: {{ control_port|int + item * 100 + num }}
-        nodePort: {{ control_port|int + item * 100 + num }}
+      - name: uperf-scale-control-tcp-{{ control_port|int + port_index * 100 + num }}
+        port: {{ control_port|int + port_index * 100 + num }}
+        targetPort: {{ control_port|int + port_index * 100 + num }}
+        nodePort: {{ control_port|int + port_index * 100 + num }}
         protocol: TCP
-      - name: uperf-scale-control-udp-{{ control_port|int + item * 100 + num }}
-        port: {{ control_port|int + item * 100 + num }}
-        targetPort: {{ control_port|int + item * 100 + num }}
-        nodePort: {{ control_port|int + item * 100 + num }}
+      - name: uperf-scale-control-udp-{{ control_port|int + port_index * 100 + num }}
+        port: {{ control_port|int + port_index * 100 + num }}
+        targetPort: {{ control_port|int + port_index * 100 + num }}
+        nodePort: {{ control_port|int + port_index * 100 + num }}
         protocol: UDP
 {% endfor %}
 {% else %}

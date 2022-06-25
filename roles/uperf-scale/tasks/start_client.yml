@@ -11,7 +11,7 @@
 
 - name: set pod_sequence
   set_fact:
-    pod_sequence: "{{ pod_hi_idx|int }}"
+    pod_sequence: "{{ (num_server_pods|int - 1) if (workload_args.serviceip|default(False) == True and workload_args.servicetype | default('clusterip') == 'nodeport') else (pod_hi_idx|int) }}"
 
 - name: Generate uperf-scale xml files
   k8s:
