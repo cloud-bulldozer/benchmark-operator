@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf-scale-networkpolicy
+  name: uperf-scale-resources
   namespace: benchmark-operator
 spec:
   system_metrics:
@@ -19,9 +19,16 @@ spec:
   workload:
     name: uperf-scale
     args:
-      hostnetwork: false
+      client_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      server_resources:
+        requests:
+          cpu: 100m
+          memory: 100Mi
+      hostnetwork: true
       serviceip: false
-      networkpolicy: true
       multus:
         enabled: false
       samples: 2
@@ -29,7 +36,6 @@ spec:
       test_types:
         - stream
         - rr
-        - bidirec
       protos:
         - tcp
         - udp
@@ -42,6 +48,6 @@ spec:
       runtime: 2
       colocate: false
       density_range: [1, 1]
-      node_range: [1, 5]
+      node_range: [1, 1]
       step_size: add1
       debug: true

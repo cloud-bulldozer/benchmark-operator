@@ -1,7 +1,7 @@
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf-scale-networkpolicy
+  name: uperf-scale-serviceip-nodeport
   namespace: benchmark-operator
 spec:
   system_metrics:
@@ -20,8 +20,8 @@ spec:
     name: uperf-scale
     args:
       hostnetwork: false
-      serviceip: false
-      networkpolicy: true
+      serviceip: true
+      servicetype: "nodeport"
       multus:
         enabled: false
       samples: 2
@@ -29,7 +29,6 @@ spec:
       test_types:
         - stream
         - rr
-        - bidirec
       protos:
         - tcp
         - udp
@@ -38,7 +37,6 @@ spec:
         - 512
       nthrs:
         - 1
-        - 2
       runtime: 2
       colocate: false
       density_range: [1, 1]
