@@ -10,7 +10,7 @@ items:
     metadata:
 {% if workload_args.serviceip is sameas true %}
 {% if workload_args.servicetype | default("clusterip") == "nodeport" %}
-      name: 'uperf-client-{{item.status.hostIP}}-{{ loop.index - 1 }}-{{ trunc_uuid }}'
+      name: 'uperf-client-{{item.status.hostIP}}-{{ item.metadata.labels.index|int }}-{{ trunc_uuid }}'
 {% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
       name: 'uperf-client-{{item.status.loadBalancer.ingress[0].ip}}-{{ trunc_uuid }}'
 {% else %}
@@ -125,7 +125,8 @@ items:
               - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
-                 export port={{ control_port + (loop.index - 1) * 100 }}
+                 export port={{ control_port + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item.metadata.labels.index|int * 100))}}
+
 {% if (workload_args.colocate is defined) %}
                  export colocate={{ workload_args.colocate}};
 {% endif %}
@@ -219,7 +220,7 @@ items:
           volumes:
             - name: config-volume
               configMap:
-                name: uperf-test-{{ loop.index - 1 }}-{{ trunc_uuid }}
+                name: uperf-test-{{ item.metadata.labels.index|int }}-{{ trunc_uuid }}
           restartPolicy: Never
 {% if workload_args.pin is sameas false %}
 {% if workload_args.colocate is sameas true %}
