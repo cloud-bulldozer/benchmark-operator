@@ -90,7 +90,7 @@ Benchmark-operator includes a series of end 2 end tests that can be triggered in
 Optional locations for workload images can now be added easily without the need to rebuild the operator.
 To do so in the workload args section of the CR add image: [location]
 
-NOTE: This is not a required arguement. If comitted it will default to the currently verified workload image.
+NOTE: This is not a required argument. If comitted it will default to the currently verified workload image.
 Additionally, this is *NOT* enabled for YCSB
 
 For Example:
@@ -116,7 +116,7 @@ spec:
 Workloads that are triggered through [benchmark-wrapper](https://github.com/cloud-bulldozer/benchmark-wrapper)
 can optionally pass the debug flag through the workload CR.
 
-NOTE: This is not a required arguement. If comitted it will default to the default logging level of
+NOTE: This is not a required argument. If comitted it will default to the default logging level of
 the benchmark-wrapper. 
 
 For Example:
