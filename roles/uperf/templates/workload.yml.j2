@@ -179,14 +179,15 @@ items:
 {% endif %}
 {% for nthr in workload_args.nthrs %}
                      cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
-                     run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+                     command_status=$(run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
 {% if workload_args.run_id is defined %}
                      --run-id {{workload_args.run_id}} \
 {% endif %}
 {% if workload_args.debug is defined and workload_args.debug %}
                      -v \
 {% endif %}
-                 ;
+                 );
+                      exit $command_status
 {% endfor %}
 {% endfor %}
 {% endfor %}
