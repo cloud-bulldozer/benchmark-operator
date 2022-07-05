@@ -155,7 +155,7 @@
     when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
   - name: blocking client from running uperf
-    command: "redis-cli set {{ trunc_uuid }} false"
+    command: "redis-cli set start-{{ trunc_uuid }} false"
     with_items: "{{ server_vms.resources }}"
     when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
@@ -296,7 +296,7 @@
 - block:
 
   - name: Signal workload
-    command: "redis-cli set start true"
+    command: "redis-cli set start-{{ trunc_uuid }} true"
 
   - name: Update resource state
     operator_sdk.util.k8s_status:
