@@ -411,7 +411,7 @@
       command: "{{ item }}"
       with_items:
         - redis-cli del complete
-        - redis-cli del start
+        - redis-cli del start-{{ trunc_uuid }}
     when: resource_kind == "pod"
 
   - operator_sdk.util.k8s_status:
