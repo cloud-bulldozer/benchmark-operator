@@ -1,90 +1,62 @@
 ---
+kind: Service
 apiVersion: v1
-kind: List
-metadata: {}
-items:
-{% macro job_template(item, node_idx_item='') %}
-  - kind: Service
-    apiVersion: v1
-    metadata:
-      name:  uperf-service-{{ item }}-{{ trunc_uuid }}
-      namespace: '{{ operator_namespace }}'
-      labels:
-        benchmark-uuid: {{ uuid }}
-        benchmark-operator-workload: uperf
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% else %}
-        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% endif %}
-        type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
-      annotations:
-        node_idx: '{{ node_idx_item }}'
-        pod_idx: '{{ item }}'
-        metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
-        metallb.universe.tf/allow-shared-ip: uperf-service-{{ item }}-{{ trunc_uuid }}
-    spec:
-      selector:
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% else %}
-        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% endif %}
-      externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
-      type: LoadBalancer
-      ports:
-      - name: uperf
-        port: 30000
-        targetPort: 30000
-        protocol: TCP
+metadata:
+  name: uperf-service-{{ item }}-{{ trunc_uuid }}
+  namespace: '{{ operator_namespace }}'
+  labels:
+    benchmark-uuid: {{ uuid }}
+    benchmark-operator-workload: uperf
+    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    index: "{{ item }}"
+    type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+  annotations:
+    metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
+    metallb.universe.tf/allow-shared-ip: uperf-service-{{ item }}-{{ trunc_uuid }}
+spec:
+  selector:
+    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+  externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
+  type: LoadBalancer
+  ports:
+  - name: uperf
+    port: 30000
+    targetPort: 30000
+    protocol: TCP
 {% for num in range(30001,30012,1) %}
-      - name: uperf-control-tcp-{{num}}
-        port: {{num}}
-        targetPort: {{num}}
-        protocol: TCP
+  - name: uperf-control-tcp-{{num}}
+    port: {{num}}
+    targetPort: {{num}}
+    protocol: TCP
 {% endfor %}
-  - kind: Service
-    apiVersion: v1
-    metadata:
-      name:  uperf-service-{{ item }}-{{ trunc_uuid }}-udp
-      namespace: '{{ operator_namespace }}'
-      labels:
-        benchmark-uuid: {{ uuid }}
-        benchmark-operator-workload: uperf
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% else %}
-        app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% endif %}
-        type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}-udp
-      annotations:
-        node_idx: '{{ node_idx_item }}'
-        pod_idx: '{{ item }}'
-        metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
-        metallb.universe.tf/allow-shared-ip: uperf-service-{{ item }}-{{ trunc_uuid }}
-    spec:
-      selector:
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% else %}
-        app: uperf-bench-server-{{worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}
-{% endif %}
-      externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
-      type: LoadBalancer
-      ports:
-      - name: uperf
-        port: 30000
-        targetPort: 30000
-        protocol: UDP
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: uperf-service-{{ item }}-{{ trunc_uuid }}-udp
+  namespace: '{{ operator_namespace }}'
+  labels:
+    benchmark-uuid: {{ uuid }}
+    benchmark-operator-workload: uperf
+    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+    index: "{{ item }}"
+    type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}-udp
+  annotations:
+    metallb.universe.tf/address-pool: '{{ workload_args.metallb.addresspool | default("addresspool-l2") }}'
+    metallb.universe.tf/allow-shared-ip: uperf-service-{{ item }}-{{ trunc_uuid }}
+spec:
+  selector:
+    app: uperf-bench-server-{{ item }}-{{ trunc_uuid }}
+  externalTrafficPolicy: '{{ workload_args.metallb.service_etp | default("Cluster") }}'
+  type: LoadBalancer
+  ports:
+  - name: uperf
+    port: 30000
+    targetPort: 30000
+    protocol: UDP
 {% for num in range(30001,30012,1) %}
-      - name: uperf-control-tcp-{{num}}
-        port: {{num}}
-        targetPort: {{num}}
-        protocol: UDP
-{% endfor %}
-{% endmacro %}
-{% for node_idx_item in range(node_sequence|int)  %}
-{% for item in range(pod_sequence|int)  %}
-{{ job_template(item,node_idx_item) }}
-{% endfor %}
+  - name: uperf-control-tcp-{{num}}
+    port: {{num}}
+    targetPort: {{num}}
+    protocol: UDP
 {% endfor %}

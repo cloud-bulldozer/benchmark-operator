@@ -1,4 +1,5 @@
 ---
+# defaults file for uperf-scale
 resource_kind: "{{ workload.args.kind | default('pod') }}"
 uperf:
   proto: tcp
