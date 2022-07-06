@@ -1,31 +1,5 @@
 ---
 
-- name: Get current state
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
-- operator_sdk.util.k8s_status:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: "{{ ansible_operator_meta.name }}"
-    namespace: "{{ operator_namespace }}"
-    status:
-      state: Building
-      complete: false
-  when: resource_state.resources[0].status.state is not defined
-
-- name: Get current state - If it has changed
-  k8s_facts:
-    api_version: ripsaw.cloudbulldozer.io/v1alpha1
-    kind: Benchmark
-    name: '{{ ansible_operator_meta.name }}'
-    namespace: '{{ operator_namespace }}'
-  register: resource_state
-
 - name: Capture ServiceIP
   k8s_facts:
     kind: Service
@@ -61,25 +35,13 @@
     register: servers
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
 
-  - name: Wait for pods to be running....
-    k8s_facts:
-      kind: Pod
-      api_version: v1
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
-    register: server_pods
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Starting Servers
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Servers"
-
-  when: resource_state.resources[0].status.state == "Building" and resource_kind == "pod"
+  when: benchmark_state.resources[0].status.state == "Building" and resource_kind == "pod"
 
 - block:
 
@@ -89,25 +51,13 @@
     register: servers
     with_sequence: start=0 count={{ workload_args.pair | default('1')|int }}
 
-  - name: Wait for vms to be running....
-    k8s_facts:
-      kind: VirtualMachineInstance
-      api_version: kubevirt.io/v1alpha3
-      namespace: '{{ operator_namespace }}'
-      label_selectors:
-        - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
-    register: server_vms
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Starting Servers
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Servers"
-
-  when: resource_state.resources[0].status.state == "Building" and resource_kind == "vm"
+  when: benchmark_state.resources[0].status.state == "Building" and resource_kind == "vm"
 
 - block:
 
@@ -120,18 +70,15 @@
         - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_pods
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Clients"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Clients"
     when: "workload_args.pair|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
 
 
-  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
+  when: benchmark_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
 
 - block:
 
@@ -144,14 +91,11 @@
         - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_vms
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Starting Clients"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Clients"
     when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
   - name: blocking client from running uperf
@@ -159,7 +103,7 @@
     with_items: "{{ server_vms.resources }}"
     when: "workload_args.pair|default('1')|int == server_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (server_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
-  when: resource_state.resources[0].status.state == "Starting Servers" and resource_kind == "vm" and workload_args.pair|default('1')|int|int == 1
+  when: benchmark_state.resources[0].status.state == "Starting Servers" and resource_kind == "vm" and workload_args.pair|default('1')|int|int == 1
 
 - block:
 
@@ -231,15 +175,13 @@
 
     when: resource_kind == "vm"
 
-  - operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: Waiting for Clients
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Waiting for Clients"
 
-  when: resource_state.resources[0].status.state == "Starting Clients"
+  when: benchmark_state.resources[0].status.state == "Starting Clients"
 
 - block:
 
@@ -261,6 +203,11 @@
         namespace: "{{ operator_namespace }}"
         status:
           state: Clients Running
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Clients Running
       when: "workload_args.pair|default('1')|int == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (client_pods | json_query('resources[].status.podIP')|length)"
 
     when: resource_kind == "pod"
@@ -279,35 +226,29 @@
           - app = uperf-bench-client-{{ trunc_uuid }}
       register: client_vms
 
-    - name: Update resource state
-      operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Clients Running
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Clients Running
       when: "workload_args.pair|default('1')|int == client_vms | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and workload_args.pair|default('1')|int  == (client_vms | json_query('resources[].status.interfaces[0].ipAddress')|length)"
 
     when: resource_kind == "vm"
 
-  when: resource_state.resources[0].status.state == "Waiting for Clients"
+  when: benchmark_state.resources[0].status.state == "Waiting for Clients"
 
 - block:
 
   - name: Signal workload
     command: "redis-cli set start-{{ trunc_uuid }} true"
 
-  - name: Update resource state
-    operator_sdk.util.k8s_status:
-      api_version: ripsaw.cloudbulldozer.io/v1alpha1
-      kind: Benchmark
-      name: "{{ ansible_operator_meta.name }}"
-      namespace: "{{ operator_namespace }}"
-      status:
-        state: "Running"
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Running
 
-  when: resource_state.resources[0].status.state == "Clients Running"
+  when: benchmark_state.resources[0].status.state == "Clients Running"
 
 - block:
   - block:
@@ -326,14 +267,11 @@
         tasks_from: failure
       when: "(client_pods|json_query('resources[].status[]')|selectattr('phase','match','Failed')|list|length) > 0"
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Cleanup
-          complete: false
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Cleanup
       when: "workload_args.pair|default('1')|int == (client_pods|json_query('resources[].status[]')|selectattr('phase','match','Succeeded')|list|length)"
     when: resource_kind == "pod"
 
@@ -343,18 +281,15 @@
       command: "redis-cli get complete-{{ trunc_uuid }}"
       register: complete_status
 
-    - operator_sdk.util.k8s_status:
-        api_version: ripsaw.cloudbulldozer.io/v1alpha1
-        kind: Benchmark
-        name: "{{ ansible_operator_meta.name }}"
-        namespace: "{{ operator_namespace }}"
-        status:
-          state: Cleanup
-          complete: false
+    - include_role:
+        name: benchmark_state
+        tasks_from: set_state
+      vars:
+        state: Cleanup
       when: complete_status.stdout == "true"
     when: resource_kind == "vm"
 
-  when: resource_state.resources[0].status.state == "Running"
+  when: benchmark_state.resources[0].status.state == "Running"
 
 - block:
 
@@ -429,4 +364,8 @@
         state: Complete
         complete: true
 
+<<<<<<< HEAD
   when: resource_state.resources[0].status.state == "Cleanup"
+=======
+  when: benchmark_state.resources[0].status.state == "Cleanup"
+>>>>>>> 8dfe50a (Affinity rules)

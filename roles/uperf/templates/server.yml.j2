@@ -37,6 +37,16 @@ spec:
 {% if workload_args.hostnetwork is sameas true %}
       hostNetwork: true
 {% endif %}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+            topologyKey: kubernetes.io/hostname
       containers:
       - name: benchmark
         image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}

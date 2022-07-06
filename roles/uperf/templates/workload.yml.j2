@@ -47,6 +47,15 @@ spec:
       serviceAccountName: benchmark-operator
 {% endif %}
       affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
+            topologyKey: kubernetes.io/hostname
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
