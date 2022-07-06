@@ -364,8 +364,4 @@
         state: Complete
         complete: true
 
-<<<<<<< HEAD
-  when: resource_state.resources[0].status.state == "Cleanup"
-=======
   when: benchmark_state.resources[0].status.state == "Cleanup"
->>>>>>> 8dfe50a (Affinity rules)

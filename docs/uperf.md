@@ -54,11 +54,9 @@ spec:
       nthrs:
         - 1
       runtime: 30
-      colocate: false
-      density_range: [low, high]
-      node_range: [low, high]
-      step_size: addN, log2
 ```
+
+ By default, the uperf server and client pods will be preferably scheduled on different nodes, thanks to a `podAntiAffinity` rule. In scenarios with more than 1 pair, all clients and servers will be scheduled to the same node. 
 
 `client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
 
@@ -85,9 +83,6 @@ spec:
 `pin_client` what node to pin the client pod to.
 
 `pair` how many instances of uperf client-server pairs. `pair` is applicable for `pin: true` only.
-If `pair` is not specified, the operator will use the value in `density_range` to detemine the number of pairs.
-See **Scale** section for more info. `density_range` can do more than `pair` can, but `pair` support is retained 
-for backward compatibility.
 
 `multus[1]` Configure our pods to use multus.
 
@@ -203,62 +198,6 @@ To enable Multus in Ripsaw, here is the relevant config.
       pin_client: "openshift-master-1.dev4.kni.lab.eng.bos.redhat.com"
       ...
 
-```
-### Scale
-Scale in this context refers to the ability to enumerate UPERF 
-client-server pairs during test in a control fashion using the following knobs.
-
-`colocate: true` will place each client and server pod pair on the same node.
-
-`density_range` to specify the range of client-server pairs that the test will iterate.
-
-`node_range` to specify the range of nodes that the test will iterate.
-
-`step_size` to specify the incrementing method.
-
-Here is one scale example:
-
-```
-      ...
-      pin: false
-      colocate: false
-      density_range: [1,10]
-      node_range: [1,128]
-      step_size: log2
-      ...
-```
-Note, the `scale` mode is mutually exlusive to `pin` mode with the `pin` mode having higher precedence.
-In other words, if `pin:true` the test will deploy pods on `pin_server` and `pin_client` nodes
-and ignore `colocate`, `node_range`, and the number of pairs to deploy is specified by the
- `density_range.high` value.
-
-In the above sample, the `scale` mode will be activated since `pin: false`. In the first phase, the 
-pod instantion phase, the system gathers node inventory and may reduce the `node_range.high` value 
-to match the number of worker node available in the cluster.
-
-According to `node_range: [1,128]`, and `density_range:[1,10]`, the system will instantiate 10 pairs on 
-each of 128 nodes. Each pair has a node_idx and a pod_idx that are used later to control
-which one and when they should run the UPERF workload, After all pairs are up and ready,
-next comes the test execution phase.
-
-The scale mode iterates the test as a double nested loop as follows:
-```
-   for node with node_idx less-or-equal node_range(low, high. step_size):
-      for pod with pod_idx less-or-equal density_range(low, high, step_size):
-          run uperf 
-```
-Hence, with the above params, the first iteration runs the pair with node_idx/pod_idx of {1,1}. After the first
-run has completed, the second interation runs 2 pairs of {1,1} and {1,2} and so on.
-
-The valid `step_size` methods are: addN and log2. `N` can be any integer and `log2` will double the value at each iteration i.e. 1,2,4,8,16 ...
-By choosing the appropriate values for `density_range` and `node_range`, the user can generate most if not all
-combinations of UPERF data points to exercise datapath performance from many angles.
-
-Once done creating/editing the resource file, you can run it by:
-
-```bash
-# kubectl apply -f config/samples/uperf/cr.yaml # if edited the original one
-# kubectl apply -f <path_to_file> # if created a new cr file
 ```
 ### Advanced Service types
 
