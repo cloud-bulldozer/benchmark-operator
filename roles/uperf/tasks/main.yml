@@ -268,7 +268,7 @@
   - block:
 
     - name: set complete to false
-      command: "redis-cli set complete false"
+      command: "redis-cli set complete-{{ trunc_uuid }} false"
 
     - name: Get client vm status
       k8s_facts:
@@ -334,7 +334,7 @@
   - block:
 
     - name: get complete
-      command: "redis-cli get complete"
+      command: "redis-cli get complete-{{ trunc_uuid }}"
       register: complete_status
 
     - operator_sdk.util.k8s_status:
