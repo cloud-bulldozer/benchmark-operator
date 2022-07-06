@@ -10,6 +10,18 @@
         - app = uperf-bench-client-{{ trunc_uuid }}
     register: client_pods
 
+  - name: check client pod failures
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Failed
+        complete: true
+
+    when: "(client_pods|json_query('resources[].status[]')|selectattr('phase','match','Failed')|list|length) > 0"
+
   - operator_sdk.util.k8s_status:
       api_version: ripsaw.cloudbulldozer.io/v1alpha1
       kind: Benchmark

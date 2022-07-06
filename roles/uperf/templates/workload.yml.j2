@@ -151,6 +151,7 @@ items:
                  export pod_count=0;
                  node_limit=0;
                  pod_limit=0;
+                 exit_status=0;
                  STR='';
                  while true; do
                    STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
@@ -179,15 +180,17 @@ items:
 {% endif %}
 {% for nthr in workload_args.nthrs %}
                      cat /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
-                     command_status=$(run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+                     run_snafu --tool uperf -w /tmp/uperf-test/uperf-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
 {% if workload_args.run_id is defined %}
                      --run-id {{workload_args.run_id}} \
 {% endif %}
 {% if workload_args.debug is defined and workload_args.debug %}
                      -v \
 {% endif %}
-                 );
-                      exit $command_status
+                 ;
+                      if [[ $? -ne 0 ]]; then
+                         exit_status=1;
+                      fi;
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -214,7 +217,7 @@ items:
                    fi;
                    break;
                  done;
-                "
+                 exit $exit_status;"
             volumeMounts:
               - name: config-volume
                 mountPath: "/tmp/uperf-test"
