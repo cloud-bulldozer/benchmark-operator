@@ -14,6 +14,6 @@
       complete: True
       state: Failed
     # message: "Reconcile failed on {{ ansible_failed_task.name }} {{ ansible_failed_task.action }} \n ```{{ ansible_failed_result | to_nice_json }}```"
-      message: "Bechmark failed, please check the logs for more details"
+      message: "Benchmark failed, please check the logs for more details"
       suuid: "{{ trunc_uuid }}"
       metadata: "not collected"
