@@ -125,6 +125,7 @@ spec:
              export networkpolicy={{workload_args.networkpolicy}};
 {% endif %}
              export hostnet={{workload_args.hostnetwork}};
+             export num_pairs={{workload_args.pair| default('1')}};
              export ips=$(hostname -I);
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }}) =~ 'true' ]]; then
