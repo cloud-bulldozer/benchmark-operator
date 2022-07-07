@@ -1,4 +1,8 @@
 ---
+# Removing {{ ansible_failed_task}} and {{ ansible_failed_result }} as they are being very unstable across ansible releases.
+# Related issues: 
+#  - https://stackoverflow.com/questions/41104241/ansible-failed-task-ansible-failed-result-variables-are-undefined-when-res
+#  - https://github.com/ansible/ansible/issues/64789
 - name: Failure State
   operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
@@ -9,6 +13,7 @@
       uuid: "{{ uuid }}"
       complete: True
       state: Failed
-      message: "Reconcile failed on {{ ansible_failed_task.name }} {{ ansible_failed_task.action }} \n ```{{ ansible_failed_result | to_nice_json }}```"
+    # message: "Reconcile failed on {{ ansible_failed_task.name }} {{ ansible_failed_task.action }} \n ```{{ ansible_failed_result | to_nice_json }}```"
+      message: "Benchmark failed, please check the logs for more details"
       suuid: "{{ trunc_uuid }}"
       metadata: "not collected"

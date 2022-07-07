@@ -64,13 +64,6 @@
       - redis-cli del start-{{trunc_uuid}}
   when: resource_kind == "pod" 
 
-
-
-
-#
-# no <VM> kind block - We leave VM running
-#
-
 - operator_sdk.util.k8s_status:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark

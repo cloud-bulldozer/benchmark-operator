@@ -125,7 +125,7 @@ items:
               - "export h={{item.status.podIP}};
 {% endif %}
 {% endif %}
-                 export port={{ control_port + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item.metadata.labels.index|int * 100))}}
+                 export port=30000
 {% if (workload_args.colocate is defined) %}
                  export colocate={{ workload_args.colocate}};
 {% endif %}
@@ -150,6 +150,7 @@ items:
                  export pod_count=0;
                  node_limit=0;
                  pod_limit=0;
+                 exit_status=0
                  STR='';
                  while true; do
                    STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
@@ -186,6 +187,9 @@ items:
                      -v \
 {% endif %}
                  ;
+                      if [[ $? -ne 0 ]]; then
+                         exit_status=1;
+                      fi;
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -212,6 +216,7 @@ items:
                    fi;
                    break;
                  done;
+                 exit $exit_status;
                 "
             volumeMounts:
               - name: config-volume
