@@ -1,23 +1,23 @@
-# Uperf
+# Uperf-Scale
 
 [Uperf](http://uperf.org/) is a network performance tool
 
-## Running UPerf
+## Running UPerf-Scale
 
 Given that you followed instructions to deploy operator,
-you can modify [cr.yaml](../config/samples/uperf/cr.yaml)
+you can modify [cr.yaml](../config/samples/uperf-scale/cr.yaml)
 
 ```yaml
 apiVersion: ripsaw.cloudbulldozer.io/v1alpha1
 kind: Benchmark
 metadata:
-  name: uperf-benchmark
+  name: uperf-scale-benchmark
   namespace: benchmark-operator
 spec:
   elasticsearch:
     url: "http://es-instance.com:9200"
   workload:
-    name: uperf
+    name: uperf-scale
     args:
       client_resources:
         requests:
@@ -37,11 +37,7 @@ spec:
       runtime_class: class_name
       hostnetwork: false
       networkpolicy: false
-      pin: false
       kind: pod
-      pin_server: "node-0"
-      pin_client: "node-1"
-      pair: 1
       multus:
         enabled: false
       samples: 1
@@ -54,6 +50,10 @@ spec:
       nthrs:
         - 1
       runtime: 30
+      colocate: false
+      density_range: [low, high]
+      node_range: [low, high]
+      step_size: addN, log2
 ```
 
 `client_resources` and `server_resources` will create uperf client's and server's containers with the given k8s compute resources respectively [k8s resources](https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/)
@@ -74,13 +74,7 @@ spec:
 
 `networkpolicy` will create a simple networkpolicy for ingress
 
-`pin` will allow the benchmark runner place nodes on specific nodes, using the `hostname` label.
-
-`pin_server` what node to pin the server pod to.
-
-`pin_client` what node to pin the client pod to.
-
-`pair` how many instances of uperf client-server pairs.
+`density_range` to determine the number of pairs and `node_range` to determine the number of nodes.
 
 `multus[1]` Configure our pods to use multus.
 
@@ -197,6 +191,62 @@ To enable Multus in Ripsaw, here is the relevant config.
       ...
 
 ```
+### Scale mode params
+Scale in this context refers to the ability to enumerate UPERF 
+client-server pairs during test in a control fashion using the following knobs.
+
+`colocate: true` will place each client and server pod pair on the same node.
+
+`density_range` to specify the range of client-server pairs that the test will iterate.
+
+`node_range` to specify the range of nodes that the test will iterate.
+
+`step_size` to specify the incrementing method.
+
+Here is one scale example:
+
+```
+      ...
+      pin: false
+      colocate: false
+      density_range: [1,10]
+      node_range: [1,128]
+      step_size: log2
+      ...
+```
+Note, the `scale` mode is mutually exlusive to `pin` mode with the `pin` mode having higher precedence.
+In other words, if `pin:true` the test will deploy pods on `pin_server` and `pin_client` nodes
+and ignore `colocate`, `node_range`, and the number of pairs to deploy is specified by the
+ `density_range.high` value.
+
+In the above sample, the `scale` mode will be activated since `pin: false`. In the first phase, the 
+pod instantion phase, the system gathers node inventory and may reduce the `node_range.high` value 
+to match the number of worker node available in the cluster.
+
+According to `node_range: [1,128]`, and `density_range:[1,10]`, the system will instantiate 10 pairs on 
+each of 128 nodes. Each pair has a node_idx and a pod_idx that are used later to control
+which one and when they should run the UPERF workload, After all pairs are up and ready,
+next comes the test execution phase.
+
+The scale mode iterates the test as a double nested loop as follows:
+```
+   for node with node_idx less-or-equal node_range(low, high. step_size):
+      for pod with pod_idx less-or-equal density_range(low, high, step_size):
+          run uperf 
+```
+Hence, with the above params, the first iteration runs the pair with node_idx/pod_idx of {1,1}. After the first
+run has completed, the second interation runs 2 pairs of {1,1} and {1,2} and so on.
+
+The valid `step_size` methods are: addN and log2. `N` can be any integer and `log2` will double the value at each iteration i.e. 1,2,4,8,16 ...
+By choosing the appropriate values for `density_range` and `node_range`, the user can generate most if not all
+combinations of UPERF data points to exercise datapath performance from many angles.
+
+Once done creating/editing the resource file, you can run it by:
+
+```bash
+# kubectl apply -f config/samples/uperf/cr.yaml # if edited the original one
+# kubectl apply -f <path_to_file> # if created a new cr file
+```
 ### Advanced Service types
 
 Benchmark operator now also supports different service types, it can create `NodePort` and `LoadBalancer` (only metallb) 
@@ -247,73 +297,6 @@ uperf-service-lb2   LoadBalancer   172.30.126.71   192.168.216.102   30001:31312
         service_etp: "Cluster" # Either `Cluster` or `Local`
       ...
 ```
-
-## Running Uperf in VMs through kubevirt/cnv [Preview]
-Note: this is currently in preview mode.
-
-
-### Pre-requisites
-
-You must have configured your k8s cluster with [Kubevirt](https://kubevirt.io) preferably v0.23.0 (last tested version).
-
-
-### changes to cr file
-
-```yaml
-server_vm:
-  dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
-  sockets: 1
-  cores: 2
-  threads: 1
-  image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
-  limits:
-    memory: 4Gi
-  requests:
-    memory: 4Gi
-  network:
-    front_end: bridge # or masquerade
-    multiqueue:
-      enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
-      queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
-  extra_options:
-    - none
-    #- hostpassthrough
-client_vm:
-  dedicatedcpuplacement: false # cluster would need have the CPUManager feature enabled
-  sockets: 1
-  cores: 2
-  threads: 1
-  image: kubevirt/fedora-cloud-container-disk-demo:latest # your image must've ethtool installed if enabling multiqueue
-  limits:
-    memory: 4Gi
-  requests:
-    memory: 4Gi
-  network:
-    front_end: bridge # or masquerade
-    multiqueue:
-      enabled: false # if set to true, highly recommend to set selinux to permissive on the nodes where the vms would be scheduled
-      queues: 0 # must be given if enabled is set to true and ideally should be set to vcpus ideally so sockets*threads*cores, your image must've ethtool installed
-  extra_options:
-    - none
-    #- hostpassthrough
-```
-
-The above is the additional changes required to run uperf in vms.
-Currently we only support images that can be used as [containerDisk](https://kubevirt.io/user-guide/docs/latest/creating-virtual-machines/disks-and-volumes.html#containerdisk).
-
-You can easily make your own container-disk-image as follows by downloading your qcow2 image of choice.
-You can then make changes to your qcow2 image as needed using virt-customize.
-
-```bash
-cat << END > Dockerfile
-FROM scratch
-ADD <yourqcow2image>.qcow2 /disk/
-END
-
-podman build -t <imageurl> .
-podman push <imageurl>
-```
-
 You can either access results by indexing them directly or by accessing the console.
 The results are stored in /tmp/ directory
 
