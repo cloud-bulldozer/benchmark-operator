@@ -127,6 +127,7 @@ spec:
              export hostnet={{workload_args.hostnetwork}};
              export num_pairs={{workload_args.pair| default('1')}};
              export ips=$(hostname -I);
+             exit_status=0;
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }}) =~ 'true' ]]; then
 {% for test in workload_args.test_types %}
@@ -149,6 +150,9 @@ spec:
                  -v \
 {% endif %}
                  ;
+                      if [[ $? -ne 0 ]]; then
+                         exit_status=1;
+                      fi;
 {% endfor %}
 {% endfor %}
 {% endfor %}
@@ -158,7 +162,8 @@ spec:
                fi;
                break;
              done;
-             redis-cli -h {{bo.resources[0].status.podIP}} set start-{{ trunc_uuid }} false"
+             redis-cli -h {{bo.resources[0].status.podIP}} set start-{{ trunc_uuid }} false;
+             exit $exit_status;"
         volumeMounts:
           - name: config-volume
             mountPath: "/tmp/uperf-test"
