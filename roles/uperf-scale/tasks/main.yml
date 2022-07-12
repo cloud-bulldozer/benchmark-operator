@@ -1,0 +1,43 @@
+---
+
+- include_tasks: setup.yml
+
+- include_tasks: start_server.yml
+  when: benchmark_state.resources[0].status.state == "Building" 
+
+- block:
+
+  - include_tasks: wait_server_ready.yml
+    when: benchmark_state.resources[0].status.state == "Starting Servers" 
+
+  - include_tasks: start_client.yml
+    when: benchmark_state.resources[0].status.state == "Starting Clients"
+
+  - include_tasks: wait_client_ready.yml
+    when: benchmark_state.resources[0].status.state == "Waiting for Clients"
+
+  # LOOP BEGIN 
+  # This loop iterates density_range[] and node_range[] for "scale" mode
+
+  - include_tasks: run_a_set.yml
+    when: benchmark_state.resources[0].status.state == "Clients Running"
+
+  - include_tasks: wait_set_done.yml
+    when: benchmark_state.resources[0].status.state == "Set Running"
+
+
+  - include_tasks: next_set.yml
+    when: benchmark_state.resources[0].status.state == "Run Next Set"
+    # will loop back to "Client Running" state, or FALLTHRU to "Running" 
+    # state below and finish
+
+  # LOOP END 
+
+  - include_tasks: wait_client_done.yml
+    when: benchmark_state.resources[0].status.state == "Running"
+
+  - include_tasks: cleanup.yml
+    when: benchmark_state.resources[0].status.state == "Cleanup"
+
+  when:  resource_kind == "pod"
+  

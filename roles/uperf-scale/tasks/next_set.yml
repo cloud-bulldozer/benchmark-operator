@@ -1,0 +1,104 @@
+---
+#
+# This module logically implements an RE-ENTRANT nested "for" loops;
+#   <do something>  
+#   with_items:
+#     range (node_low_idx, node_hi_idx)
+#     range (pod_low_idx, pod_hi_idx)
+#
+# Each iteration executes one item, and each re-entrance
+# continues where it left off.
+#
+- block:
+  - name: Read previous node_idx and pod_idx
+    set_fact:
+        all_run_done: False
+        inc: "{{workload_args.step_size|default('add1')}}"
+        amount: 0
+        pod_idx: "{{benchmark_state.resources[0].status.pod_idx|int}}"
+        node_idx: "{{benchmark_state.resources[0].status.node_idx|int}}"
+
+  - name: Extract add amount
+    set_fact:
+      amount: "{{ inc | regex_replace('[^0-9]', '') }}"
+      inc: add
+    when: "'add' in inc"
+
+  - name: Increment pod_idx
+    set_fact:
+        pod_idx: "{%-if inc=='add' -%}{{pod_idx|int+amount|int}} 
+                  {%-elif inc=='log2' -%}{{(pod_idx|int*2)+1}} 
+                  {%-else -%}{{pod_idx|int+1}} 
+                  {% endif %}"
+  - block: 
+    #
+    # This block starts a new node loop
+    #
+    - name: Increment node_idx
+      set_fact:
+        node_idx: "{%- if inc=='add' -%}{{node_idx|int+amount|int}} 
+                   {%- elif inc=='log2' -%}{{(node_idx|int *2)+1}} 
+                   {%- else -%}{{node_idx|int+1}} 
+                   {% endif %}"
+
+    - name: Check node loop for ending condition
+      set_fact:
+        all_run_done: True
+      when: "node_idx|int > benchmark_state.resources[0].status.node_hi_idx|int"
+
+    #
+    # Reset pod_idx AFTER node_idx tasks above, else cond change
+    # causes it to skip node_idx tasks
+    #
+    - name: Reset pod_idx to pod_low_idx
+      set_fact:
+        pod_idx: "{{benchmark_state.resources[0].status.pod_low_idx}}"
+
+    when: "pod_idx|int > benchmark_state.resources[0].status.pod_hi_idx|int"
+
+  - block:
+    # 
+    # All done
+    #
+    - name: Unpause pods to complete
+      command: "redis-cli set start-{{trunc_uuid}} done"
+
+    - name: Change state to proceed to exit
+      operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Running
+
+    when: all_run_done == True
+
+  - block:
+    # 
+    # More round(s) to run.
+    #
+    - name: Send redis restart signal
+      command: "redis-cli set start-{{trunc_uuid}} restart"
+
+    - name: Reset redis num_completion
+      command: "redis-cli set num_completion-{{trunc_uuid}} 0"
+
+    - name: Change state to run next round
+      operator_sdk.util.k8s_status:
+          api_version: ripsaw.cloudbulldozer.io/v1alpha1
+          kind: Benchmark
+          name: "{{ ansible_operator_meta.name }}"
+          namespace: "{{ operator_namespace }}"
+          status:
+            state: Clients Running
+            pod_idx: "{{pod_idx}}"
+            node_idx: "{{node_idx}}"
+
+    when: all_run_done == False
+
+  when: resource_kind == "pod"
+
+#
+# No <VM> block - Scale mode support is N/A
+#
