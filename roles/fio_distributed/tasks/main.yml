@@ -65,17 +65,23 @@
         - app = fio-benchmark-{{ trunc_uuid }}
     register: server_pods
 
+  - name: Check IP addresses
+    set_fact:
+      check_ip: true
+    when: "( server_pods is defined ) and ( server_pods is mapping ) and (workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length))"
+
   - include_role:
       name: benchmark_state
       tasks_from: set_state
     vars:
       state: StartingClient
-    when: "workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
+    when: "check_ip|default('false')|bool and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status.podIP')|length) and workload_args.servers|default('1')|int == (server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length) and benchmark_state.resources[0].status.state == 'StartingServers'"
 
   - name: Create IP list and nodes
     set_fact:
       pod_details: "{{ pod_details|default({}) | combine({item.status.podIP: item.spec.nodeName}) }}"
     with_items: "{{ server_pods.resources }}"
+    when: "check_ip|default('false')|bool"
 
   when: (workload.args.kind | default('pod')) == "pod"
 
