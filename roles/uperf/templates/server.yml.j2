@@ -1,86 +1,70 @@
 ---
-apiVersion: v1
-kind: List
-metadata: {}
-items:
-{% macro job_template(item, node_idx_item='') %}
-  - kind: Job
-    apiVersion: batch/v1
-    metadata:    
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-      name: 'uperf-server-{{worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item }}-{{ trunc_uuid }}'
-{% else %}
-      name: 'uperf-server-{{worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item }}-{{ trunc_uuid }}'
-{% endif %}
-      namespace: "{{ operator_namespace }}"
+{% set control_port = 30000 %}
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'uperf-server-{{ item }}-{{ trunc_uuid }}'
+  namespace: "{{ operator_namespace }}"
 {% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
-      annotations:
+  annotations:
 {% for annotation, value in workload_args.annotations.items() %}
-        "{{annotation}}": "{{value}}"
+    "{{annotation}}": "{{value}}"
 {% endfor %}
 {% for annotation, value in workload_args.server_annotations.items() %}
-        "{{annotation}}": "{{value}}"
+    "{{annotation}}": "{{value}}"
 {% endfor %}
+{% endif %}
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        benchmark-uuid: {{ uuid }}
+        benchmark-operator-workload: uperf
+        benchmark-operator-role: server
+        app: uperf-bench-server-{{item}}-{{ trunc_uuid }}
+        index: "{{item}}"
+        type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
 {% endif %}
     spec:
-      ttlSecondsAfterFinished: 600
-      backoffLimit: 0
-      template:
-        metadata:
-          labels:
-            benchmark-uuid: {{ uuid }}
-            benchmark-operator-workload: uperf
-            benchmark-operator-role: server
-{% if (worker_node_list[node_idx_item]|length>27) and (worker_node_list[node_idx_item][26] == '.') %}
-            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(26,true,'')}}-{{ item  }}-{{ trunc_uuid }}
-{% else %}
-            app: uperf-bench-server-{{ worker_node_list[node_idx_item] | truncate(27,true,'')}}-{{ item  }}-{{ trunc_uuid }}
-{% endif %}
-
-            type: {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
-          annotations:
-{% if workload_args.multus.enabled is sameas true %}
-            k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.server}}
-{% endif %}
-            node_idx: '{{ node_idx_item }}'
-            pod_idx: '{{ item }}'
-        spec:
 {% if workload_args.runtime_class is defined %}
-          runtimeClassName: "{{ workload_args.runtime_class }}"
+      runtimeClassName: "{{ workload_args.runtime_class }}"
 {% endif %}
 {% if workload_args.hostnetwork is sameas true %}
-          hostNetwork: true
-          serviceAccountName: benchmark-operator
+      hostNetwork: true
 {% endif %}
-          containers:
-          - name: benchmark
-            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
 {% if workload_args.server_resources is defined %}
-            resources: {{ workload_args.server_resources | to_json }}
+        resources: {{ workload_args.server_resources | to_json }}
 {% endif %}
-            imagePullPolicy: Always
-            command: ["/bin/sh","-c"]
-            args: ["uperf -s -v -P 30000"]
-          restartPolicy: OnFailure
+        imagePullPolicy: Always
+        command: ["/bin/sh","-c"]
+        args: ["uperf -s -v -P {{ control_port|int + (0 if (workload_args.serviceip is defined and workload_args.serviceip and ( workload_args.servicetype | default("clusterip") == "clusterip" )) else (item|int * 100)) }}"]
+      restartPolicy: Never
 {% if workload_args.pin is sameas true %}
-          nodeSelector:
-            kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
 {% endif %}
-          nodeSelector:
-            kubernetes.io/hostname: '{{ worker_node_list[node_idx_item] }}'
-
 {% if workload_args.serviceip is sameas true %}
-          securityContext:
-            sysctls:
-            - name: net.ipv4.ip_local_port_range
-              value: 30000 30011
+      securityContext:
+        sysctls:
+        - name: net.ipv4.ip_local_port_range
+          value: 30000 32011
 {% endif %}
-{% macro metadata() %}{% include "metadata.yml.j2" %}{% endmacro %}
-    {{ metadata()|indent }}
-{% endmacro %}
-{% for node_idx_item in range(node_sequence|int)  %}
-{% for item in range(pod_sequence|int)  %}
-{{ job_template(item,node_idx_item) }}
-{% endfor %}
-{% endfor %}
-
+{% include "metadata.yml.j2" %}

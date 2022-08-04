@@ -22,8 +22,6 @@ function functional_test_scale_openshift {
   cr=$2
   benchmark_name=$(get_benchmark_name $cr)
   delete_benchmark $cr
-  # Apply scale role and service account
-  kubectl apply -f resources/scale_role.yaml
   token=$(oc -n openshift-monitoring sa get-token prometheus-k8s)
   echo "Performing: ${test_name}"
   sed -e "s/PROMETHEUS_TOKEN/${token}/g" $cr | kubectl apply -f -

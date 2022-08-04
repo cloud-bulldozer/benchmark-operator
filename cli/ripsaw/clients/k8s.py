@@ -16,10 +16,12 @@
 
 
 import time
+import urllib3
 
 from kubernetes import client, config
 from ripsaw.util import logging
 from ripsaw.util.exceptions import BenchmarkFailedError, BenchmarkTimeoutError, PodsNotFoundError
+import os
 
 logger = logging.get_logger(__name__)
 
@@ -40,11 +42,21 @@ class Cluster:
 
     def __init__(self, kubeconfig_path=None):
         """Initialize object and create clients from specified kubeconfig"""
-        config.load_kube_config(config_file=kubeconfig_path)
-        self.api_client = client.ApiClient()
-        self.core_client = client.CoreV1Api()
-        self.batch_client = client.BatchV1Api()
-        self.crd_client = client.CustomObjectsApi()
+        client_config = client.Configuration()
+        http_proxy = os.getenv('http_proxy', None)
+        """Proxy has auth header"""
+        if http_proxy and "@" in http_proxy:
+            proxy_auth = http_proxy.split("@")[0].split("//")[1]
+        proxy_url = http_proxy
+        if proxy_url:
+            client_config.proxy = proxy_url
+            if proxy_auth:
+                client_config.proxy_headers = urllib3.make_headers(proxy_basic_auth=proxy_auth)
+        config.load_kube_config(config_file=kubeconfig_path, client_configuration=client_config)
+        self.api_client = client.ApiClient(client_config)
+        self.core_client = client.CoreV1Api(self.api_client)
+        self.batch_client = client.BatchV1Api(self.api_client)
+        self.crd_client = client.CustomObjectsApi(self.api_client)
 
     def get_pods(self, label_selector, namespace):
         """Get pods matching specified label selector in specified namespace"""

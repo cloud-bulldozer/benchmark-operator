@@ -43,4 +43,4 @@ function functional_test_fs_drift {
 
 figlet $(basename $0)
 functional_test_fs_drift "fs-drift" tests/test_crs/valid_fs_drift.yaml
-functional_test_fs_drift "fs-drift hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml
+functional_test_fs_drift "fs-drift-hostpath" tests/test_crs/valid_fs_drift_hostpath.yaml

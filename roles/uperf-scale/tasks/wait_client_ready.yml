@@ -1,0 +1,26 @@
+---
+
+- block: 
+  ### <POD> kind
+
+  - name: Get client pod status
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - app = uperf-scale-bench-client-{{ trunc_uuid }}
+    register: client_pods
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: Clients Running
+    when: "num_server_pods|int == client_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length and num_server_pods|int == (client_pods | json_query('resources[].status.podIP')|length)"
+
+  when: resource_kind == "pod"
+  

@@ -94,5 +94,4 @@ spec:
           name: "oslat-{{ trunc_uuid }}"
           defaultMode: 0555
       restartPolicy: Never
-      serviceAccountName: benchmark-operator
 {% include "metadata.yml.j2" %}

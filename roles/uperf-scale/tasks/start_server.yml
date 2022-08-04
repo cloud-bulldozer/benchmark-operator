@@ -1,0 +1,59 @@
+---
+
+- block:
+  ### <POD> kind
+  - include_tasks: init.yml
+
+  - name: Create service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service.yml.j2') | from_yaml }}"
+    vars:
+      pod_sequence: "{{ pod_hi_idx|int +1 }}"
+      node_sequence: "{{ node_hi_idx|int +1 }}"
+
+    when: 
+      - workload_args.serviceip is defined and workload_args.serviceip
+      - ( workload_args.servicetype | default("clusterip") == "clusterip" ) or 
+        ( workload_args.servicetype | default("clusterip") == "nodeport" )
+
+  - name: Create metal LB service for server pods
+    k8s:
+      definition: "{{ lookup('template', 'service_metallb.yml.j2') | from_yaml }}"
+    vars:
+      pod_sequence: "{{ pod_hi_idx|int +1 }}"
+      node_sequence: "{{ node_hi_idx|int +1 }}"
+
+    when: 
+      - workload_args.serviceip is defined and workload_args.serviceip
+      - workload_args.servicetype | default("clusterip") == "metallb"
+
+  - name: Start Server(s) - total = eligible nodes * density
+    k8s:
+       definition: "{{ lookup('template', 'server.yml.j2') | from_yaml }}"
+    vars:
+      pod_sequence: "{{ pod_hi_idx|int +1 }}"
+      node_sequence: "{{ node_hi_idx|int +1 }}"
+
+    #
+    # Each server annotates a "node_idx" which will allow its peer client
+    # to derive its affinity according the 'colocate' variable
+    #
+  - name: Wait for pods to be running....
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - name: Update resource state
+    operator_sdk.util.k8s_status:
+      api_version: ripsaw.cloudbulldozer.io/v1alpha1
+      kind: Benchmark
+      name: "{{ ansible_operator_meta.name }}"
+      namespace: "{{ operator_namespace }}"
+      status:
+        state: "Starting Servers"
+
+  when: resource_kind == "pod"

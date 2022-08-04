@@ -33,6 +33,7 @@ class TestCluster:
     def test_get_jobs(self, cluster, test_job):
         label_selector = "app=test-job"
         jobs = cluster.get_jobs(label_selector=label_selector, namespace="default")
+        cluster.wait_for_pods("job-name=busybox", "default")
         assert len(jobs.items) == 1
         assert jobs.items[0].metadata.name == "busybox"
 

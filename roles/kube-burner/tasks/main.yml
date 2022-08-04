@@ -68,6 +68,40 @@
             postgres-service.yml: "{{ lookup('file', 'postgres-service.yml')}}"
       when: workload_args.workload == "node-density-heavy"
 
+    - name: Create node-density-cni configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'node-density-cni.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+            curl-deployment.yml: "{{ lookup('file', 'curl-deployment.yml')}}"
+            webserver-deployment.yml: "{{ lookup('file', 'webserver-deployment.yml')}}"
+            webserver-service.yml: "{{ lookup('file', 'webserver-service.yml')}}"
+      when: workload_args.workload == "node-density-cni"
+
+    - name: Create node-density-cni-networkpolicy configmaps
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: kube-burner-config-{{ trunc_uuid }}
+            namespace: "{{ operator_namespace }}"
+          data:
+            config.yml: "{{ lookup('template', 'node-density-cni-networkpolicy.yml.j2')}}"
+            metrics.yaml: "{{ lookup('file', workload_args.metrics_profile|default('metrics.yaml')) }}"
+            curl-deployment.yml: "{{ lookup('file', 'curl-deployment.yml')}}"
+            webserver-deployment.yml: "{{ lookup('file', 'webserver-deployment.yml')}}"
+            webserver-service.yml: "{{ lookup('file', 'webserver-service.yml')}}"
+            deny-all.yml: "{{ lookup('file', 'deny-all.yml')}}"
+            allow-http.yml: "{{ lookup('file', 'allow-http.yml')}}"
+      when: workload_args.workload == "node-density-cni-policy"
+
     - name: Create max-namespaces configmaps
       k8s:
         definition:
