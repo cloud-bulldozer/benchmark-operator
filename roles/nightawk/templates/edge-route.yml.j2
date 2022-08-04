@@ -1,0 +1,13 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nightawk-benchmark-route-edge-{{ item }}
+  namespace: "{{ operator_namespace }}"
+spec:
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: nightawk-benchmark-service-edge-{{ item }}

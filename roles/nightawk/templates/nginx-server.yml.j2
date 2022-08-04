@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nightawk-benchmark-server-{{ type }}-{{ item }}
+  namespace: '{{ operator_namespace }}'
+  labels:
+    run: nightawk-benchmark-{{ type }}-{{ item }}
+    app: nginx
+spec:
+  replicas: {{ workload_args.deployment_replicas | int }}
+  selector:
+    matchLabels:
+      app: nginx-{{ type }}-{{ item }}
+  template:
+    metadata:
+      labels:
+        app: nginx-{{ type }}-{{ item }}
+    spec:
+      containers:
+      - name: nginx
+        image: quay.io/cloud-bulldozer/nginx:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "10Mi"
+            cpu: "10m"    
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
