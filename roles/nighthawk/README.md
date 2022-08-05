@@ -1,4 +1,4 @@
-nightawk-benchmark
+nighthawk-benchmark
 =========
 
 http benchmark workload

@@ -1,7 +1,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: nightawk-benchmark-route-edge-{{ item }}
+  name: nighthawk-benchmark-route-edge-{{ item }}
   namespace: "{{ operator_namespace }}"
 spec:
   port:
@@ -10,4 +10,4 @@ spec:
     termination: edge
   to:
     kind: Service
-    name: nightawk-benchmark-service-edge-{{ item }}
+    name: nighthawk-benchmark-service-edge-{{ item }}

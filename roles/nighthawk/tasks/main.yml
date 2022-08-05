@@ -1,0 +1,44 @@
+---
+# tasks file for nighthawk
+
+- block:
+
+  - include_tasks: http-tasks.yml
+    when: "'http' in {{ workload_args.terminations }} or 'mix' in {{ workload_args.terminations }}"
+
+  - include_tasks: edge-tasks.yml
+    when: "'edge' in {{ workload_args.terminations }} or 'mix' in {{ workload_args.terminations }}"
+
+  - include_tasks: passthrough-tasks.yml
+    when: "'passthrough' in {{ workload_args.terminations }} or 'mix' in {{ workload_args.terminations }}"
+
+  - include_tasks: reencrypt-tasks.yml
+    when: "'reencrypt' in {{ workload_args.terminations }} or 'mix' in {{ workload_args.terminations }}"
+  
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Starting Servers
+
+  when: benchmark_state.resources[0].status.state == "Building" and resource_kind == "pod"
+
+- block:
+
+  - name: Get server pods
+    k8s_facts:
+      kind: Pod
+      api_version: v1
+      namespace: '{{ operator_namespace }}'
+      label_selectors:
+        - type = {{ ansible_operator_meta.name }}-bench-nighthawk-server-{{ trunc_uuid }}
+    register: server_pods
+
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: "Starting Clients"
+    when: "workload_args.terminations|length * workload_args.number_of_routes|default(1)|int * workload_args.deployment_replicas|default('1')|int == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+
+  when: benchmark_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"

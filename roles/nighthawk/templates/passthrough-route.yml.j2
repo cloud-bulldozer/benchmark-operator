@@ -1,7 +1,7 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: nightawk-benchmark-route-passthrough-{{ item }}
+  name: nighthawk-benchmark-route-passthrough-{{ item }}
   namespace: "{{ operator_namespace }}"
 spec:
   port:
@@ -10,4 +10,4 @@ spec:
     termination: passthrough
   to:
     kind: Service
-    name: nightawk-benchmark-service-passthrough-{{ item }}
+    name: nighthawk-benchmark-service-passthrough-{{ item }}

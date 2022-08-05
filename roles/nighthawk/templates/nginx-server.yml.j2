@@ -2,10 +2,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nightawk-benchmark-server-{{ type }}-{{ item }}
+  name: nighthawk-benchmark-server-{{ type }}-{{ item }}
   namespace: '{{ operator_namespace }}'
   labels:
-    run: nightawk-benchmark-{{ type }}-{{ item }}
+    run: nighthawk-benchmark-{{ type }}-{{ item }}
     app: nginx
 spec:
   replicas: {{ workload_args.deployment_replicas | int }}
@@ -15,7 +15,11 @@ spec:
   template:
     metadata:
       labels:
+        benchmark-uuid: {{ uuid }}
+        benchmark-operator-workload: nighthawk
+        benchmark-operator-role: server
         app: nginx-{{ type }}-{{ item }}
+        type: {{ ansible_operator_meta.name }}-bench-nighthawk-server-{{ trunc_uuid }}
     spec:
       containers:
       - name: nginx

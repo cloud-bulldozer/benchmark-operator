@@ -2,15 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: nightawk-benchmark
-  name: nightawk-benchmark-service-{{ type }}-{{ item }}
+    app: nighthawk-benchmark
+  name: nighthawk-benchmark-service-{{ type }}-{{ item }}
   namespace: "{{ operator_namespace }}"
 spec:
   ports:
-  - name: http
-    port: 8080
+  - name: https
+    port: 8443
     protocol: TCP
-    targetPort: 8080
+    targetPort: 8443
   selector:
     app: nginx-{{ type }}-{{ item }}
   type: {{ workload_args.service_type }}

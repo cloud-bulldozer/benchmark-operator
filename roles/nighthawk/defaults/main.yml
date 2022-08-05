@@ -1,3 +1,3 @@
 ---
-# defaults file for nightawk
+# defaults file for nighthawk
 resource_kind: "{{ workload.args.kind | default('pod') }}"
