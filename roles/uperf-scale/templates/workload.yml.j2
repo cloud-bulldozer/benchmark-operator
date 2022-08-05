@@ -1,0 +1,239 @@
+---
+{% set control_port = 30000 %}
+apiVersion: v1
+kind: List
+metadata: {}
+items:
+{% for item in resource_item %}
+  - kind: Job
+    apiVersion: batch/v1
+    metadata:
+{% if workload_args.serviceip is sameas true %}
+{% if workload_args.servicetype | default("clusterip") == "nodeport" %}
+      name: 'uperf-scale-client-{{item.status.hostIP}}-{{ item.metadata.labels.index|int }}-{{ trunc_uuid }}'
+{% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
+      name: 'uperf-scale-client-{{item.status.loadBalancer.ingress[0].ip}}-{{ trunc_uuid }}'
+{% else %}
+      name: 'uperf-scale-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+{% endif %}
+{% else %}
+      name: 'uperf-scale-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+{% endif %}
+      namespace: '{{ operator_namespace }}'
+{% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.server_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
+    spec:
+      template:
+        metadata:
+          labels:
+            benchmark-uuid: {{ uuid }}
+            benchmark-operator-workload: uperf-scale
+            benchmark-operator-role: client
+            app: uperf-scale-bench-client-{{ trunc_uuid }}
+            clientfor: {{ item.metadata.labels.app }}
+            type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+          annotations:
+            k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% endif %}
+        spec:
+{% if workload_args.runtime_class is defined %}
+          runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.hostnetwork is sameas true %}
+          hostNetwork: true
+          serviceAccountName: benchmark-operator
+{% endif %}
+          affinity:
+            podAntiAffinity:
+              preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                podAffinityTerm:
+                  labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - {{ item.metadata.labels.app }}
+                  topologyKey: kubernetes.io/hostname
+          containers:
+          - name: benchmark
+            image: {{ workload_args.image | default('quay.io/cloud-bulldozer/uperf:latest') }}
+            env:
+              - name: uuid
+                value: "{{ uuid }}"
+              - name: test_user
+                value: "{{ test_user | default("ripsaw") }}"
+              - name: clustername
+                value: "{{ clustername }}"
+{% if elasticsearch.url %}
+              - name: es
+                value: "{{ elasticsearch.url }}"
+              - name: es_index
+                value: "{{ elasticsearch.index_name | default("ripsaw-uperf") }}"
+              - name: parallel
+                value: "{{ elasticsearch.parallel | default(false) }}"
+              - name: es_verify_cert
+                value: "{{ elasticsearch.verify_cert | default(true) }}"
+{% endif %}
+{% if prometheus is defined %}
+              - name: prom_es
+                value: "{{ prometheus.es_url }}"
+              - name: prom_parallel
+                value: "{{ prometheus.es_parallel | default(false) }}"
+              - name: prom_token
+                value: "{{ prometheus.prom_token | default() }}"
+              - name: prom_url
+                value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+              - name: client_node
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+              - name: server_node
+                value: "{{ item.spec.nodeName|default("unknown") }}"
+{% if workload_args.client_resources is defined %}
+            resources: {{ workload_args.client_resources | to_json }}
+{% endif %}
+            imagePullPolicy: Always
+            command: ["/bin/sh", "-c"]
+            args:
+{% if workload_args.serviceip is sameas true %}
+              - "export serviceip=true;
+{% if workload_args.servicetype | default("clusterip") == "nodeport" %}
+                 export h={{item.status.hostIP}};
+                 export servicetype={{workload_args.servicetype}};
+{% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
+                 export h={{item.status.loadBalancer.ingress[0].ip}};
+                 export servicetype={{workload_args.servicetype}};
+{% else %}
+                 export h={{item.spec.clusterIP}};
+                 export servicetype={{workload_args.servicetype | default("clusterip")}};
+{% endif %}             
+{% else %}
+{% if workload_args.multus.client is defined %}
+              - "export multus_client={{workload_args.multus.client}};
+                 export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+{% else %}
+              - "export h={{item.status.podIP}};
+{% endif %}
+{% endif %}
+                 export port=30000
+{% if (workload_args.colocate is defined) %}
+                 export colocate={{ workload_args.colocate}};
+{% endif %}
+{% if workload_args.step_size is defined %}
+                 export stepsize={{ workload_args.step_size }};
+{% endif %}
+{% if workload_args.node_range is defined %}
+                 export node_range='{{ workload_args.node_range[0] }}_{{ workload_args.node_range[1] }}';
+{% endif %}
+{% if workload_args.density_range is defined %}
+                 export density_range='{{ workload_args.density_range[0] }}_{{ workload_args.density_range[1] }}';
+{% endif %}
+{% if workload_args.networkpolicy is defined %}
+                 export networkpolicy={{workload_args.networkpolicy}};
+{% endif %}
+                 export hostnet={{workload_args.hostnetwork}};
+                 export my_node_idx={{ (item['metadata']['annotations']['node_idx'] | from_json) }};
+                 export my_pod_idx={{ (item['metadata']['annotations']['pod_idx'] | from_json) }};
+                 export ips=$(hostname -I);
+                 export num_pairs=1
+                 export node_count=0;
+                 export pod_count=0;
+                 node_limit=0;
+                 pod_limit=0;
+                 exit_status=0
+                 STR='';
+                 while true; do
+                   STR=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
+                   state=$(echo $STR | cut -f1 -d-);
+                   if [[ $state =~ 'true' ]]; then
+                       node_limit=$(echo $STR | cut -f2 -d-);
+                       pod_limit=$(echo $STR | cut -f3 -d-);
+                       if [[ $my_node_idx -gt $node_limit || $my_pod_idx -gt $pod_limit ]]; then
+                             sleep 0.5; continue;
+                       fi;
+
+                       echo 'uperf-scale-run-context num_node=' $((node_limit+1)) 'density=' $((pod_limit+1)) 'my_node_idx=' $my_node_idx 'my_pod_idx=' $my_pod_idx;
+                       node_count=$((node_limit+1));
+                       pod_count=$((pod_limit+1));
+                       num_pairs=$((pod_limit+1));
+
+{% for test in workload_args.test_types %}
+{% for proto in workload_args.protos %}
+{% for size in workload_args.sizes %}
+{% if size is iterable %}
+{% set wsize = size[0] %}
+{% set rsize = size[1] %}
+{% else %}
+{% set wsize = size %}
+{% set rsize = size %}
+{% endif %}
+{% for nthr in workload_args.nthrs %}
+                     cat /tmp/uperf-scale-test/uperf-scale-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}};
+                     run_snafu --tool uperf -w /tmp/uperf-scale-test/uperf-scale-{{test}}-{{proto}}-{{wsize}}-{{rsize}}-{{nthr}} -s {{workload_args.samples}} --resourcetype {{resource_kind}} -u {{ uuid }} --user {{test_user | default("ripsaw")}} \
+{% if workload_args.run_id is defined %}
+                     --run-id {{workload_args.run_id}} \
+{% endif %}
+{% if workload_args.debug is defined and workload_args.debug %}
+                     -v \
+{% endif %}
+                 ;
+                      if [[ $? -ne 0 ]]; then
+                         exit_status=1;
+                      fi;
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+                       redis-cli -h {{bo.resources[0].status.podIP}} incr num_completion-{{trunc_uuid}};
+                       while true; do
+                           state=$(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{trunc_uuid}});
+                           if [[ $state =~ 'restart' ]]; then
+                              break;
+                           elif [[ $state =~ 'done' ]]; then
+                              break;
+                           else
+                             sleep 0.5; continue;
+                           fi;
+                       done;
+                       if [[ $state =~ 'restart' ]]; then
+                          sleep 0.5; continue;
+                       fi;
+
+                   elif [[ $state =~ 'done' ]]; then
+                       break;
+                   else
+                     sleep 0.5; continue;
+                   fi;
+                   break;
+                 done;
+                 exit $exit_status;
+                "
+            volumeMounts:
+              - name: config-volume
+                mountPath: "/tmp/uperf-scale-test"
+          volumes:
+            - name: config-volume
+              configMap:
+                name: uperf-scale-test-{{ item.metadata.labels.index|int }}-{{ trunc_uuid }}
+          restartPolicy: Never
+{% if workload_args.colocate is sameas true %}
+          nodeSelector:
+            # client node same as server node
+            kubernetes.io/hostname: "{{ worker_node_list[item['metadata']['annotations']['node_idx'] | from_json] }}"
+{% else %}
+          nodeSelector:
+            # skew client node one position to the right in the worker_node_list
+            kubernetes.io/hostname: "{{ worker_node_list[ (1+(item['metadata']['annotations']['node_idx'] | from_json)) % (worker_node_list|length)] }}"
+{% endif %}
+
+{% endfor %}

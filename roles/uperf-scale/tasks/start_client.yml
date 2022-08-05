@@ -1,0 +1,63 @@
+---
+
+- name: Get pod info
+  k8s_facts:
+    kind: Pod
+    api_version: v1
+    namespace: '{{ operator_namespace }}'
+    label_selectors:
+      - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+  register: server_pods
+
+- name: set pod_sequence
+  set_fact:
+    pod_sequence: "{{ (num_server_pods|int - 1) if (workload_args.serviceip|default(False) == True and workload_args.servicetype | default('clusterip') == 'nodeport') else (pod_hi_idx|int) }}"
+
+- name: Generate uperf-scale xml files
+  k8s:
+    definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+  with_sequence: start=0 end={{ pod_sequence|int }}
+
+- block:
+  ### <POD> kind 
+  - name: Start Client(s) w/o serviceIP
+    k8s:
+      definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+    vars: 
+      resource_item: "{{ server_pods.resources }}"
+    when: 
+      - ( workload_args.serviceip|default(False) == False and server_pods.resources|length > 0 )
+
+
+  - name: Start Client(s) with nodeport serviceIP
+    k8s:
+      definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+    vars:
+      resource_item: "{{ server_pods.resources }}"
+    when:
+      - ( workload_args.serviceip|default(False) == True and server_pods.resources|length > 0 and 
+          workload_args.servicetype | default("clusterip") == "nodeport" )
+
+   #
+   # Each server annotates a "node_idx". Each peer client will
+   # derive its affinity according the 'colocate' variable.
+   #
+
+  - name: Start Client(s) with serviceIP
+    k8s:
+      definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
+    vars: 
+      resource_item: "{{ serviceip.resources }}"
+    when: 
+      - workload_args.serviceip|default(False) == True and serviceip.resources|length > 0
+      - workload_args.servicetype | default("clusterip") != "nodeport"
+  when: resource_kind == "pod"
+
+
+- operator_sdk.util.k8s_status:
+    api_version: ripsaw.cloudbulldozer.io/v1alpha1
+    kind: Benchmark
+    name: "{{ ansible_operator_meta.name }}"
+    namespace: "{{ operator_namespace }}"
+    status:
+      state: Waiting for Clients

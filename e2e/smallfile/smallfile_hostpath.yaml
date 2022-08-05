@@ -9,7 +9,7 @@ spec:
   # to separate this test run from everyone else's
   clustername: test_ci
   system_metrics:
-    collection: true
+    collection: false
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
@@ -18,7 +18,7 @@ spec:
     url: ${ES_SERVER}
     index_name: ripsaw-smallfile
   metadata:
-    collection: true
+    collection: false
   hostpath: /mnt/vda1/smallfile
   workload:
     name: smallfile

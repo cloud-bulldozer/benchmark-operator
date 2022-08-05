@@ -9,10 +9,6 @@ spec:
     url: ${ES_SERVER}
   metadata:
     collection: false
-  prometheus:
-    es_url: ${ES_SERVER}
-    prom_token: ${PROMETHEUS_TOKEN}
-    prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
   workload:
     name: kube-burner
     args:

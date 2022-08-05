@@ -5,7 +5,7 @@ metadata:
   namespace: benchmark-operator
 spec:
   system_metrics:
-    collection: true
+    collection: false
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
     es_url: ${ES_SERVER}
     prom_token: ${PROMETHEUS_TOKEN}
@@ -14,7 +14,7 @@ spec:
     url: ${ES_SERVER}
     index_name: ripsaw-uperf
   metadata:
-    collection: true
+    collection: false
   cleanup: false
   workload:
     name: uperf
@@ -25,7 +25,7 @@ spec:
       multus:
         enabled: false
       samples: 1
-      pair: 1
+      pair: 2
       test_types:
         - stream
       protos:

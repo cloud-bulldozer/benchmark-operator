@@ -62,9 +62,13 @@ class Benchmark:
         """Wait for benchmark to enter desired state with specified timeout in seconds (default: 600)"""
         if self.metadata == {}:
             raise BenchmarkNotStartedError(self.name)
-        self.cluster.wait_for_benchmark(
-            self.name, self.namespace, desired_state=desired_state, timeout=timeout
-        )
+        try:
+            self.cluster.wait_for_benchmark(
+                self.name, self.namespace, desired_state=desired_state, timeout=timeout
+            )
+        except Exception as err:
+            logger.error(f"Benchmark exception: {err}")
+            exit(1)
         self.metadata = self.cluster.get_benchmark_metadata(self.name, self.namespace)
         return self.metadata
 

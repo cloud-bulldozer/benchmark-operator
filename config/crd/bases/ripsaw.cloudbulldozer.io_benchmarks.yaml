@@ -135,9 +135,6 @@ spec:
                   privileged:
                     default: false
                     type: boolean
-                  serviceaccount:
-                    default: default
-                    type: string
                   stockpileSkipTags:
                     default: []
                     items:

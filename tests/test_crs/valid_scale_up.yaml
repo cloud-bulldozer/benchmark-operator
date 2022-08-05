@@ -19,6 +19,5 @@ spec:
     name: scale_openshift
     args:
       scale: 1
-      serviceaccount: scaler
       poll_interval: 2
       debug: true
