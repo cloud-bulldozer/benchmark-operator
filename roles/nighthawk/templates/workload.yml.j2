@@ -1,0 +1,135 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+{% if workload_args.serviceip is sameas true %}
+{% if workload_args.service_type | default("ClusterIP") == "NodePort" %}
+  name: 'nighthawk-client-{{item.status.hostIP}}-{{ item.metadata.labels.app }}-{{ trunc_uuid }}'
+{% endif %}
+{% else %}
+  name: 'nighthawk-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+{% endif %}
+  namespace: '{{ operator_namespace }}'
+spec:
+  template:
+    metadata:
+      labels:
+        benchmark-uuid: {{ uuid }}
+        benchmark-operator-workload: nighthawk
+        benchmark-operator-role: client
+        app: nighthawk-bench-client-{{ trunc_uuid }}
+        clientfor: {{ item.metadata.labels.app }}
+        type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
+{% if workload_args.multus.enabled is sameas true %}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+{% endif %}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.hostnetwork is sameas true %}
+      hostNetwork: true
+      serviceAccountName: benchmark-operator
+{% endif %}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
+            topologyKey: kubernetes.io/hostname
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ item.metadata.labels.app }}
+              topologyKey: kubernetes.io/hostname
+      containers:
+      - name: benchmark
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/nighthawk:latest') }}
+        env:
+          - name: uuid
+            value: "{{ uuid }}"
+          - name: test_user
+            value: "{{ test_user | default("ripsaw") }}"
+          - name: clustername
+            value: "{{ clustername }}"
+{% if elasticsearch.url %}
+          - name: es
+            value: "{{ elasticsearch.url }}"
+          - name: es_index
+            value: "{{ elasticsearch.index_name | default("ripsaw-nighthawk") }}"
+          - name: parallel
+            value: "{{ elasticsearch.parallel | default(false) }}"
+          - name: es_verify_cert
+            value: "{{ elasticsearch.verify_cert | default(true) }}"
+{% endif %}
+{% if prometheus is defined %}
+          - name: prom_es
+            value: "{{ prometheus.es_url }}"
+          - name: prom_parallel
+            value: "{{ prometheus.es_parallel | default(false) }}"
+          - name: prom_token
+            value: "{{ prometheus.prom_token | default() }}"
+          - name: prom_url
+            value: "{{ prometheus.prom_url | default() }}"
+{% endif %}
+          - name: client_node
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: server_node
+            value: "{{ workload_args.pin_server|default("unknown") }}"
+{% if workload_args.client_resources is defined %}
+        resources: {{ workload_args.client_resources | to_json }}
+{% endif %}
+        imagePullPolicy: Always
+        workingDir: /tmp
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+{% if item.metadata.labels.termination|default("http") == "http" %}
+             protocol="http";
+{% else %}
+             protocol="https";
+{% endif %}
+{% if workload_args.url is defined %}
+             url={{ workload_args.url }}
+{% else %}
+             url=$protocol://{{ item.metadata.labels.route }}-{{ operator_namespace }}.{{ routerCanonicalName.split('.')[1:] | join('.') }}
+{% endif %}
+             exit_status=0;
+             while true; do
+               if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }}) =~ 'true' ]]; then
+                 run_snafu -t nighthawk -s {{workload_args.samples|int}} --resourcetype {{ resource_kind }} -u {{ uuid }} --user {{test_user | default("ripsaw")}} --url $url --concurrency {{ workload_args.concurrency|int }} --duration {{ workload_args.duration|int }} --connections {{ workload_args.connections|int }} --max-requests-per-connection {{ workload_args.max_requests_per_connection|int }} --create-archive --archive-file /tmp/nighthawk.archive \
+{% if workload_args.run_id is defined %}
+                 --run-id {{workload_args.run_id}} \
+{% endif %}
+{% if workload_args.debug is defined and workload_args.debug %}
+                 -v \
+{% endif %}
+                 ;
+                      if [[ $? -ne 0 ]]; then
+                         exit_status=1;
+                      fi;
+               else
+                 continue;
+               fi;
+               break;
+             done;
+             redis-cli -h {{bo.resources[0].status.podIP}} set start-{{ trunc_uuid }} false;
+             exit $exit_status;
+      restartPolicy: Never
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+{% endif %}

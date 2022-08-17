@@ -1,6 +1,8 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
+  labels:
+    type: {{ ansible_operator_meta.name }}-bench-nighthawk-route-{{ trunc_uuid }}
   name: nighthawk-benchmark-route-passthrough-{{ item }}
   namespace: "{{ operator_namespace }}"
 spec:
