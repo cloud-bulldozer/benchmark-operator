@@ -84,6 +84,8 @@ spec:
 
 `pair` how many instances of uperf client-server pairs. `pair` is applicable for `pin: true` only.
 
+`protos`: choose between `tcp`, `udp` or/and `sctp`. In case `sctp` is choosen, SCTP module has to be previously loaded in the environment.
+
 `multus[1]` Configure our pods to use multus.
 
 `samples` how many times to run the tests. For example
