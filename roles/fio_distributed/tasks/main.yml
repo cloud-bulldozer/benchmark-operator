@@ -2,8 +2,8 @@
 - block:
   - name: Provide path for fio - PV
     set_fact:
-      fio_path: /mnt/pvc
-    when: workload_args.storageclass is defined
+      fio_path: /dev/xvda
+    when: workload_args.storageclass is defined 
 
   - name: Provide path for fio - No PV
     set_fact:
