@@ -33,6 +33,7 @@ spec:
       protos:
         - tcp
         - udp
+        - sctp
       sizes:
         - 1024
         - [1024, 512]
