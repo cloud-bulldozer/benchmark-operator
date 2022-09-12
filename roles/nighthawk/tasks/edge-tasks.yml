@@ -4,7 +4,7 @@
 - name: Create service for edge type server pods
   k8s:
     definition: "{{ lookup('template', 'http-service.yml.j2') | from_yaml }}"
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
   vars:
     type: edge
   when: 
@@ -14,11 +14,11 @@
 - name: Create route for edge type server pods
   k8s:
     definition: "{{ lookup('template', 'edge-route.yml.j2') | from_yaml }}"
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
 
 - name: Start edge server types(s)
   k8s:
     definition: "{{ lookup('template', 'nginx-server.yml.j2') | from_yaml }}"
   vars:
     type: edge
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}

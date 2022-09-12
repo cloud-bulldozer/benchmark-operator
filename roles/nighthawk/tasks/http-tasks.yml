@@ -4,7 +4,7 @@
 - name: Create service for http type server pods
   k8s:
     definition: "{{ lookup('template', 'http-service.yml.j2') | from_yaml }}"
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
   vars:
     type: http
   when: 
@@ -14,11 +14,11 @@
 - name: Create route for http type server pods
   k8s:
     definition: "{{ lookup('template', 'http-route.yml.j2') | from_yaml }}"
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1) | int }}
 
 - name: Start http server types(s)
   k8s:
     definition: "{{ lookup('template', 'nginx-server.yml.j2') | from_yaml }}"
   vars:
     type: http
-  with_sequence: start=0 count={{ workload_args.number_of_routes | int }}
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}

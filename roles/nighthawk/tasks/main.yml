@@ -45,7 +45,7 @@
 
 - block:
 
-  - name: Get pod info
+  - name: Get server pod info
     k8s_facts:
       kind: Pod
       api_version: v1
