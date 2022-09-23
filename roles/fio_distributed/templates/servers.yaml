@@ -46,9 +46,17 @@ spec:
     args:
       - "cd /tmp; fio --server"
 {% if workload_args.storageclass is defined or hostpath is defined %}
+{% if workload_args.pvcvolumemode is defined and workload_args.pvcvolumemode == "Block" %}
+    volumeDevices:
+{% else %}      
     volumeMounts:
+{% endif %}      
     - name: data-volume
-      mountPath: "{{ fio_path }}"
+{% if workload_args.pvcvolumemode is defined and workload_args.pvcvolumemode == "Block" %}     
+      devicePath: "{{ fio_path }}"
+{% else %}
+      mountPath: "{{ fio_path }}"      
+{% endif %}
 {% endif %}
   restartPolicy: Never
 {% if workload_args.nodeselector is defined %}
