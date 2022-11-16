@@ -11,6 +11,8 @@ spec:
       #kind: vm
       # If you want to run this as a VM uncomment the above
       #pin_node: "worker-0.mylab.example.com"
+      #storageclass: ocs-storagecluster-ceph-rbd
+      #storagesize: 200Gi
       tests:
       - name: cpu
         parameters:

@@ -17,6 +17,15 @@ annotations to the pod metadata.
 The `pin_node` parameter allows to place the sysbench pod 
 on a specific node, using the `hostname` label.
 
+The `storageclass` and `storagesize` options can be set to have sysbench run on a particular StorageClass volume.
+If `storageclass` is not provided, sysbench runs on an `emptyDir` volume by default.
+
+With the `fileio` test, you can define parameters for the `prepare`, `run` and `cleanup` steps
+independently, using `prepare_parameters`, `run_parameters`, and `cleanup_parameters` respectively.
+The `parameters` option is a global set of parameters each step inherits, but can be overriden.  To
+disable a value from `parameters` within `<prepare/run/cleanup>_parameters`, simply set the value to
+`null`.
+
 Note: please ensure you set 0 for other workloads if editing the
 [cr.yaml](../config/samples/sysbench/cr.yaml) file otherwise
 
@@ -36,6 +45,8 @@ spec:
       #kind: vm
       # If you want to run this as a VM uncomment the above
       #pin_node: "worker-0.mylab.example.com"
+      #storageclass: ocs-storagecluster-ceph-rbd
+      #storagesize: 200Gi
       tests:
       - name: cpu
         parameters:
@@ -43,6 +54,10 @@ spec:
       - name: fileio
         parameters:
           file-test-mode: rndrw
+        # This removes the file-test-mode parameter during the cleanup step
+        # Since run_parameters and prepare_parameters are not defined, they use file-test-mode: rndrw
+        #cleanup_parameters:
+          #file-test-mode: null
 ```
 
 Name here refers to testname and can be cpu or fileio or memory etc and the parameters are the parametes for the particular test.
