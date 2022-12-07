@@ -1,0 +1,58 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: 'fio-prefill-{{ trunc_uuid }}'
+  namespace: '{{ operator_namespace }}'
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: {{ workload_args.job_timeout|default(3600) }}
+  template:
+    metadata:
+      labels:
+        benchmark-uuid: prefill-{{ uuid }}
+        app: fiod-prefill-{{ trunc_uuid }}
+{% if workload_args.annotations is defined or workload_args.client_annotations is defined %}
+      annotations:
+{% for annotation, value in workload_args.annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% for annotation, value in workload_args.client_annotations.items() %}
+        "{{annotation}}": "{{value}}"
+{% endfor %}
+{% endif %}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+      containers:
+      - name: fio-client
+        image: {{ workload_args.image | default('quay.io/cloud-bulldozer/fio:latest') }}
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+          - "cat /tmp/host/hosts;
+             echo ***************Prefill*****************;
+             cat /tmp/fio/fiojob-prefill;
+             mkdir -p /tmp/fiod-{{ uuid }}/fiojob-prefill;
+             fio --client=/tmp/host/hosts /tmp/fio/fiojob-prefill --output-format=json;
+{% if workload_args.post_prefill_sleep is defined %}
+             sleep {{ workload_args.post_prefill_sleep }};
+{% endif %}
+             echo ***********End of Prefill*************"
+        volumeMounts:
+        - name: fio-volume
+          mountPath: "/tmp/fio"
+        - name: host-volume
+          mountPath: "/tmp/host"
+      volumes:
+      - name: fio-volume
+        configMap:
+          name: "fio-prefill-{{ trunc_uuid }}"
+          defaultMode: 0777
+      - name: host-volume
+        configMap:
+          name: "fio-hosts-{{ trunc_uuid }}"
+          defaultMode: 0777
+      restartPolicy: Never
+{% include "metadata.yml.j2" %}

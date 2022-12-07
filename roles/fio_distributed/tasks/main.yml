@@ -13,6 +13,10 @@
   - name: Generate fio test
     k8s:
       definition: "{{ lookup('template', 'configmap.yml.j2') | from_yaml }}"
+  
+  - name: Generate fio prefill job
+    k8s:
+      definition: "{{ lookup('template', 'prefill-configmap.yml.j2') | from_yaml }}"
 
   - name: Create PVC(s)
     k8s:
@@ -132,7 +136,39 @@
       port: 8765
     when: (workload.args.kind | default('pod')) == "vm"
     with_items: "[{% for ip in pod_details.keys() %}'{{ ip }}', {% endfor %}]"
+  when: benchmark_state.resources[0].status.state == "StartingClient"
+  
+- block:
+  - name: Run Prefill Job
+    k8s:
+      definition: "{{ lookup('template', 'prefill-client.yaml.j2') | from_yaml }}"
+    register: fio_prefill_pod
+  
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: Prefilling
+  when: workload.args.prefill and benchmark_state.resources[0].status.state == "StartingClient"
 
+- block:
+  - name: wait for db creation job to finish
+    k8s_facts:
+      kind: Job
+      api_version: batch/v1
+      name: 'fio-prefill-{{ trunc_uuid }}'
+      namespace: "{{ operator_namespace }}"
+    register: fio_prefill_pod
+
+  - include_role:
+      name: benchmark_state
+      tasks_from: set_state
+    vars:
+      state: StartBenchmark
+    when: fio_prefill_pod | json_query('resources[].status.succeeded')
+  when: workload.args.prefill and benchmark_state.resources[0].status.state == "Prefilling"
+
+- block:
   - name: Start FIO Client
     k8s:
       definition: "{{ lookup('template', 'client.yaml') | from_yaml }}"
@@ -142,8 +178,7 @@
       tasks_from: set_state
     vars:
       state: Running
-
-  when: benchmark_state.resources[0].status.state == "StartingClient"
+  when: (benchmark_state.resources[0].status.state == "StartBenchmark" and workload.args.prefill) or (benchmark_state.resources[0].status.state == "StartingClient" and not workload.args.prefill)
 
 - include_role:
     name: benchmark_state
