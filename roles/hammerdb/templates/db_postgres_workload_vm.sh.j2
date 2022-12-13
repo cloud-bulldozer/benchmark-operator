@@ -58,7 +58,7 @@ echo host    all             all             all            trust >> /var/lib/pg
 echo max_connections = 100 > /var/lib/pgsql/data/postgresql.conf
 echo max_prepared_transactions = 0 >> /var/lib/pgsql/data/postgresql.conf
 echo shared_buffers = 4096MB >> /var/lib/pgsql/data/postgresql.conf
-echo effective_cache_size = 8192MB >> /var/lib/pgsql/data/postgresql.conf
+echo autovacuum = off >> /var/lib/pgsql/data/postgresql.conf
 sudo systemctl start postgresql;
 echo "alter role postgres password 'postgres'" > input
 psql -U postgres -d postgres < input
