@@ -25,6 +25,7 @@ spec:
       # cpu stressor options
       cpu_stressors: "1"
       cpu_percentage: "100"
+      cpu_method: "all"
       # vm stressor option
       vm_stressors: "1"
       vm_bytes: "128M"

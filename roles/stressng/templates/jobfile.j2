@@ -7,6 +7,7 @@ timeout {{ workload_args.timeout}}			# stop each stressor after 60 seconds
 {% if workload_args.cpu_stressors is defined %}
 cpu {{ workload_args.cpu_stressors }} 			# cpu stressor
 cpu-load {{ workload_args.cpu_percentage }}		# percentage to which the cpu gets loaded
+cpu-method {{ workload_args.cpu_method }}               # cpu test method
 {% endif %}
 
 # vm stressor
