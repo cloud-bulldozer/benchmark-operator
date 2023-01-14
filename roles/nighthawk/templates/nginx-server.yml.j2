@@ -53,6 +53,6 @@ spec:
       restartPolicy: OnFailure
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-        kubernetes.io/hostname: '{{ workload_args.pin_server }}'
+        kubernetes.io/hostname: '{{ workload_args.pin_server | default("unknown") }}'
 {% endif %}
 {% include "metadata.yml.j2" %}

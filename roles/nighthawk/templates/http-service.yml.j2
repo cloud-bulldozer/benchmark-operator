@@ -13,4 +13,4 @@ spec:
     targetPort: 8080
   selector:
     app: nginx-{{ type }}-{{ item }}
-  type: {{ workload_args.service_type }}
+  type: {{ workload_args.service_type | default("ClusterIP") }}

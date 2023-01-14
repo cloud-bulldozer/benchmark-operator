@@ -22,7 +22,7 @@ spec:
         type: {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
 {% if workload_args.multus.enabled is sameas true %}
       annotations:
-        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client }}
+        k8s.v1.cni.cncf.io/networks: {{ workload_args.multus.client | default("unknown") }}
 {% endif %}
     spec:
 {% if workload_args.runtime_class is defined %}
@@ -103,14 +103,14 @@ spec:
              protocol="https";
 {% endif %}
 {% if workload_args.url is defined %}
-             url={{ workload_args.url }}
+             url={{ workload_args.url | default("unknown") }}
 {% else %}
              url=$protocol://{{ item.metadata.labels.route }}-{{ operator_namespace }}.{{ routerCanonicalName.split('.')[1:] | join('.') }}
 {% endif %}
              exit_status=0;
              while true; do
                if [[ $(redis-cli -h {{bo.resources[0].status.podIP}} get start-{{ trunc_uuid }}) =~ 'true' ]]; then
-                 run_snafu -t nighthawk -s {{workload_args.samples|int}} --resourcetype {{ resource_kind }} -u {{ uuid }} --user {{test_user | default("ripsaw")}} --url $url --concurrency {{ workload_args.concurrency|int }} --duration {{ workload_args.duration|int }} --connections {{ workload_args.connections|int }} --max-requests-per-connection {{ workload_args.max_requests_per_connection|int }} --create-archive --archive-file /tmp/nighthawk.archive \
+                 run_snafu -t nighthawk -s {{workload_args.samples|default(1)|int}} --resourcetype {{ resource_kind }} -u {{ uuid }} --user {{test_user | default("ripsaw")}} --url $url --concurrency {{ workload_args.concurrency|default(8)|int }} --duration {{ workload_args.duration|default(60)|int }} --connections {{ workload_args.connections|default(80)|int }} --max-requests-per-connection {{ workload_args.max_requests_per_connection|default(50)|int }} --create-archive --archive-file /tmp/nighthawk.archive \
 {% if workload_args.run_id is defined %}
                  --run-id {{workload_args.run_id}} \
 {% endif %}
@@ -131,5 +131,5 @@ spec:
       restartPolicy: Never
 {% if workload_args.pin is sameas true %}
       nodeSelector:
-          kubernetes.io/hostname: '{{ workload_args.pin_client }}'
+          kubernetes.io/hostname: '{{ workload_args.pin_client | default("unknown") }}'
 {% endif %}
