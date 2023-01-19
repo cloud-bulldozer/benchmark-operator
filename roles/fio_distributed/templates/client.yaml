@@ -71,16 +71,6 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
           - "cat /tmp/host/hosts;
-{% if workload_args.prefill is defined and workload_args.prefill is sameas true %}
-             echo ***************Prefill*****************;
-             cat /tmp/fio/fiojob-prefill;
-             mkdir -p /tmp/fiod-{{ uuid }}/fiojob-prefill;
-             fio --client=/tmp/host/hosts /tmp/fio/fiojob-prefill --output-format=json;
-{% if workload_args.post_prefill_sleep is defined %}
-             sleep {{ workload_args.post_prefill_sleep }};
-{% endif %}
-             echo ***********End of Prefill*************;
-{% endif %}
 {% if workload_args.bsrange is defined %}
 {% set loopvar = workload_args.bsrange %}
 {% elif workload_args.bs is defined %}
