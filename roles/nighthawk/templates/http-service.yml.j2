@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nighthawk-benchmark
+  name: nighthawk-benchmark-service-{{ type }}-{{ item }}
+  namespace: "{{ operator_namespace }}"
+spec:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: nginx-{{ type }}-{{ item }}
+  type: ClusterIP

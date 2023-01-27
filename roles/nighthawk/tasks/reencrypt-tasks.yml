@@ -1,0 +1,21 @@
+---
+# tasks for reencrypt termination type.
+
+- name: Create service for reencrypt type server pods
+  k8s:
+    definition: "{{ lookup('template', 'https-service.yml.j2') | from_yaml }}"
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
+  vars:
+    type: reencrypt
+
+- name: Create route for reencrypt type server pods
+  k8s:
+    definition: "{{ lookup('template', 'reencrypt-route.yml.j2') | from_yaml }}"
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
+
+- name: Start reencrypt server types(s)
+  k8s:
+    definition: "{{ lookup('template', 'nginx-server.yml.j2') | from_yaml }}"
+  vars:
+    type: reencrypt
+  with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}

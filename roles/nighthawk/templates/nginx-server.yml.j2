@@ -1,0 +1,58 @@
+---
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: nighthawk-benchmark-server-{{ type }}-{{ item }}
+  namespace: '{{ operator_namespace }}'
+  labels:
+    run: nighthawk-benchmark-{{ type }}-{{ item }}
+    app: nginx
+    type: {{ ansible_operator_meta.name }}-bench-nighthawk-job-{{ trunc_uuid }}
+spec:
+  ttlSecondsAfterFinished: 600
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        benchmark-uuid: {{ uuid }}
+        benchmark-operator-workload: nighthawk
+        benchmark-operator-role: server
+        app: nginx-{{ type }}-{{ item }}
+        termination: {{ type }}
+        route: nighthawk-benchmark-route-{{ type }}-{{ item }}
+        type: {{ ansible_operator_meta.name }}-bench-nighthawk-server-{{ trunc_uuid }}
+    spec:
+{% if workload_args.runtime_class is defined %}
+      runtimeClassName: "{{ workload_args.runtime_class }}"
+{% endif %}
+{% if workload_args.hostnetwork is sameas true %}
+      hostNetwork: true
+      serviceAccountName: benchmark-operator
+{% endif %}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-nighthawk-server-{{ trunc_uuid }}
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: nginx
+        image: quay.io/cloud-bulldozer/nginx:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "10Mi"
+            cpu: "10m"    
+      dnsPolicy: ClusterFirst
+      restartPolicy: OnFailure
+{% if workload_args.pin is sameas true %}
+      nodeSelector:
+        kubernetes.io/hostname: '{{ workload_args.pin_server | default("unknown") }}'
+{% endif %}
+{% include "metadata.yml.j2" %}
