@@ -40,7 +40,12 @@ spec:
           mountPath: "/opt/sysbench"
       volumes:
       - name: sysbench-runtime
+{% if workload_args.storageclass is defined %}
+        persistentVolumeClaim:
+          claimName: claim-sysbench-{{ trunc_uuid }}
+{% else %}
         emptyDir: {}
+{% endif %}
       - name: sysbench-volume
         configMap:
           name: "sysbench-config-{{ trunc_uuid }}"

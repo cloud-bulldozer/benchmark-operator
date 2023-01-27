@@ -1,4 +1,12 @@
 #!/bin/bash
+{% macro merge_params(global, local) -%}
+{% for key, val in global.items() %}
+    {% if key not in local %}
+        {% set dummy = local.__setitem__(key, val) %}
+    {% endif %}
+{% endfor %}
+{%- endmacro -%}
+
 {% for test in workload_args.tests %}
 {% if test.name == "cpu" or test.name == "memory" %}
 sysbench --test={{test.name}} {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} run
@@ -6,11 +14,34 @@ sysbench --test={{test.name}} {% for opt,value in test.parameters.items() %} --{
 {% if 'file-total-size' not in test.parameters %}
 {% set dummy = test['parameters'].__setitem__("file-total-size", "1G") %}
 {% endif %}
-sysbench --test=fileio {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} prepare
+
+{% if 'prepare_parameters' in test %}
+{% set dummy = merge_params(test.parameters, test.prepare_parameters) %}
+{% set prep_params = test.prepare_parameters %}
+{% else %}
+{% set prep_params = test.parameters %}
+{% endif %}
+sysbench --test=fileio {% for opt,value in prep_params.items() %} {% if value is not none %} --{{opt}}={{value}} {% endif %} {% endfor %} prepare
+
 {% if 'file-test-mode' not in test.parameters %}
 {% set dummy = test['parameters'].__setitem__("file-test-mode", "rndrw") %}
 {% endif %}
-sysbench --test=fileio {% for opt,value in test.parameters.items() %} --{{opt}}={{value}} {% endfor %} run
-sysbench --test=fileio --file-total-size={{test['parameters']['file-total-size']}} cleanup
+
+{% if 'run_parameters' in test %}
+{% set dummy = merge_params(test.parameters, test.run_parameters) %}
+{% set run_params = test.run_parameters %}
+{% else %}
+{% set run_params = test.parameters %}
+{% endif %}
+sysbench --test=fileio {% for opt,value in run_params.items() %} {% if value is not none %} --{{opt}}={{value}} {% endif %}{% endfor %} run
+
+{% if 'cleanup_parameters' in test %}
+{% set dummy = merge_params(test.parameters, test.cleanup_parameters) %}
+{% set clean_params = test.cleanup_parameters %}
+{% else %}
+{% set clean_params = test.parameters %}
+{% endif %}
+sysbench --test=fileio {% for opt, value in clean_params.items() %} {% if value is not none %} --{{opt}}={{value}} {% endif %}{% endfor %} cleanup
+
 {% endif %}
 {% endfor %}
