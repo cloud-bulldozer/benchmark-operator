@@ -34,7 +34,6 @@ spec:
       connections: 80 
       max_requests_per_connection: 50
       debug: true
-      serviceip: true
 ```
 ### Sample CR with default parameters
 ```yaml
@@ -70,7 +69,6 @@ spec:
 `connections`: The maximum allowed number of concurrent connections per event loop.   
 `max_requests_per_connection`: Max requests per connection.  
 `debug`: To turn on debug logs.   
-`serviceip`: Will enable service creation on top of the pods. Default is ClusterIP.
 
 ### Once the testing is done the results are published to elastic search as follows.
 ```yaml

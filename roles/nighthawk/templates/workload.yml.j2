@@ -2,13 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-{% if workload_args.serviceip is sameas true %}
-{% if workload_args.service_type | default("ClusterIP") == "NodePort" %}
   name: 'nighthawk-client-{{item.status.hostIP}}-{{ item.metadata.labels.app }}-{{ trunc_uuid }}'
-{% endif %}
-{% else %}
-  name: 'nighthawk-client-{{item.status.podIP}}-{{ trunc_uuid }}'
-{% endif %}
   namespace: '{{ operator_namespace }}'
 spec:
   template:

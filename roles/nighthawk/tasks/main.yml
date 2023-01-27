@@ -70,17 +70,7 @@
       with_items: "{{ server_pods.resources }}"
       vars:
         routerCanonicalName: "{{ routes.resources[0] | json_query('status.ingress[0].routerCanonicalHostname') }}"
-      when: ( workload_args.serviceip|default(False) == False and server_pods.resources|length > 0 )
-    
-    - name: Start Client(s) with nodeport serviceIP
-      k8s:
-        definition: "{{ lookup('template', 'workload.yml.j2') | from_yaml }}"
-      with_items: "{{ server_pods.resources }}"
-      vars:
-        routerCanonicalName: "{{ routes.resources[0] | json_query('status.ingress[0].routerCanonicalHostname') }}"
-      when: 
-        - ( workload_args.serviceip|default(False) == True and server_pods.resources|length > 0 and 
-            workload_args.service_type | default("ClusterIP") == "NodePort" )
+      when: ( server_pods.resources|length > 0 )
 
     when: resource_kind == "pod"
 

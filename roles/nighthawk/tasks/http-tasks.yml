@@ -7,9 +7,6 @@
   with_sequence: start=0 count={{ workload_args.number_of_routes | default(1)  | int }}
   vars:
     type: http
-  when: 
-    - workload_args.serviceip is defined and workload_args.serviceip
-    - ( workload_args.service_type | default("ClusterIP") == "NodePort" )
 
 - name: Create route for http type server pods
   k8s:
