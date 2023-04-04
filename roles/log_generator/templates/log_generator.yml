@@ -109,6 +109,9 @@ spec:
 {% if workload_args.es_url is defined %}
             --es-url "{{ workload_args.es_url }}"
 {% endif %}
+{% if workload_args.es_index is defined %}
+            --es-index "{{ workload_args.es_index }}"
+{% endif %}
 {% if workload_args.es_token is defined %}
             --es-token "{{ workload_args.es_token }}"
 {% endif %}
