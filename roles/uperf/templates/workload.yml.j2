@@ -56,6 +56,13 @@ spec:
                 values:
                 - {{ ansible_operator_meta.name }}-bench-client-{{ trunc_uuid }}
             topologyKey: kubernetes.io/hostname
+          - labelSelector:
+              matchExpressions:
+              - key: type
+                operator: In
+                values:
+                - {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
+            topologyKey: topology.kubernetes.io/zone            
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
           - weight: 100
