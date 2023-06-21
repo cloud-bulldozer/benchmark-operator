@@ -46,7 +46,9 @@ spec:
         imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
-          - "iperf3 -c {{ item.status.podIP }}
+          - "iperf3 -c
+            {% if workload_args.extra_options_client is defined and '-6' in workload_args.extra_options_client %} {{ item.status.podIPs[-1].ip }}
+            {% else %} {{ item.status.podIP }} {% endif %}
             {% if workload_args.port is defined %} -p {{ workload_args.port }} {% endif %}
             {% if workload_args.transmit_type is defined and workload_args.transmit_value is defined %} --{{ workload_args.transmit_type }} {{ workload_args.transmit_value }} {% endif %}
             {% if workload_args.length_buffer is defined %} -l {{ workload_args.length_buffer }} {% endif %}
