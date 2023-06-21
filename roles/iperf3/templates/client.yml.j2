@@ -2,7 +2,7 @@
 kind: Job
 apiVersion: batch/v1
 metadata:
-  name: 'iperf3-client-{{ item.status.podIP }}-{{ trunc_uuid }}'
+  name: 'iperf3-client-{{ trunc_uuid }}'
   namespace: '{{ operator_namespace }}'
 spec:
   backoffLimit: 0
