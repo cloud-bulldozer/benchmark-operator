@@ -26,12 +26,11 @@
         metadata:
           name: "claim-{{ item }}-{{ trunc_uuid }}"
           namespace: '{{ operator_namespace }}'
-          annotations:
-             volume.beta.kubernetes.io/storage-class: "{{ workload_args.storageclass }}"
         spec:
           accessModes:
             - "{{ workload_args.pvcaccessmode | default('ReadWriteOnce') }}"
           volumeMode: "{{ workload_args.pvcvolumemode | default('Filesystem') }}"
+          storageClassName: "{{ workload_args.storageclass }}"
           resources:
             requests:
               storage: "{{ workload_args.storagesize }}"
