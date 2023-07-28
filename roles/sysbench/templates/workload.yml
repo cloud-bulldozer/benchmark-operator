@@ -38,6 +38,9 @@ spec:
           mountPath: "/tmp/"
         - name: sysbench-runtime
           mountPath: "/opt/sysbench"
+{% if workload_args.resources is defined %}
+        resources: {{ workload_args.resources|tojson }}
+{% endif %}
       volumes:
       - name: sysbench-runtime
 {% if workload_args.storageclass is defined %}
