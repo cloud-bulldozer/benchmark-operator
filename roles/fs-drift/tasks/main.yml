@@ -22,6 +22,7 @@
         spec:
           accessModes:
             - "{{ workload_args.access_mode }}"
+          storageClassName: "{{ workload_args.storageclass }}"
           resources:
             requests:
               storage: "{{workload_args.storagesize}}"
