@@ -37,7 +37,7 @@
       ycsb_workload_load: "workloada"
   
   - name: Wait for Load Job to Succeed...
-    k8s_facts:
+    k8s_info:
       kind: Job
       api_version: batch/v1
       name: 'ycsb-data-load-job-{{ ycsb_workload_load }}-{{ trunc_uuid }}'
@@ -108,7 +108,7 @@
       ycsb_workload: "{{ workload_args.workloads[wrkload.stdout|int] }}"
 
   - name: Wait for YCSB Workload Job to Succeed...
-    k8s_facts:
+    k8s_info:
       kind: Job
       api_version: batch/v1
       name: 'ycsb-bench-job-{{ ycsb_workload }}-{{ trunc_uuid }}'

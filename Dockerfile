@@ -1,7 +1,10 @@
-FROM quay.io/operator-framework/ansible-operator:v1.9.0
+FROM quay.io/operator-framework/ansible-operator:v1.32.0
 USER root
 
 COPY requirements.yml ${HOME}/requirements.yml
+RUN python3 -m pip install jmespath
+RUN ansible-galaxy collection install community.general
+RUN ansible-galaxy collection list
 RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
  && chmod -R ug+rwx ${HOME}/.ansible
 

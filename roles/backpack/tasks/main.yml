@@ -10,7 +10,7 @@
   when: benchmark_state.resources[0].status.state is not defined
 
 - name: Get benchmark state 
-  k8s_facts:
+  k8s_info:
     api_version: ripsaw.cloudbulldozer.io/v1alpha1
     kind: Benchmark
     name: "{{ ansible_operator_meta.name }}"
@@ -18,7 +18,7 @@
   register: benchmark_state
 
 - name: Get DaemonSet state
-  k8s_facts:
+  k8s_info:
     api_version: apps/v1
     kind: DaemonSet
     name: "backpack-{{ trunc_uuid }}"
@@ -36,7 +36,7 @@
     definition: "{{ lookup('template', 'backpack.yml') | from_yaml }}"
 
 - name: Get DaemonSet Status
-  k8s_facts:
+  k8s_info:
     api_version: apps/v1
     kind: DaemonSet
     name: "backpack-{{ trunc_uuid }}"
@@ -52,7 +52,7 @@
   - block:
   
     - name: Get initial pod list
-      k8s_facts:
+      k8s_info:
         kind: Pod
         namespace: "{{ operator_namespace }}"
         label_selectors:
@@ -82,7 +82,7 @@
         when: workload.name != "backpack"
       
       - name: Get benchmark state
-        k8s_facts:
+        k8s_info:
           api_version: ripsaw.cloudbulldozer.io/v1alpha1
           kind: Benchmark
           name: "{{ ansible_operator_meta.name }}"

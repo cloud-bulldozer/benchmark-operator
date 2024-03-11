@@ -196,7 +196,7 @@
 - block:
   - block:
     - name: wait for db creation job to finish
-      k8s_facts:
+      k8s_info:
         kind: Job
         api_version: batch/v1
         name: '{{ ansible_operator_meta.name }}-creator-{{ trunc_uuid }}'

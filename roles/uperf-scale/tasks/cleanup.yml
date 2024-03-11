@@ -4,7 +4,7 @@
   ### <POD> kind
   # Cleanup servers, but leave clients around mostly for further examining of results.
   - name: Get Server Jobs
-    k8s_facts:
+    k8s_info:
       kind: Job
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -13,7 +13,7 @@
     register: server_jobs
 
   - name: Get Server Pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
