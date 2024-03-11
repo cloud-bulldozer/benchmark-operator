@@ -1,7 +1,7 @@
 ---
 
 - name: Capture ServiceIP
-  k8s_facts:
+  k8s_info:
     kind: Service
     api_version: v1
     namespace: '{{ operator_namespace }}'
@@ -62,7 +62,7 @@
 - block:
 
   - name: Get server pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -83,7 +83,7 @@
 - block:
 
   - name: Wait for vms to be running....
-    k8s_facts:
+    k8s_info:
       kind: VirtualMachineInstance
       api_version: kubevirt.io/v1alpha3
       namespace: '{{ operator_namespace }}'
@@ -108,7 +108,7 @@
 - block:
 
   - name: Get pod info
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -153,7 +153,7 @@
   - block:
 
     - name: Wait for vms to be running....
-      k8s_facts:
+      k8s_info:
         kind: VirtualMachineInstance
         api_version: kubevirt.io/v1alpha3
         namespace: '{{ operator_namespace }}'
@@ -187,7 +187,7 @@
 
   - block:
     - name: Get client pod status
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -218,7 +218,7 @@
       command: "redis-cli set complete-{{ trunc_uuid }} false"
 
     - name: Get client vm status
-      k8s_facts:
+      k8s_info:
         kind: VirtualMachineInstance
         api_version: kubevirt.io/v1alpha3
         namespace: '{{ operator_namespace }}'
@@ -253,7 +253,7 @@
 - block:
   - block:
     - name: Waiting for pods to complete....
-      k8s_facts:
+      k8s_info:
         kind: pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -295,7 +295,7 @@
 
   - block:
     - name: Get Server Jobs
-      k8s_facts:
+      k8s_info:
         kind: Job
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -304,7 +304,7 @@
       register: server_jobs
 
     - name: Get Server Pods
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'

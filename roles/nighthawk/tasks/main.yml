@@ -26,7 +26,7 @@
 - block:
 
   - name: Get server pods
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -46,7 +46,7 @@
 - block:
 
   - name: Get server pod info
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -55,7 +55,7 @@
     register: server_pods
   
   - name: Get route info
-    k8s_facts:
+    k8s_info:
       kind: Route
       api_version: route.openshift.io/v1
       namespace: '{{ operator_namespace }}'
@@ -86,7 +86,7 @@
 
   - block:
     - name: Get client pod status
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -129,7 +129,7 @@
 - block:
   - block:
     - name: Waiting for pods to complete....
-      k8s_facts:
+      k8s_info:
         kind: pod
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -157,7 +157,7 @@
 
   - block:
     - name: Get Server Jobs
-      k8s_facts:
+      k8s_info:
         kind: Job
         api_version: v1
         namespace: '{{ operator_namespace }}'
@@ -166,7 +166,7 @@
       register: server_jobs
 
     - name: Get Server Pods
-      k8s_facts:
+      k8s_info:
         kind: Pod
         api_version: v1
         namespace: '{{ operator_namespace }}'

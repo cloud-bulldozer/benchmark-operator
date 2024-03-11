@@ -36,7 +36,7 @@
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -65,7 +65,7 @@
 
 - block:
   - name: Get TestPMD pod info
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
@@ -89,7 +89,7 @@
 - block:
 
   - name: Wait for pods to be running....
-    k8s_facts:
+    k8s_info:
       kind: Pod
       api_version: v1
       namespace: '{{ operator_namespace }}'
