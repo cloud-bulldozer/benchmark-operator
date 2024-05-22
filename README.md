@@ -13,6 +13,10 @@ cd benchmark-operator
 make deploy
 ```
 
+Watch how to do this on Youtube:
+
+[![Benchmark Operator Quickstart](http://img.youtube.com/vi/eQxKl_uve84/0.jpg)](http://www.youtube.com/watch?v=eQxKl_uve84 "Benchmark Operator Quickstart")
+
 If you wish to build a version of the operator from your local copy of the repo, you can run
 
 ```bash
