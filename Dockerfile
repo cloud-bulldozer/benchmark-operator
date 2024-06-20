@@ -2,7 +2,7 @@ FROM quay.io/operator-framework/ansible-operator:v1.32.0
 USER root
 
 COPY requirements.yml ${HOME}/requirements.yml
-RUN python3 -m pip install jmespath
+RUN python3 -m pip install --no-cache-dir jmespath
 RUN ansible-galaxy collection install community.general
 RUN ansible-galaxy collection list
 RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
