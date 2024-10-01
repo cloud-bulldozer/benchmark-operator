@@ -17,7 +17,7 @@ metadata:
 spec:
   clustername: myk8scluster
   elasticsearch:
-    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com:443
+    url: "http://es-instance.com:9200"
   workload:
     cleanup: true
     name: nighthawk
@@ -45,7 +45,7 @@ metadata:
 spec:
   clustername: myk8scluster
   elasticsearch:
-    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com:443
+    url: "http://es-instance.com:9200"
   workload:
     cleanup: true
     name: nighthawk
