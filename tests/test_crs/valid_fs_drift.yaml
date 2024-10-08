@@ -7,12 +7,12 @@ spec:
   system_metrics:
     collection: true
     prom_url: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091
-    es_url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com
+    es_url: "http://es-instance.com:9200"
     prom_token: PROMETHEUS_TOKEN
     metrics_profile: node-metrics.yml
   # where elastic search is running
   elasticsearch:
-    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com
+    url: "http://es-instance.com:9200"
     index_name: ripsaw-fs-drift
   metadata:
     collection: true

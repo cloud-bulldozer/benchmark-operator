@@ -6,7 +6,7 @@ metadata:
 spec:
   clustername: myk8scluster
   elasticsearch:
-    url: https://search-perfscale-dev-chmf5l4sh66lvxbnadi4bznl3a.us-west-2.es.amazonaws.com:443
+    url: "http://es-instance.com:9200"
   #test_user: username_to_attach_to_metadata
   workload:
     # cleanup: true
