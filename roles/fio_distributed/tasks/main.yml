@@ -93,7 +93,7 @@
   - name: Capture pod list
     k8s_info:
       kind: VirtualMachineInstance
-      api_version: kubevirt.io/v1alpha3
+      api_version: kubevirt.io/v1
       namespace: '{{ operator_namespace }}'
       label_selectors:
         - app = fio-benchmark-{{ trunc_uuid }}
@@ -110,6 +110,7 @@
     set_fact:
       pod_details: "{{ pod_details|default({}) | combine({item.status.interfaces[0].ipAddress: item.status.nodeName}) }}"
     with_items: "{{ server_pods.resources }}"
+    when: benchmark_state.resources[0].status.state == "StartingClient"
 
   when: (workload.args.kind | default('pod')) == "vm"
 
