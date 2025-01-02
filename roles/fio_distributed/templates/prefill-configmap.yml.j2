@@ -10,10 +10,14 @@ data:
 {% if workload_args.prefill is defined and workload_args.prefill is sameas true %}
   fiojob-prefill: |
     [global]
+{% if workload_args.kind is defined and workload_args.kind == "vm" %}
+    directory={{fio_path}}
+{% else %}
 {% if workload_args.pvcvolumemode is defined and workload_args.pvcvolumemode == "Block" %}
     filename={{fio_path}}
 {% else %}
     directory={{fio_path}}
+{% endif %}
 {% endif %}
     filename_format=f.\$jobnum.\$filenum
     clocksource=clock_gettime
