@@ -43,6 +43,18 @@ spec:
     resources:
       requests:
         memory: {{ workload_args.vm_memory | default('5G') }}
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - fio-benchmark-{{ trunc_uuid }}
+          topologyKey: "kubernetes.io/hostname"
   volumes:
     - name: registrydisk
       containerDisk:
