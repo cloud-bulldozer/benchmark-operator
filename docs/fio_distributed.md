@@ -48,19 +48,22 @@ or even days to complete, and the jobs will continue through the nested loops un
 The workload loops are nested as such from the CR options:
 
 ```
-+-------->numjobs---------+
-|                         |
-| +------>bs|bsrange----+ |
-| |                     | |
-| | +---->job---------+ | |
-| | |                 | | |
-| | | +-->samples---+ | | |
-| | | |             | | | |
-| | | |             | | | |
-| | | +-------------+ | | |
-| | +-----------------+ | |
-| +---------------------+ |
-+-------------------------+
++---------->iodepth-----------+
+|                             |
+| +-------->numjobs---------+ |
+| |                         | |
+| | +------>bs|bsrange----+ | |
+| | |                     | | |
+| | | +---->job---------+ | | |
+| | | |                 | | | |
+| | | | +-->samples---+ | | | |
+| | | | |             | | | | |
+| | | | |             | | | | |
+| | | | +-------------+ | | | |
+| | | +-----------------+ | | |
+| | +---------------------+ | |
++---------------------------+ |
++-----------------------------+
 ```
 
 ### Understanding the CR options
@@ -131,7 +134,7 @@ The workload loops are nested as such from the CR options:
     - 256KiB-4096KiB
   ```
 - **numjobs**: (list) Number of clones of the job to run on each server -- Total jobs will be `numjobs * servers`
-- **iodepth**: Number of I/O units to keep in flight against a file; see `fio(1)`
+- **iodepth**: (list) Number of I/O units to keep in flight against a file; see `fio(1)`
 - **read_runtime**: Amount of time in seconds to run `read` workloads (including `readwrite` workloads)
 - **read_ramp_time**: Amount of time in seconds to ramp up `read` workloads (i.e., executing the workload without recording the data)
   > Note: We intentionally run `write` workloads to completion of the file size specified in order to ensure
