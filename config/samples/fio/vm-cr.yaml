@@ -51,7 +51,8 @@ spec:
       numjobs:
         - 1
       # with libaio ioengine, number of in-flight requests per process
-      iodepth: 4
+      iodepth:
+        - 4
       # how long to run write tests, this is TOO SHORT DURATION
       read_runtime: 15
       # how long to run read tests, this is TOO SHORT DURATION

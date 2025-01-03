@@ -48,7 +48,8 @@ data:
 {% endif %}
 {% for i in loopvar %}
 {% for job in workload_args.jobs %}
-  fiojob-{{job}}-{{i}}-{{numjobs}}: |
+{% for iodepth in workload_args.iodepth %}
+  fiojob-{{job}}-{{i}}-{{numjobs}}-{{iodepth}}: |
     [global]
 {% if workload_args.pvcvolumemode is defined and workload_args.pvcvolumemode == "Block" %}
     filename={{fio_path}}
@@ -72,7 +73,7 @@ data:
     ioengine=libaio
     size={{workload_args.filesize}}
     {{loopvar_str}}={{i}}
-    iodepth={{workload_args.iodepth}}
+    iodepth={{iodepth}}
     direct=1
     numjobs={{numjobs}}
 
@@ -92,6 +93,7 @@ data:
 {% endif %}
 {% endfor %}
 {% endif %}
+{% endfor %}
 {% endfor %}
 {% endfor %}
 {% endfor %}
