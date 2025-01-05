@@ -1,4 +1,4 @@
-FROM quay.io/operator-framework/ansible-operator:v1.32.0
+FROM quay.io/operator-framework/ansible-operator:v1.37.0
 USER root
 
 COPY requirements.yml ${HOME}/requirements.yml
@@ -9,7 +9,7 @@ RUN ansible-galaxy collection install -r ${HOME}/requirements.yml \
  && chmod -R ug+rwx ${HOME}/.ansible
 
 COPY image_resources/centos9-appstream.repo /etc/yum.repos.d/centos9-appstream.repo
-RUN dnf install -y --nodocs redis openssl --enablerepo=centos9-appstream-* && dnf clean all
+RUN dnf install -y --nodocs redis openssl --enablerepo=centos9-appstream-* --refresh && dnf clean all
 
 COPY resources/kernel-cache-drop-daemonset.yaml /opt/kernel_cache_dropper/
 COPY watches.yaml ${HOME}/watches.yaml
