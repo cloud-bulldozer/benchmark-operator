@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: uperf-run-script-{{item.status.interfaces[0].ipAddress}}-{{ trunc_uuid }}
+  name: uperf-run-script-{{item.status.interfaces[0].ipAddress | replace(".", "-") }}-{{ trunc_uuid }}
   namespace: '{{ operator_namespace }}'
 data:
   run_script.sh : |

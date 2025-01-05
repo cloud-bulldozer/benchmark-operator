@@ -7,12 +7,12 @@ metadata:
 {% if workload_args.servicetype | default("clusterip") == "nodeport" %}
   name: 'uperf-client-{{item.status.hostIP}}-{{ item.metadata.labels.index|int }}-{{ trunc_uuid }}'
 {% elif workload_args.servicetype | default("clusterip") == "metallb" or workload_args.servicetype | default("clusterip") == "loadbalancer" %}
-  name: 'uperf-client-{{item.status.loadBalancer.ingress[0].ip}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item.status.loadBalancer.ingress[0].ip | replace(".", "-") }}-{{ trunc_uuid }}'
 {% else %}
-  name: 'uperf-client-{{item.spec.clusterIP}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item.spec.clusterIP | replace(".", "-")}}-{{ trunc_uuid }}'
 {% endif %}
 {% else %}
-  name: 'uperf-client-{{item.status.podIP}}-{{ trunc_uuid }}'
+  name: 'uperf-client-{{item.status.podIP | replace(".", "-")}}-{{ trunc_uuid }}'
 {% endif %}
   namespace: '{{ operator_namespace }}'
 {% if workload_args.annotations is defined or workload_args.server_annotations is defined %}
