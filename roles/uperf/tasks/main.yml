@@ -74,12 +74,16 @@
         - type = {{ ansible_operator_meta.name }}-bench-server-{{ trunc_uuid }}
     register: server_pods
 
+  - name: Get number of running server pods
+    set_fact:
+      running_pod_count: "{{ server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length|int }}"
+
   - include_role:
       name: benchmark_state
       tasks_from: set_state
     vars:
       state: "Starting Clients"
-    when: "workload_pairs == server_pods | json_query('resources[].status[]')|selectattr('phase','match','Running')|list|length"
+    when: workload_pairs == running_pod_count
 
   when: benchmark_state.resources[0].status.state == "Starting Servers" and resource_kind == "pod"
 
