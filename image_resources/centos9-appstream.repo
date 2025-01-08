@@ -1,0 +1,17 @@
+[centos9-appstream-x86_64]
+name=CentOS-9-Appstream-x86_64
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/x86_64/os/
+enabled=0
+gpgcheck=0
+
+[centos9-appstream-aarch64]
+name=CentOS-9-Appstream-aarch64
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/aarch64/os/
+enabled=0
+gpgcheck=0
+
+[centos9-appstream-ppc64le]
+name=CentOS-9-Appstream-ppc64le
+baseurl=http://mirror.stream.centos.org/9-stream/AppStream/ppc64le/os/
+enabled=0
+gpgcheck=0
