@@ -11,6 +11,8 @@ metadata:
 {% else %}
   name: 'uperf-client-{{item.spec.clusterIP | replace(".", "-")}}-{{ trunc_uuid }}'
 {% endif %}
+{% elif workload_args.multus.enabled is sameas true %}
+  name: 'uperf-client-{{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/network-status'] | from_json)[1]['ips'][0] }}-{{ trunc_uuid }}'
 {% else %}
   name: 'uperf-client-{{item.status.podIP | replace(".", "-")}}-{{ trunc_uuid }}'
 {% endif %}
@@ -134,7 +136,7 @@ spec:
 {% else %}
 {% if workload_args.multus.client is defined %}
           - "export multus_client={{workload_args.multus.client}};
-             export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/networks-status'] | from_json)[1]['ips'][0] }};
+             export h={{ (item['metadata']['annotations']['k8s.v1.cni.cncf.io/network-status'] | from_json)[1]['ips'][0] }};
 {% else %}
           - "export h={{item.status.podIP}};
 {% endif %}
