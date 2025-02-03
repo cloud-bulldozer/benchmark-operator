@@ -28,6 +28,9 @@ spec:
       # This is helpful in disconnected environments and we assume
       # this VM image has all requirements already present
       vm_image: quay.io/mulbc/fed-fio
+      # Specify proxy for the VM to be able to connect to the Internet.
+      # This is helpful for proxy environments
+      vm_proxy: http://my.proxy.server:8080
       # CPU cores that will be available inside the VM
       # Default: 1
       # vm_cores: 2
