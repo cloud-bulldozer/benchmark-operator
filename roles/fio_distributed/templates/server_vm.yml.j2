@@ -69,9 +69,17 @@ spec:
             - "mkdir -p {{ fio_path }} || true"
             - "[ -e /dev/disk/by-id/*data ] && disk=$(shopt -s nullglob; basename /dev/disk/by-id/*data) && mkfs.ext4 /dev/disk/by-id/$disk && mount /dev/disk/by-id/$disk {{ fio_path }}"
           runcmd:
+{% if workload_args.vm_proxy is defined %}
+            - export http_proxy="{{ workload_args.vm_proxy }}"
+            - export https_proxy="{{ workload_args.vm_proxy }}"
+{% endif %}
             - dnf install -y podman
             - "img=`podman create {{ workload_args.image | default('quay.io/cloud-bulldozer/fio:latest') }}`"
             - fs=`podman mount $img`
+{% if workload_args.vm_proxy is defined %}
+            - unset http_proxy
+            - unset https_proxy
+{% endif %}
             - "mkdir -p $fs/{{ fio_path }} || true"
             - "mount -o bind /{{ fio_path }} $fs/{{ fio_path }}"
             - "chroot $fs bash -c 'cd /{{ fio_path }}; fio --server'"
